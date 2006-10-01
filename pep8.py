@@ -3,6 +3,12 @@
 
 """
 Check Python source code formatting.
+
+Groups of errors and warnings:
+100 indentation
+110 whitespace
+120 line length
+130 imports
 """
 
 
@@ -59,7 +65,7 @@ def tabs_obsolete(physical_line):
     """
     indent = indent_match(physical_line).group(0)
     if indent.count('\t'):
-        return indent.index('\t'), "W105 indentation contains tabs"
+        return indent.index('\t'), "W109 indentation contains tabs"
 
 
 def trailing_whitespace(physical_line):
@@ -70,7 +76,7 @@ def trailing_whitespace(physical_line):
     physical_line = physical_line.rstrip('\r')
     stripped = physical_line.rstrip()
     if physical_line != stripped:
-        return len(stripped), "W106 trailing whitespace"
+        return len(stripped), "W119 trailing whitespace"
 
 
 def maximum_line_length(physical_line):
@@ -86,7 +92,18 @@ def maximum_line_length(physical_line):
     """
     length = len(physical_line.rstrip())
     if length > 79:
-        return 79, "E110 line is longer than 79 characters (%d)" % length
+        return 79, "E120 line is longer than 79 characters (%d)" % length
+
+
+def whitespace_in_parens(physical_line):
+    """
+    Avoid extraneous whitespace in the following situations:
+    Immediately inside parentheses, brackets or braces.
+    """
+    for paren in '([{':
+        found = physical_line.find(paren + ' ')
+        if found > -1:
+            return found, 'E107'
 
 
 ##############################################################################
@@ -135,12 +152,20 @@ def blank_lines(logical_line, indent_level):
     else:
         state['blank_lines'] = 0
     if logical_line.startswith('def') and not first_line:
-        if indent_level == 0 and count != 2:
-            return 0, "E120 expected exactly two blank lines, found %d" % count
         if indent_level > 0 and count != 1:
-            return 0, "E121 expected exactly one blank line, found %d" % count
+            return 0, "E111 expected exactly one blank line, found %d" % count
+        if indent_level == 0 and count != 2:
+            return 0, "E112 expected exactly two blank lines, found %d" % count
     if count > 2:
         return 0, "E122 too many blank lines (%d)" % count
+
+
+def imports_on_separate_lines(logical_line):
+    """
+    Imports should usually be on separate lines.
+    """
+    if logical_line.startswith('import ') and logical_line.count(','):
+        return logical_line.index(','), "E130 multiple imports on one line"
 
 
 ##############################################################################
