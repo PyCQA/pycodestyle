@@ -23,14 +23,41 @@
 # SOFTWARE.
 
 """
-Check Python source code formatting, according to PEP 8.
+Check Python source code formatting, according to PEP 8:
 http://www.python.org/dev/peps/pep-0008
+
+For usage and a list of options, try this:
+$ python pep8.py -h
 
 Groups of errors and warnings:
 E100 indentation
-E110 whitespace
-E130 imports
-E140 line length
+E200 whitespace
+E300 blank lines
+E400 imports
+E500 line length
+
+This program and its regression test suite live here:
+http://svn.browsershots.org/trunk/devtools/pep8/
+http://trac.browsershots.org/browse/trunk/devtools/pep8/
+
+You can add checks to this program simply by adding a new check
+function. All checks operate on single lines. Where necessary, any
+state is kept in the global dict 'state'. The check function requests
+physical or logical lines by the name of the first argument:
+
+def tabs_or_spaces(physical_line)
+def indentation(logical_line_muted, indent_level)
+
+The second example above demonstrates two advanced features:
+- Logical lines are also available in a muted variant where all
+  strings are replaced with 'xxx' of the same length, and all comments
+  are stripped except for the # symbol.
+- The check function can request additional info with extra arguments,
+  for example the level of indentation (with tabs expanded to the next
+  multiple of 8).
+
+The docstring of each check function shall be the respective part of
+text from PEP 8. It is printed if the user enables --show-pep8.
 """
 
 import os
@@ -91,7 +118,7 @@ def tabs_obsolete(physical_line):
     """
     indent = indent_match(physical_line).group(1)
     if indent.count('\t'):
-        return indent.index('\t'), "W109 indentation contains tabs"
+        return indent.index('\t'), "W191 indentation contains tabs"
 
 
 def trailing_whitespace(physical_line):
@@ -102,7 +129,7 @@ def trailing_whitespace(physical_line):
     physical_line = physical_line.rstrip('\r')
     stripped = physical_line.rstrip()
     if physical_line != stripped:
-        return len(stripped), "W119 trailing whitespace"
+        return len(stripped), "W291 trailing whitespace"
 
 
 def maximum_line_length(physical_line):
@@ -118,7 +145,7 @@ def maximum_line_length(physical_line):
     """
     length = len(physical_line.rstrip())
     if length > 79:
-        return 79, "E140 line is longer than 79 characters (%d)" % length
+        return 79, "E501 line is longer than 79 characters (%d)" % length
 
 
 ##############################################################################
@@ -142,11 +169,11 @@ def indentation(logical_line_muted, indent_level):
     indent_char = state.get('indent_char', ' ')
     state['indent_level'] = indent_level
     if indent_char == ' ' and indent_level % 4:
-        return 0, "E102 indentation is not a multiple of four"
+        return 0, "E111 indentation is not a multiple of four"
     if indent_expect and indent_level <= previous_level:
-        return 0, "E103 expected an indented block"
+        return 0, "E112 expected an indented block"
     if not indent_expect and indent_level > previous_level:
-        return 0, "E104 unexpected indentation"
+        return 0, "E113 unexpected indentation"
 
 
 def blank_lines(logical_line_muted, indent_level):
@@ -170,11 +197,11 @@ def blank_lines(logical_line_muted, indent_level):
         state['blank_lines'] = 0
     if line.startswith('def') and not first_line:
         if indent_level > 0 and count != 1:
-            return 0, "E111 expected 1 blank line, found %d" % count
+            return 0, "E301 expected 1 blank line, found %d" % count
         if indent_level == 0 and count != 2:
-            return 0, "E112 expected 2 blank lines, found %d" % count
+            return 0, "E302 expected 2 blank lines, found %d" % count
     if count > 2:
-        return 0, "E113 too many blank lines (%d)" % count
+        return 0, "E303 too many blank lines (%d)" % count
 
 
 def extraneous_whitespace(logical_line_muted):
@@ -189,15 +216,15 @@ def extraneous_whitespace(logical_line_muted):
     for char in '([{':
         found = line.find(char + ' ')
         if found > -1:
-            return found + 1, "E114 whitespace after '%s'" % char
+            return found + 1, "E201 whitespace after '%s'" % char
     for char in '}])':
         found = line.find(' ' + char)
         if found > -1 and line[found - 1] != ',':
-            return found, "E115 whitespace before '%s'" % char
+            return found, "E202 whitespace before '%s'" % char
     for char in ',;:':
         found = line.find(' ' + char)
         if found > -1:
-            return found, "E116 whitespace before '%s'" % char
+            return found, "E203 whitespace before '%s'" % char
 
 
 def whitespace_before_parameters(logical_line_muted):
@@ -222,7 +249,7 @@ def whitespace_before_parameters(logical_line_muted):
                 continue
             if before in 'if in while and or not ,'.split():
                 continue
-            return found, "E117 whitespace before '%s'" % char
+            return found, "E211 whitespace before '%s'" % char
 
 
 def whitespace_around_operator(logical_line_muted):
@@ -236,7 +263,7 @@ def whitespace_around_operator(logical_line_muted):
     for operator in operators:
         found = line.find('  ' + operator)
         if found > -1:
-            return found, "E118 too much whitespace around operator"
+            return found, "E221 too much whitespace around operator"
 
 
 def imports_on_separate_lines(logical_line_muted):
@@ -247,7 +274,7 @@ def imports_on_separate_lines(logical_line_muted):
     if line.startswith('import '):
         found = line.find(',')
         if found > -1:
-            return found, "E130 multiple imports on one line"
+            return found, "E401 multiple imports on one line"
 
 
 ##############################################################################
@@ -530,7 +557,7 @@ def report_error(filename, location, offset, line, name, text):
     subline_number, subline_offset, subline = extract_subline(
         location, offset, line)
     message("%s:%s:%d: %s" %
-            (filename , subline_number, subline_offset + 1, text))
+            (filename, subline_number, subline_offset + 1, text))
     if options.show_source:
         message(subline.rstrip())
         message(' ' * subline_offset + '^')
@@ -611,7 +638,7 @@ def _main():
     Parse command line options and run checks on Python source.
     """
     global options
-    usage = "usage: %prog [options] input ..."
+    usage = "%prog [options] input ..."
     parser = OptionParser(usage)
     parser.add_option('-v', '--verbose',
                       default=0, action='count',
@@ -620,17 +647,17 @@ def _main():
                       default=False, action='store_true',
                       help="report file names only")
     parser.add_option('--exclude', metavar='dirs', default= '.svn,CVS',
-                      help="skip certain subdirectories (default .svn,CVS)")
+                      help="skip subdirectories (default .svn,CVS)")
     parser.add_option('--ignore', metavar='errors', default='',
-                      help="e.g. E11,E12 for whitespace, W for all warnings")
-    parser.add_option('--testsuite', metavar='dir',
-                      help="run regression tests from dir")
-    parser.add_option('--doctest', action='store_true',
-                      help="run doctest on myself")
+                      help="e.g. E4,W for imports and all warnings")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
                       help="show text of PEP 8 for each error")
+    parser.add_option('--testsuite', metavar='dir',
+                      help="run regression tests from dir")
+    parser.add_option('--doctest', action='store_true',
+                      help="run doctest on myself")
     options, args = parser.parse_args()
     if options.doctest:
         import doctest
