@@ -69,8 +69,8 @@ import os
 import sys
 import inspect
 import re
-
 from optparse import OptionParser
+from keyword import iskeyword
 
 __version__ = '0.1.0'
 __revision__ = '$Rev$'
@@ -79,8 +79,9 @@ indent_match = re.compile(r'([ \t]*)').match
 last_token_match = re.compile(r'(\w+|\S)\s*$').search
 
 operators = """
-+  -  *  /  %  =  <  >  <>
-+= -= *= /= %= == <= >= !=
++  -  *  /  %  ^  &  |  =  <  >
++= -= *= /= %= ^= &= |= == <= >=
+!= <> :
 in is or not and
 """.split()
 
@@ -171,7 +172,7 @@ def indentation(logical_line_muted, indent_level):
         return
     previous_level = state.get('indent_level', 0)
     indent_expect = state.get('indent_expect', False)
-    state['indent_expect'] = line.endswith(':')
+    state['indent_expect'] = line.rstrip('#').rstrip().endswith(':')
     indent_char = state.get('indent_char', ' ')
     state['indent_level'] = indent_level
     if indent_char == ' ' and indent_level % 4:
@@ -201,7 +202,7 @@ def blank_lines(logical_line_muted, indent_level):
         state['blank_lines'] = count + 1
     else:
         state['blank_lines'] = 0
-    if line.startswith('def') and not first_line:
+    if line.startswith('def ') and not first_line:
         if indent_level > 0 and count != 1:
             return 0, "E301 expected 1 blank line, found %d" % count
         if indent_level == 0 and count != 2:
@@ -251,9 +252,9 @@ def whitespace_before_parameters(logical_line_muted):
             if found == -1:
                 break
             before = last_token_match(line[:found]).group(1)
-            if before in operators:
-                continue
-            if before in 'if in while and or not ,'.split():
+            if (before in operators or
+                before == ',' or
+                iskeyword(before)):
                 continue
             return found, "E211 whitespace before '%s'" % char
 
@@ -269,7 +270,10 @@ def whitespace_around_operator(logical_line_muted):
     for operator in operators:
         found = line.find('  ' + operator)
         if found > -1:
-            return found, "E221 too much whitespace around operator"
+            return found, "E221 extraneous whitespace before operator"
+        found = line.find('\t' + operator)
+        if found > -1:
+            return found, "E222 tab before operator"
 
 
 def imports_on_separate_lines(logical_line_muted):
