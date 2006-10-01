@@ -149,13 +149,13 @@ def blank_lines(logical_line, indent_level):
         return 0, "E113 too many blank lines (%d)" % count
 
 
-def extraneous_whitespace(logical_line):
+def extraneous_whitespace(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
     - Immediately inside parentheses, brackets or braces.
     - Immediately before a comma, semicolon, or colon.
     """
-    line = mute_strings(logical_line)
+    line = logical_line_muted
     for char in '([{':
         found = line.find(char + ' ')
         if found > -1:
@@ -170,7 +170,7 @@ def extraneous_whitespace(logical_line):
             return found, "E116 whitespace before '%s'" % char
 
 
-def whitespace_before_parameters(logical_line):
+def whitespace_before_parameters(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
     - Immediately before the open parenthesis that starts the argument
@@ -178,7 +178,7 @@ def whitespace_before_parameters(logical_line):
     - Immediately before the open parenthesis that starts an indexing or
     slicing.
     """
-    line = mute_strings(logical_line)
+    line = logical_line_muted
     for char in '([':
         found = line.find(' ' + char)
         if found > -1:
@@ -193,6 +193,15 @@ def whitespace_before_parameters(logical_line):
                     legal = True
             if not legal:
                 return found, "E117 whitespace before '%s'" % char
+
+
+def too_much_whitespace(logical_line_muted):
+    """
+    Avoid extraneous whitespace in the following situations:
+    - More than one space around an assignment (or other) operator to
+    align it with another.
+    """
+    line = logical_line_muted
 
 
 def imports_on_separate_lines(logical_line):
@@ -364,7 +373,7 @@ def find_checks(argument_name):
     for name, function in globals().iteritems():
         if type(function) is function_type:
             args = inspect.getargspec(function)[0]
-            if len(args) >= 1 and args[0] == argument_name:
+            if len(args) >= 1 and args[0].startswith(argument_name):
                 checks.append((name, function, args))
     checks.sort()
     return checks
@@ -392,8 +401,11 @@ def check_lines(argument_name, lines, filename):
     error_count = 0
     checks = find_checks(argument_name)
     for location, line in lines:
+        line_muted = mute_strings(line)
         for name, check, args in checks:
-            if len(args) == 1:
+            if args[0].endswith('_muted'):
+                result = check(line_muted)
+            elif len(args) == 1:
                 result = check(line)
             elif len(args) == 2 and args[1] == 'indent_level':
                 result = check(line, location[0][2])
