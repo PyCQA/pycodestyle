@@ -24,7 +24,12 @@
 
 """
 Check Python source code formatting, according to PEP 8:
-http://www.python.org/dev/peps/pep-0008
+http://www.python.org/dev/peps/pep-0008/
+
+This tool is not a complete implementation of all the recommendations
+in PEP 8. Many parts of PEP 8 are impossible to check automatically.
+Of those parts where it's not too hard, this version of pep8.py
+implements only a small subset.
 
 For usage and a list of options, try this:
 $ python pep8.py -h
@@ -38,7 +43,7 @@ E500 line length
 
 This program and its regression test suite live here:
 http://svn.browsershots.org/trunk/devtools/pep8/
-http://trac.browsershots.org/browse/trunk/devtools/pep8/
+http://trac.browsershots.org/browser/trunk/devtools/pep8/
 
 You can add checks to this program simply by adding a new check
 function. All checks operate on single lines. Where necessary, any
