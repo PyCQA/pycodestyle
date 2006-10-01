@@ -226,8 +226,10 @@ def imports_on_separate_lines(logical_line_muted):
     Imports should usually be on separate lines.
     """
     line = logical_line_muted
-    if line.startswith('import ') and line.count(','):
-        return line.index(','), "E130 multiple imports on one line"
+    if line.startswith('import '):
+        found = line.find(',')
+        if found > -1:
+            return found, "E130 multiple imports on one line"
 
 
 ##############################################################################
@@ -340,17 +342,17 @@ def triple_quoted_incomplete(line):
     """
     Test if line contains an incomplete triple-quoted string.
 
-    >>> triple_quoted_incomplete("'''")
+    >>> triple_quoted_incomplete("a('''")
     True
-    >>> triple_quoted_incomplete("''''''")
+    >>> triple_quoted_incomplete("a(''''''")
     False
-    >>> triple_quoted_incomplete("'''''''''")
+    >>> triple_quoted_incomplete("a('''''''''")
     True
     """
-    if line.count('"""'):
-        return bool(line.count('"""') % 2)
-    if line.count("'''"):
-        return bool(line.count("'''") % 2)
+    if line.count('"""') % 2:
+        return True
+    if line.count("'''") % 2:
+        return True
     return False
 
 
@@ -427,13 +429,14 @@ def physical_to_logical(physical):
             indent = get_indent(physical[line_number][1])
             next = physical[line_number][1].strip()
             if line.endswith('\\'):
-                line = line[-1]
+                line = line[:-1]
             elif line[-1] in '([{':
                 pass
             # elif next[0] in '}])':
             #     pass
             else:
                 line += ' '
+            # print line_number, line, '+', next
             mapping.append((len(line), line_number + 1, indent))
             line += next
         logical.append((mapping, line))
@@ -494,7 +497,8 @@ def check_lines(argument_name, lines, filename):
                 # print location, offset
                 error(filename, location, offset, text)
                 if options.show_source:
-                    message('    ' + line)
+                    message(line.rstrip())
+                    message(' ' * (offset) + '^')
         # state['previous_line'] = line
     return error_count
 
