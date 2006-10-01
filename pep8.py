@@ -1,8 +1,30 @@
 #!/usr/bin/python
-
+# pep8.py - Check Python source code formatting, according to PEP 8
+# Copyright (C) 2006 Johann C. Rocholl <johann@browsershots.org>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 """
-Check Python source code formatting.
+Check Python source code formatting, according to PEP 8.
+http://www.python.org/dev/peps/pep-0008
 
 Groups of errors and warnings:
 E100 indentation
@@ -11,27 +33,23 @@ E130 imports
 E140 line length
 """
 
-
 import os
 import sys
 import inspect
 import re
-from optparse import OptionParser
 
+from optparse import OptionParser
 
 __revision__ = '$Rev$'
 
-
 indent_match = re.compile(r'([ \t]*)').match
 last_token_match = re.compile(r'(\w+|\S)\s*$').search
-
 
 operators = """
 +  -  *  /  %  =  <  >  <>
 += -= *= /= %= == <= >= !=
 in is or not and
 """.split()
-
 
 options = None
 state = {}
@@ -342,17 +360,25 @@ def triple_quoted_incomplete(line):
     """
     Test if line contains an incomplete triple-quoted string.
 
-    >>> triple_quoted_incomplete("a('''")
+    >>> triple_quoted_incomplete("'''")
     True
-    >>> triple_quoted_incomplete("a(''''''")
+    >>> triple_quoted_incomplete("''''''")
     False
-    >>> triple_quoted_incomplete("a('''''''''")
+    >>> triple_quoted_incomplete("'''''''''")
     True
     """
-    if line.count('"""') % 2:
-        return True
-    if line.count("'''") % 2:
-        return True
+    line = mute_strings(line)
+    single = line.find("'''")
+    double = line.find('"""')
+    if single > -1 and double > -1:
+        if single < double:
+            return bool(line.count("'''") % 2)
+        else:
+            return bool(line.count('"""') % 2)
+    elif single > -1:
+        return bool(line.count("'''") % 2)
+    elif double > -1:
+        return bool(line.count('"""') % 2)
     return False
 
 
@@ -360,6 +386,17 @@ def get_indent(line):
     """
     Return the amount of indentation.
     Tabs are expanded to the next multiple of 8.
+
+    >>> get_indent('    abc')
+    4
+    >>> get_indent('\\tabc')
+    8
+    >>> get_indent('    \\tabc')
+    8
+    >>> get_indent('       \\tabc')
+    8
+    >>> get_indent('        \\tabc')
+    16
     """
     result = 0
     for char in line:
@@ -426,6 +463,8 @@ def physical_to_logical(physical):
                triple_quoted_incomplete(line) or
                count_parens(line, '([{') > count_parens(line, ')]}')):
             line_number += 1
+            if line_number >= len(physical):
+                break
             indent = get_indent(physical[line_number][1])
             next = physical[line_number][1].strip()
             if line.endswith('\\'):
@@ -462,8 +501,8 @@ def find_checks(argument_name):
 
 def check_lines(argument_name, lines, filename):
     """
-    Find all checks with matching first argument name and run all of
-    them on each line.
+    Find all checks with matching first argument name. Then iterate
+    over the input lines and run all checks on each line.
     """
     global state
     state = {} # {'previous_line': None}
@@ -499,6 +538,8 @@ def check_lines(argument_name, lines, filename):
                 if options.show_source:
                     message(line.rstrip())
                     message(' ' * (offset) + '^')
+                if options.show_pep8:
+                    message(check.__doc__.lstrip('\n').rstrip())
         # state['previous_line'] = line
     return error_count
 
@@ -557,6 +598,8 @@ def _main():
                       help="run doctest on pep8.py")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
+    parser.add_option('--show-pep8', action='store_true',
+                      help="show text of PEP 8 for each error")
     options, args = parser.parse_args()
     if options.doctest:
         import doctest
