@@ -100,7 +100,7 @@ def maximum_line_length(physical_line):
     """
     length = len(physical_line.rstrip())
     if length > 79:
-        return 79, "E120 line is longer than 79 characters (%d)" % length
+        return 79, "E140 line is longer than 79 characters (%d)" % length
 
 
 ##############################################################################
@@ -160,7 +160,9 @@ def blank_lines(logical_line, indent_level):
 def extraneous_whitespace(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
+
     - Immediately inside parentheses, brackets or braces.
+
     - Immediately before a comma, semicolon, or colon.
     """
     line = logical_line_muted
@@ -181,10 +183,12 @@ def extraneous_whitespace(logical_line_muted):
 def whitespace_before_parameters(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
+
     - Immediately before the open parenthesis that starts the argument
-    list of a function call.
+      list of a function call.
+
     - Immediately before the open parenthesis that starts an indexing or
-    slicing.
+      slicing.
     """
     line = logical_line_muted
     for char in '([':
@@ -204,14 +208,15 @@ def whitespace_before_parameters(logical_line_muted):
 def whitespace_around_operator(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
+
     - More than one space around an assignment (or other) operator to
-    align it with another.
+      align it with another.
     """
     line = logical_line_muted
     for operator in operators:
         found = line.find('  ' + operator)
         if found > -1:
-            return found, 'E118 too much whitespace around operator'
+            return found, "E118 too much whitespace around operator"
 
 
 def imports_on_separate_lines(logical_line):
@@ -282,6 +287,15 @@ def mute_strings(line):
 def count_parens(line, chars):
     """
     Count parens, but not in strings.
+
+    >>> count_parens('abc', '([{')
+    0
+    >>> count_parens('([{', '([{')
+    3
+    >>> count_parens('abc()', '(')
+    1
+    >>> count_parens('abc("xyz()")', '(')
+    1
     """
     result = 0
     pos = 0
@@ -324,7 +338,7 @@ def triple_quoted_incomplete(line):
 
 def get_indent(line):
     """
-    Return amount of indentation.
+    Return the amount of indentation.
     Tabs are expanded to the next multiple of 8.
     """
     result = 0
@@ -344,13 +358,16 @@ def get_indent(line):
 
 
 def message(text):
-    """Print a program name and message to stderr."""
+    """Print a message."""
     # print >> sys.stderr, options.prog + ': ' + text
     # print >> sys.stderr, text
     print text
 
 
 def error(filename, location, offset, text):
+    """
+    Print an error or warning message with parseable location.
+    """
     if type(location) is int:
         line_number = location
     else:
@@ -405,6 +422,10 @@ def physical_to_logical(physical):
 
 
 def find_checks(argument_name):
+    """
+    Find all globally visible functions where the first argument name
+    starts with argument_name.
+    """
     checks = []
     function_type = type(find_checks)
     for name, function in globals().iteritems():
@@ -418,7 +439,8 @@ def find_checks(argument_name):
 
 def check_lines(argument_name, lines, filename):
     """
-    Run all checks matching argument_name on each line.
+    Find all checks with matching first argument name and run all of
+    them on each line.
     """
     global state
     state = {} # {'previous_line': None}
@@ -442,11 +464,11 @@ def check_lines(argument_name, lines, filename):
                 offset, text = result
                 # print name, text
                 if options.testsuite:
-                    codename = text[:4].lower() + '.py'
+                    codename = text[:4] + '.py'
                     basename = os.path.basename(filename)
                     if basename == codename:
                         continue
-                    if basename[0] == 'e' and codename[0] == 'w':
+                    if basename[0] == 'E' and codename[0] == 'W':
                         continue
                 error(filename, location, offset, text)
                 if options.show_source:
