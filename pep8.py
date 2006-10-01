@@ -6,11 +6,17 @@ Check Python source code formatting.
 """
 
 
-import os, sys, inspect, re
+import os
+import sys
+import inspect
+import re
 from optparse import OptionParser
 
 
 __revision__ = '$Rev$'
+
+
+indent_match = re.compile(r'[ \t]*').match
 
 
 options = None
@@ -22,8 +28,17 @@ state = {}
 ##############################################################################
 
 
-indent_match = re.compile(r'[ \t]*').match
 def tabs_or_spaces(physical_line):
+    """
+    Never mix tabs and spaces.
+
+    The most popular way of indenting Python is with spaces only.  The
+    second-most popular way is with tabs only.  Code indented with a mixture
+    of tabs and spaces should be converted to using spaces exclusively.  When
+    invoking the Python command line interpreter with the -t option, it issues
+    warnings about code that illegally mixes tabs and spaces.  When using -tt
+    these warnings become errors.  These options are highly recommended!
+    """
     indent = indent_match(physical_line).group(0)
     if not indent:
         return
@@ -37,12 +52,41 @@ def tabs_or_spaces(physical_line):
             return offset, "E101 indentation contains mixed spaces and tabs"
 
 
+def tabs_obsolete(physical_line):
+    """
+    For new projects, spaces-only are strongly recommended over tabs.  Most
+    editors have features that make this easy to do.
+    """
+    indent = indent_match(physical_line).group(0)
+    if indent.count('\t'):
+        return indent.index('\t'), "W105 indentation contains tabs"
+
+
 def trailing_whitespace(physical_line):
+    """
+    JCR: Trailing whitespace is superfluous.
+    """
     physical_line = physical_line.rstrip('\n')
     physical_line = physical_line.rstrip('\r')
     stripped = physical_line.rstrip()
     if physical_line != stripped:
-        return (len(stripped), "W110 trailing whitespace")
+        return len(stripped), "W106 trailing whitespace"
+
+
+def maximum_line_length(physical_line):
+    """
+    Limit all lines to a maximum of 79 characters.
+
+    There are still many devices around that are limited to 80 character
+    lines; plus, limiting windows to 80 characters makes it possible to have
+    several windows side-by-side.  The default wrapping on such devices looks
+    ugly.  Therefore, please limit all lines to a maximum of 79 characters.
+    For flowing long blocks of text (docstrings or comments), limiting the
+    length to 72 characters is recommended.
+    """
+    length = len(physical_line.rstrip())
+    if length > 79:
+        return 79, "E110 line is longer than 79 characters (%d)" % length
 
 
 ##############################################################################
@@ -50,34 +94,53 @@ def trailing_whitespace(physical_line):
 ##############################################################################
 
 
-def indentation(logical_line, indent):
+def indentation(logical_line, indent_level):
     """
-    Check for correct amount of indentation.
+    Use 4 spaces per indentation level.
+
+    For really old code that you don't want to mess up, you can continue to
+    use 8-space tabs.
     """
-    previous = state.get('indent_level', 0)
+    if logical_line == '':
+        return
+    previous_level = state.get('indent_level', 0)
     indent_expect = state.get('indent_expect', False)
     state['indent_expect'] = logical_line.endswith(':')
     indent_char = state.get('indent_char', ' ')
-    if indent_char == ' ':
-        if indent % 4:
-            return indent, "E102 indentation is not a multiple of four"
-        indent_level = indent / 4
-    elif indent_char == '\t':
-        indent_level = indent
     state['indent_level'] = indent_level
-    if indent_expect and indent_level <= previous:
-        return indent, "E103 expected an indented block"
-    if not indent_expect and indent_level > previous:
-        return indent, "E104 unexpected indentation"
+    if indent_char == ' ' and indent_level % 4:
+        return indent_level, "E102 indentation is not a multiple of four"
+    if indent_expect and indent_level <= previous_level:
+        return indent_level, "E103 expected an indented block"
+    if not indent_expect and indent_level > previous_level:
+        return indent_level, "E104 unexpected indentation"
 
 
-named_arguments_space = re.compile(r'(.+?\(.+?)(=\s|\s=)\)').match
-def named_arguments(logical_line):
+def blank_lines(logical_line, indent_level):
     """
-    Check formatting of named arguments.
+    Separate top-level function and class definitions with two blank lines.
+
+    Method definitions inside a class are separated by a single blank line.
+
+    Extra blank lines may be used (sparingly) to separate groups of related
+    functions.  Blank lines may be omitted between a bunch of related
+    one-liners (e.g. a set of dummy implementations).
+
+    Use blank lines in functions, sparingly, to indicate logical sections.
     """
-    # match = named_arguments_space(logical_line)
-    pass
+    first_line = 'blank_lines' not in state
+    count = state.get('blank_lines', 0)
+    if logical_line == '':
+        state['blank_lines'] = count + 1
+    else:
+        state['blank_lines'] = 0
+    if logical_line.startswith('def') and not first_line:
+        if indent_level == 0 and count != 2:
+            return 0, "E120 expected exactly two blank lines, found %d" % count
+        if indent_level > 0 and count != 1:
+            return 0, "E121 expected exactly one blank line, found %d" % count
+    if count > 2:
+        return 0, "E122 too many blank lines (%d)" % count
 
 
 ##############################################################################
@@ -135,16 +198,20 @@ def triple_quoted_incomplete(line):
     return False
 
 
-def indent_strip(line):
+def get_indent(line):
     """
-    Remove indentation and trailing whitespace.
-    Return number of indentation characters and the stripped string.
+    Return amount of indentation.
+    Tabs are expanded to the next multiple of 8.
     """
-    line = line.rstrip()
-    before = len(line)
-    line = line.lstrip()
-    after = len(line)
-    return before - after, line
+    result = 0
+    for char in line:
+        if char == '\t':
+            result = result / 8 * 8 + 8
+        elif char == ' ':
+            result += 1
+        else:
+            break
+    return result
 
 
 def physical_to_logical(physical):
@@ -154,7 +221,8 @@ def physical_to_logical(physical):
     logical = []
     line_number = 0
     while line_number < len(physical):
-        indent, line = indent_strip(physical[line_number][1])
+        indent = get_indent(physical[line_number][1])
+        line = physical[line_number][1].strip()
         mapping = [(0, line_number + 1, indent)]
         while (line.endswith('\\') or
                triple_quoted_incomplete(line) or
@@ -164,7 +232,8 @@ def physical_to_logical(physical):
             else:
                 line += ' '
             line_number += 1
-            indent, next = indent_strip(physical[line_number][1])
+            indent = get_indent(physical[line_number][1])
+            next = physical[line_number][1].strip()
             mapping.append((len(line), line_number + 1, indent))
             line += next
         logical.append((mapping, line))
@@ -184,33 +253,47 @@ def find_checks(argument_name):
     return checks
 
 
+def error(filename, location, offset, text):
+    if type(location) is int:
+        line_number = location
+    else:
+        merged_offset = offset
+        for start_offset, original_number, indent in location:
+            if merged_offset >= start_offset:
+                offset = merged_offset - start_offset
+                line_number = original_number
+    message("%s:%s:%d: %s" %
+            (filename, line_number, offset + 1, text))
+
+
 def check_lines(argument_name, lines, filename):
     """
     Run all checks matching argument_name on each line.
     """
     global state
-    state = {}
+    state = {} # {'previous_line': None}
+    error_count = 0
     checks = find_checks(argument_name)
-    if options.verbose > 1:
-        message(' '.join(map(lambda x: x[0], checks)))
     for location, line in lines:
         for name, check, args in checks:
             if len(args) == 1:
                 result = check(line)
-            elif len(args) == 2 and args[1] == 'indent':
+            elif len(args) == 2 and args[1] == 'indent_level':
                 result = check(line, location[0][2])
             if result is not None:
+                error_count += 1
                 offset, text = result
-                if type(location) is int:
-                    line_number = location
-                else:
-                    merged_offset = offset
-                    for start_offset, original_number, indent in location:
-                        if merged_offset >= start_offset:
-                            offset = merged_offset - start_offset
-                            line_number = original_number
-                message("%s:%s:%d: %s" %
-                        (filename, line_number, offset + 1, text))
+                # print name, text
+                if options.testsuite:
+                    codename = text[:4].lower() + '.py'
+                    basename = os.path.basename(filename)
+                    if basename == codename:
+                        continue
+                    if basename[0] == 'e' and codename[0] == 'w':
+                        continue
+                error(filename, location, offset, text)
+        # state['previous_line'] = line
+    return error_count
 
 
 def input_file(filename):
@@ -220,21 +303,26 @@ def input_file(filename):
     if options.verbose:
         message('checking ' + filename)
     physical = load(filename)
-    check_lines('physical_line', physical, filename)
+    errors = check_lines('physical_line', physical, filename)
     logical = physical_to_logical(physical)
-    check_lines('logical_line', logical, filename)
+    errors += check_lines('logical_line', logical, filename)
+    if options.testsuite and not errors:
+        message("%s: %s" % (filename, "no errors found"))
 
 
 def input_dir(dirname):
     """
     Check all Python source files in this directory and all subdirectories.
     """
+    dirname = dirname.rstrip('/')
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
         for dirname in options.exclude:
             if dirname in dirs:
                 dirs.remove(dirname)
+        dirs.sort()
+        files.sort()
         for filename in files:
             input_file(os.path.join(root, filename))
 
@@ -256,7 +344,11 @@ def _main():
                       help="ignore subdirectories (default .svn,CVS)")
     parser.add_option('--ignore', metavar='errors', default='',
                       help="ignore errors (e.g. E301,W120)")
+    parser.add_option('--testsuite', metavar='dir',
+                      help="run regression tests from dir")
     options, args = parser.parse_args()
+    if options.testsuite:
+        args.append(options.testsuite)
     if len(args) == 0:
         parser.error('input not specified')
     options.prog = os.path.basename(sys.argv[0])
