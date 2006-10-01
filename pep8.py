@@ -131,7 +131,7 @@ def indentation(logical_line_muted, indent_level):
         return 0, "E104 unexpected indentation"
 
 
-def blank_lines(logical_line, indent_level):
+def blank_lines(logical_line_muted, indent_level):
     """
     Separate top-level function and class definitions with two blank lines.
 
@@ -143,13 +143,14 @@ def blank_lines(logical_line, indent_level):
 
     Use blank lines in functions, sparingly, to indicate logical sections.
     """
+    line = logical_line_muted
     first_line = 'blank_lines' not in state
     count = state.get('blank_lines', 0)
-    if logical_line == '':
+    if line == '':
         state['blank_lines'] = count + 1
     else:
         state['blank_lines'] = 0
-    if logical_line.startswith('def') and not first_line:
+    if line.startswith('def') and not first_line:
         if indent_level > 0 and count != 1:
             return 0, "E111 expected 1 blank line, found %d" % count
         if indent_level == 0 and count != 2:
@@ -220,12 +221,13 @@ def whitespace_around_operator(logical_line_muted):
             return found, "E118 too much whitespace around operator"
 
 
-def imports_on_separate_lines(logical_line):
+def imports_on_separate_lines(logical_line_muted):
     """
     Imports should usually be on separate lines.
     """
-    if logical_line.startswith('import ') and logical_line.count(','):
-        return logical_line.index(','), "E130 multiple imports on one line"
+    line = logical_line_muted
+    if line.startswith('import ') and line.count(','):
+        return line.index(','), "E130 multiple imports on one line"
 
 
 ##############################################################################
@@ -476,7 +478,7 @@ def check_lines(argument_name, lines, filename):
             if len(args) == 1:
                 result = check(line_arg)
             elif len(args) == 2 and args[1] == 'indent_level':
-                print line_arg, location[0]
+                # print line_arg, location[0]
                 result = check(line_arg, location[0][2])
             if result is not None:
                 error_count += 1
@@ -489,7 +491,7 @@ def check_lines(argument_name, lines, filename):
                         continue
                     if base[0] == 'E' and code[0] == 'W':
                         continue
-                print location, offset
+                # print location, offset
                 error(filename, location, offset, text)
                 if options.show_source:
                     message('    ' + line)
