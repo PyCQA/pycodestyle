@@ -28,8 +28,8 @@ http://www.python.org/dev/peps/pep-0008/
 
 This tool is not a complete implementation of all the recommendations
 in PEP 8. Many parts of PEP 8 are impossible to check automatically.
-Of those parts where it's not too hard, this version of pep8.py
-implements only a small subset.
+Even of the possible parts, this early version of pep8.py checks only
+a small subset.
 
 For usage and a list of options, try this:
 $ python pep8.py -h
@@ -72,6 +72,7 @@ import re
 
 from optparse import OptionParser
 
+__version__ = '0.1.0'
 __revision__ = '$Rev$'
 
 indent_match = re.compile(r'([ \t]*)').match
