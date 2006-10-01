@@ -95,17 +95,6 @@ def maximum_line_length(physical_line):
         return 79, "E120 line is longer than 79 characters (%d)" % length
 
 
-def whitespace_in_parens(physical_line):
-    """
-    Avoid extraneous whitespace in the following situations:
-    Immediately inside parentheses, brackets or braces.
-    """
-    for paren in '([{':
-        found = physical_line.find(paren + ' ')
-        if found > -1:
-            return found, 'E107'
-
-
 ##############################################################################
 # Various checks for logical lines
 ##############################################################################
@@ -153,11 +142,47 @@ def blank_lines(logical_line, indent_level):
         state['blank_lines'] = 0
     if logical_line.startswith('def') and not first_line:
         if indent_level > 0 and count != 1:
-            return 0, "E111 expected exactly one blank line, found %d" % count
+            return 0, "E111 expected 1 blank line, found %d" % count
         if indent_level == 0 and count != 2:
-            return 0, "E112 expected exactly two blank lines, found %d" % count
+            return 0, "E112 expected 2 blank lines, found %d" % count
     if count > 2:
-        return 0, "E122 too many blank lines (%d)" % count
+        return 0, "E113 too many blank lines (%d)" % count
+
+
+def extraneous_whitespace(logical_line):
+    """
+    Avoid extraneous whitespace in the following situations:
+    - Immediately inside parentheses, brackets or braces.
+    - Immediately before a comma, semicolon, or colon.
+    """
+    line = mute_strings(logical_line)
+    # print line
+    for char in '([{':
+        found = line.find(char + ' ')
+        if found > -1:
+            return found + 1, "E114 whitespace after '%s'" % char
+    for char in '}])':
+        found = line.find(' ' + char)
+        if found > -1:
+            return found, "E115 whitespace before '%s'" % char
+    for char in ',;:':
+        found = line.find(' ' + char)
+        if found > -1:
+            return found, "E116 whitespace before '%s'" % char
+    for char in '([':
+        found = line.find(' ' + char)
+        if found > -1:
+            before = line[found-1]
+            legal = False
+            for operator in '+-*/%=':
+                if before == operator:
+                    legal = True
+            before = line[:found]
+            for keyword in 'if in while and or not'.split():
+                if before.endswith(keyword):
+                    legal = True
+            if not legal:
+                return found, "E117 whitespace before '%s'" % char
 
 
 def imports_on_separate_lines(logical_line):
@@ -169,26 +194,60 @@ def imports_on_separate_lines(logical_line):
 
 
 ##############################################################################
-# Framework to run all checks
+# Helper functions
 ##############################################################################
 
 
-def message(text):
-    """Print a program name and message to stderr."""
-    # print >> sys.stderr, options.prog + ': ' + text
-    print >> sys.stderr, text
+def quoted_quote(line, pos):
+    """
+    Is line[pos] preceded with an odd number of backslashes?
+
+    >>> quoted_quote('\\\\""', 1)
+    True
+    >>> quoted_quote('\\\\\\\\""', 2)
+    False
+    """
+    count = 0
+    while pos > count and line[pos - count - 1] == '\\':
+        count += 1
+    return bool(count % 2)
 
 
-def load(filename):
+def find_real_quote(line, char, pos):
     """
-    Load lines from a file and add line numbers.
+    Find the next quote character that is not quoted with backslashes.
+
+    >>> find_real_quote('abc\\\\"abc"abc\\\\"abc', '"', 0)
+    8
+    >>> find_real_quote('abc', '\"', 0)
+    -1
     """
-    lines = []
-    line_number = 0
-    for line in file(filename):
-        line_number += 1
-        lines.append((line_number, line))
-    return lines
+    pos = line.find(char, pos)
+    while quoted_quote(line, pos):
+        pos = line.find(char, pos + 1)
+    return pos
+
+
+def mute_strings(line):
+    """
+    Overwrite strings with 'xxxxx' to prevent syntax matching inside strings.
+
+    >>> mute_strings('list("abc")')
+    'list("xxx")'
+    >>> mute_strings("list('abc')")
+    "list('xxx')"
+    """
+    for quote in '\'"':
+        start = -1
+        while True:
+            start = find_real_quote(line, quote, start + 1)
+            stop = find_real_quote(line, quote, start + 1)
+            if start == -1 or stop == -1:
+                break
+            middle = 'x' * (stop - start - 1)
+            line = line[:start+1] + middle + line[stop:]
+            start = stop
+    return line
 
 
 def count_parens(line, chars):
@@ -202,11 +261,11 @@ def count_parens(line, chars):
             result += 1
         if line[pos] == '"':
             pos += 1
-            while line[pos] != '"':
+            while line[pos] != '"' or quoted_quote(line, pos):
                 pos += 1
         if line[pos] == "'":
             pos += 1
-            while line[pos] != "'":
+            while line[pos] != "'" or quoted_quote(line, pos):
                 pos += 1
         pos += 1
     return result
@@ -237,6 +296,29 @@ def get_indent(line):
         else:
             break
     return result
+
+
+##############################################################################
+# Framework to run all checks
+##############################################################################
+
+
+def message(text):
+    """Print a program name and message to stderr."""
+    # print >> sys.stderr, options.prog + ': ' + text
+    print >> sys.stderr, text
+
+
+def load(filename):
+    """
+    Load lines from a file and add line numbers.
+    """
+    lines = []
+    line_number = 0
+    for line in file(filename):
+        line_number += 1
+        lines.append((line_number, line))
+    return lines
 
 
 def physical_to_logical(physical):
@@ -317,6 +399,8 @@ def check_lines(argument_name, lines, filename):
                     if basename[0] == 'e' and codename[0] == 'w':
                         continue
                 error(filename, location, offset, text)
+                if options.show_source:
+                    message('    ' + line)
         # state['previous_line'] = line
     return error_count
 
@@ -371,7 +455,14 @@ def _main():
                       help="ignore errors (e.g. E301,W120)")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
+    parser.add_option('--doctest', action='store_true',
+                      help="run doctest on pep8.py")
+    parser.add_option('--show-source', action='store_true',
+                      help="show source code for each error")
     options, args = parser.parse_args()
+    if options.doctest:
+        import doctest
+        return doctest.testmod()
     if options.testsuite:
         args.append(options.testsuite)
     if len(args) == 0:
