@@ -156,7 +156,6 @@ def extraneous_whitespace(logical_line):
     - Immediately before a comma, semicolon, or colon.
     """
     line = mute_strings(logical_line)
-    # print line
     for char in '([{':
         found = line.find(char + ' ')
         if found > -1:
@@ -169,6 +168,17 @@ def extraneous_whitespace(logical_line):
         found = line.find(' ' + char)
         if found > -1:
             return found, "E116 whitespace before '%s'" % char
+
+
+def whitespace_before_parameters(logical_line):
+    """
+    Avoid extraneous whitespace in the following situations:
+    - Immediately before the open parenthesis that starts the argument
+    list of a function call.
+    - Immediately before the open parenthesis that starts an indexing or
+    slicing.
+    """
+    line = mute_strings(logical_line)
     for char in '([':
         found = line.find(' ' + char)
         if found > -1:
