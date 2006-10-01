@@ -18,19 +18,20 @@ state = {}
 
 
 ##############################################################################
-# Check single physical lines
+# Various checks for physical lines
 ##############################################################################
 
 
 indent_match = re.compile(r'[ \t]*').match
 def tabs_or_spaces(physical_line):
-    choice = None
     indent = indent_match(physical_line).group(0)
     if not indent:
         return
-    if indent and 'indent_char' not in state:
-        state['indent_char'] = indent[0]
-    indent_char = state['indent_char']
+    if 'indent_char' in state:
+        indent_char = state['indent_char']
+    else:
+        indent_char = indent[0]
+        state['indent_char'] = indent_char
     for offset, char in enumerate(indent):
         if char != indent_char:
             return offset, "E101 indentation contains mixed spaces and tabs"
@@ -45,10 +46,32 @@ def trailing_whitespace(physical_line):
 
 
 ##############################################################################
-# Check single logical lines
+# Various checks for logical lines
 ##############################################################################
 
 
+def indentation(logical_line, indent):
+    """
+    Check for correct amount of indentation.
+    """
+    previous = state.get('indent_level', 0)
+    indent_expect = state.get('indent_expect', False)
+    state['indent_expect'] = logical_line.endswith(':')
+    indent_char = state.get('indent_char', ' ')
+    if indent_char == ' ':
+        if indent % 4:
+            return indent, "E102 indentation is not a multiple of four"
+        indent_level = indent / 4
+    elif indent_char == '\t':
+        indent_level = indent
+    state['indent_level'] = indent_level
+    if indent_expect and indent_level <= previous:
+        return indent, "E103 expected an indented block"
+    if not indent_expect and indent_level > previous:
+        return indent, "E104 unexpected indentation"
+
+
+named_arguments_space = re.compile(r'(.+?\(.+?)(=\s|\s=)\)').match
 def named_arguments(logical_line):
     """
     Check formatting of named arguments.
@@ -58,7 +81,7 @@ def named_arguments(logical_line):
 
 
 ##############################################################################
-# Testing framework
+# Framework to run all checks
 ##############################################################################
 
 
@@ -132,7 +155,7 @@ def physical_to_logical(physical):
     line_number = 0
     while line_number < len(physical):
         indent, line = indent_strip(physical[line_number][1])
-        mapping = [(0, line_number, indent)]
+        mapping = [(0, line_number + 1, indent)]
         while (line.endswith('\\') or
                triple_quoted_incomplete(line) or
                count_parens(line, '([{') > count_parens(line, ')]}')):
@@ -142,7 +165,7 @@ def physical_to_logical(physical):
                 line += ' '
             line_number += 1
             indent, next = indent_strip(physical[line_number][1])
-            mapping.append((len(line), line_number, indent))
+            mapping.append((len(line), line_number + 1, indent))
             line += next
         logical.append((mapping, line))
         line_number += 1
@@ -156,7 +179,7 @@ def find_checks(argument_name):
         if type(function) is function_type:
             args = inspect.getargspec(function)[0]
             if len(args) >= 1 and args[0] == argument_name:
-                checks.append((name, function))
+                checks.append((name, function, args))
     checks.sort()
     return checks
 
@@ -170,12 +193,23 @@ def check_lines(argument_name, lines, filename):
     checks = find_checks(argument_name)
     if options.verbose > 1:
         message(' '.join(map(lambda x: x[0], checks)))
-    for line_number, line in lines:
-        for name, check in checks:
-            result = check(line)
+    for location, line in lines:
+        for name, check, args in checks:
+            if len(args) == 1:
+                result = check(line)
+            elif len(args) == 2 and args[1] == 'indent':
+                result = check(line, location[0][2])
             if result is not None:
                 offset, text = result
-                message("%s:%d:%d: %s" %
+                if type(location) is int:
+                    line_number = location
+                else:
+                    merged_offset = offset
+                    for start_offset, original_number, indent in location:
+                        if merged_offset >= start_offset:
+                            offset = merged_offset - start_offset
+                            line_number = original_number
+                message("%s:%s:%d: %s" %
                         (filename, line_number, offset + 1, text))
 
 
