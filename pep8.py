@@ -546,7 +546,7 @@ def extract_subline(location, offset, line):
         return subline_number, subline_offset, subline
 
 
-def report_error(filename, location, offset, line, name, text):
+def report_error(filename, location, offset, line, check, text):
     """
     Report an error, according to options.
     """
