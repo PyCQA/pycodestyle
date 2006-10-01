@@ -7,8 +7,8 @@ Check Python source code formatting.
 Groups of errors and warnings:
 100 indentation
 110 whitespace
-120 line length
 130 imports
+140 line length
 """
 
 
@@ -22,7 +22,15 @@ from optparse import OptionParser
 __revision__ = '$Rev$'
 
 
-indent_match = re.compile(r'[ \t]*').match
+indent_match = re.compile(r'([ \t]*)').match
+last_token_match = re.compile(r'(\S+)\s*$').search
+
+
+operators = """
++  -  *  /  %  =  <  >  <>
++= -= *= /= %= == <= >= !=
+in is or not and
+""".split()
 
 
 options = None
@@ -45,7 +53,7 @@ def tabs_or_spaces(physical_line):
     warnings about code that illegally mixes tabs and spaces.  When using -tt
     these warnings become errors.  These options are highly recommended!
     """
-    indent = indent_match(physical_line).group(0)
+    indent = indent_match(physical_line).group(1)
     if not indent:
         return
     if 'indent_char' in state:
@@ -63,7 +71,7 @@ def tabs_obsolete(physical_line):
     For new projects, spaces-only are strongly recommended over tabs.  Most
     editors have features that make this easy to do.
     """
-    indent = indent_match(physical_line).group(0)
+    indent = indent_match(physical_line).group(1)
     if indent.count('\t'):
         return indent.index('\t'), "W109 indentation contains tabs"
 
@@ -180,28 +188,30 @@ def whitespace_before_parameters(logical_line_muted):
     """
     line = logical_line_muted
     for char in '([':
-        found = line.find(' ' + char)
-        if found > -1:
-            before = line[found-1]
-            legal = False
-            for operator in '+-*/%=':
-                if before == operator:
-                    legal = True
-            before = line[:found]
-            for keyword in 'if in while and or not'.split():
-                if before.endswith(keyword):
-                    legal = True
-            if not legal:
-                return found, "E117 whitespace before '%s'" % char
+        found = -1
+        while True:
+            found = line.find(' ' + char, found + 1)
+            if found == -1:
+                break
+            before = last_token_match(line[:found]).group(1)
+            if before in operators:
+                continue
+            if before in 'if in while and or not'.split():
+                continue
+            return found, "E117 whitespace before '%s'" % char
 
 
-def too_much_whitespace(logical_line_muted):
+def whitespace_around_operator(logical_line_muted):
     """
     Avoid extraneous whitespace in the following situations:
     - More than one space around an assignment (or other) operator to
     align it with another.
     """
     line = logical_line_muted
+    for operator in operators:
+        found = line.find('  ' + operator)
+        if found > -1:
+            return found, 'E118 too much whitespace around operator'
 
 
 def imports_on_separate_lines(logical_line):
@@ -280,11 +290,15 @@ def count_parens(line, chars):
             result += 1
         if line[pos] == '"':
             pos += 1
-            while line[pos] != '"' or quoted_quote(line, pos):
+            while pos < len(line) and (
+                line[pos] != '"' or quoted_quote(line, pos)):
                 pos += 1
+        if pos >= len(line):
+            break
         if line[pos] == "'":
             pos += 1
-            while line[pos] != "'" or quoted_quote(line, pos):
+            while pos < len(line) and (
+                line[pos] != "'" or quoted_quote(line, pos)):
                 pos += 1
         pos += 1
     return result
@@ -292,12 +306,19 @@ def count_parens(line, chars):
 
 def triple_quoted_incomplete(line):
     """
-    Test if line is an incomplete triple-quoted string.
+    Test if line contains an incomplete triple-quoted string.
+
+    >>> triple_quoted_incomplete("'''")
+    True
+    >>> triple_quoted_incomplete("''''''")
+    False
+    >>> triple_quoted_incomplete("'''''''''")
+    True
     """
-    if line.startswith('"""'):
-        return line.count('"""') % 2
-    if line.startswith("'''"):
-        return line.count("'''") % 2
+    if line.count('"""'):
+        return bool(line.count('"""') % 2)
+    if line.count("'''"):
+        return bool(line.count("'''") % 2)
     return False
 
 
@@ -325,7 +346,21 @@ def get_indent(line):
 def message(text):
     """Print a program name and message to stderr."""
     # print >> sys.stderr, options.prog + ': ' + text
-    print >> sys.stderr, text
+    # print >> sys.stderr, text
+    print text
+
+
+def error(filename, location, offset, text):
+    if type(location) is int:
+        line_number = location
+    else:
+        merged_offset = offset
+        for start_offset, original_number, indent in location:
+            if merged_offset >= start_offset:
+                offset = merged_offset - start_offset
+                line_number = original_number
+    message("%s:%s:%d: %s" %
+            (filename, line_number, offset + 1, text))
 
 
 def load(filename):
@@ -355,6 +390,8 @@ def physical_to_logical(physical):
                count_parens(line, '([{') > count_parens(line, ')]}')):
             if line.endswith('\\'):
                 line = line[-1]
+            elif line[-1] in '([{':
+                pass
             else:
                 line += ' '
             line_number += 1
@@ -379,19 +416,6 @@ def find_checks(argument_name):
     return checks
 
 
-def error(filename, location, offset, text):
-    if type(location) is int:
-        line_number = location
-    else:
-        merged_offset = offset
-        for start_offset, original_number, indent in location:
-            if merged_offset >= start_offset:
-                offset = merged_offset - start_offset
-                line_number = original_number
-    message("%s:%s:%d: %s" %
-            (filename, line_number, offset + 1, text))
-
-
 def check_lines(argument_name, lines, filename):
     """
     Run all checks matching argument_name on each line.
@@ -403,12 +427,16 @@ def check_lines(argument_name, lines, filename):
     for location, line in lines:
         line_muted = mute_strings(line)
         for name, check, args in checks:
-            if args[0].endswith('_muted'):
-                result = check(line_muted)
-            elif len(args) == 1:
-                result = check(line)
+            if args[0].endswith('_line'):
+                line_arg = line
+            elif args[0].endswith('_muted'):
+                line_arg = line_muted
+            else:
+                raise NotImplementedError('unsupported argument %s' % args[0])
+            if len(args) == 1:
+                result = check(line_arg)
             elif len(args) == 2 and args[1] == 'indent_level':
-                result = check(line, location[0][2])
+                result = check(line_arg, location[0][2])
             if result is not None:
                 error_count += 1
                 offset, text = result
