@@ -5,10 +5,10 @@
 Check Python source code formatting.
 
 Groups of errors and warnings:
-100 indentation
-110 whitespace
-130 imports
-140 line length
+E100 indentation
+E110 whitespace
+E130 imports
+E140 line length
 """
 
 
@@ -23,7 +23,7 @@ __revision__ = '$Rev$'
 
 
 indent_match = re.compile(r'([ \t]*)').match
-last_token_match = re.compile(r'(\S+)\s*$').search
+last_token_match = re.compile(r'(\w+|\S)\s*$').search
 
 
 operators = """
@@ -108,26 +108,27 @@ def maximum_line_length(physical_line):
 ##############################################################################
 
 
-def indentation(logical_line, indent_level):
+def indentation(logical_line_muted, indent_level):
     """
     Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
     """
-    if logical_line == '':
+    line = logical_line_muted
+    if line == '':
         return
     previous_level = state.get('indent_level', 0)
     indent_expect = state.get('indent_expect', False)
-    state['indent_expect'] = logical_line.endswith(':')
+    state['indent_expect'] = line.endswith(':')
     indent_char = state.get('indent_char', ' ')
     state['indent_level'] = indent_level
     if indent_char == ' ' and indent_level % 4:
-        return indent_level, "E102 indentation is not a multiple of four"
+        return 0, "E102 indentation is not a multiple of four"
     if indent_expect and indent_level <= previous_level:
-        return indent_level, "E103 expected an indented block"
+        return 0, "E103 expected an indented block"
     if not indent_expect and indent_level > previous_level:
-        return indent_level, "E104 unexpected indentation"
+        return 0, "E104 unexpected indentation"
 
 
 def blank_lines(logical_line, indent_level):
@@ -172,7 +173,7 @@ def extraneous_whitespace(logical_line_muted):
             return found + 1, "E114 whitespace after '%s'" % char
     for char in '}])':
         found = line.find(' ' + char)
-        if found > -1:
+        if found > -1 and line[found - 1] != ',':
             return found, "E115 whitespace before '%s'" % char
     for char in ',;:':
         found = line.find(' ' + char)
@@ -200,7 +201,7 @@ def whitespace_before_parameters(logical_line_muted):
             before = last_token_match(line[:found]).group(1)
             if before in operators:
                 continue
-            if before in 'if in while and or not'.split():
+            if before in 'if in while and or not ,'.split():
                 continue
             return found, "E117 whitespace before '%s'" % char
 
@@ -264,7 +265,7 @@ def find_real_quote(line, char, pos):
 
 def mute_strings(line):
     """
-    Overwrite strings with 'xxxxx' to prevent syntax matching inside strings.
+    Overwrite strings with 'xxxxx' to prevent syntax matching.
 
     >>> mute_strings('list("abc")')
     'list("xxx")'
@@ -282,6 +283,21 @@ def mute_strings(line):
             line = line[:start+1] + middle + line[stop:]
             start = stop
     return line
+
+
+def mute_comment(line):
+    """
+    Delete comment text to prevent syntax matching.
+
+    >>> mute_comment('# abc')
+    '#'
+    >>> mute_comment('abc # xyz')
+    'abc #'
+    """
+    found = line.find('#')
+    if found == -1:
+        return line
+    return line[:found+1]
 
 
 def count_parens(line, chars):
@@ -374,7 +390,7 @@ def error(filename, location, offset, text):
         merged_offset = offset
         for start_offset, original_number, indent in location:
             if merged_offset >= start_offset:
-                offset = merged_offset - start_offset
+                offset = merged_offset - start_offset + indent
                 line_number = original_number
     message("%s:%s:%d: %s" %
             (filename, line_number, offset + 1, text))
@@ -405,15 +421,17 @@ def physical_to_logical(physical):
         while (line.endswith('\\') or
                triple_quoted_incomplete(line) or
                count_parens(line, '([{') > count_parens(line, ')]}')):
+            line_number += 1
+            indent = get_indent(physical[line_number][1])
+            next = physical[line_number][1].strip()
             if line.endswith('\\'):
                 line = line[-1]
             elif line[-1] in '([{':
                 pass
+            # elif next[0] in '}])':
+            #     pass
             else:
                 line += ' '
-            line_number += 1
-            indent = get_indent(physical[line_number][1])
-            next = physical[line_number][1].strip()
             mapping.append((len(line), line_number + 1, indent))
             line += next
         logical.append((mapping, line))
@@ -447,7 +465,7 @@ def check_lines(argument_name, lines, filename):
     error_count = 0
     checks = find_checks(argument_name)
     for location, line in lines:
-        line_muted = mute_strings(line)
+        line_muted = mute_comment(mute_strings(line))
         for name, check, args in checks:
             if args[0].endswith('_line'):
                 line_arg = line
@@ -458,18 +476,20 @@ def check_lines(argument_name, lines, filename):
             if len(args) == 1:
                 result = check(line_arg)
             elif len(args) == 2 and args[1] == 'indent_level':
+                print line_arg, location[0]
                 result = check(line_arg, location[0][2])
             if result is not None:
                 error_count += 1
                 offset, text = result
                 # print name, text
                 if options.testsuite:
-                    codename = text[:4] + '.py'
-                    basename = os.path.basename(filename)
-                    if basename == codename:
+                    code = text[:4]
+                    base = os.path.basename(filename)[:4]
+                    if base == code:
                         continue
-                    if basename[0] == 'E' and codename[0] == 'W':
+                    if base[0] == 'E' and code[0] == 'W':
                         continue
+                print location, offset
                 error(filename, location, offset, text)
                 if options.show_source:
                     message('    ' + line)
