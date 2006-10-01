@@ -421,22 +421,6 @@ def message(text):
     print text
 
 
-def error(filename, location, offset, text):
-    """
-    Print an error or warning message with parseable location.
-    """
-    if type(location) is int:
-        line_number = location
-    else:
-        merged_offset = offset
-        for start_offset, original_number, indent in location:
-            if merged_offset >= start_offset:
-                offset = merged_offset - start_offset + indent
-                line_number = original_number
-    message("%s:%s:%d: %s" %
-            (filename, line_number, offset + 1, text))
-
-
 def load(filename):
     """
     Load lines from a file and add line numbers.
@@ -499,6 +483,61 @@ def find_checks(argument_name):
     return checks
 
 
+def ignore_code(code):
+    """
+    Check if options.ignore contains a prefix of the error code.
+    """
+    for ignore in options.ignore:
+        if code.startswith(ignore):
+            return True
+
+
+def extract_subline(location, offset, line):
+    """
+    Extract a physical line from a logical line.
+    """
+    if type(location) is int:
+        return location, offset, line
+    else:
+        for start_offset, original_number, indent in location:
+            if offset >= start_offset:
+                subline_indent = indent
+                subline_start = start_offset
+                subline_offset = offset - start_offset + indent
+                subline_number = original_number
+        subline_end = len(line)
+        for index in range(1, len(location)):
+            if location[index - 1][0] == subline_start:
+                subline_end = location[index][0]
+        subline = ' ' * subline_indent + line[subline_start:subline_end]
+        return subline_number, subline_offset, subline
+
+
+def report_error(filename, location, offset, line, name, text):
+    """
+    Report an error, according to options.
+    """
+    code = text[:4]
+    if options.testsuite:
+        base = os.path.basename(filename)[:4]
+        if base == code:
+            return
+        if base[0] == 'E' and code[0] == 'W':
+            return
+    if ignore_code(code):
+        return
+    # print location, offset
+    subline_number, subline_offset, subline = extract_subline(
+        location, offset, line)
+    message("%s:%s:%d: %s" %
+            (filename , subline_number, subline_offset + 1, text))
+    if options.show_source:
+        message(subline.rstrip())
+        message(' ' * subline_offset + '^')
+    if options.show_pep8:
+        message(check.__doc__.lstrip('\n').rstrip())
+
+
 def check_lines(argument_name, lines, filename):
     """
     Find all checks with matching first argument name. Then iterate
@@ -525,21 +564,11 @@ def check_lines(argument_name, lines, filename):
             if result is not None:
                 error_count += 1
                 offset, text = result
-                # print name, text
-                if options.testsuite:
-                    code = text[:4]
-                    base = os.path.basename(filename)[:4]
-                    if base == code:
-                        continue
-                    if base[0] == 'E' and code[0] == 'W':
-                        continue
-                # print location, offset
-                error(filename, location, offset, text)
-                if options.show_source:
-                    message(line.rstrip())
-                    message(' ' * (offset) + '^')
-                if options.show_pep8:
-                    message(check.__doc__.lstrip('\n').rstrip())
+                if options.quiet:
+                    message(filename)
+                    return 1
+                else:
+                    report_error(filename, location, offset, line, check, text)
         # state['previous_line'] = line
     return error_count
 
@@ -563,6 +592,8 @@ def input_dir(dirname):
     Check all Python source files in this directory and all subdirectories.
     """
     dirname = dirname.rstrip('/')
+    if dirname in options.exclude:
+        return
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
@@ -589,13 +620,13 @@ def _main():
                       default=False, action='store_true',
                       help="report file names only")
     parser.add_option('--exclude', metavar='dirs', default= '.svn,CVS',
-                      help="ignore subdirectories (default .svn,CVS)")
+                      help="skip certain subdirectories (default .svn,CVS)")
     parser.add_option('--ignore', metavar='errors', default='',
-                      help="ignore errors (e.g. E301,W120)")
+                      help="e.g. E11,E12 for whitespace, W for all warnings")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
-                      help="run doctest on pep8.py")
+                      help="run doctest on myself")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
@@ -610,10 +641,13 @@ def _main():
         parser.error('input not specified')
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
+    for index in range(len(options.exclude)):
+        options.exclude[index] = options.exclude[index].rstrip('/')
     if options.ignore:
         options.ignore = options.ignore.split(',')
     else:
         options.ignore = []
+    # print options.exclude, options.ignore
     for path in args:
         if os.path.isdir(path):
             input_dir(path)
