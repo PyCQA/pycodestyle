@@ -77,14 +77,14 @@ Checker instance are available. Some examples:
 state: dictionary for passing information across lines
 indent_level: indentation (with tabs expanded to the next multiple of 8)
 
-The docstring of each check function shall be the respective part of
+The docstring of each check function shall be the relevant part of
 text from PEP 8. It is printed if the user enables --show-pep8.
 """
 
 import os
 import sys
-import inspect
 import re
+import inspect
 import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
@@ -368,15 +368,6 @@ def find_checks(argument_name):
     return checks
 
 
-def ignore_code(code):
-    """
-    Check if options.ignore contains a prefix of the error code.
-    """
-    for ignore in options.ignore:
-        if code.startswith(ignore):
-            return True
-
-
 def mute_line(line, line_number, tokens):
     for token_type, token, token_start, token_end, token_line in tokens:
         if token_start[0] <= line_number <= token_end[0]:
@@ -540,6 +531,8 @@ def input_file(filename):
     """
     Run all checks on a Python source file.
     """
+    if excluded(filename) or not filename_match(filename):
+        return {}
     if options.verbose:
         message('checking ' + filename)
     error_count = Checker(filename).check_all()
@@ -565,9 +558,8 @@ def input_dir(dirname):
                 dirs.remove(subdir)
         files.sort()
         for filename in files:
-            if not excluded(filename):
-                file_errors = input_file(os.path.join(root, filename))
-                add_error_count(error_count, file_errors)
+            file_errors = input_file(os.path.join(root, filename))
+            add_error_count(error_count, file_errors)
     if options.statistics:
         codes = error_count.keys()
         codes.sort()
@@ -581,8 +573,28 @@ def add_error_count(error_count, file_errors):
 
 
 def excluded(filename):
+    """
+    Check if options.exclude contains a pattern that matches filename.
+    """
     for pattern in options.exclude:
         if fnmatch(filename, pattern):
+            return True
+
+
+def filename_match(filename):
+    if not options.filename:
+        return True
+    for pattern in options.filename:
+        if fnmatch(filename, pattern):
+            return True
+
+
+def ignore_code(code):
+    """
+    Check if options.ignore contains a prefix of the error code.
+    """
+    for ignore in options.ignore:
+        if code.startswith(ignore):
             return True
 
 
@@ -598,9 +610,11 @@ def _main():
     parser.add_option('-q', '--quiet', default=0, action='count',
                       help="report only file names, or nothing with -qq")
     parser.add_option('--exclude', metavar='dirs', default=default_exclude,
-                      help="skip some entries (default %s)" % default_exclude)
+                      help="skip matches (default %s)" % default_exclude)
+    parser.add_option('--filename', metavar='pattern',
+                      help="only check matching files (e.g. *.py)")
     parser.add_option('--ignore', metavar='errors', default='',
-                      help="e.g. E4,W for imports and all warnings")
+                      help="skip errors and warnings (e.g. E4,W)")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
@@ -623,6 +637,8 @@ def _main():
     options.exclude = options.exclude.split(',')
     for index in range(len(options.exclude)):
         options.exclude[index] = options.exclude[index].rstrip('/')
+    if options.filename:
+        options.filename = options.filename.split(',')
     if options.ignore:
         options.ignore = options.ignore.split(',')
     else:
