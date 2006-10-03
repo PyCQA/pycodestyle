@@ -439,6 +439,9 @@ class Checker:
         return check(*arguments)
 
     def check_physical(self, line):
+        """
+        Run all physical checks on a raw input line.
+        """
         self.physical_line = line
         for name, check, argument_names in self.physical_checks:
             result = self.run_check(check, argument_names)
@@ -446,69 +449,79 @@ class Checker:
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
 
-    def check_logical(self, start, end, tokens):
-        # print start, '-', end
-        mapping = []
+    def build_tokens_line(self):
+        """
+        Build a logical line from tokens.
+        """
+        self.mapping = []
         logical = []
         length = 0
-        for line_number in range(start[0], end[0] + 1):
-            line = self.lines[line_number - 1].rstrip()
-            line = mute_line(line, line_number, tokens)
-            if line:
-                before = len(line)
-                line = line.lstrip()
-                after = len(line)
-                indent = before - after
-                if line.endswith('\\'):
-                    line = line[:-1]
-                if logical and logical[-1].endswith(','):
-                    logical.append(' ')
-                    length += 1
-                mapping.append((length, line_number, indent))
-                logical.append(line)
-                length += len(line)
-        self.indent_level = mapping[0][2]
+        previous = None
+        for token in self.tokens:
+            token_type, text = token[0:2]
+            if token_type in (tokenize.COMMENT,
+                              tokenize.INDENT,
+                              tokenize.DEDENT,
+                              tokenize.NL):
+                continue
+            if (previous and
+                previous[3][0] == token[2][0] and # same row
+                previous[3][1] != token[2][1]):   # different column
+                line_number = token[2][0]
+                start = previous[3][1]
+                end = token[2][1]
+                logical.append(self.lines[line_number - 1][start:end])
+                length += end - start
+            logical.append(text)
+            self.mapping.append((length, token))
+            length += len(text)
+            previous = token
         self.logical_line = ''.join(logical)
+
+    def check_logical(self):
+        """
+        Build a line from tokens and run all logical checks on it.
+        """
+        self.build_tokens_line()
+        self.indent_level = self.mapping[0][1][2][1]
         if options.verbose >= 2:
-            print 'running logical checks on ', self.logical_line[:50]
+            print self.logical_line[:80].rstrip()
         for name, check, argument_names in self.logical_checks:
             if options.verbose >= 3:
-                print name
+                print '   ', name
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
                 if type(offset) is tuple:
                     original_number, original_offset = offset
                 else:
-                    for map_offset, line_number, indent in mapping:
-                        if offset >= map_offset:
-                            original_number = line_number
-                            original_indent = indent
-                            original_offset = offset - map_offset
+                    for token_offset, token in self.mapping:
+                        if offset >= token_offset:
+                            original_number = token[2][0]
+                            original_offset = (token[2][1]
+                                               + offset - token_offset)
                 self.report_error(original_number, original_offset,
                                   text, check)
 
     def check_all(self):
-        start = None
-        parens = 0
+        """
+        Run all checks on the input file.
+        """
         self.line_number = 0
         self.error_count = {}
         self.state = {}
         self.tokens = []
+        parens = 0
         for token in tokenize.generate_tokens(self.readline_check_physical):
             # print tokenize.tok_name[token_type], repr(token)
             self.tokens.append(token)
-            token_type, token_string, token_start, token_end, line = token
-            if start is None:
-                start = token_start
-            if token_type == tokenize.OP and token_string in '([{':
+            token_type, text = token[0:2]
+            if token_type == tokenize.OP and text in '([{':
                 parens += 1
-            if token_type == tokenize.OP and token_string in '}])':
+            if token_type == tokenize.OP and text in '}])':
                 parens -= 1
             if token_type == tokenize.NEWLINE and not parens:
-                end = token_end
-                self.check_logical(start, end, self.tokens)
-                start = None
+                self.check_logical()
                 self.tokens = []
         return self.error_count
 
@@ -587,6 +600,9 @@ def input_dir(dirname):
 
 
 def add_error_count(error_count, file_errors):
+    """
+    Collect statistics.
+    """
     for code in file_errors:
         error_count[code] = (error_count.get(code, 0) + file_errors[code])
 
@@ -601,6 +617,10 @@ def excluded(filename):
 
 
 def filename_match(filename):
+    """
+    Check if options.filename contains a pattern that matches filename.
+    If options.filename is unspecified, this always returns True.
+    """
     if not options.filename:
         return True
     for pattern in options.filename:
