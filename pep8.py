@@ -29,16 +29,16 @@ http://www.python.org/dev/peps/pep-0008/
 For usage and a list of options, try this:
 $ python pep8.py -h
 
+This program and its regression test suite live here:
+http://svn.browsershots.org/trunk/devtools/pep8/
+http://trac.browsershots.org/browser/trunk/devtools/pep8/
+
 Groups of errors and warnings:
 E100 indentation
 E200 whitespace
 E300 blank lines
 E400 imports
 E500 line length
-
-This program and its regression test suite live here:
-http://svn.browsershots.org/trunk/devtools/pep8/
-http://trac.browsershots.org/browser/trunk/devtools/pep8/
 
 You can add checks to this program by writing plugins. Each plugin is
 a simple function that is called for each line of source code, either
@@ -100,7 +100,7 @@ options = None
 
 
 ##############################################################################
-# Various checks for physical lines
+# Plugins (check functions) for physical lines
 ##############################################################################
 
 
@@ -167,7 +167,7 @@ def maximum_line_length(physical_line):
 
 
 ##############################################################################
-# Various checks for logical lines
+# Plugins (check functions) for logical lines
 ##############################################################################
 
 
@@ -245,8 +245,7 @@ def extraneous_whitespace(logical_line):
             return found, "E203 whitespace before '%s'" % char
 
 
-token_space_paren_match = re.compile(r'(\w+)\s+(\(|\[)$')
-def whitespace_before_parameters(logical_line):
+def whitespace_before_parameters(logical_line, tokens):
     """
     Avoid extraneous whitespace in the following situations:
 
@@ -256,21 +255,21 @@ def whitespace_before_parameters(logical_line):
     - Immediately before the open parenthesis that starts an indexing or
       slicing.
     """
-    line = logical_line
-    if line.startswith('class'):
-        return
-    for char in '([':
-        found = -1
-        while True:
-            found = line.find(' ' + char, found + 1)
-            if found == -1:
-                break
-            before = last_token_match(line[:found]).group(1)
-            if (before == ',' or
-                before in operators or
-                iskeyword(before)):
-                continue
-            return found, "E211 whitespace before '%s'" % char
+    prev_type = tokens[0][0]
+    prev_text = tokens[0][1]
+    prev_end = tokens[0][3]
+    for index in range(1, len(tokens)):
+        token_type, text, start, end, line = tokens[index]
+        if (token_type == tokenize.OP and
+            text in '([' and
+            start != prev_end and
+            prev_type == tokenize.NAME and
+            (index < 2 or tokens[index - 2][1] != 'class') and
+            (not iskeyword(prev_text))):
+            return prev_end, "E211 whitespace before '%s'" % text
+        prev_type = token_type
+        prev_text = text
+        prev_end = end
 
 
 def whitespace_around_operator(logical_line):
@@ -366,26 +365,38 @@ def mute_line(line, line_number, tokens):
     Replace strings with 'xxx' and remove comments in order to prevent
     syntax matching.
     """
+    parts = []
+    start = 0
+    stop = len(line)
     for token_type, token, token_start, token_end, token_line in tokens:
-        if token_start[0] <= line_number <= token_end[0]:
+        if token_start[0] > line_number:
+            break
+        elif line_number <= token_end[0]:
             if token_type == tokenize.COMMENT:
                 # Strip comments
-                line = line[:token_start[1]].rstrip()
+                stop = token_start[1]
+                break
             elif token_type == tokenize.STRING:
                 # Replace strings with 'xxx'
                 string_start = token_start[1] + 1
                 string_end = token_end[1] - 1
-                if token.startswith('"""') or token.startswith("'''"):
+                # String modifiers (e.g. u or r)
+                if token.endswith('"'):
+                    string_start += token.index('"')
+                elif token.endswith("'"):
+                    string_start += token.index("'")
+                if token.endswith('"""') or token.endswith("'''"):
                     string_start += 2
                     string_end -= 2
                 if line_number > token_start[0]:
                     string_start = 0
                 if line_number < token_end[0]:
                     string_end = len(line)
-                line = (line[:string_start] +
-                        'x' * (string_end - string_start) +
-                        line[string_end:])
-    return line
+                parts.append(line[start:string_start])
+                parts.append('x' * (string_end - string_start))
+                start = string_end
+    parts.append(line[start:stop])
+    return ''.join(parts)
 
 
 class Checker:
@@ -465,24 +476,27 @@ class Checker:
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
-                for map_offset, line_number, indent in mapping:
-                    if offset >= map_offset:
-                        original_number = line_number
-                        original_indent = indent
-                        original_offset = offset - map_offset
+                if type(offset) is tuple:
+                    original_number, original_offset = offset
+                else:
+                    for map_offset, line_number, indent in mapping:
+                        if offset >= map_offset:
+                            original_number = line_number
+                            original_indent = indent
+                            original_offset = offset - map_offset
                 self.report_error(original_number, original_offset,
                                   text, check)
 
     def check_all(self):
         start = None
-        tokens = []
         parens = 0
         self.line_number = 0
         self.error_count = {}
         self.state = {}
+        self.tokens = []
         for token in tokenize.generate_tokens(self.readline_check_physical):
             # print tokenize.tok_name[token_type], repr(token)
-            tokens.append(token)
+            self.tokens.append(token)
             token_type, token_string, token_start, token_end, line = token
             if start is None:
                 start = token_start
@@ -492,9 +506,9 @@ class Checker:
                 parens -= 1
             if token_type == tokenize.NEWLINE and not parens:
                 end = token_end
-                self.check_logical(start, end, tokens)
+                self.check_logical(start, end, self.tokens)
                 start = None
-                tokens = []
+                self.tokens = []
         return self.error_count
 
     def report_error(self, line_number, offset, text, check):
@@ -506,7 +520,7 @@ class Checker:
         code = text[:4]
         count_text = text
         if text.endswith(')'):
-            # remove actual values, e.g. '(86 characters)'
+            # for statistics, remove precise values, e.g. '(86 characters)'
             found = count_text.rfind('(')
             if found > -1:
                 count_text = count_text[:found].rstrip()
