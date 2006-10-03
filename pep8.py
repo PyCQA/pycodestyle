@@ -653,6 +653,8 @@ def _main():
                       help="show text of PEP 8 for each error")
     parser.add_option('--statistics', action='store_true',
                       help="count errors and warnings")
+    parser.add_option('--benchmark', action='store_true',
+                      help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
@@ -683,12 +685,20 @@ def _main():
             input_dir(path)
         else:
             input_file(path)
+    elapsed = time.time() - start_time
     if options.statistics:
         keys = options.counter.keys()
         keys.sort()
         for key in keys:
-            print '%-7s %s' % (options.counter[key], key)
-        print '%-7.2f %s' % (time.time() - start_time, 'seconds')
+            if key[0] in 'EW':
+                print '%-7s %s' % (options.counter[key], key)
+    if options.benchmark:
+        print '%-7.2f %s' % (elapsed, 'seconds elapsed')
+        keys = ['directories', 'files',
+                'logical lines', 'physical lines']
+        for key in keys:
+            print '%-7d %s per second (%d total)' % (
+                options.counter[key] / elapsed, key, options.counter[key])
 
 
 if __name__ == '__main__':
