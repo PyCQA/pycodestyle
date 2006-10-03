@@ -26,17 +26,6 @@
 Check Python source code formatting, according to PEP 8:
 http://www.python.org/dev/peps/pep-0008/
 
-A tool to automatically check your Python code against some of the
-coding conventions in PEP 8 (Style Guide for Python Code). The
-architecture of pep8.py makes it very easy to add more checks. The
-output is parseable to let your editor jump directly to the position
-of each error.
-
-This tool is not a complete implementation of all the recommendations
-in PEP 8. Many parts of PEP 8 are impossible to check automatically.
-Even of the possible parts, this early version of pep8.py checks only
-a small subset.
-
 For usage and a list of options, try this:
 $ python pep8.py -h
 
@@ -51,9 +40,9 @@ This program and its regression test suite live here:
 http://svn.browsershots.org/trunk/devtools/pep8/
 http://trac.browsershots.org/browser/trunk/devtools/pep8/
 
-You can add checks to this program simply by adding a new check
-function. All checks operate on single lines, either physical or
-logical.
+You can add checks to this program by writing plugins. Each plugin is
+a simple function that is called for each line of source code, either
+physical or logical.
 
 Physical line:
 - Raw line of text from the input file.
@@ -72,7 +61,7 @@ def indentation(logical_line, state, indent_level)
 
 The second example above demonstrates how check functions can request
 additional information with extra arguments. All attributes of the
-Checker instance are available. Some examples:
+Checker object are available. Some examples:
 
 state: dictionary for passing information across lines
 indent_level: indentation (with tabs expanded to the next multiple of 8)
@@ -313,20 +302,20 @@ def imports_on_separate_lines(logical_line):
 ##############################################################################
 
 
-def get_indent(line):
+def expand_indent(line):
     """
     Return the amount of indentation.
     Tabs are expanded to the next multiple of 8.
 
-    >>> get_indent('    abc')
+    >>> expand_indent('    ')
     4
-    >>> get_indent('\\tabc')
+    >>> expand_indent('\\t')
     8
-    >>> get_indent('    \\tabc')
+    >>> expand_indent('    \\t')
     8
-    >>> get_indent('       \\tabc')
+    >>> expand_indent('       \\t')
     8
-    >>> get_indent('        \\tabc')
+    >>> expand_indent('        \\t')
     16
     """
     result = 0
@@ -369,6 +358,10 @@ def find_checks(argument_name):
 
 
 def mute_line(line, line_number, tokens):
+    """
+    Replace strings with 'xxx' and remove comments in order to prevent
+    syntax matching.
+    """
     for token_type, token, token_start, token_end, token_line in tokens:
         if token_start[0] <= line_number <= token_end[0]:
             if token_type == tokenize.COMMENT:
@@ -392,6 +385,9 @@ def mute_line(line, line_number, tokens):
 
 
 class Checker:
+    """
+    Load a Python source file, tokenize it, check coding style.
+    """
 
     def __init__(self, filename):
         self.filename = filename
@@ -400,30 +396,27 @@ class Checker:
         self.logical_checks = find_checks('logical_line')
 
     def readline(self):
+        """
+        Get the next line from the input buffer.
+        """
         self.line_number += 1
         if self.line_number > len(self.lines):
             return ''
         return self.lines[self.line_number - 1]
 
     def readline_check_physical(self):
+        """
+        Check and return the next physical line.
+        This method be used to feed tokenize.generate_tokens.
+        """
         line = self.readline()
         self.check_physical(line)
         return line
 
-        for start_offset, original_number, indent in location:
-            if offset >= start_offset:
-                subline_indent = indent
-                subline_start = start_offset
-                subline_offset = offset - start_offset + indent
-                subline_number = original_number
-        subline_end = len(line)
-        for index in range(1, len(location)):
-            if location[index - 1][0] == subline_start:
-                subline_end = location[index][0]
-        subline = ' ' * subline_indent + line[subline_start:subline_end]
-        return subline_number, subline_offset, subline
-
     def run_check(self, check, argument_names):
+        """
+        Run a check plugin.
+        """
         arguments = []
         for name in argument_names:
             arguments.append(getattr(self, name))
