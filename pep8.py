@@ -26,6 +26,12 @@
 Check Python source code formatting, according to PEP 8:
 http://www.python.org/dev/peps/pep-0008/
 
+A tool to automatically check your Python code against some of the
+coding conventions in PEP 8 (Style Guide for Python Code). The
+architecture of pep8.py makes it very easy to add more checks. The
+output is parseable to let your editor jump directly to the position
+of each error.
+
 This tool is not a complete implementation of all the recommendations
 in PEP 8. Many parts of PEP 8 are impossible to check automatically.
 Even of the possible parts, this early version of pep8.py checks only
@@ -46,16 +52,30 @@ http://svn.browsershots.org/trunk/devtools/pep8/
 http://trac.browsershots.org/browser/trunk/devtools/pep8/
 
 You can add checks to this program simply by adding a new check
-function. All checks operate on single lines. Where necessary, any
-state is kept in the global dict 'state'. The check function requests
-physical or logical lines by the name of the first argument:
+function. All checks operate on single lines, either physical or
+logical.
 
-def tabs_or_spaces(physical_line)
-def indentation(logical_line, indent_level)
+Physical line:
+- Raw line of text from the input file.
+
+Logical line:
+- Multi-line statements converted to a single line.
+- Stripped left and right.
+- Contents of strings replaced with 'xxx' of same length.
+- Comments removed.
+
+The check function requests physical or logical lines by the name of
+the first argument:
+
+def maximum_line_length(physical_line)
+def indentation(logical_line, state, indent_level)
 
 The second example above demonstrates how check functions can request
-additional information with extra arguments, for example the level of
-indentation (with tabs expanded to the next multiple of 8).
+additional information with extra arguments. All attributes of the
+Checker instance are available. Some examples:
+
+state: dictionary for passing information across lines
+indent_level: indentation (with tabs expanded to the next multiple of 8)
 
 The docstring of each check function shall be the respective part of
 text from PEP 8. It is printed if the user enables --show-pep8.
@@ -65,24 +85,24 @@ import os
 import sys
 import inspect
 import re
+import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __revision__ = '$Rev$'
 
 indent_match = re.compile(r'([ \t]*)').match
 last_token_match = re.compile(r'(\w+|\S)\s*$').search
 
 operators = """
-+  -  *  /  %  ^  &  |  =  <  >
-+= -= *= /= %= ^= &= |= == <= >=
++  -  *  /  %  ^  &  |  =  <  >  >>  <<
++= -= *= /= %= ^= &= |= == <= >= >>= <<=
 != <> :
 in is or not and
 """.split()
 
 options = None
-state = {}
 
 
 ##############################################################################
@@ -90,7 +110,7 @@ state = {}
 ##############################################################################
 
 
-def tabs_or_spaces(physical_line):
+def tabs_or_spaces(physical_line, state):
     """
     Never mix tabs and spaces.
 
@@ -157,7 +177,7 @@ def maximum_line_length(physical_line):
 ##############################################################################
 
 
-def indentation(logical_line, indent_level):
+def indentation(logical_line, state, indent_level):
     """
     Use 4 spaces per indentation level.
 
@@ -180,7 +200,7 @@ def indentation(logical_line, indent_level):
         return 0, "E113 unexpected indentation"
 
 
-def blank_lines(logical_line, indent_level):
+def blank_lines(logical_line, state, indent_level):
     """
     Separate top-level function and class definitions with two blank lines.
 
@@ -290,133 +310,6 @@ def imports_on_separate_lines(logical_line):
 ##############################################################################
 
 
-def quoted_quote(line, pos):
-    """
-    Is line[pos] preceded with an odd number of backslashes?
-
-    >>> quoted_quote('\\\\""', 1)
-    True
-    >>> quoted_quote('\\\\\\\\""', 2)
-    False
-    """
-    count = 0
-    while pos > count and line[pos - count - 1] == '\\':
-        count += 1
-    return bool(count % 2)
-
-
-def find_real_quote(line, char, pos):
-    """
-    Find the next quote character that is not quoted with backslashes.
-
-    >>> find_real_quote('abc\\\\"abc"abc\\\\"abc', '"', 0)
-    8
-    >>> find_real_quote('abc', '\"', 0)
-    -1
-    """
-    pos = line.find(char, pos)
-    while quoted_quote(line, pos):
-        pos = line.find(char, pos + 1)
-    return pos
-
-
-def mute_strings(line):
-    """
-    Overwrite strings with 'xxxxx' to prevent syntax matching.
-
-    >>> mute_strings('list("abc")')
-    'list("xxx")'
-    >>> mute_strings("list('abc')")
-    "list('xxx')"
-    """
-    for quote in '\'"':
-        start = -1
-        while True:
-            start = find_real_quote(line, quote, start + 1)
-            stop = find_real_quote(line, quote, start + 1)
-            if start == -1 or stop == -1:
-                break
-            middle = 'x' * (stop - start - 1)
-            line = line[:start+1] + middle + line[stop:]
-            start = stop
-    return line
-
-
-def mute_comment(line):
-    """
-    Delete comment text to prevent syntax matching.
-
-    >>> mute_comment('# abc')
-    '#'
-    >>> mute_comment('abc # xyz')
-    'abc #'
-    """
-    found = line.find('#')
-    if found == -1:
-        return line
-    return line[:found+1]
-
-
-def count_parens(line, chars):
-    """
-    Count parens, but not in strings.
-
-    >>> count_parens('abc', '([{')
-    0
-    >>> count_parens('([{', '([{')
-    3
-    >>> count_parens('abc()', '(')
-    1
-    >>> count_parens('abc("xyz()")', '(')
-    1
-    """
-    result = 0
-    pos = 0
-    while pos < len(line):
-        if line[pos] in chars:
-            result += 1
-        if line[pos] == '"':
-            pos += 1
-            while pos < len(line) and (
-                line[pos] != '"' or quoted_quote(line, pos)):
-                pos += 1
-        if pos >= len(line):
-            break
-        if line[pos] == "'":
-            pos += 1
-            while pos < len(line) and (
-                line[pos] != "'" or quoted_quote(line, pos)):
-                pos += 1
-        pos += 1
-    return result
-
-
-def triple_quoted_incomplete(line):
-    """
-    Test if line contains an incomplete triple-quoted string.
-
-    >>> triple_quoted_incomplete("'''")
-    True
-    >>> triple_quoted_incomplete("''''''")
-    False
-    >>> triple_quoted_incomplete("'''''''''")
-    True
-    """
-    line = mute_strings(line)
-    single = line.find("'''")
-    double = line.find('"""')
-    if single > -1 and double > -1:
-        if single < double:
-            return bool(line.count("'''") % 2)
-        else:
-            return bool(line.count('"""') % 2)
-    elif single > -1:
-        return bool(line.count("'''") % 2)
-    elif double > -1:
-        return bool(line.count('"""') % 2)
-    return False
-
-
 def get_indent(line):
     """
     Return the amount of indentation.
@@ -456,52 +349,6 @@ def message(text):
     print text
 
 
-def load(filename):
-    """
-    Load lines from a file and add line numbers.
-    """
-    lines = []
-    line_number = 0
-    for line in file(filename):
-        line_number += 1
-        lines.append((line_number, line))
-    return lines
-
-
-def physical_to_logical(physical):
-    """
-    Convert multi-line statements to single lines.
-    """
-    logical = []
-    line_number = 0
-    while line_number < len(physical):
-        indent = get_indent(physical[line_number][1])
-        line = physical[line_number][1].strip()
-        mapping = [(0, line_number + 1, indent)]
-        while (line.endswith('\\') or
-               triple_quoted_incomplete(line) or
-               count_parens(line, '([{') > count_parens(line, ')]}')):
-            line_number += 1
-            if line_number >= len(physical):
-                break
-            indent = get_indent(physical[line_number][1])
-            next = physical[line_number][1].strip()
-            if line.endswith('\\'):
-                line = line[:-1]
-            elif line[-1] in '([{':
-                pass
-            # elif next[0] in '}])':
-            #     pass
-            else:
-                line += ' '
-            # print line_number, line, '+', next
-            mapping.append((len(line), line_number + 1, indent))
-            line += next
-        logical.append((mapping, line))
-        line_number += 1
-    return logical
-
-
 def find_checks(argument_name):
     """
     Find all globally visible functions where the first argument name
@@ -527,13 +374,48 @@ def ignore_code(code):
             return True
 
 
-def extract_subline(location, offset, line):
-    """
-    Extract a physical line from a logical line.
-    """
-    if type(location) is int:
-        return location, offset, line
-    else:
+def mute_line(line, line_number, tokens):
+    for token_type, token, token_start, token_end, token_line in tokens:
+        if token_start[0] <= line_number <= token_end[0]:
+            if token_type == tokenize.COMMENT:
+                # Strip comments
+                line = line[:token_start[1]].rstrip()
+            elif token_type == tokenize.STRING:
+                # Replace strings with 'xxx'
+                string_start = token_start[1] + 1
+                string_end = token_end[1] - 1
+                if token.startswith('"""') or token.startswith("'''"):
+                    string_start += 2
+                    string_end -= 2
+                if line_number > token_start[0]:
+                    string_start = 0
+                if line_number < token_end[0]:
+                    string_end = len(line)
+                line = (line[:string_start] +
+                        'x' * (string_end - string_start) +
+                        line[string_end:])
+    return line
+
+
+class Checker:
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.lines = file(filename).readlines()
+        self.physical_checks = find_checks('physical_line')
+        self.logical_checks = find_checks('logical_line')
+
+    def readline(self):
+        self.line_number += 1
+        if self.line_number > len(self.lines):
+            return ''
+        return self.lines[self.line_number - 1]
+
+    def readline_check_physical(self):
+        line = self.readline()
+        self.check_physical(line)
+        return line
+
         for start_offset, original_number, indent in location:
             if offset >= start_offset:
                 subline_indent = indent
@@ -547,65 +429,98 @@ def extract_subline(location, offset, line):
         subline = ' ' * subline_indent + line[subline_start:subline_end]
         return subline_number, subline_offset, subline
 
+    def run_check(self, check, argument_names):
+        arguments = []
+        for name in argument_names:
+            arguments.append(getattr(self, name))
+        return check(*arguments)
 
-def report_error(filename, location, offset, line, check, text):
-    """
-    Report an error, according to options.
-    """
-    code = text[:4]
-    if options.testsuite:
-        base = os.path.basename(filename)[:4]
-        if base == code:
-            return
-        if base[0] == 'E' and code[0] == 'W':
-            return
-    if ignore_code(code):
-        return
-    # print location, offset
-    subline_number, subline_offset, subline = extract_subline(
-        location, offset, line)
-    message("%s:%s:%d: %s" %
-            (filename, subline_number, subline_offset + 1, text))
-    if options.show_source:
-        message(subline.rstrip())
-        message(' ' * subline_offset + '^')
-    if options.show_pep8:
-        message(check.__doc__.lstrip('\n').rstrip())
-
-
-def check_lines(argument_name, lines, filename):
-    """
-    Find all checks with matching first argument name. Then iterate
-    over the input lines and run all checks on each line.
-    """
-    global state
-    state = {} # {'previous_line': None}
-    error_count = 0
-    checks = find_checks(argument_name)
-    for location, line in lines:
-        line_muted = mute_comment(mute_strings(line))
-        for name, check, args in checks:
-            if args[0].endswith('_line'):
-                line_arg = line
-            elif args[0].endswith('_muted'):
-                line_arg = line_muted
-            else:
-                raise NotImplementedError('unsupported argument %s' % args[0])
-            if len(args) == 1:
-                result = check(line_arg)
-            elif len(args) == 2 and args[1] == 'indent_level':
-                # print line_arg, location[0]
-                result = check(line_arg, location[0][2])
+    def check_physical(self, line):
+        self.physical_line = line
+        for name, check, argument_names in self.physical_checks:
+            result = self.run_check(check, argument_names)
             if result is not None:
-                error_count += 1
                 offset, text = result
-                if options.quiet:
-                    message(filename)
-                    return 1
-                else:
-                    report_error(filename, location, offset, line, check, text)
-        # state['previous_line'] = line
-    return error_count
+                self.report_error(self.line_number, offset, text, check)
+
+    def check_logical(self, start, end, tokens):
+        # print start, '-', end
+        mapping = []
+        logical = ''
+        for line_number in range(start[0], end[0] + 1):
+            line = self.lines[line_number - 1].rstrip()
+            line = mute_line(line, line_number, tokens)
+            if line:
+                before = len(line)
+                line = line.lstrip()
+                after = len(line)
+                indent = before - after
+                if line.endswith('\\'):
+                    line = line[:-1]
+                if logical.endswith(','):
+                    logical += ' '
+                mapping.append((len(logical), line_number, indent))
+                logical += line
+        self.indent_level = mapping[0][2]
+        self.logical_line = logical
+        for name, check, argument_names in self.logical_checks:
+            result = self.run_check(check, argument_names)
+            if result is not None:
+                offset, text = result
+                for map_offset, line_number, indent in mapping:
+                    if offset >= map_offset:
+                        original_number = line_number
+                        original_indent = indent
+                        original_offset = offset - map_offset
+                self.report_error(original_number, original_offset,
+                                  text, check)
+
+    def check_all(self):
+        start = None
+        tokens = []
+        parens = 0
+        self.line_number = 0
+        self.error_count = {}
+        self.state = {}
+        for token in tokenize.generate_tokens(self.readline_check_physical):
+            # print tokenize.tok_name[token_type], repr(token)
+            tokens.append(token)
+            token_type, token_string, token_start, token_end, line = token
+            if start is None:
+                start = token_start
+            if token_type == tokenize.OP and token_string in '([{':
+                parens += 1
+            if token_type == tokenize.OP and token_string in '}])':
+                parens -= 1
+            if token_type == tokenize.NEWLINE and not parens:
+                end = token_end
+                self.check_logical(start, end, tokens)
+                start = None
+                tokens = []
+        return self.error_count
+
+    def report_error(self, line_number, offset, text, check):
+        """
+        Report an error, according to options.
+        """
+        code = text[:4]
+        self.error_count[code] = self.error_count.get(code, 0) + 1
+        if options.testsuite:
+            base = os.path.basename(self.filename)[:4]
+            if base == code:
+                return
+            if base[0] == 'E' and code[0] == 'W':
+                return
+        if ignore_code(code):
+            return
+        message("%s:%s:%d: %s" %
+                (self.filename, line_number, offset + 1, text))
+        if options.show_source:
+            line = self.lines[line_number - 1]
+            message(line)
+            message(' ' * offset + '^')
+        if options.show_pep8:
+            message(check.__doc__.lstrip('\n').rstrip())
 
 
 def input_file(filename):
@@ -614,11 +529,8 @@ def input_file(filename):
     """
     if options.verbose:
         message('checking ' + filename)
-    physical = load(filename)
-    errors = check_lines('physical_line', physical, filename)
-    logical = physical_to_logical(physical)
-    errors += check_lines('logical_line', logical, filename)
-    if options.testsuite and not errors:
+    error_count = Checker(filename).check_all()
+    if options.testsuite and not error_count:
         message("%s: %s" % (filename, "no errors found"))
 
 
