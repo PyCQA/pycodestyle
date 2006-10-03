@@ -1,8 +1,34 @@
-pep8.py 0.1.0
+pep8.py 0.2.0 - Python style guide checker
 
-A tool to automatically check your Python code against some of the coding conventions in PEP 8 (Style Guide for Python Code). The architecture of pep8.py makes it very easy to add more checks. The output is parseable to let your editor jump directly to the position of each error.
+Announcing the first public release of pep8.py, a tool to check your
+Python code against some of the style conventions in PEP 8.
+http://www.python.org/dev/peps/pep-0008/
 
-Example usage and output:
+Features
+========
+
+- Plugin architecture: very easy to add more checks.
+- Parseable output: jump to error position in your editor.
+- Small: just one file, requires only stdlib.
+- Reasonably fast: checks /usr/lib/python2.4 in one minute.
+
+Get the source code
+===================
+
+The source code of pep8.py (including a regression test suite) is
+available from the subversion repository, under the Expat license.
+http://svn.browsershots.org/trunk/devtools/pep8/
+
+You can also browse the source code and change history online.
+http://trac.browsershots.org/browser/trunk/devtools/pep8/pep8.py
+
+Your feedback is more than welcome. Write email to
+johann@browsershots.org or post bugs and feature requests here:
+http://trac.browsershots.org/newticket?component=devtools
+
+Example usage and output
+========================
+
 $ pep8.py /usr/lib/python2.4/optparse.py
 /usr/lib/python2.4/optparse.py:69:11: E401 multiple imports on one line
 /usr/lib/python2.4/optparse.py:77:1: E302 expected 2 blank lines, found 1
@@ -15,27 +41,24 @@ $ pep8.py /usr/lib/python2.4/optparse.py
 /usr/lib/python2.4/optparse.py:472:29: E221 multiple spaces before operator
 /usr/lib/python2.4/optparse.py:878:5: E301 expected 1 blank line, found 2
 
-You can also make pep8.py show lines of source code, and even the relevant text from PEP 8:
+You can also make pep8.py show lines of source code, and even the
+relevant text from PEP 8:
+
 $ pep8.py --show-source --show-pep8 testsuite/E111.py
 testsuite/E111.py:2:3: E111 indentation is not a multiple of four
   print x
   ^
     Use 4 spaces per indentation level.
 
-    For really old code that you don't want to mess up, you can continue to
-    use 8-space tabs.
+    For really old code that you don't want to mess up, you can
+    continue to use 8-space tabs.
 
-The source code (and a regression test suite) is available from the subversion repository:
-http://svn.browsershots.org/trunk/devtools/pep8/
+Or you can display how often each error was found. This example takes
+a minute on my machine:
 
-You can also browse the source code and change history online:
-http://trac.browsershots.org/browser/trunk/devtools/pep8/pep8.py
+$ pep8.py --statistics -qq --filename *.py --exclude site-packages
+/usr/lib/python2.4
 
-Your feedback is more than welcome. Write email to johann@browsershots.org or post bugs and feature requests here:
-http://trac.browsershots.org/newticket?component=devtools
-
-And here's PEP 8 (Style Guide for Python Code):
-http://www.python.org/dev/peps/pep-0008/
 
 Cheers,
 Johann
