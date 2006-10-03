@@ -57,9 +57,10 @@ The check function requests physical or logical lines by the name of
 the first argument:
 
 def maximum_line_length(physical_line)
-def indentation(logical_line, state, indent_level)
+def extraneous_whitespace(logical_line)
+def indentation(logical_line, indent_level, state)
 
-The second example above demonstrates how check plugins can request
+The last example above demonstrates how check plugins can request
 additional information with extra arguments. All attributes of the
 Checker object are available. Some examples:
 
@@ -171,29 +172,6 @@ def maximum_line_length(physical_line):
 ##############################################################################
 
 
-def indentation(logical_line, state, indent_level):
-    """
-    Use 4 spaces per indentation level.
-
-    For really old code that you don't want to mess up, you can continue to
-    use 8-space tabs.
-    """
-    line = logical_line
-    if line == '':
-        return
-    previous_level = state.get('indent_level', 0)
-    indent_expect = state.get('indent_expect', False)
-    state['indent_expect'] = line.rstrip('#').rstrip().endswith(':')
-    indent_char = state.get('indent_char', ' ')
-    state['indent_level'] = indent_level
-    if indent_char == ' ' and indent_level % 4:
-        return 0, "E111 indentation is not a multiple of four"
-    if indent_expect and indent_level <= previous_level:
-        return 0, "E112 expected an indented block"
-    if not indent_expect and indent_level > previous_level:
-        return 0, "E113 unexpected indentation"
-
-
 def blank_lines(logical_line, state, indent_level):
     """
     Separate top-level function and class definitions with two blank lines.
@@ -243,6 +221,29 @@ def extraneous_whitespace(logical_line):
         found = line.find(' ' + char)
         if found > -1:
             return found, "E203 whitespace before '%s'" % char
+
+
+def indentation(logical_line, indent_level, state):
+    """
+    Use 4 spaces per indentation level.
+
+    For really old code that you don't want to mess up, you can continue to
+    use 8-space tabs.
+    """
+    line = logical_line
+    if line == '':
+        return
+    previous_level = state.get('indent_level', 0)
+    indent_expect = state.get('indent_expect', False)
+    state['indent_expect'] = line.rstrip('#').rstrip().endswith(':')
+    indent_char = state.get('indent_char', ' ')
+    state['indent_level'] = indent_level
+    if indent_char == ' ' and indent_level % 4:
+        return 0, "E111 indentation is not a multiple of four"
+    if indent_expect and indent_level <= previous_level:
+        return 0, "E112 expected an indented block"
+    if not indent_expect and indent_level > previous_level:
+        return 0, "E113 unexpected indentation"
 
 
 def whitespace_before_parameters(logical_line, tokens):
