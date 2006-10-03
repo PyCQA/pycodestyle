@@ -512,7 +512,7 @@ class Checker:
         """
         Run all checks on the input file.
         """
-        self.file_error = 0
+        self.file_errors = 0
         self.line_number = 0
         self.state = {}
         self.tokens = []
@@ -528,14 +528,15 @@ class Checker:
             if token_type == tokenize.NEWLINE and not parens:
                 self.check_logical()
                 self.tokens = []
+        return self.file_errors
 
     def report_error(self, line_number, offset, text, check):
         """
         Report an error, according to options.
         """
-        if options.quiet == 1 and not self.file_error:
-            self.file_error = True
+        if options.quiet == 1 and not self.file_errors:
             message(self.filename)
+        self.file_errors += 1
         code = text[:4]
         count_text = text
         if text.endswith(')'):
