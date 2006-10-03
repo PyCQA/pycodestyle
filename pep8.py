@@ -59,15 +59,18 @@ the first argument:
 def maximum_line_length(physical_line)
 def indentation(logical_line, state, indent_level)
 
-The second example above demonstrates how check functions can request
+The second example above demonstrates how check plugins can request
 additional information with extra arguments. All attributes of the
 Checker object are available. Some examples:
 
+lines: a list of the raw lines from the input file
+tokens: the tokens that contribute to this logical line
 state: dictionary for passing information across lines
-indent_level: indentation (with tabs expanded to the next multiple of 8)
+indent_level: indentation (with tabs expanded to multiples of 8)
 
 The docstring of each check function shall be the relevant part of
 text from PEP 8. It is printed if the user enables --show-pep8.
+
 """
 
 import os
@@ -85,7 +88,6 @@ __revision__ = '$Rev$'
 default_exclude = '.svn,CVS,*.pyc,*.pyo'
 
 indent_match = re.compile(r'([ \t]*)').match
-last_token_match = re.compile(r'(\w+|\S)\s*$').search
 
 operators = """
 +  -  *  /  %  ^  &  |  =  <  >  >>  <<
@@ -243,6 +245,7 @@ def extraneous_whitespace(logical_line):
             return found, "E203 whitespace before '%s'" % char
 
 
+token_space_paren_match = re.compile(r'(\w+)\s+(\(|\[)$')
 def whitespace_before_parameters(logical_line):
     """
     Avoid extraneous whitespace in the following situations:
@@ -254,6 +257,8 @@ def whitespace_before_parameters(logical_line):
       slicing.
     """
     line = logical_line
+    if line.startswith('class'):
+        return
     for char in '([':
         found = -1
         while True:
@@ -261,10 +266,9 @@ def whitespace_before_parameters(logical_line):
             if found == -1:
                 break
             before = last_token_match(line[:found]).group(1)
-            if (before in operators or
-                before == ',' or
-                iskeyword(before) or
-                line.startswith('class')):
+            if (before == ',' or
+                before in operators or
+                iskeyword(before)):
                 continue
             return found, "E211 whitespace before '%s'" % char
 
@@ -433,7 +437,8 @@ class Checker:
     def check_logical(self, start, end, tokens):
         # print start, '-', end
         mapping = []
-        logical = ''
+        logical = []
+        length = 0
         for line_number in range(start[0], end[0] + 1):
             line = self.lines[line_number - 1].rstrip()
             line = mute_line(line, line_number, tokens)
@@ -444,13 +449,19 @@ class Checker:
                 indent = before - after
                 if line.endswith('\\'):
                     line = line[:-1]
-                if logical.endswith(','):
-                    logical += ' '
-                mapping.append((len(logical), line_number, indent))
-                logical += line
+                if logical and logical[-1].endswith(','):
+                    logical.append(' ')
+                    length += 1
+                mapping.append((length, line_number, indent))
+                logical.append(line)
+                length += len(line)
         self.indent_level = mapping[0][2]
-        self.logical_line = logical
+        self.logical_line = ''.join(logical)
+        if options.verbose >= 2:
+            print 'running logical checks on ', self.logical_line[:50]
         for name, check, argument_names in self.logical_checks:
+            if options.verbose >= 3:
+                print name
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
