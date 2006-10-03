@@ -53,13 +53,9 @@ physical or logical lines by the name of the first argument:
 def tabs_or_spaces(physical_line)
 def indentation(logical_line_muted, indent_level)
 
-The second example above demonstrates two advanced features:
-- Logical lines are also available in a muted variant where all
-  strings are replaced with 'xxx' of the same length, and all comments
-  are stripped except for the # symbol.
-- The check function can request additional info with extra arguments,
-  for example the level of indentation (with tabs expanded to the next
-  multiple of 8).
+The second example above demonstrates how check functions can request
+additional information with extra arguments, for example the level of
+indentation (with tabs expanded to the next multiple of 8).
 
 The docstring of each check function shall be the respective part of
 text from PEP 8. It is printed if the user enables --show-pep8.
@@ -132,8 +128,9 @@ def trailing_whitespace(physical_line):
     """
     JCR: Trailing whitespace is superfluous.
     """
-    physical_line = physical_line.rstrip('\n')
-    physical_line = physical_line.rstrip('\r')
+    physical_line = physical_line.rstrip('\n') # chr(10), newline
+    physical_line = physical_line.rstrip('\r') # chr(13), carriage return
+    physical_line = physical_line.rstrip('\x0c') # chr(12), form feed, ^L
     stripped = physical_line.rstrip()
     if physical_line != stripped:
         return len(stripped), "W291 trailing whitespace"
@@ -152,7 +149,7 @@ def maximum_line_length(physical_line):
     """
     length = len(physical_line.rstrip())
     if length > 79:
-        return 79, "E501 line is longer than 79 characters (%d)" % length
+        return 79, "E501 long line, %d characters" % length
 
 
 ##############################################################################
@@ -254,7 +251,8 @@ def whitespace_before_parameters(logical_line_muted):
             before = last_token_match(line[:found]).group(1)
             if (before in operators or
                 before == ',' or
-                iskeyword(before)):
+                iskeyword(before) or
+                line.startswith('class')):
                 continue
             return found, "E211 whitespace before '%s'" % char
 
@@ -270,7 +268,7 @@ def whitespace_around_operator(logical_line_muted):
     for operator in operators:
         found = line.find('  ' + operator)
         if found > -1:
-            return found, "E221 extraneous whitespace before operator"
+            return found, "E221 multiple spaces before operator"
         found = line.find('\t' + operator)
         if found > -1:
             return found, "E222 tab before operator"

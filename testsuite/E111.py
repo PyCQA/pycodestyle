@@ -1,2 +1,2 @@
-if True:
- print
+if x > 2:
+  print x
