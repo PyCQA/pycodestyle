@@ -77,6 +77,7 @@ text from PEP 8. It is printed if the user enables --show-pep8.
 import os
 import sys
 import re
+import time
 import inspect
 import tokenize
 from optparse import OptionParser
@@ -410,6 +411,8 @@ class Checker:
         self.lines = file(filename).readlines()
         self.physical_checks = find_checks('physical_line')
         self.logical_checks = find_checks('logical_line')
+        options.counter['physical lines'] = \
+            options.counter.get('physical lines', 0) + len(self.lines)
 
     def readline(self):
         """
@@ -482,6 +485,8 @@ class Checker:
         """
         Build a line from tokens and run all logical checks on it.
         """
+        options.counter['logical lines'] = \
+            options.counter.get('logical lines', 0) + 1
         self.build_tokens_line()
         self.indent_level = self.mapping[0][1][2][1]
         if options.verbose >= 2:
@@ -507,8 +512,8 @@ class Checker:
         """
         Run all checks on the input file.
         """
+        self.file_error = 0
         self.line_number = 0
-        self.error_count = {}
         self.state = {}
         self.tokens = []
         parens = 0
@@ -523,13 +528,13 @@ class Checker:
             if token_type == tokenize.NEWLINE and not parens:
                 self.check_logical()
                 self.tokens = []
-        return self.error_count
 
     def report_error(self, line_number, offset, text, check):
         """
         Report an error, according to options.
         """
-        if options.quiet == 1 and not self.error_count:
+        if options.quiet == 1 and not self.file_error:
+            self.file_error = True
             message(self.filename)
         code = text[:4]
         count_text = text
@@ -538,7 +543,7 @@ class Checker:
             found = count_text.rfind('(')
             if found > -1:
                 count_text = count_text[:found].rstrip()
-        self.error_count[count_text] = self.error_count.get(count_text, 0) + 1
+        options.counter[count_text] = options.counter.get(count_text, 0) + 1
         if options.quiet:
             return
         if options.testsuite:
@@ -567,44 +572,32 @@ def input_file(filename):
         return {}
     if options.verbose:
         message('checking ' + filename)
-    error_count = Checker(filename).check_all()
-    if options.testsuite and not error_count:
+    options.counter['files'] = \
+        options.counter.get('files', 0) + 1
+    errors = Checker(filename).check_all()
+    if options.testsuite and not errors:
         message("%s: %s" % (filename, "no errors found"))
-    return error_count
 
 
 def input_dir(dirname):
     """
     Check all Python source files in this directory and all subdirectories.
     """
-    error_count = {}
     dirname = dirname.rstrip('/')
     if excluded(dirname):
         return
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
+        options.counter['directories'] = \
+            options.counter.get('directories', 0) + 1
         dirs.sort()
         for subdir in dirs:
             if excluded(subdir):
                 dirs.remove(subdir)
         files.sort()
         for filename in files:
-            file_errors = input_file(os.path.join(root, filename))
-            add_error_count(error_count, file_errors)
-    if options.statistics:
-        codes = error_count.keys()
-        codes.sort()
-        for code in codes:
-            print '%-7s %s' % (error_count[code], code)
-
-
-def add_error_count(error_count, file_errors):
-    """
-    Collect statistics.
-    """
-    for code in file_errors:
-        error_count[code] = (error_count.get(code, 0) + file_errors[code])
+            input_file(os.path.join(root, filename))
 
 
 def excluded(filename):
@@ -659,7 +652,7 @@ def _main():
     parser.add_option('--show-pep8', action='store_true',
                       help="show text of PEP 8 for each error")
     parser.add_option('--statistics', action='store_true',
-                      help="show how often each error was found")
+                      help="count errors and warnings")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
@@ -683,11 +676,19 @@ def _main():
     else:
         options.ignore = []
     # print options.exclude, options.ignore
+    start_time = time.time()
+    options.counter = {}
     for path in args:
         if os.path.isdir(path):
             input_dir(path)
         else:
             input_file(path)
+    if options.statistics:
+        keys = options.counter.keys()
+        keys.sort()
+        for key in keys:
+            print '%-7s %s' % (options.counter[key], key)
+        print '%-7.2f %s' % (time.time() - start_time, 'seconds')
 
 
 if __name__ == '__main__':
