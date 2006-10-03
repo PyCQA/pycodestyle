@@ -7,10 +7,9 @@ http://www.python.org/dev/peps/pep-0008/
 Features
 ========
 
-- Plugin architecture: very easy to add more checks.
-- Parseable output: jump to error position in your editor.
+- Plugin architecture: adding more checks is easy.
+- Parseable output: jump to each error in your editor.
 - Small: just one file, requires only stdlib.
-- Reasonably fast: checks /usr/lib/python2.4 in one minute.
 
 Get the source code
 ===================
@@ -21,10 +20,6 @@ http://svn.browsershots.org/trunk/devtools/pep8/
 
 You can also browse the source code and change history online.
 http://trac.browsershots.org/browser/trunk/devtools/pep8/pep8.py
-
-Your feedback is more than welcome. Write email to
-johann@browsershots.org or post bugs and feature requests here:
-http://trac.browsershots.org/newticket?component=devtools
 
 Example usage and output
 ========================
@@ -53,12 +48,16 @@ testsuite/E111.py:2:3: E111 indentation is not a multiple of four
     For really old code that you don't want to mess up, you can
     continue to use 8-space tabs.
 
-Or you can display how often each error was found. This example takes
-a minute on my machine:
+Or you can display how often each error was found.
 
-$ pep8.py --statistics -qq --filename *.py --exclude site-packages
-/usr/lib/python2.4
+$ pep8.py --statistics -qq --filename=*.py Python-2.5/Lib
 
+Feedback
+========
+
+Your feedback is more than welcome. Write email to
+johann@browsershots.org or post bugs and feature requests here:
+http://trac.browsershots.org/newticket?component=devtools
 
 Cheers,
 Johann
