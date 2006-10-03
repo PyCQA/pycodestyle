@@ -51,7 +51,7 @@ state is kept in the global dict 'state'. The check function requests
 physical or logical lines by the name of the first argument:
 
 def tabs_or_spaces(physical_line)
-def indentation(logical_line_muted, indent_level)
+def indentation(logical_line, indent_level)
 
 The second example above demonstrates how check functions can request
 additional information with extra arguments, for example the level of
@@ -157,14 +157,14 @@ def maximum_line_length(physical_line):
 ##############################################################################
 
 
-def indentation(logical_line_muted, indent_level):
+def indentation(logical_line, indent_level):
     """
     Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
     """
-    line = logical_line_muted
+    line = logical_line
     if line == '':
         return
     previous_level = state.get('indent_level', 0)
@@ -180,7 +180,7 @@ def indentation(logical_line_muted, indent_level):
         return 0, "E113 unexpected indentation"
 
 
-def blank_lines(logical_line_muted, indent_level):
+def blank_lines(logical_line, indent_level):
     """
     Separate top-level function and class definitions with two blank lines.
 
@@ -192,7 +192,7 @@ def blank_lines(logical_line_muted, indent_level):
 
     Use blank lines in functions, sparingly, to indicate logical sections.
     """
-    line = logical_line_muted
+    line = logical_line
     first_line = 'blank_lines' not in state
     count = state.get('blank_lines', 0)
     if line == '':
@@ -208,7 +208,7 @@ def blank_lines(logical_line_muted, indent_level):
         return 0, "E303 too many blank lines (%d)" % count
 
 
-def extraneous_whitespace(logical_line_muted):
+def extraneous_whitespace(logical_line):
     """
     Avoid extraneous whitespace in the following situations:
 
@@ -216,7 +216,7 @@ def extraneous_whitespace(logical_line_muted):
 
     - Immediately before a comma, semicolon, or colon.
     """
-    line = logical_line_muted
+    line = logical_line
     for char in '([{':
         found = line.find(char + ' ')
         if found > -1:
@@ -231,7 +231,7 @@ def extraneous_whitespace(logical_line_muted):
             return found, "E203 whitespace before '%s'" % char
 
 
-def whitespace_before_parameters(logical_line_muted):
+def whitespace_before_parameters(logical_line):
     """
     Avoid extraneous whitespace in the following situations:
 
@@ -241,7 +241,7 @@ def whitespace_before_parameters(logical_line_muted):
     - Immediately before the open parenthesis that starts an indexing or
       slicing.
     """
-    line = logical_line_muted
+    line = logical_line
     for char in '([':
         found = -1
         while True:
@@ -257,14 +257,14 @@ def whitespace_before_parameters(logical_line_muted):
             return found, "E211 whitespace before '%s'" % char
 
 
-def whitespace_around_operator(logical_line_muted):
+def whitespace_around_operator(logical_line):
     """
     Avoid extraneous whitespace in the following situations:
 
     - More than one space around an assignment (or other) operator to
       align it with another.
     """
-    line = logical_line_muted
+    line = logical_line
     for operator in operators:
         found = line.find('  ' + operator)
         if found > -1:
@@ -274,11 +274,11 @@ def whitespace_around_operator(logical_line_muted):
             return found, "E222 tab before operator"
 
 
-def imports_on_separate_lines(logical_line_muted):
+def imports_on_separate_lines(logical_line):
     """
     Imports should usually be on separate lines.
     """
-    line = logical_line_muted
+    line = logical_line
     if line.startswith('import '):
         found = line.find(',')
         if found > -1:
