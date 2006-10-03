@@ -88,9 +88,12 @@ import re
 import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
+from fnmatch import fnmatch
 
 __version__ = '0.2.0'
 __revision__ = '$Rev$'
+
+default_exclude = '.svn,CVS,*.pyc,*.pyo'
 
 indent_match = re.compile(r'([ \t]*)').match
 last_token_match = re.compile(r'(\w+|\S)\s*$').search
@@ -169,7 +172,7 @@ def maximum_line_length(physical_line):
     """
     length = len(physical_line.rstrip())
     if length > 79:
-        return 79, "E501 long line, %d characters" % length
+        return 79, "E501 line too long (%d characters)" % length
 
 
 ##############################################################################
@@ -503,8 +506,18 @@ class Checker:
         """
         Report an error, according to options.
         """
+        if options.quiet == 1 and not self.error_count:
+            message(self.filename)
         code = text[:4]
-        self.error_count[code] = self.error_count.get(code, 0) + 1
+        count_text = text
+        if text.endswith(')'):
+            # remove actual values, e.g. '(86 characters)'
+            found = count_text.rfind('(')
+            if found > -1:
+                count_text = count_text[:found].rstrip()
+        self.error_count[count_text] = self.error_count.get(count_text, 0) + 1
+        if options.quiet:
+            return
         if options.testsuite:
             base = os.path.basename(self.filename)[:4]
             if base == code:
@@ -532,25 +545,45 @@ def input_file(filename):
     error_count = Checker(filename).check_all()
     if options.testsuite and not error_count:
         message("%s: %s" % (filename, "no errors found"))
+    return error_count
 
 
 def input_dir(dirname):
     """
     Check all Python source files in this directory and all subdirectories.
     """
+    error_count = {}
     dirname = dirname.rstrip('/')
-    if dirname in options.exclude:
+    if excluded(dirname):
         return
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
-        for dirname in options.exclude:
-            if dirname in dirs:
-                dirs.remove(dirname)
         dirs.sort()
+        for subdir in dirs:
+            if excluded(subdir):
+                dirs.remove(subdir)
         files.sort()
         for filename in files:
-            input_file(os.path.join(root, filename))
+            if not excluded(filename):
+                file_errors = input_file(os.path.join(root, filename))
+                add_error_count(error_count, file_errors)
+    if options.statistics:
+        codes = error_count.keys()
+        codes.sort()
+        for code in codes:
+            print '%-7s %s' % (error_count[code], code)
+
+
+def add_error_count(error_count, file_errors):
+    for code in file_errors:
+        error_count[code] = (error_count.get(code, 0) + file_errors[code])
+
+
+def excluded(filename):
+    for pattern in options.exclude:
+        if fnmatch(filename, pattern):
+            return True
 
 
 def _main():
@@ -560,20 +593,20 @@ def _main():
     global options
     usage = "%prog [options] input ..."
     parser = OptionParser(usage)
-    parser.add_option('-v', '--verbose',
-                      default=0, action='count',
-                      help="print status messages")
-    parser.add_option('-q', '--quiet',
-                      default=False, action='store_true',
-                      help="report file names only")
-    parser.add_option('--exclude', metavar='dirs', default= '.svn,CVS',
-                      help="skip subdirectories (default .svn,CVS)")
+    parser.add_option('-v', '--verbose', default=0, action='count',
+                      help="print status messages, or debug with -vv")
+    parser.add_option('-q', '--quiet', default=0, action='count',
+                      help="report only file names, or nothing with -qq")
+    parser.add_option('--exclude', metavar='dirs', default=default_exclude,
+                      help="skip some entries (default %s)" % default_exclude)
     parser.add_option('--ignore', metavar='errors', default='',
                       help="e.g. E4,W for imports and all warnings")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
                       help="show text of PEP 8 for each error")
+    parser.add_option('--statistics', action='store_true',
+                      help="show how often each error was found")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
