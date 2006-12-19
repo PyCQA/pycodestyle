@@ -215,19 +215,14 @@ def blank_lines(logical_line, state, indent_level):
     Use blank lines in functions, sparingly, to indicate logical sections.
     """
     line = logical_line
-    first_line = 'blank_lines' not in state
-    count = state.get('blank_lines', 0)
-    if line == '':
-        state['blank_lines'] = count + 1
-    else:
-        state['blank_lines'] = 0
-    if line.startswith('def ') and not first_line:
-        if indent_level > 0 and count != 1:
-            return 0, "E301 expected 1 blank line, found %d" % count
-        if indent_level == 0 and count != 2:
-            return 0, "E302 expected 2 blank lines, found %d" % count
-    if count > 2:
-        return 0, "E303 too many blank lines (%d)" % count
+    blank_lines = state.get('blank_lines', 0)
+    if line.startswith('def '):
+        if indent_level > 0 and blank_lines != 1:
+            return 0, "E301 expected 1 blank line, found %d" % blank_lines
+        if indent_level == 0 and blank_lines != 2:
+            return 0, "E302 expected 2 blank lines, found %d" % blank_lines
+    if blank_lines > 2:
+        return 0, "E303 too many blank lines (%d)" % blank_lines
 
 
 def extraneous_whitespace(logical_line):
@@ -532,7 +527,7 @@ class Checker:
         """
         self.file_errors = 0
         self.line_number = 0
-        self.state = {}
+        self.state = {'blank_lines': 0}
         self.tokens = []
         parens = 0
         for token in tokenize.generate_tokens(self.readline_check_physical):
@@ -545,6 +540,10 @@ class Checker:
                 parens -= 1
             if token_type == tokenize.NEWLINE and not parens:
                 self.check_logical()
+                self.state['blank_lines'] = 0
+                self.tokens = []
+            if token_type == tokenize.NL and len(self.tokens) == 1:
+                self.state['blank_lines'] += 1
                 self.tokens = []
         return self.file_errors
 
