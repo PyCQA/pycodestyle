@@ -108,7 +108,7 @@ options = None
 
 def has_key_python_3000(logical_line):
     """
-    The {}.has_key() method will be removed in the future version of 
+    The {}.has_key() method will be removed in the future version of
     Python. Use the 'in' operation instead, like:
     d = {"a": 1, "b": 2}
     if "b" in d:
@@ -116,12 +116,12 @@ def has_key_python_3000(logical_line):
     """
     result = re.compile(".*(\.has_key\(.*\))+.*").match(logical_line)
     if result:
-        return result.start(1), "P3001 do not use .has_key(), use the 'in' operation"
+        return result.start(1), "P3001 .has_key() is deprecated, use 'in'"
 
 
 def raise_exception_paren_python_3000(logical_line):
     """
-    When raising an exception, use "raise ValueError('message')" 
+    When raising an exception, use "raise ValueError('message')"
     instead of the older form "raise ValueError, 'message'".
 
     The paren-using form is preferred because when the exception arguments
