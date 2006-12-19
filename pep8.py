@@ -261,8 +261,6 @@ def indentation(logical_line, indent_level, state):
     use 8-space tabs.
     """
     line = logical_line
-    if line == '':
-        return
     previous_level = state.get('indent_level', 0)
     indent_expect = state.get('indent_expect', False)
     state['indent_expect'] = line.rstrip('#').rstrip().endswith(':')
@@ -484,16 +482,12 @@ class Checker:
             if previous:
                 end_line, end = previous[3]
                 start_line, start = token[2]
-                if (end_line == start_line and # same row
-                    end != start):   # different column
-                    logical.append(self.lines[end_line - 1][end:start])
-                    length += end - start
-                if (end_line < start_line and # new row
-                    previous[1] == ','):
+                # if (end_line == start_line and end != start)
+                if (end_line < start_line and previous[1] == ','):
                     logical.append(' ')
                     length += 1
-            logical.append(text)
             self.mapping.append((length, token))
+            logical.append(text)
             length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
