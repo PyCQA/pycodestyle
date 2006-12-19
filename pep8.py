@@ -581,7 +581,7 @@ class Checker:
                 (self.filename, line_number, offset + 1, text))
         if options.show_source:
             line = self.lines[line_number - 1]
-            message(line)
+            message(line.rstrip())
             message(' ' * offset + '^')
         if options.show_pep8:
             message(check.__doc__.lstrip('\n').rstrip())
