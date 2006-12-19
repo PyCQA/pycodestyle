@@ -475,22 +475,22 @@ class Checker:
         for token in self.tokens:
             token_type, text = token[0:2]
             if token_type in (tokenize.COMMENT, tokenize.NL,
-                              tokenize.INDENT, tokenize.DEDENT):
+                              tokenize.INDENT, tokenize.DEDENT,
+                              tokenize.NEWLINE):
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
             if previous:
                 end_line, end = previous[3]
                 start_line, start = token[2]
-                if (end_line == start_line # same row
-                    and end != start # different column
-                    and token_type != tokenize.NEWLINE): # not before EOL
-                    logical.append(self.lines[end_line - 1][end:start])
-                    length += end - start
-                if (end_line < start_line # different row
-                    and previous[1] == ','): # continuation with comma
-                    logical.append(' ')
-                    length += 1
+                if end_line != start_line: # different row
+                    if self.lines[end_line - 1][end - 1] not in '{[(':
+                        logical.append(' ')
+                        length += 1
+                elif end != start: # different column
+                    fill = self.lines[end_line - 1][end:start]
+                    logical.append(fill)
+                    length += len(fill)
             self.mapping.append((length, token))
             logical.append(text)
             length += len(text)
@@ -536,7 +536,7 @@ class Checker:
         self.tokens = []
         parens = 0
         for token in tokenize.generate_tokens(self.readline_check_physical):
-            # print tokenize.tok_name[token_type], repr(token)
+            # print tokenize.tok_name[token[0]], repr(token)
             self.tokens.append(token)
             token_type, text = token[0:2]
             if token_type == tokenize.OP and text in '([{':
