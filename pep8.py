@@ -482,8 +482,13 @@ class Checker:
             if previous:
                 end_line, end = previous[3]
                 start_line, start = token[2]
-                # if (end_line == start_line and end != start)
-                if (end_line < start_line and previous[1] == ','):
+                if (end_line == start_line # same row
+                    and end != start # different column
+                    and token_type != tokenize.NEWLINE): # not before EOL
+                    logical.append(self.lines[end_line - 1][end:start])
+                    length += end - start
+                if (end_line < start_line # different row
+                    and previous[1] == ','): # continuation with comma
                     logical.append(' ')
                     length += 1
             self.mapping.append((length, token))
