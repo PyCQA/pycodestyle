@@ -560,13 +560,7 @@ class Checker:
             message(self.filename)
         self.file_errors += 1
         code = text[:4]
-        count_text = text
-        if text.endswith(')'):
-            # for statistics, remove precise values, e.g. '(86 characters)'
-            found = count_text.rfind('(')
-            if found > -1:
-                count_text = count_text[:found].rstrip()
-        options.counter[count_text] = options.counter.get(count_text, 0) + 1
+        options.counter[code] = options.counter.get(code, 0) + 1
         if options.quiet:
             return
         if options.testsuite:
@@ -577,14 +571,15 @@ class Checker:
                 return
         if ignore_code(code):
             return
-        message("%s:%s:%d: %s" %
-                (self.filename, line_number, offset + 1, text))
-        if options.show_source:
-            line = self.lines[line_number - 1]
-            message(line.rstrip())
-            message(' ' * offset + '^')
-        if options.show_pep8:
-            message(check.__doc__.lstrip('\n').rstrip())
+        if options.counter[code] == 1 or options.repeat:
+            message("%s:%s:%d: %s" %
+                    (self.filename, line_number, offset + 1, text))
+            if options.show_source:
+                line = self.lines[line_number - 1]
+                message(line.rstrip())
+                message(' ' * offset + '^')
+            if options.show_pep8:
+                message(check.__doc__.lstrip('\n').rstrip())
 
 
 def input_file(filename):
@@ -670,6 +665,8 @@ def _main():
                       help="only check matching files (e.g. *.py)")
     parser.add_option('--ignore', metavar='errors', default='',
                       help="skip errors and warnings (e.g. E4,W)")
+    parser.add_option('--repeat', action='store_true',
+                      help="show all occurrences of the same error")
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
