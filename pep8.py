@@ -93,6 +93,7 @@ __revision__ = '$Rev$'
 default_exclude = '.svn,CVS,*.pyc,*.pyo'
 
 indent_match = re.compile(r'([ \t]*)').match
+raise_comma_match = re.compile(r'raise\s+\w+\s*(,)').match
 
 operators = """
 +  -  *  /  %  ^  &  |  =  <  >  >>  <<
@@ -309,9 +310,6 @@ def python_3000_has_key(logical_line):
     pos = logical_line.find('.has_key(')
     if pos > -1:
         return pos, "W601 .has_key() is deprecated, use 'in'"
-
-
-raise_comma_match = re.compile(r'raise\s+\w+\s*(,)').match
 
 
 def python_3000_raise_comma(logical_line):
@@ -659,9 +657,9 @@ def _main():
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
                       help="report only file names, or nothing with -qq")
-    parser.add_option('--exclude', metavar='dirs', default=default_exclude,
+    parser.add_option('--exclude', metavar='patterns', default=default_exclude,
                       help="skip matches (default %s)" % default_exclude)
-    parser.add_option('--filename', metavar='pattern',
+    parser.add_option('--filename', metavar='patterns',
                       help="only check matching files (e.g. *.py)")
     parser.add_option('--ignore', metavar='errors', default='',
                       help="skip errors and warnings (e.g. E4,W)")
