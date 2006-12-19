@@ -34,11 +34,14 @@ http://svn.browsershots.org/trunk/devtools/pep8/
 http://trac.browsershots.org/browser/trunk/devtools/pep8/
 
 Groups of errors and warnings:
-E100 indentation
-E200 whitespace
-E300 blank lines
-E400 imports
-E500 line length
+E errors
+W warnings
+100 indentation
+200 whitespace
+300 blank lines
+400 imports
+500 line length
+600 deprecation
 
 You can add checks to this program by writing plugins. Each plugin is
 a simple function that is called for each line of source code, either
@@ -104,35 +107,6 @@ options = None
 ##############################################################################
 # Plugins (check functions) for physical lines
 ##############################################################################
-
-
-def has_key_python_3000(logical_line):
-    """
-    The {}.has_key() method will be removed in the future version of
-    Python. Use the 'in' operation instead, like:
-    d = {"a": 1, "b": 2}
-    if "b" in d:
-        print d["b"]
-    """
-    result = re.compile(".*(\.has_key\(.*\))+.*").match(logical_line)
-    if result:
-        return result.start(1), "P3001 .has_key() is deprecated, use 'in'"
-
-
-def raise_exception_paren_python_3000(logical_line):
-    """
-    When raising an exception, use "raise ValueError('message')"
-    instead of the older form "raise ValueError, 'message'".
-
-    The paren-using form is preferred because when the exception arguments
-    are long or include string formatting, you don't need to use line
-    continuation characters thanks to the containing parentheses.  The older
-    form will be removed in Python 3000.
-    """
-    result = re.compile(".*raise [A-Za-z]*.*(,).*").match(logical_line)
-    if result:
-        return result.start(1), "P3002 do not use ',' when raising \
-exceptions, use FooError('message')"
 
 
 def tabs_or_spaces(physical_line, state):
@@ -322,6 +296,37 @@ def imports_on_separate_lines(logical_line):
         found = line.find(',')
         if found > -1:
             return found, "E401 multiple imports on one line"
+
+
+def python_3000_has_key(logical_line):
+    """
+    The {}.has_key() method will be removed in the future version of
+    Python. Use the 'in' operation instead, like:
+    d = {"a": 1, "b": 2}
+    if "b" in d:
+        print d["b"]
+    """
+    pos = logical_line.find('.has_key(')
+    if pos > -1:
+        return pos, "W601 .has_key() is deprecated, use 'in'"
+
+
+raise_comma_match = re.compile(r'raise\s+\w+\s*(,)').match
+
+
+def python_3000_raise_comma(logical_line):
+    """
+    When raising an exception, use "raise ValueError('message')"
+    instead of the older form "raise ValueError, 'message'".
+
+    The paren-using form is preferred because when the exception arguments
+    are long or include string formatting, you don't need to use line
+    continuation characters thanks to the containing parentheses.  The older
+    form will be removed in Python 3000.
+    """
+    match = raise_comma_match(logical_line)
+    if match:
+        return match.start(1), "W602 deprecated form of raising exception"
 
 
 ##############################################################################
