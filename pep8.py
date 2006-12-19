@@ -106,6 +106,35 @@ options = None
 ##############################################################################
 
 
+def has_key_python_3000(logical_line):
+    """
+    The {}.has_key() method will be removed in the future version of 
+    Python. Use the 'in' operation instead, like:
+    d = {"a": 1, "b": 2}
+    if "b" in d:
+        print d["b"]
+    """
+    result = re.compile(".*(\.has_key\(.*\))+.*").match(logical_line)
+    if result:
+        return result.start(1), "P3001 do not use .has_key(), use the 'in' operation"
+
+
+def raise_exception_paren_python_3000(logical_line):
+    """
+    When raising an exception, use "raise ValueError('message')" 
+    instead of the older form "raise ValueError, 'message'".
+
+    The paren-using form is preferred because when the exception arguments
+    are long or include string formatting, you don't need to use line
+    continuation characters thanks to the containing parentheses.  The older
+    form will be removed in Python 3000.
+    """
+    result = re.compile(".*raise [A-Za-z]*.*(,).*").match(logical_line)
+    if result:
+        return result.start(1), "P3002 do not use ',' when raising \
+exceptions, use FooError('message')"
+
+
 def tabs_or_spaces(physical_line, state):
     """
     Never mix tabs and spaces.
