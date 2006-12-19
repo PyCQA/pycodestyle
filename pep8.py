@@ -391,44 +391,29 @@ def find_checks(argument_name):
     return checks
 
 
-def mute_line(line, line_number, tokens):
+def mute_string(text):
     """
-    Replace strings with 'xxx' and remove comments in order to prevent
-    syntax matching.
-    """
-    parts = []
-    start = 0
-    stop = len(line)
-    for token_type, token, token_start, token_end, token_line in tokens:
-        if token_start[0] > line_number:
-            break
-        elif line_number <= token_end[0]:
-            if token_type == tokenize.COMMENT:
-                # Strip comments
-                stop = token_start[1]
-                break
-            elif token_type == tokenize.STRING:
-                # Replace strings with 'xxx'
-                string_start = token_start[1] + 1
-                string_end = token_end[1] - 1
-                # String modifiers (e.g. u or r)
-                if token.endswith('"'):
-                    string_start += token.index('"')
-                elif token.endswith("'"):
-                    string_start += token.index("'")
-                if token.endswith('"""') or token.endswith("'''"):
-                    string_start += 2
-                    string_end -= 2
-                if line_number > token_start[0]:
-                    string_start = 0
-                if line_number < token_end[0]:
-                    string_end = len(line)
-                parts.append(line[start:string_start])
-                parts.append('x' * (string_end - string_start))
-                start = string_end
-    parts.append(line[start:stop])
-    return ''.join(parts)
+    Replace contents with 'xxx' to prevent syntax matching.
 
+    >>> mute_string('"abc"')
+    '"xxx"'
+    >>> mute_string("'''abc'''")
+    "'''xxx'''"
+    >>> mute_string("r'abc'")
+    "r'xxx'"
+    """
+    start = 1
+    end = len(text) - 1
+    # String modifiers (e.g. u or r)
+    if text.endswith('"'):
+        start += text.index('"')
+    elif text.endswith("'"):
+        start += text.index("'")
+    # Triple quotes
+    if text.endswith('"""') or text.endswith("'''"):
+        start += 2
+        end -= 2
+    return text[:start] + 'x' * (end - start) + text[end:]
 
 class Checker:
     """
@@ -491,19 +476,22 @@ class Checker:
         previous = None
         for token in self.tokens:
             token_type, text = token[0:2]
-            if token_type in (tokenize.COMMENT,
-                              tokenize.INDENT,
-                              tokenize.DEDENT,
-                              tokenize.NL):
+            if token_type in (tokenize.COMMENT, tokenize.NL,
+                              tokenize.INDENT, tokenize.DEDENT):
                 continue
-            if (previous and
-                previous[3][0] == token[2][0] and # same row
-                previous[3][1] != token[2][1]):   # different column
-                line_number = token[2][0]
-                start = previous[3][1]
-                end = token[2][1]
-                logical.append(self.lines[line_number - 1][start:end])
-                length += end - start
+            if token_type == tokenize.STRING:
+                text = mute_string(text)
+            if previous:
+                end_line, end = previous[3]
+                start_line, start = token[2]
+                if (end_line == start_line and # same row
+                    end != start):   # different column
+                    logical.append(self.lines[end_line - 1][end:start])
+                    length += end - start
+                if (end_line < start_line and # new row
+                    previous[1] == ','):
+                    logical.append(' ')
+                    length += 1
             logical.append(text)
             self.mapping.append((length, token))
             length += len(text)
@@ -517,7 +505,9 @@ class Checker:
         options.counter['logical lines'] = \
             options.counter.get('logical lines', 0) + 1
         self.build_tokens_line()
-        self.indent_level = self.mapping[0][1][2][1]
+        first_line = self.lines[self.mapping[0][1][2][0] - 1]
+        indent = first_line[:self.mapping[0][1][2][1]]
+        self.indent_level = expand_indent(indent)
         if options.verbose >= 2:
             print self.logical_line[:80].rstrip()
         for name, check, argument_names in self.logical_checks:
