@@ -423,8 +423,8 @@ class Checker:
         self.lines = file(filename).readlines()
         self.physical_checks = find_checks('physical_line')
         self.logical_checks = find_checks('logical_line')
-        options.counter['physical lines'] = \
-            options.counter.get('physical lines', 0) + len(self.lines)
+        options.counters['physical lines'] = \
+            options.counters.get('physical lines', 0) + len(self.lines)
 
     def readline(self):
         """
@@ -437,8 +437,8 @@ class Checker:
 
     def readline_check_physical(self):
         """
-        Check and return the next physical line.
-        This method be used to feed tokenize.generate_tokens.
+        Check and return the next physical line. This method can be
+        used to feed tokenize.generate_tokens.
         """
         line = self.readline()
         self.check_physical(line)
@@ -501,8 +501,8 @@ class Checker:
         """
         Build a line from tokens and run all logical checks on it.
         """
-        options.counter['logical lines'] = \
-            options.counter.get('logical lines', 0) + 1
+        options.counters['logical lines'] = \
+            options.counters.get('logical lines', 0) + 1
         self.build_tokens_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
@@ -560,7 +560,8 @@ class Checker:
             message(self.filename)
         self.file_errors += 1
         code = text[:4]
-        options.counter[code] = options.counter.get(code, 0) + 1
+        options.counters[code] = options.counters.get(code, 0) + 1
+        options.messages[code] = text[5:]
         if options.quiet:
             return
         if options.testsuite:
@@ -571,7 +572,7 @@ class Checker:
                 return
         if ignore_code(code):
             return
-        if options.counter[code] == 1 or options.repeat:
+        if options.counters[code] == 1 or options.repeat:
             message("%s:%s:%d: %s" %
                     (self.filename, line_number, offset + 1, text))
             if options.show_source:
@@ -590,8 +591,7 @@ def input_file(filename):
         return {}
     if options.verbose:
         message('checking ' + filename)
-    options.counter['files'] = \
-        options.counter.get('files', 0) + 1
+    options.counters['files'] = options.counters.get('files', 0) + 1
     errors = Checker(filename).check_all()
     if options.testsuite and not errors:
         message("%s: %s" % (filename, "no errors found"))
@@ -607,8 +607,8 @@ def input_dir(dirname):
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
-        options.counter['directories'] = \
-            options.counter.get('directories', 0) + 1
+        options.counters['directories'] = \
+            options.counters.get('directories', 0) + 1
         dirs.sort()
         for subdir in dirs:
             if excluded(subdir):
@@ -699,7 +699,8 @@ def _main():
         options.ignore = []
     # print options.exclude, options.ignore
     start_time = time.time()
-    options.counter = {}
+    options.counters = {}
+    options.messages = {}
     for path in args:
         if os.path.isdir(path):
             input_dir(path)
@@ -707,18 +708,21 @@ def _main():
             input_file(path)
     elapsed = time.time() - start_time
     if options.statistics:
-        keys = options.counter.keys()
+        keys = options.counters.keys()
         keys.sort()
         for key in keys:
             if key[0] in 'EW':
-                print '%-7s %s' % (options.counter[key], key)
+                print '%-7s %s %s' % (options.counters[key], key,
+                                      options.messages[key])
     if options.benchmark:
         print '%-7.2f %s' % (elapsed, 'seconds elapsed')
         keys = ['directories', 'files',
                 'logical lines', 'physical lines']
         for key in keys:
-            print '%-7d %s per second (%d total)' % (
-                options.counter[key] / elapsed, key, options.counter[key])
+            if key in options.counters:
+                print '%-7d %s per second (%d total)' % (
+                    options.counters[key] / elapsed, key,
+                    options.counters[key])
 
 
 if __name__ == '__main__':
