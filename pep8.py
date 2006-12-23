@@ -103,6 +103,7 @@ in is or not and
 """.split()
 
 options = None
+args = None
 
 
 ##############################################################################
@@ -646,11 +647,62 @@ def ignore_code(code):
             return True
 
 
-def _main():
+def print_statistics():
     """
-    Parse command line options and run checks on Python source.
+    Print overall statistics (number of errors and warnings of each type)
     """
-    global options
+    keys = options.counters.keys()
+    keys.sort()
+    for key in keys:
+        if key[0] in 'EW':
+            print '%-7s %s %s' % (options.counters[key], key,
+                                  options.messages[key])
+
+
+def get_error_statistics():
+    """
+    Get error statistics.
+    """
+    return get_statistics("E")
+
+def get_warning_statistics():
+    """
+    Get warning statistics.
+    """
+    return get_statistics("W")
+
+def get_statistics(type):
+    """
+    Get statistics for messages of given type (errors or warnings).
+    """
+    stats = []
+    keys = options.counters.keys()
+    keys.sort()
+    for key in keys:
+        if key[0] != type:
+            continue
+        stats.append('%-7s %s %s' % \
+            (options.counters[key], key, options.messages[key]))
+    return stats
+
+def print_benchmark():
+    """
+    Print benchmark numbers.
+    """
+    print '%-7.2f %s' % (elapsed, 'seconds elapsed')
+    keys = ['directories', 'files',
+            'logical lines', 'physical lines']
+    for key in keys:
+        if key in options.counters:
+            print '%-7d %s per second (%d total)' % (
+                options.counters[key] / elapsed, key,
+                options.counters[key])
+
+def process_options(arglist=None):
+    """
+    Process options passed either via arglist or via command line args.
+    """
+    global options, args
     usage = "%prog [options] input ..."
     parser = OptionParser(usage)
     parser.add_option('-v', '--verbose', default=0, action='count',
@@ -677,10 +729,7 @@ def _main():
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
-    options, args = parser.parse_args()
-    if options.doctest:
-        import doctest
-        return doctest.testmod()
+    options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
     if len(args) == 0:
@@ -695,10 +744,20 @@ def _main():
         options.ignore = options.ignore.split(',')
     else:
         options.ignore = []
-    # print options.exclude, options.ignore
-    start_time = time.time()
     options.counters = {}
     options.messages = {}
+
+    return options, args
+
+def _main():
+    """
+    Parse options and run checks on Python source.
+    """
+    options, args = process_options()
+    if options.doctest:
+        import doctest
+        return doctest.testmod()
+    start_time = time.time()
     for path in args:
         if os.path.isdir(path):
             input_dir(path)
@@ -706,21 +765,9 @@ def _main():
             input_file(path)
     elapsed = time.time() - start_time
     if options.statistics:
-        keys = options.counters.keys()
-        keys.sort()
-        for key in keys:
-            if key[0] in 'EW':
-                print '%-7s %s %s' % (options.counters[key], key,
-                                      options.messages[key])
+        print_statistics()
     if options.benchmark:
-        print '%-7.2f %s' % (elapsed, 'seconds elapsed')
-        keys = ['directories', 'files',
-                'logical lines', 'physical lines']
-        for key in keys:
-            if key in options.counters:
-                print '%-7d %s per second (%d total)' % (
-                    options.counters[key] / elapsed, key,
-                    options.counters[key])
+        print_benchmark()
 
 
 if __name__ == '__main__':
