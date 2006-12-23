@@ -412,6 +412,7 @@ def mute_string(text):
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
 
+
 class Checker:
     """
     Load a Python source file, tokenize it, check coding style.
@@ -647,45 +648,42 @@ def ignore_code(code):
             return True
 
 
-def print_statistics():
-    """
-    Print overall statistics (number of errors and warnings of each type)
-    """
-    keys = options.counters.keys()
-    keys.sort()
-    for key in keys:
-        if key[0] in 'EW':
-            print '%-7s %s %s' % (options.counters[key], key,
-                                  options.messages[key])
-
-
 def get_error_statistics():
-    """
-    Get error statistics.
-    """
+    """Get error statistics."""
     return get_statistics("E")
 
+
 def get_warning_statistics():
-    """
-    Get warning statistics.
-    """
+    """Get warning statistics."""
     return get_statistics("W")
 
-def get_statistics(type):
+
+def get_statistics(prefix=''):
     """
-    Get statistics for messages of given type (errors or warnings).
+    Get statistics for message codes that start with the prefix.
+
+    prefix='' matches all errors and warnings
+    prefix='E' matches all errors
+    prefix='W' matches all warnings
+    prefix='E4' matches all errors that have to do with imports
     """
     stats = []
-    keys = options.counters.keys()
+    keys = options.messages.keys()
     keys.sort()
     for key in keys:
-        if key[0] != type:
-            continue
-        stats.append('%-7s %s %s' % \
-            (options.counters[key], key, options.messages[key]))
+        if key.startswith(prefix):
+            stats.append('%-7s %s %s' %
+                         (options.counters[key], key, options.messages[key]))
     return stats
 
-def print_benchmark():
+
+def print_statistics(prefix=''):
+    """Print overall statistics (number of errors and warnings)."""
+    for line in get_statistics(prefix):
+        print line
+
+
+def print_benchmark(elapsed):
     """
     Print benchmark numbers.
     """
@@ -697,6 +695,7 @@ def print_benchmark():
             print '%-7d %s per second (%d total)' % (
                 options.counters[key] / elapsed, key,
                 options.counters[key])
+
 
 def process_options(arglist=None):
     """
@@ -767,7 +766,7 @@ def _main():
     if options.statistics:
         print_statistics()
     if options.benchmark:
-        print_benchmark()
+        print_benchmark(elapsed)
 
 
 if __name__ == '__main__':
