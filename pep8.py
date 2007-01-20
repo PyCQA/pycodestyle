@@ -622,8 +622,10 @@ def excluded(filename):
     """
     Check if options.exclude contains a pattern that matches filename.
     """
+    basename = os.path.basename(filename)
     for pattern in options.exclude:
-        if fnmatch(filename, pattern):
+        if fnmatch(basename, pattern):
+            # print basename, 'excluded because it matches', pattern
             return True
 
 
