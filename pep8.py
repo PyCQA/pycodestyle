@@ -750,6 +750,7 @@ def process_options(arglist=None):
 
     return options, args
 
+
 def _main():
     """
     Parse options and run checks on Python source.
