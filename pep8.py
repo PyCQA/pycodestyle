@@ -42,6 +42,7 @@ W warnings
 400 imports
 500 line length
 600 deprecation
+700 statements
 
 You can add checks to this program by writing plugins. Each plugin is
 a simple function that is called for each line of source code, either
@@ -298,6 +299,22 @@ def imports_on_separate_lines(logical_line):
         found = line.find(',')
         if found > -1:
             return found, "E401 multiple imports on one line"
+
+
+def compound_statements(logical_line):
+    """
+    Compound statements (multiple statements on the same line) are
+    generally discouraged.
+    """
+    line = logical_line
+    found = line.find(':')
+    if -1 < found < len(line) - 1:
+        before = line[:found]
+        if before.count('{') <= before.count('}'):
+            return found, "E701 multiple statements on one line (colon)"
+    found = line.find(';')
+    if -1 < found:
+        return found, "E702 multiple statements on one line (semicolon)"
 
 
 def python_3000_has_key(logical_line):
