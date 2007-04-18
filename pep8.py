@@ -225,6 +225,17 @@ def extraneous_whitespace(logical_line):
             return found, "E203 whitespace before '%s'" % char
 
 
+def missing_whitespace(logical_line):
+    """
+    JCR: Each comma, semicolon or colon should be followed by whitespace.
+    """
+    line = logical_line
+    for index in range(len(line) - 1):
+        for char in ',;:':
+            if line[index] == char and line[index + 1] != ' ':
+                return index, "E204 missing whitespace after '%s'" % char
+
+
 def indentation(logical_line, indent_level, state):
     """
     Use 4 spaces per indentation level.
