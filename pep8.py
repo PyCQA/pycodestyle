@@ -233,7 +233,7 @@ def missing_whitespace(logical_line):
     for index in range(len(line) - 1):
         for char in ',;:':
             if line[index] == char and line[index + 1] != ' ':
-                return index, "E204 missing whitespace after '%s'" % char
+                return index, "E231 missing whitespace after '%s'" % char
 
 
 def indentation(logical_line, indent_level, state):
@@ -296,9 +296,34 @@ def whitespace_around_operator(logical_line):
         found = line.find('  ' + operator)
         if found > -1:
             return found, "E221 multiple spaces before operator"
+        found = line.find(operator + '  ')
+        if found > -1:
+            return found, "E222 multiple spaces after operator"
         found = line.find('\t' + operator)
         if found > -1:
-            return found, "E222 tab before operator"
+            return found, "E223 tab before operator"
+        found = line.find(operator + '\t')
+        if found > -1:
+            return found, "E224 tab after operator"
+
+
+def whitespace_around_comma(logical_line):
+    """
+    Avoid extraneous whitespace in the following situations:
+
+    - More than one space around an assignment (or other) operator to
+      align it with another.
+
+    JCR: This should also be applied around comma etc.
+    """
+    line = logical_line
+    for separator in ',;:':
+        found = line.find(separator + '  ')
+        if found > -1:
+            return found + 1, "E241 multiple spaces after '%s'" % separator
+        found = line.find(separator + '\t')
+        if found > -1:
+            return found + 1, "E242 tab after '%s'" % separator
 
 
 def imports_on_separate_lines(logical_line):
