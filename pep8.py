@@ -231,9 +231,12 @@ def missing_whitespace(logical_line):
     """
     line = logical_line
     for index in range(len(line) - 1):
-        for char in ',;:':
-            if line[index] == char and line[index + 1] != ' ':
-                return index, "E231 missing whitespace after '%s'" % char
+        char = line[index]
+        if char in ',;:' and line[index + 1] != ' ':
+            before = line[:index]
+            if char == ':' and before.count('[') > before.count(']'):
+                continue # Slice syntax, no space required
+            return index, "E231 missing whitespace after '%s'" % char
 
 
 def indentation(logical_line, indent_level, state):
@@ -346,7 +349,8 @@ def compound_statements(logical_line):
     found = line.find(':')
     if -1 < found < len(line) - 1:
         before = line[:found]
-        if before.count('{') <= before.count('}'):
+        if (before.count('{') <= before.count('}') and
+            before.count('[') <= before.count(']')):
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
