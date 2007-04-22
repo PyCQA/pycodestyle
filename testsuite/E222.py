@@ -1,2 +1,2 @@
-print {'abc'	: 3, # aligned with tab
-       'xyz123'	: 4} # aligned with tab
+a = a +  1
+b = b + 10
