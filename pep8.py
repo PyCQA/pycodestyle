@@ -193,7 +193,7 @@ def blank_lines(logical_line, state, indent_level):
     """
     line = logical_line
     blank_lines = state.get('blank_lines', 0)
-    if line.startswith('def '):
+    if line.startswith('def ') or line.startswith('class '):
         if indent_level > 0 and blank_lines != 1:
             return 0, "E301 expected 1 blank line, found %d" % blank_lines
         if indent_level == 0 and blank_lines != 2:
