@@ -622,9 +622,11 @@ class Checker:
                 self.check_logical()
                 self.blank_lines = 0
                 self.tokens = []
-            if token_type == tokenize.NL and len(self.tokens) == 1:
+            if token_type == tokenize.NL and not parens:
                 self.blank_lines += 1
                 self.tokens = []
+            if token_type == tokenize.COMMENT:
+                self.blank_lines = 0
         return self.file_errors
 
     def report_error(self, line_number, offset, text, check):
