@@ -155,6 +155,22 @@ def trailing_whitespace(physical_line):
         return len(stripped), "W291 trailing whitespace"
 
 
+def trailing_blank_lines(physical_line, lines, line_number):
+    """
+    JCR: Trailing blank lines are superfluous.
+    """
+    if physical_line.strip() == '' and line_number == len(lines):
+        return 0, "W391 blank line at end of file"
+
+
+def missing_newline(physical_line):
+    """
+    JCR: The last line should have a newline.
+    """
+    if physical_line.rstrip() == physical_line:
+        return len(physical_line), "W292 no newline at end of file"
+
+
 def maximum_line_length(physical_line):
     """
     Limit all lines to a maximum of 79 characters.
