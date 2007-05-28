@@ -506,7 +506,8 @@ class Checker:
         used to feed tokenize.generate_tokens.
         """
         line = self.readline()
-        self.check_physical(line)
+        if line:
+            self.check_physical(line)
         return line
 
     def run_check(self, check, argument_names):
