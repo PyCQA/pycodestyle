@@ -75,7 +75,7 @@ blank_lines: blank lines before this one
 indent_char: first indentation character in this file (' ' or '\t')
 indent_level: indentation (with tabs expanded to multiples of 8)
 previous_indent_level: indentation on previous line
-indent_expect: did the previous line end with a colon?
+previous_logical: previous logical line
 
 The docstring of each check function shall be the relevant part of
 text from PEP 8. It is printed if the user enables --show-pep8.
@@ -192,7 +192,8 @@ def maximum_line_length(physical_line):
 ##############################################################################
 
 
-def blank_lines(logical_line, blank_lines, indent_level, line_number):
+def blank_lines(logical_line, blank_lines, indent_level, line_number,
+                previous_logical):
     """
     Separate top-level function and class definitions with two blank lines.
 
@@ -206,7 +207,11 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number):
     """
     if line_number == 1:
         return # Don't expect blank lines before the first line
-    if logical_line.startswith('def ') or logical_line.startswith('class '):
+    if previous_logical.startswith('@'):
+        return # Don't expect blank lines after function decorator
+    if (logical_line.startswith('def ') or
+        logical_line.startswith('class ') or
+        logical_line.startswith('@')):
         if indent_level > 0 and blank_lines != 1:
             return 0, "E301 expected 1 blank line, found %d" % blank_lines
         if indent_level == 0 and blank_lines != 2:
@@ -252,7 +257,7 @@ def missing_whitespace(logical_line):
             return index, "E231 missing whitespace after '%s'" % char
 
 
-def indentation(logical_line, indent_expect, indent_char,
+def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level):
     """
     Use 4 spaces per indentation level.
@@ -262,6 +267,7 @@ def indentation(logical_line, indent_expect, indent_char,
     """
     if indent_char == ' ' and indent_level % 4:
         return 0, "E111 indentation is not a multiple of four"
+    indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
         return 0, "E112 expected an indented block"
     if indent_level > previous_indent_level and not indent_expect:
@@ -596,7 +602,7 @@ class Checker:
                                                + offset - token_offset)
                 self.report_error(original_number, original_offset,
                                   text, check)
-        self.indent_expect = self.logical_line.endswith(':')
+        self.previous_logical = self.logical_line
 
     def check_all(self):
         """
@@ -606,7 +612,7 @@ class Checker:
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
-        self.indent_expect = False
+        self.previous_logical = ''
         self.blank_lines = 0
         self.tokens = []
         parens = 0
