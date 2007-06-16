@@ -363,8 +363,9 @@ def compound_statements(logical_line):
     found = line.find(':')
     if -1 < found < len(line) - 1:
         before = line[:found]
-        if (before.count('{') <= before.count('}') and
-            before.count('[') <= before.count(']')):
+        if (before.count('{') <= before.count('}') and # {'a': 1} (dict)
+            before.count('[') <= before.count(']') and # [1:2] (slice)
+            not re.search(r'\blambda\b', before)):     # lambda x: x
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
