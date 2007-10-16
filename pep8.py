@@ -633,7 +633,10 @@ class Checker:
                 self.blank_lines += 1
                 self.tokens = []
             if token_type == tokenize.COMMENT:
-                self.blank_lines = 0
+                source_line = token[4]
+                token_start = token[2][1]
+                if source_line[:token_start].strip() == '':
+                    self.blank_lines = 0
         return self.file_errors
 
     def report_error(self, line_number, offset, text, check):
