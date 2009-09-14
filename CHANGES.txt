@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.3 (unreleased)
+0.3 (2009-09-14)
 ----------------
 
 - Fixes for comments: do not count them when checking for blank lines between
