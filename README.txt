@@ -1,23 +1,29 @@
-pep8.py 0.2.0 - Python style guide checker
-==========================================
+pep8 - Python style guide checker
+=================================
 
-Announcing the first public release of pep8.py, a tool to check your
-Python code against some of the style conventions in `PEP 8`_.
+pep8 is a tool to check your Python code against some of the style conventions
+in `PEP 8`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+
 
 Features
 --------
 
 * Plugin architecture: Adding new checks is easy.
+
 * Parseable output: Jump to error location in your editor.
-* Small: Just one Python file, requires only stdlib.
 
-Download
---------
+* Small: Just one Python file, requires only stdlib.  You can use just the
+  pep8.py file for this purpose
 
-The file pep8.py (and a regression test suite) is available under the
-Expat license:
+* Easy_installable, of course!
+
+
+Installation
+------------
+
+Just an ``easy_install pep8`` ought to do the trick.
 
 http://github.com/jcrocholl/pep8
 
@@ -26,7 +32,7 @@ Example usage and output
 
 ::
 
-  $ pep8.py optparse.py
+  $ pep8 optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -39,7 +45,7 @@ Example usage and output
 You can also make pep8.py show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8.py --show-source --show-pep8 testsuite/E111.py
+  $ pep8 --show-source --show-pep8 testsuite/E111.py
   testsuite/E111.py:2:3: E111 indentation is not a multiple of four
     print x
     ^
@@ -50,7 +56,7 @@ even the relevant text from PEP 8::
 
 Or you can display how often each error was found::
 
-  $ pep8.py --statistics -qq --filename=*.py Python-2.5/Lib
+  $ pep8 --statistics -qq --filename=*.py Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -66,8 +72,8 @@ Or you can display how often each error was found::
 
 Quick help is available on the command line::
 
-  $ pep8.py -h
-  usage: pep8.py [options] input ...
+  $ pep8 -h
+  usage: pep8 [options] input ...
 
   options:
     -h, --help           show this help message and exit
@@ -83,6 +89,7 @@ Quick help is available on the command line::
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
     --doctest            run doctest on myself
+
 
 Feedback
 --------

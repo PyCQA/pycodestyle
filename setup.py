@@ -1,7 +1,9 @@
 from setuptools import setup, find_packages
 
 version = '0.3dev'
-long_description = open('ANNOUNCE').read()
+long_description = '\n\n'.join([open('README.txt').read(),
+                                open('CHANGES.txt').read(),
+                                open('TODO.txt').read()])
 
 setup(name='pep8',
       version=version,

@@ -1,6 +1,8 @@
+TODO
+====
 
+- script to verify testcases pass.
 
-TODO:
- - script to verify testcases pass.
- - tesecase for ignoring '#' before function change change.
- - I have observed problems with decorators and 200 warnings, look into this.
+- testcase for ignoring '#' before function change change.
+
+- I have observed problems with decorators and 200 warnings, look into this.
