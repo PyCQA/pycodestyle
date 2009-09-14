@@ -1,0 +1,2 @@
+include pep8.py
+include *.txt

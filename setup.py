@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.3'
+version = '0.3.1dev'
 long_description = '\n\n'.join([open('README.txt').read(),
                                 open('CHANGES.txt').read(),
                                 open('TODO.txt').read()])
@@ -15,7 +15,7 @@ setup(name='pep8',
       author_email='johann@browsershots.org',
       url='http://github.com/cburroughs/pep8.py/tree/master',
       license='Expat license',
-      packages=find_packages(exclude=['ez_setup']),
+      py_modules=['pep8'],
       namespace_packages=[],
       include_package_data=True,
       zip_safe=False,
