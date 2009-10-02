@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # pep8.py - Check Python source code formatting, according to PEP 8
-# Copyright (C) 2006 Johann C. Rocholl <johann@browsershots.org>
+# Copyright (C) 2006 Johann C. Rocholl <johann@rocholl.net>
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -30,8 +30,7 @@ For usage and a list of options, try this:
 $ python pep8.py -h
 
 This program and its regression test suite live here:
-http://svn.browsershots.org/trunk/devtools/pep8/
-http://trac.browsershots.org/browser/trunk/devtools/pep8/
+http://github.com/jcrocholl/pep8
 
 Groups of errors and warnings:
 E errors

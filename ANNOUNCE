@@ -16,14 +16,10 @@ Features
 Download
 --------
 
-The file pep8.py (and a regression test suite) is available from the
-Browsershots subversion repository, under the Expat license:
+The file pep8.py (and a regression test suite) is available under the
+Expat license:
 
-http://svn.browsershots.org/trunk/devtools/pep8/
-
-You can also look at the source code and change history online:
-
-http://trac.browsershots.org/browser/trunk/devtools/pep8/pep8.py
+http://github.com/jcrocholl/pep8
 
 Example usage and output
 ------------------------
@@ -92,6 +88,6 @@ Feedback
 --------
 
 Your feedback is more than welcome. Write email to
-johann@browsershots.org or post bugs and feature requests here:
+johann@rocholl.net or post bugs and feature requests here:
 
-http://trac.browsershots.org/newticket?component=devtools
+http://github.com/jcrocholl/pep8/issues
