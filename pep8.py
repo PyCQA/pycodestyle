@@ -193,7 +193,7 @@ def maximum_line_length(physical_line):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical):
+                previous_logical, blank_lines_before_comment):
     """
     Separate top-level function and class definitions with two blank lines.
 
@@ -214,7 +214,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         logical_line.startswith('@')):
         if indent_level > 0 and blank_lines != 1:
             return 0, "E301 expected 1 blank line, found %d" % blank_lines
-        if indent_level == 0 and blank_lines != 2:
+        if indent_level == 0 and blank_lines != 2 and blank_lines_before_comment != 2:
             return 0, "E302 expected 2 blank lines, found %d" % blank_lines
     if blank_lines > 2:
         return 0, "E303 too many blank lines (%d)" % blank_lines
@@ -641,6 +641,7 @@ class Checker:
         self.indent_level = 0
         self.previous_logical = ''
         self.blank_lines = 0
+        self.blank_lines_before_comment = 0
         self.tokens = []
         parens = 0
         for token in tokenize.generate_tokens(self.readline_check_physical):
@@ -654,6 +655,7 @@ class Checker:
             if token_type == tokenize.NEWLINE and not parens:
                 self.check_logical()
                 self.blank_lines = 0
+                self.blank_lines_before_comment = 0
                 self.tokens = []
             if token_type == tokenize.NL and not parens:
                 if len(self.tokens) <= 1:
@@ -664,6 +666,7 @@ class Checker:
                 source_line = token[4]
                 token_start = token[2][1]
                 if source_line[:token_start].strip() == '':
+                    self.blank_lines_before_comment = self.blank_lines
                     self.blank_lines = 0
                 if text.endswith('\n') and not parens:
                     # The comment also ends a physical line.  This works around
