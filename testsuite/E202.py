@@ -1,1 +1,1 @@
-print list(1, 2, 3 )
+spam(ham[1], {eggs: 2} )
