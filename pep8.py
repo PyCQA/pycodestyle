@@ -84,6 +84,7 @@ text from PEP 8. It is printed if the user enables --show-pep8.
 import os
 import sys
 import re
+import types
 import time
 import inspect
 import tokenize
@@ -510,7 +511,7 @@ def message(text):
     """Print a message."""
     # print >> sys.stderr, options.prog + ': ' + text
     # print >> sys.stderr, text
-    print text
+    print(text)
 
 
 def find_checks(argument_name):
@@ -519,9 +520,8 @@ def find_checks(argument_name):
     starts with argument_name.
     """
     checks = []
-    function_type = type(find_checks)
-    for name, function in globals().iteritems():
-        if type(function) is function_type:
+    for name, function in globals().items():
+        if isinstance(function, types.FunctionType):
             args = inspect.getargspec(function)[0]
             if len(args) >= 1 and args[0].startswith(argument_name):
                 checks.append((name, function, args))
@@ -561,7 +561,7 @@ class Checker:
 
     def __init__(self, filename):
         self.filename = filename
-        self.lines = file(filename).readlines()
+        self.lines = open(filename).readlines()
         self.physical_checks = find_checks('physical_line')
         self.logical_checks = find_checks('logical_line')
         options.counters['physical lines'] = \
@@ -655,14 +655,14 @@ class Checker:
         self.previous_indent_level = self.indent_level
         self.indent_level = expand_indent(indent)
         if options.verbose >= 2:
-            print self.logical_line[:80].rstrip()
+            print(self.logical_line[:80].rstrip())
         for name, check, argument_names in self.logical_checks:
             if options.verbose >= 3:
-                print '   ', name
+                print('   ', name)
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
-                if type(offset) is tuple:
+                if isinstance(offset, tuple):
                     original_number, original_offset = offset
                 else:
                     for token_offset, token in self.mapping:
@@ -843,7 +843,7 @@ def get_statistics(prefix=''):
     prefix='E4' matches all errors that have to do with imports
     """
     stats = []
-    keys = options.messages.keys()
+    keys = list(options.messages.keys())
     keys.sort()
     for key in keys:
         if key.startswith(prefix):
@@ -854,7 +854,7 @@ def get_statistics(prefix=''):
 
 def get_count(prefix=''):
     """Return the total count of errors and warnings."""
-    keys = options.messages.keys()
+    keys = list(options.messages.keys())
     count = 0
     for key in keys:
         if key.startswith(prefix):
@@ -865,21 +865,21 @@ def get_count(prefix=''):
 def print_statistics(prefix=''):
     """Print overall statistics (number of errors and warnings)."""
     for line in get_statistics(prefix):
-        print line
+        print(line)
 
 
 def print_benchmark(elapsed):
     """
     Print benchmark numbers.
     """
-    print '%-7.2f %s' % (elapsed, 'seconds elapsed')
+    print('%-7.2f %s' % (elapsed, 'seconds elapsed'))
     keys = ['directories', 'files',
             'logical lines', 'physical lines']
     for key in keys:
         if key in options.counters:
-            print '%-7d %s per second (%d total)' % (
+            print('%-7d %s per second (%d total)' % (
                 options.counters[key] / elapsed, key,
-                options.counters[key])
+                options.counters[key]))
 
 
 def process_options(arglist=None):
@@ -956,7 +956,7 @@ def _main():
     if options.benchmark:
         print_benchmark(elapsed)
     if options.count:
-        print get_count()
+        print(get_count())
 
 
 if __name__ == '__main__':
