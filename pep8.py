@@ -629,13 +629,20 @@ class Checker:
                 self.blank_lines = 0
                 self.tokens = []
             if token_type == tokenize.NL and not parens:
-                self.blank_lines += 1
+                if len(self.tokens) <= 1:
+                    # The physical line contains only this token.
+                    self.blank_lines += 1
                 self.tokens = []
             if token_type == tokenize.COMMENT:
                 source_line = token[4]
                 token_start = token[2][1]
                 if source_line[:token_start].strip() == '':
                     self.blank_lines = 0
+                if text.endswith('\n') and not parens:
+                    # The comment also ends a physical line.  This works around
+                    # Python < 2.6 behaviour, which does not generate NL after
+                    # a comment which is on a line by itself.
+                    self.tokens = []
         return self.file_errors
 
     def report_error(self, line_number, offset, text, check):
