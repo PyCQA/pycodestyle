@@ -691,12 +691,12 @@ class Checker:
         options.messages[code] = text[5:]
         if options.quiet:
             return
-        if options.testsuite and 'not' not in self.filename:
-            base = os.path.basename(self.filename)[:4]
-            if base == code:
-                return
-            if base[0] == 'E' and code[0] == 'W':
-                return
+        if options.testsuite:
+            basename = os.path.basename(self.filename)
+            if basename[:4] != code:
+                return # Don't care about other errors or warnings
+            if 'not' not in basename:
+                return # Don't print the expected error message
         if ignore_code(code):
             return
         if options.counters[code] == 1 or options.repeat:
@@ -723,8 +723,12 @@ def input_file(filename):
         options.counters = {}
     options.counters['files'] = files_counter_before + 1
     errors = Checker(filename).check_all()
-    if options.testsuite and errors == 0 and 'not' not in filename:
-        message("%s: no errors found" % filename)
+    if options.testsuite: # Check if the expected error was found
+        basename = os.path.basename(filename)
+        code = basename[:4]
+        count = options.counters.get(code, 0)
+        if count == 0 and 'not' not in basename:
+            message("%s: error %s not found" % (filename, code))
 
 
 def input_dir(dirname):
