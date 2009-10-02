@@ -100,6 +100,7 @@ default_exclude = '.svn,CVS,*.pyc,*.pyo'
 indent_match = re.compile(r'([ \t]*)').match
 raise_comma_match = re.compile(r'raise\s+\w+\s*(,)').match
 
+whitespace = ' \t'
 operators = """
 +  -  *  /  %  ^  &  |  =  <  >  >>  <<
 += -= *= /= %= ^= &= |= == <= >= >>= <<=
@@ -250,7 +251,7 @@ def missing_whitespace(logical_line):
     line = logical_line
     for index in range(len(line) - 1):
         char = line[index]
-        if char in ',;:' and line[index + 1] != ' ':
+        if char in ',;:' and line[index + 1] not in whitespace:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']'):
                 continue # Slice syntax, no space required
