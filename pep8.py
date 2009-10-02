@@ -352,13 +352,13 @@ def whitespace_around_named_parameter_equals(logical_line):
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value.
     """
-    parentheses = 0
+    parens = 0
     window = '   '
     equal_ok = ['==', '!=', '<=', '>=']
 
     for pos, c in enumerate(logical_line):
         window = window[1:] + c
-        if parentheses:
+        if parens:
             if window[0] in WHITESPACE and window[1] == '=':
                 if window[1:] not in equal_ok:
                     issue = "E251 no spaces around keyword / parameter equals"
@@ -368,9 +368,9 @@ def whitespace_around_named_parameter_equals(logical_line):
                     issue = "E251 no spaces around keyword / parameter equals"
                     return pos, issue
         if c == '(':
-            parentheses += 1
+            parens += 1
         elif c == ')':
-            parentheses -= 1
+            parens -= 1
 
 
 def imports_on_separate_lines(logical_line):
@@ -879,7 +879,7 @@ def process_options(arglist=None):
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
-    if len(args) == 0:
+    if len(args) == 0 and not options.doctest:
         parser.error('input not specified')
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
@@ -904,7 +904,7 @@ def _main():
     options, args = process_options()
     if options.doctest:
         import doctest
-        return doctest.testmod()
+        return doctest.testmod(verbose=options.verbose)
     start_time = time.time()
     for path in args:
         if os.path.isdir(path):
