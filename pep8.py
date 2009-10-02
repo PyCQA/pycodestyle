@@ -711,7 +711,10 @@ def input_file(filename):
         return {}
     if options.verbose:
         message('checking ' + filename)
-    options.counters['files'] = options.counters.get('files', 0) + 1
+    files_counter_before = options.counters.get('files', 0)
+    if options.testsuite: # Keep showing errors for multiple tests
+        options.counters = {}
+    options.counters['files'] = files_counter_before + 1
     errors = Checker(filename).check_all()
     if options.testsuite and errors == 0 and 'not' not in filename:
         message("%s: no errors found" % filename)
