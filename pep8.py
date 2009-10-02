@@ -86,7 +86,6 @@ import sys
 import re
 import time
 import inspect
-import string
 import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
@@ -95,13 +94,13 @@ from fnmatch import fnmatch
 __version__ = '0.2.0'
 __revision__ = '$Rev$'
 
-default_exclude = '.svn,CVS,*.pyc,*.pyo'
+DEFAULT_EXCLUDE = '.svn,CVS,*.pyc,*.pyo'
 
-indent_match = re.compile(r'([ \t]*)').match
-raise_comma_match = re.compile(r'raise\s+\w+\s*(,)').match
+INDENT_REGEX = re.compile(r'([ \t]*)')
+RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 
-whitespace = ' \t'
-operators = """
+WHITESPACE = ' \t'
+OPERATORS = """
 +  -  *  /  %  ^  &  |  =  <  >  >>  <<
 += -= *= /= %= ^= &= |= == <= >= >>= <<=
 != <> :
@@ -128,7 +127,7 @@ def tabs_or_spaces(physical_line, indent_char):
     warnings about code that illegally mixes tabs and spaces.  When using -tt
     these warnings become errors.  These options are highly recommended!
     """
-    indent = indent_match(physical_line).group(1)
+    indent = INDENT_REGEX.match(physical_line).group(1)
     for offset, char in enumerate(indent):
         if char != indent_char:
             return offset, "E101 indentation contains mixed spaces and tabs"
@@ -139,7 +138,7 @@ def tabs_obsolete(physical_line):
     For new projects, spaces-only are strongly recommended over tabs.  Most
     editors have features that make this easy to do.
     """
-    indent = indent_match(physical_line).group(1)
+    indent = INDENT_REGEX.match(physical_line).group(1)
     if indent.count('\t'):
         return indent.index('\t'), "W191 indentation contains tabs"
 
@@ -251,7 +250,7 @@ def missing_whitespace(logical_line):
     line = logical_line
     for index in range(len(line) - 1):
         char = line[index]
-        if char in ',;:' and line[index + 1] not in whitespace:
+        if char in ',;:' and line[index + 1] not in WHITESPACE:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']'):
                 continue # Slice syntax, no space required
@@ -310,7 +309,7 @@ def whitespace_around_operator(logical_line):
       align it with another.
     """
     line = logical_line
-    for operator in operators:
+    for operator in OPERATORS:
         found = line.find('  ' + operator)
         if found > -1:
             return found, "E221 multiple spaces before operator"
@@ -356,11 +355,11 @@ def whitespace_around_named_parameter_equals(logical_line):
     for pos, c in enumerate(logical_line):
         window = window[1:] + c
         if parentheses:
-            if window[0] in string.whitespace and window[1] == '=':
+            if window[0] in WHITESPACE and window[1] == '=':
                 if window[1:] not in equal_ok:
                     issue = "E251 no spaces around keyword / parameter equals"
                     return pos, issue
-            if window[2] in string.whitespace and window[1] == '=' :
+            if window[2] in WHITESPACE and window[1] == '=' :
                 if window[:2] not in equal_ok:
                     issue = "E251 no spaces around keyword / parameter equals"
                     return pos, issue
@@ -422,7 +421,7 @@ def python_3000_raise_comma(logical_line):
     continuation characters thanks to the containing parentheses.  The older
     form will be removed in Python 3000.
     """
-    match = raise_comma_match(logical_line)
+    match = RAISE_COMMA_REGEX.match(logical_line)
     if match:
         return match.start(1), "W602 deprecated form of raising exception"
 
@@ -834,8 +833,8 @@ def process_options(arglist=None):
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
                       help="report only file names, or nothing with -qq")
-    parser.add_option('--exclude', metavar='patterns', default=default_exclude,
-                      help="skip matches (default %s)" % default_exclude)
+    parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
+                      help="skip matches (default %s)" % DEFAULT_EXCLUDE)
     parser.add_option('--filename', metavar='patterns',
                       help="only check matching files (e.g. *.py)")
     parser.add_option('--ignore', metavar='errors', default='',
