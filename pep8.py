@@ -212,7 +212,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     if (logical_line.startswith('def ') or
         logical_line.startswith('class ') or
         logical_line.startswith('@')):
-        if indent_level > 0 and blank_lines != 1:
+        if indent_level > 0 and blank_lines != 1 and blank_lines_before_comment != 1:
             return 0, "E301 expected 1 blank line, found %d" % blank_lines
         if indent_level == 0 and blank_lines != 2 and blank_lines_before_comment != 2:
             return 0, "E302 expected 2 blank lines, found %d" % blank_lines
