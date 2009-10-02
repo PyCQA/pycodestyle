@@ -684,7 +684,7 @@ class Checker:
         options.messages[code] = text[5:]
         if options.quiet:
             return
-        if options.testsuite:
+        if options.testsuite and 'not' not in self.filename:
             base = os.path.basename(self.filename)[:4]
             if base == code:
                 return
@@ -713,8 +713,8 @@ def input_file(filename):
         message('checking ' + filename)
     options.counters['files'] = options.counters.get('files', 0) + 1
     errors = Checker(filename).check_all()
-    if options.testsuite and not errors:
-        message("%s: %s" % (filename, "no errors found"))
+    if options.testsuite and errors == 0 and 'not' not in filename:
+        message("%s: no errors found" % filename)
 
 
 def input_dir(dirname):
