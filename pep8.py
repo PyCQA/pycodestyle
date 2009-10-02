@@ -86,6 +86,7 @@ import sys
 import re
 import time
 import inspect
+import string
 import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
@@ -340,6 +341,32 @@ def whitespace_around_comma(logical_line):
         found = line.find(separator + '\t')
         if found > -1:
             return found + 1, "E242 tab after '%s'" % separator
+
+
+def whitespace_around_named_parameter_equals(logical_line):
+    """
+    Don't use spaces around the '=' sign when used to indicate a
+    keyword argument or a default parameter value.
+    """
+    parentheses = 0
+    window = '   '
+    equal_ok = ['==', '!=', '<=', '>=']
+
+    for pos, c in enumerate(logical_line):
+        window = window[1:] + c
+        if parentheses:
+            if window[0] in string.whitespace and window[1] == '=':
+                if window[1:] not in equal_ok:
+                    issue = "E251 no spaces around keyword / parameter equals"
+                    return pos, issue
+            if window[2] in string.whitespace and window[1] == '=' :
+                if window[:2] not in equal_ok:
+                    issue = "E251 no spaces around keyword / parameter equals"
+                    return pos, issue
+        if c == '(':
+            parentheses += 1
+        elif c == ')':
+            parentheses -= 1
 
 
 def imports_on_separate_lines(logical_line):
