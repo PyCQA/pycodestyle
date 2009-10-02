@@ -256,6 +256,8 @@ def missing_whitespace(logical_line):
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']'):
                 continue # Slice syntax, no space required
+            if char == ',' and line[index + 1] == ')':
+                continue # Allow tuple with only one element: (3,)
             return index, "E231 missing whitespace after '%s'" % char
 
 
