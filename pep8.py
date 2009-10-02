@@ -807,6 +807,16 @@ def get_statistics(prefix=''):
     return stats
 
 
+def get_count(prefix=''):
+    """Return the total count of errors and warnings."""
+    keys = options.messages.keys()
+    count = 0
+    for key in keys:
+        if key.startswith(prefix):
+            count += options.counters[key]
+    return count
+
+
 def print_statistics(prefix=''):
     """Print overall statistics (number of errors and warnings)."""
     for line in get_statistics(prefix):
@@ -852,6 +862,8 @@ def process_options(arglist=None):
                       help="show text of PEP 8 for each error")
     parser.add_option('--statistics', action='store_true',
                       help="count errors and warnings")
+    parser.add_option('--count', action='store_true',
+                      help="count total number of errors and warnings")
     parser.add_option('--benchmark', action='store_true',
                       help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',
@@ -898,6 +910,8 @@ def _main():
         print_statistics()
     if options.benchmark:
         print_benchmark(elapsed)
+    if options.count:
+        print get_count()
 
 
 if __name__ == '__main__':
