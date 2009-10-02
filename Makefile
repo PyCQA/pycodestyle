@@ -12,3 +12,6 @@ selftest :
 
 doctest :
 	python pep8.py --doctest
+
+
+alltest : test selftest doctest

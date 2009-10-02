@@ -91,20 +91,18 @@ from optparse import OptionParser
 from keyword import iskeyword
 from fnmatch import fnmatch
 
-__version__ = '0.2.0'
-__revision__ = '$Rev$'
-
 DEFAULT_EXCLUDE = '.svn,CVS,*.pyc,*.pyo'
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 
 WHITESPACE = ' \t'
+
+# Longer operators (containing others) must come first.
 OPERATORS = """
-+  -  *  /  %  ^  &  |  =  <  >  >>  <<
-+= -= *= /= %= ^= &= |= == <= >= >>= <<=
-!= <> :
-in is or not and
+!= <> **
++= -= *= /= %= ^= &= |= == >>= <<= <= >=
++  -  *  /  %  ^  &  |  =  >>  <<  <  >
 """.split()
 
 options = None
@@ -326,6 +324,47 @@ def whitespace_around_operator(logical_line):
         found = line.find(operator + '\t')
         if found > -1:
             return found, "E224 tab after operator"
+
+
+def missing_whitespace_around_operator(logical_line):
+    """
+    - Always surround these binary operators with a single space on
+      either side: assignment (=), augmented assignment (+=, -= etc.),
+      comparisons (==, <, >, !=, <>, <=, >=, in, not in, is, is not),
+      Booleans (and, or, not).
+
+    - Use spaces around arithmetic operators.
+    """
+    line = logical_line
+    parens = 0
+    pos = 1
+    while pos < len(line):
+        if line[pos] == '(':
+            parens += 1
+        elif line[pos] == ')':
+            parens -= 1
+        for operator in OPERATORS:
+            if line[pos:].startswith(operator):
+                prefix = line[:pos].rstrip()
+                start_argument = prefix.endswith(',') or prefix.endswith('(')
+                ignore = False
+                if operator == '-' and line[pos + 1] in '0123456789':
+                    # Allow unary minus operator: -123.
+                    ignore = True
+                if operator == '=' and parens:
+                    # Allow keyword args or defaults: foo(bar=None).
+                    ignore = True
+                if operator in '**' and parens and start_argument:
+                    # Allow argument unpacking: foo(*args, **kwargs).
+                    ignore = True
+                if line[pos - 1] != ' ' and not ignore:
+                    return pos, "E225 missing whitespace around operator"
+                pos += len(operator)
+                if line[pos] != ' ' and not ignore:
+                    return pos, "E225 missing whitespace around operator"
+                break # Don't consider shorter operators at this position.
+        else:
+            pos += 1
 
 
 def whitespace_around_comma(logical_line):
