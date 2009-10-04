@@ -78,6 +78,17 @@ previous_logical: previous logical line
 
 The docstring of each check function shall be the relevant part of
 text from PEP 8. It is printed if the user enables --show-pep8.
+Several docstrings contain examples directly from the PEP 8 document.
+
+Okay: spam(ham[1], {eggs: 2})
+E201: spam( ham[1], {eggs: 2})
+
+These examples are verified automatically when pep8.py is run with the
+--doctest option. You can add examples for your own check functions.
+The format is simple: "Okay" or error/warning code followed by colon
+and space, the rest of the line is example source code. If you put 'r'
+before the docstring, you can use \n for newline, \t for tab and \s
+for space.
 
 """
 
@@ -96,12 +107,13 @@ DEFAULT_EXCLUDE = '.svn,CVS,*.pyc,*.pyo'
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
+SELFTEST_REGEX = re.compile(r'(Okay|W\d\d\d|E\d\d\d):\s(.*)')
 
 WHITESPACE = ' \t'
 
 # Longer operators (containing others) must come first.
 OPERATORS = """
-!= <> **
+!= <> ** //
 += -= *= /= %= ^= &= |= == >>= <<= <= >=
 +  -  *  /  %  ^  &  |  =  >>  <<  <  >
 """.split()
@@ -116,7 +128,7 @@ args = None
 
 
 def tabs_or_spaces(physical_line, indent_char):
-    """
+    r"""
     Never mix tabs and spaces.
 
     The most popular way of indenting Python is with spaces only.  The
@@ -125,6 +137,9 @@ def tabs_or_spaces(physical_line, indent_char):
     invoking the Python command line interpreter with the -t option, it issues
     warnings about code that illegally mixes tabs and spaces.  When using -tt
     these warnings become errors.  These options are highly recommended!
+
+    Okay: if a == 0:\n        a = 1\n        b = 1
+    E101: if a == 0:\n        a = 1\n\tb = 1
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
     for offset, char in enumerate(indent):
@@ -133,9 +148,12 @@ def tabs_or_spaces(physical_line, indent_char):
 
 
 def tabs_obsolete(physical_line):
-    """
+    r"""
     For new projects, spaces-only are strongly recommended over tabs.  Most
     editors have features that make this easy to do.
+
+    Okay: if True:\n    return
+    W191: if True:\n\treturn
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
     if indent.count('\t'):
@@ -145,6 +163,9 @@ def tabs_obsolete(physical_line):
 def trailing_whitespace(physical_line):
     """
     JCR: Trailing whitespace is superfluous.
+
+    Okay: spam(1)
+    W291: spam(1)\s
     """
     physical_line = physical_line.rstrip('\n') # chr(10), newline
     physical_line = physical_line.rstrip('\r') # chr(13), carriage return
@@ -155,8 +176,11 @@ def trailing_whitespace(physical_line):
 
 
 def trailing_blank_lines(physical_line, lines, line_number):
-    """
+    r"""
     JCR: Trailing blank lines are superfluous.
+
+    Okay: spam(1)
+    W391: spam(1)\n
     """
     if physical_line.strip() == '' and line_number == len(lines):
         return 0, "W391 blank line at end of file"
@@ -193,7 +217,7 @@ def maximum_line_length(physical_line):
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 previous_logical, blank_lines_before_comment):
-    """
+    r"""
     Separate top-level function and class definitions with two blank lines.
 
     Method definitions inside a class are separated by a single blank line.
@@ -203,6 +227,12 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     one-liners (e.g. a set of dummy implementations).
 
     Use blank lines in functions, sparingly, to indicate logical sections.
+
+    Okay: def a():\n    pass\n\n\ndef b():\n    pass
+    E301: class Foo:\n    def bar():\n        pass
+    E302: def a():\n    pass\n\ndef b(n):\n    pass
+    E302: def a():\n    pass\n\n\n\ndef b(n):\n    pass
+    E303: def a():\n\n\n\n    pass
     """
     if line_number == 1:
         return # Don't expect blank lines before the first line
@@ -228,6 +258,18 @@ def extraneous_whitespace(logical_line):
     - Immediately inside parentheses, brackets or braces.
 
     - Immediately before a comma, semicolon, or colon.
+
+    Okay: spam(ham[1], {eggs: 2})
+    E201: spam( ham[1], {eggs: 2})
+    E201: spam(ham[ 1], {eggs: 2})
+    E201: spam(ham[1], { eggs: 2})
+    E202: spam(ham[1], {eggs: 2} )
+    E202: spam(ham[1 ], {eggs: 2})
+    E202: spam(ham[1], {eggs: 2 })
+
+    E203: if x == 4: print x, y; x, y = y , x
+    E203: if x == 4: print x, y ; x, y = y, x
+    E203: if x == 4 : print x, y; x, y = y, x
     """
     line = logical_line
     for char in '([{':
@@ -247,6 +289,15 @@ def extraneous_whitespace(logical_line):
 def missing_whitespace(logical_line):
     """
     JCR: Each comma, semicolon or colon should be followed by whitespace.
+
+    Okay: [a, b]
+    Okay: (3,)
+    Okay: a[1:4]
+    Okay: a[:4]
+    Okay: a[1:]
+    Okay: a[1:4:2]
+    E231: ['a','b']
+    E231: foo(bar,baz)
     """
     line = logical_line
     for index in range(len(line) - 1):
@@ -262,11 +313,21 @@ def missing_whitespace(logical_line):
 
 def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level):
-    """
+    r"""
     Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
+
+    Okay: a = 1
+    Okay: if a == 0:\n    a = 1
+    E111:   a = 1
+
+    Okay: for item in items:\n    pass
+    E112: for item in items:\npass
+
+    Okay: a = 1\nb = 2
+    E113: a = 1\n    b = 2
     """
     if indent_char == ' ' and indent_level % 4:
         return 0, "E111 indentation is not a multiple of four"
@@ -286,6 +347,13 @@ def whitespace_before_parameters(logical_line, tokens):
 
     - Immediately before the open parenthesis that starts an indexing or
       slicing.
+
+    Okay: spam(1)
+    E211: spam (1)
+
+    Okay: dict['key'] = list[index]
+    E211: dict ['key'] = list[index]
+    E211: dict['key'] = list [index]
     """
     prev_type = tokens[0][0]
     prev_text = tokens[0][1]
@@ -310,6 +378,12 @@ def whitespace_around_operator(logical_line):
 
     - More than one space around an assignment (or other) operator to
       align it with another.
+
+    Okay: a = 12 + 3
+    E221: a = 4  + 5
+    E222: a = 4 +  5
+    E223: a = 4\t+ 5
+    E224: a = 4 +\t5
     """
     line = logical_line
     for operator in OPERATORS:
@@ -335,6 +409,22 @@ def missing_whitespace_around_operator(logical_line):
       Booleans (and, or, not).
 
     - Use spaces around arithmetic operators.
+
+    Okay: i = i + 1
+    Okay: submitted += 1
+    Okay: x = x * 2 - 1
+    Okay: hypot2 = x * x + y * y
+    Okay: c = (a + b) * (a - b)
+    Okay: foo(bar, key='word', *args, **kwargs)
+    Okay: baz(**kwargs)
+    Okay: negative = -1
+    Okay: spam(-1)
+
+    E225: i=i+1
+    E225: submitted +=1
+    E225: x = x*2 - 1
+    E225: hypot2 = x*x + y*y
+    E225: c = (a+b) * (a-b)
     """
     line = logical_line
     parens = 0
@@ -391,6 +481,16 @@ def whitespace_around_named_parameter_equals(logical_line):
     """
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value.
+
+    Okay: def complex(real, imag=0.0):
+    Okay: return magic(r=real, i=imag)
+    Okay: boolean(a == b)
+    Okay: boolean(a != b)
+    Okay: boolean(a <= b)
+    Okay: boolean(a >= b)
+
+    E251: def complex(real, imag = 0.0):
+    E251: return magic(r = real, i = imag)
     """
     parens = 0
     window = '   '
@@ -414,8 +514,17 @@ def whitespace_around_named_parameter_equals(logical_line):
 
 
 def imports_on_separate_lines(logical_line):
-    """
+    r"""
     Imports should usually be on separate lines.
+
+    Okay: import os\nimport sys
+    E401: import sys, os
+
+    Okay: from subprocess import Popen, PIPE
+    Okay: from myclas import MyClass
+    Okay: from foo.bar.yourclass import YourClass
+    Okay: import myclass
+    Okay: import foo.bar.yourclass
     """
     line = logical_line
     if line.startswith('import '):
@@ -425,9 +534,29 @@ def imports_on_separate_lines(logical_line):
 
 
 def compound_statements(logical_line):
-    """
+    r"""
     Compound statements (multiple statements on the same line) are
     generally discouraged.
+
+    While sometimes it's okay to put an if/for/while with a small body
+    on the same line, never do this for multi-clause statements. Also
+    avoid folding such long lines!
+
+    Okay: if foo == 'blah':\n    do_blah_thing()
+    Okay: do_one()
+    Okay: do_two()
+    Okay: do_three()
+
+    E701: if foo == 'blah': do_blah_thing()
+    E701: for x in lst: total += x
+    E701: while t < 10: t = delay()
+    E701: if foo == 'blah': do_blah_thing()
+    E701: else: do_non_blah_thing()
+    E701: try: something()
+    E701: finally: cleanup()
+    E701: if foo == 'blah': one(); two(); three()
+
+    E702: do_one(); do_two(); do_three()
     """
     line = logical_line
     found = line.find(':')
@@ -494,7 +623,7 @@ def expand_indent(line):
     result = 0
     for char in line:
         if char == '\t':
-            result = result / 8 * 8 + 8
+            result = result // 8 * 8 + 8
         elif char == ' ':
             result += 1
         else:
@@ -560,8 +689,12 @@ class Checker:
     """
 
     def __init__(self, filename):
-        self.filename = filename
-        self.lines = open(filename).readlines()
+        if filename:
+            self.filename = filename
+            self.lines = open(filename).readlines()
+        else:
+            self.filename = 'stdin'
+            self.lines = []
         self.physical_checks = find_checks('physical_line')
         self.logical_checks = find_checks('logical_line')
         options.counters['physical lines'] = \
@@ -882,6 +1015,55 @@ def print_benchmark(elapsed):
                 options.counters[key]))
 
 
+def selftest():
+    """
+    Test all check functions with test cases in docstrings.
+    """
+    count_passed = 0
+    count_failed = 0
+    checks = find_checks('physical_line') + find_checks('logical_line')
+    for name, check, argument_names in checks:
+        for line in check.__doc__.splitlines():
+            line = line.lstrip()
+            match = SELFTEST_REGEX.match(line)
+            if match is None:
+                continue
+            code, source = match.groups()
+            checker = Checker(None)
+            for part in source.split(r'\n'):
+                part = part.replace(r'\t', '\t')
+                part = part.replace(r'\s', ' ')
+                checker.lines.append(part + '\n')
+            options.quiet = 2
+            options.counters = {}
+            checker.check_all()
+            error = None
+            if code == 'Okay':
+                if len(options.counters) > 1:
+                    codes = [key for key in options.counters.keys()
+                             if key != 'logical lines']
+                    error = "incorrectly found %s" % ', '.join(codes)
+            elif options.counters.get(code, 0) == 0:
+                error = "failed to find %s" % code
+            if not error:
+                count_passed += 1
+            else:
+                count_failed += 1
+                if len(checker.lines) == 1:
+                    print("pep8.py: %s: %s" %
+                          (error, checker.lines[0].rstrip()))
+                else:
+                    print("pep8.py: %s:" % error)
+                    for line in checker.lines:
+                        print(line.rstrip())
+    if options.verbose:
+        print("%d passed and %d failed." % (count_passed, count_failed))
+        if count_failed:
+            print("Test failed.")
+        else:
+            print("Test passed.")
+
+
 def process_options(arglist=None):
     """
     Process options passed either via arglist or via command line args.
@@ -932,7 +1114,6 @@ def process_options(arglist=None):
         options.ignore = []
     options.counters = {}
     options.messages = {}
-
     return options, args
 
 
@@ -943,7 +1124,8 @@ def _main():
     options, args = process_options()
     if options.doctest:
         import doctest
-        return doctest.testmod(verbose=options.verbose)
+        doctest.testmod(verbose=options.verbose)
+        selftest()
     start_time = time.time()
     for path in args:
         if os.path.isdir(path):
