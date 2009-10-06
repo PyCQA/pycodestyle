@@ -451,6 +451,8 @@ def missing_whitespace_around_operator(logical_line):
                 if line[pos - 1] != ' ' and not ignore:
                     return pos, "E225 missing whitespace around operator"
                 pos += len(operator)
+                if pos >= len(line):
+                    break
                 if line[pos] != ' ' and not ignore:
                     return pos, "E225 missing whitespace around operator"
                 break # Don't consider shorter operators at this position.
