@@ -755,7 +755,7 @@ def find_checks(argument_name):
     return checks
 
 
-class Checker:
+class Checker(object):
     """
     Load a Python source file, tokenize it, check coding style.
     """
