@@ -233,12 +233,13 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     E302: def a():\n    pass\n\ndef b(n):\n    pass
     E302: def a():\n    pass\n\n\n\ndef b(n):\n    pass
     E303: def a():\n\n\n\n    pass
+    E304: @decorator\n\ndef a():\n    pass
     """
     if line_number == 1:
         return # Don't expect blank lines before the first line
-    if previous_logical.startswith('@'):
-        return # Don't expect blank lines after function decorator
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
+    if previous_logical.startswith('@') and max_blank_lines:
+        return 0, "E304 blank lines found after function decorator"
     if (logical_line.startswith('def ') or
         logical_line.startswith('class ') or
         logical_line.startswith('@')):

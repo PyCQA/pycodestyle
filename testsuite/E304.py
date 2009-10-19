@@ -1,0 +1,4 @@
+@decorator
+
+def function():
+    pass
