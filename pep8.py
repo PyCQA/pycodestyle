@@ -103,7 +103,10 @@ from optparse import OptionParser
 from keyword import iskeyword
 from fnmatch import fnmatch
 
-DEFAULT_EXCLUDE = '.svn,CVS,*.pyc,*.pyo'
+__version__ = '0.2.0'
+__revision__ = '$Rev$'
+
+DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -888,7 +891,7 @@ def input_file(filename):
     """
     Run all checks on a Python source file.
     """
-    if excluded(filename) or not filename_match(filename):
+    if excluded(filename):
         return {}
     if options.verbose:
         message('checking ' + filename)
@@ -923,7 +926,8 @@ def input_dir(dirname):
                 dirs.remove(subdir)
         files.sort()
         for filename in files:
-            input_file(os.path.join(root, filename))
+            if filename_match(filename):
+                input_file(os.path.join(root, filename))
 
 
 def excluded(filename):
@@ -1078,9 +1082,13 @@ def process_options(arglist=None):
     parser.add_option('-q', '--quiet', default=0, action='count',
                       help="report only file names, or nothing with -qq")
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
-                      help="skip matches (default %s)" % DEFAULT_EXCLUDE)
-    parser.add_option('--filename', metavar='patterns',
-                      help="only check matching files (e.g. *.py)")
+                      help="exclude files or directories which match these "
+                        "comma separated patterns (default: %s)" %
+                        DEFAULT_EXCLUDE)
+    parser.add_option('--filename', metavar='patterns', default='*.py',
+                      help="when parsing directories, only check filenames "
+                        "matching these comma separated patterns (default: "
+                        "*.py)")
     parser.add_option('--ignore', metavar='errors', default='',
                       help="skip errors and warnings (e.g. E4,W)")
     parser.add_option('--repeat', action='store_true',
