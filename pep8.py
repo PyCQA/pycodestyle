@@ -238,16 +238,16 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         return # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         return # Don't expect blank lines after function decorator
+    max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if (logical_line.startswith('def ') or
         logical_line.startswith('class ') or
         logical_line.startswith('@')):
-        max_blank_lines = max(blank_lines, blank_lines_before_comment)
         if indent_level > 0 and max_blank_lines != 1:
             return 0, "E301 expected 1 blank line, found %d" % blank_lines
         if indent_level == 0 and max_blank_lines != 2:
             return 0, "E302 expected 2 blank lines, found %d" % blank_lines
-    if blank_lines > 2:
-        return 0, "E303 too many blank lines (%d)" % blank_lines
+    if max_blank_lines > 2:
+        return 0, "E303 too many blank lines (%d)" % max_blank_lines
 
 
 def extraneous_whitespace(logical_line):
