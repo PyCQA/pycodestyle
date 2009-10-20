@@ -1,2 +1,3 @@
 include pep8.py
 include *.txt
+include *.rst
