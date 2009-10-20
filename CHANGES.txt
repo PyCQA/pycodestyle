@@ -5,25 +5,25 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-- Nothing yet
+* Nothing yet.
 
 
 0.3.1 (2009-09-14)
 ------------------
 
-- Fixes for comments: do not count them when checking for blank lines between
+* Fixes for comments: do not count them when checking for blank lines between
   items.
 
-- Added setup.py for pypi upload and easy_installability.
+* Added setup.py for pypi upload and easy_installability.
 
 
 0.2 (2007-10-16)
 ----------------
 
-- Loads of fixes and improvements.
+* Loads of fixes and improvements.
 
 
 0.1 (2006-10-01)
 ----------------
 
-- First release.
+* First release.
