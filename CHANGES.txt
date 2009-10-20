@@ -5,7 +5,23 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-* Nothing yet.
+* Support for all versions of Python from 2.3 to 3.1.
+
+* New and greatly expanded self tests.
+
+* Added --count option to print the total number of errors and warnings.
+
+* Further improvements to the handling of comments and blank lines.
+  (Issue #1 and others changes.)
+
+* check all py files in directory when passed a directory (Issue
+  #2). This also prevents an exception when traversing directories
+  with non *.py files.
+
+* E231 should allow commas to be followed by ) (Issue #3)
+
+* Spaces are not longer required around the equals sign for keyword
+  arguments or default parameter values.
 
 
 0.3.1 (2009-09-14)
