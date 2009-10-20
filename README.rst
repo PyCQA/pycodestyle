@@ -25,7 +25,6 @@ Installation
 
 Just an ``easy_install pep8`` ought to do the trick.
 
-http://github.com/jcrocholl/pep8
 
 Example usage and output
 ------------------------
@@ -73,23 +72,25 @@ Or you can display how often each error was found::
 Quick help is available on the command line::
 
   $ pep8 -h
-  usage: pep8 [options] input ...
+  Usage: pep8.py [options] input ...
 
-  options:
+  Options:
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq
-    --exclude=patterns   skip matches (default .svn,CVS,*.pyc,*.pyo)
-    --filename=patterns  only check matching files (e.g. *.py)
+    --exclude=patterns   exclude files or directories which match these comma
+                         separated patterns (default: .svn,CVS,.bzr,.hg,.git)
+    --filename=patterns  when parsing directories, only check filenames matching
+                         these comma separated patterns (default: *.py)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
     --repeat             show all occurrences of the same error
     --show-source        show source code for each error
     --show-pep8          show text of PEP 8 for each error
     --statistics         count errors and warnings
+    --count              count total number of errors and warnings
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
     --doctest            run doctest on myself
-
 
 Feedback
 --------
@@ -97,4 +98,18 @@ Feedback
 Your feedback is more than welcome. Write email to
 johann@rocholl.net or post bugs and feature requests here:
 
-http://github.com/jcrocholl/pep8/issues
+http://github.com/cburroughs/pep8.py/issues
+
+
+Source download
+---------------
+
+The source code is currently available on github. Fork away!
+
+http://github.com/cburroughs/pep8.py/
+http://github.com/jcrocholl/pep8/
+
+(Yes it's lame two have two that are not forks of one another. At some
+point in the future it is hoped some git magic will clean this
+situating up.)
+
