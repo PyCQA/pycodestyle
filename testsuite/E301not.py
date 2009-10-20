@@ -8,6 +8,7 @@ class X:
         pass
 
 
+@some_decorator
 class Y:
 
     def a():
@@ -16,4 +17,8 @@ class Y:
     # comment
 
     def b():
+        pass
+
+    @property
+    def c():
         pass
