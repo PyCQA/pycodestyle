@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.4 (unreleased)
+0.4 (2009-10-20)
 ----------------
 
 * Support for all versions of Python from 2.3 to 3.1.
