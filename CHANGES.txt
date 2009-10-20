@@ -5,7 +5,7 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-* Nothing yet.
+* Allow decorators on class and clas methods.
 
 
 0.4 (2009-10-20)
