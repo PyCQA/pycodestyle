@@ -5,13 +5,13 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+* Nothing changed yet.
 
 
 0.4.1 (2009-10-22)
 ------------------
 
-* Allow decorators on class and clas methods.
+* Decorators on classes and class methods are OK now.
 
 
 0.4 (2009-10-20)
@@ -28,9 +28,9 @@ Changelog
 
 * check all py files in directory when passed a directory (Issue
   #2). This also prevents an exception when traversing directories
-  with non *.py files.
+  with non ``*.py`` files.
 
-* E231 should allow commas to be followed by ) (Issue #3)
+* E231 should allow commas to be followed by ``)`` (Issue #3)
 
 * Spaces are not longer required around the equals sign for keyword
   arguments or default parameter values.
