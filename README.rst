@@ -109,7 +109,7 @@ The source code is currently available on github. Fork away!
 http://github.com/cburroughs/pep8.py/
 http://github.com/jcrocholl/pep8/
 
-(Yes it's lame two have two that are not forks of one another. At some
+(Yes it's lame to have two that are not forks of one another. At some
 point in the future it is hoped some git magic will clean this
-situating up.)
+situation up.)
 
