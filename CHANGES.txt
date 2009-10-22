@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-0.5 (unreleased)
-----------------
+0.4.2 (2009-10-22)
+------------------
 
 * Decorators on classes and class methods are OK now.
 
