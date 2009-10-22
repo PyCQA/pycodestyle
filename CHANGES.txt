@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-0.5 (unreleased)
-----------------
+0.4.1 (2009-10-22)
+------------------
 
 * Allow decorators on class and clas methods.
 
