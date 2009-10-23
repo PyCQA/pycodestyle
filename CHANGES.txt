@@ -5,7 +5,11 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+* Performance improvement, due to rewriting of E225
+
+* E225 should allow no white space after unary operator (Issue #9)
+
+* Allow multi-line comments (Issue #10)
 
 
 0.4.2 (2009-10-22)

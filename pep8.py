@@ -115,11 +115,12 @@ SELFTEST_REGEX = re.compile(r'(Okay|W\d\d\d|E\d\d\d):\s(.*)')
 WHITESPACE = ' \t'
 
 # Longer operators (containing others) must come first.
-OPERATORS = """
-!= <> ** //
-+= -= *= /= %= ^= &= |= == >>= <<= <= >=
-+  -  *  /  %  ^  &  |  =  >>  <<  <  >
+BINARY_OPERATORS = """
++= != **= //= /= %= ^= &= |= == >>= <<= <= >=
+-= <>  *= //  /  %  ^  &  |  =  >>  <<  <  >
 """.split()
+UNARY_OPERATORS = ['**', '*', '+', '-']
+OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
 
 options = None
 args = None
@@ -407,8 +408,8 @@ def whitespace_around_operator(logical_line):
             return found, "E224 tab after operator"
 
 
-def missing_whitespace_around_operator(logical_line):
-    """
+def missing_whitespace_around_operator(logical_line, tokens):
+    r"""
     - Always surround these binary operators with a single space on
       either side: assignment (=), augmented assignment (+=, -= etc.),
       comparisons (==, <, >, !=, <>, <=, >=, in, not in, is, is not),
@@ -425,45 +426,50 @@ def missing_whitespace_around_operator(logical_line):
     Okay: baz(**kwargs)
     Okay: negative = -1
     Okay: spam(-1)
+    Okay: alpha[:-i]
+    Okay: if not -5 < x < +5:\n    pass
+    Okay: lambda *args, **kw: (args, kw)
 
     E225: i=i+1
     E225: submitted +=1
     E225: x = x*2 - 1
     E225: hypot2 = x*x + y*y
     E225: c = (a+b) * (a-b)
+    E225: c = alpha -4
+    E225: z = x **y
     """
-    line = logical_line
     parens = 0
-    pos = 1
-    while pos < len(line):
-        if line[pos] == '(':
+    need_space = False
+    prev_type = tokenize.OP
+    prev_text = prev_end = None
+    for token_type, text, start, end, line in tokens:
+        if token_type in (tokenize.NL, tokenize.NEWLINE):
+            continue
+        if text == '(':
             parens += 1
-        elif line[pos] == ')':
+        elif text == ')':
             parens -= 1
-        for operator in OPERATORS:
-            if line[pos:].startswith(operator):
-                prefix = line[:pos].rstrip()
-                start_argument = prefix.endswith(',') or prefix.endswith('(')
-                ignore = False
-                if operator == '-' and line[pos + 1] in '0123456789':
-                    # Allow unary minus operator: -123.
-                    ignore = True
-                if operator == '=' and parens:
-                    # Allow keyword args or defaults: foo(bar=None).
-                    ignore = True
-                if operator in '**' and parens and start_argument:
+        if need_space:
+            if start == prev_end:
+                return prev_end, "E225 missing whitespace around operator"
+            need_space = False
+        elif token_type == tokenize.OP:
+            if text == '=' and parens:
+                # Allow keyword args or defaults: foo(bar=None).
+                pass
+            elif text in BINARY_OPERATORS:
+                need_space = True
+            elif text in UNARY_OPERATORS:
+                if not (prev_type == tokenize.OP or
+                   (prev_type == tokenize.NAME and iskeyword(prev_text))):
+                    # Allow unary operators: -123, -x, +1.
                     # Allow argument unpacking: foo(*args, **kwargs).
-                    ignore = True
-                if line[pos - 1] != ' ' and not ignore:
-                    return pos, "E225 missing whitespace around operator"
-                pos += len(operator)
-                if pos >= len(line):
-                    break
-                if line[pos] != ' ' and not ignore:
-                    return pos, "E225 missing whitespace around operator"
-                break # Don't consider shorter operators at this position.
-        else:
-            pos += 1
+                    need_space = True
+            if need_space and start == prev_end:
+                return prev_end, "E225 missing whitespace around operator"
+        prev_type = token_type
+        prev_text = text
+        prev_end = end
 
 
 def whitespace_around_comma(logical_line):
