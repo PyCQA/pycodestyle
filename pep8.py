@@ -232,6 +232,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     Use blank lines in functions, sparingly, to indicate logical sections.
 
     Okay: def a():\n    pass\n\n\ndef b():\n    pass
+    Okay: def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass
+
     E301: class Foo:\n    def bar():\n        pass
     E302: def a():\n    pass\n\ndef b(n):\n    pass
     E302: def a():\n    pass\n\n\n\ndef b(n):\n    pass
@@ -849,7 +851,8 @@ class Checker:
                 source_line = token[4]
                 token_start = token[2][1]
                 if source_line[:token_start].strip() == '':
-                    self.blank_lines_before_comment = self.blank_lines
+                    self.blank_lines_before_comment = max(self.blank_lines,
+                        self.blank_lines_before_comment)
                     self.blank_lines = 0
                 if text.endswith('\n') and not parens:
                     # The comment also ends a physical line.  This works around
