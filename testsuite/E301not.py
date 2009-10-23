@@ -7,6 +7,15 @@ class X:
     def b():
         pass
 
+    # This is a
+    # ... multi-line comment
+
+    def c():
+        pass
+
+
+# This is a
+# ... multi-line comment
 
 @some_decorator
 class Y:

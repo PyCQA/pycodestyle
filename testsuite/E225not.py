@@ -7,3 +7,6 @@ foo(bar, key='word', *args, **kwargs)
 baz(**kwargs)
 negative = -1
 spam(-1)
+lambda *args, **kw: (args, kw)
+if not -5 < x < +5:
+    pass
