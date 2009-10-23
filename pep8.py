@@ -103,7 +103,7 @@ from optparse import OptionParser
 from keyword import iskeyword
 from fnmatch import fnmatch
 
-__version__ = '0.2.0'
+__version__ = '0.5dev'
 __revision__ = '$Rev$'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
