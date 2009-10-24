@@ -613,6 +613,17 @@ def python_3000_raise_comma(logical_line):
         return match.start(1), "W602 deprecated form of raising exception"
 
 
+def python_3000_not_equal(logical_line, tokens):
+    """
+    != can also be written <>, but this is an obsolete usage kept for
+    backwards compatibility only. New code should always use !=.
+    The older syntax is removed in Python 3000.
+    """
+    for token in tokens:
+        if token[0] == tokenize.OP and token[1] == '<>':
+            return token[2], "W603 '<>' is deprecated, use '!='"
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
