@@ -95,7 +95,6 @@ for space.
 import os
 import sys
 import re
-import types
 import time
 import inspect
 import tokenize
@@ -675,7 +674,7 @@ def find_checks(argument_name):
     """
     checks = []
     for name, function in globals().items():
-        if isinstance(function, types.FunctionType):
+        if inspect.isfunction(function):
             args = inspect.getargspec(function)[0]
             if len(args) >= 1 and args[0].startswith(argument_name):
                 checks.append((name, function, args))
