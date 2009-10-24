@@ -114,12 +114,11 @@ SELFTEST_REGEX = re.compile(r'(Okay|W\d\d\d|E\d\d\d):\s(.*)')
 
 WHITESPACE = ' \t'
 
-# Longer operators (containing others) must come first.
 BINARY_OPERATORS = """
-+= != **= //= /= %= ^= &= |= == >>= <<= <= >=
--= <>  *= //  /  %  ^  &  |  =  >>  <<  <  >
++= != %= ^= &= |= == **= //= >>= <<= // <<
+-= <> %  ^  &  |  =   *=  /=  >=  <= / < >
 """.split()
-UNARY_OPERATORS = ['**', '*', '+', '-']
+UNARY_OPERATORS = ['**', '*', '+', '-', '>>']
 OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
 
 options = None
@@ -446,9 +445,9 @@ def missing_whitespace_around_operator(logical_line, tokens):
     for token_type, text, start, end, line in tokens:
         if token_type in (tokenize.NL, tokenize.NEWLINE):
             continue
-        if text == '(':
+        if text in ('(', 'lambda'):
             parens += 1
-        elif text == ')':
+        elif text in (')', ':'):
             parens -= 1
         if need_space:
             if start == prev_end:
