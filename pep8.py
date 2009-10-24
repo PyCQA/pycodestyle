@@ -109,7 +109,8 @@ DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
-SELFTEST_REGEX = re.compile(r'(Okay|W\d\d\d|E\d\d\d):\s(.*)')
+SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
+ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 
 WHITESPACE = ' \t'
 
@@ -674,10 +675,15 @@ def find_checks(argument_name):
     """
     checks = []
     for name, function in globals().items():
-        if inspect.isfunction(function):
-            args = inspect.getargspec(function)[0]
-            if len(args) >= 1 and args[0].startswith(argument_name):
-                checks.append((name, function, args))
+        if not inspect.isfunction(function):
+            continue
+        args = inspect.getargspec(function)[0]
+        if args and args[0].startswith(argument_name):
+            codes = ERRORCODE_REGEX.findall(
+                        inspect.getdoc(function) or '') or ['']
+            for code in codes:
+                if not code or not ignore_code(code):
+                    checks.append((name, function, args))
     checks.sort()
     return checks
 
