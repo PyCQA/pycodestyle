@@ -684,6 +684,7 @@ def find_checks(argument_name):
             for code in codes:
                 if not code or not ignore_code(code):
                     checks.append((name, function, args))
+                    break
     checks.sort()
     return checks
 
