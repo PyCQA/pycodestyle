@@ -447,7 +447,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
             continue
         if text in ('(', 'lambda'):
             parens += 1
-        elif text in (')', ':'):
+        elif text == ')':
             parens -= 1
         if need_space:
             if start == prev_end:

@@ -8,6 +8,6 @@ baz(**kwargs)
 negative = -1
 spam(-1)
 lambda *args, **kw: (args, kw)
-lambda a, b='': (a, b)
+lambda a, b=h[:], c=0: (a, b, c)
 if not -5 < x < +5:
     print >>sys.stderr, "x is out of range."
