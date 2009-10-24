@@ -2,8 +2,12 @@ def a():
     pass
 
 
-def b():
-    pass
+class Foo():
+    """Class Foo"""
+
+    def b():
+
+        pass
 
 
 # comment
