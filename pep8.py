@@ -981,7 +981,11 @@ def filename_match(filename):
 def ignore_code(code):
     """
     Check if options.ignore contains a prefix of the error code.
+    If options.select contains a prefix of the error code, do not ignore it.
     """
+    for select in options.select:
+        if code.startswith(select):
+            return False
     for ignore in options.ignore:
         if code.startswith(ignore):
             return True
@@ -1114,6 +1118,8 @@ def process_options(arglist=None):
                       help="when parsing directories, only check filenames "
                         "matching these comma separated patterns (default: "
                         "*.py)")
+    parser.add_option('--select', metavar='errors', default='',
+                      help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
                       help="skip errors and warnings (e.g. E4,W)")
     parser.add_option('--repeat', action='store_true',
@@ -1143,9 +1149,17 @@ def process_options(arglist=None):
         options.exclude[index] = options.exclude[index].rstrip('/')
     if options.filename:
         options.filename = options.filename.split(',')
+    if options.select:
+        options.select = options.select.split(',')
+    else:
+        options.select = []
     if options.ignore:
         options.ignore = options.ignore.split(',')
+    elif options.select:
+        # Ignore all checks which are not explicitly selected
+        options.ignore = ['']
     else:
+        # The default choice: all checks are required
         options.ignore = []
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')

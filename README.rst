@@ -82,6 +82,7 @@ Quick help is available on the command line::
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
                          these comma separated patterns (default: *.py)
+    --select=errors      select errors and warnings (e.g. E,W6)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
     --repeat             show all occurrences of the same error
     --show-source        show source code for each error
