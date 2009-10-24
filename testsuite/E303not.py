@@ -14,6 +14,6 @@ def a():
 
 # Comment 3
 
-def b()
+def b():
 
     pass
