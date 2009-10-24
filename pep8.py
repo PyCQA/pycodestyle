@@ -719,8 +719,6 @@ class Checker:
         else:
             self.filename = 'stdin'
             self.lines = []
-        self.physical_checks = find_checks('physical_line')
-        self.logical_checks = find_checks('logical_line')
         options.counters['physical lines'] = \
             options.counters.get('physical lines', 0) + len(self.lines)
 
@@ -759,7 +757,7 @@ class Checker:
         self.physical_line = line
         if self.indent_char is None and len(line) and line[0] in ' \t':
             self.indent_char = line[0]
-        for name, check, argument_names in self.physical_checks:
+        for name, check, argument_names in options.physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
@@ -813,7 +811,7 @@ class Checker:
         self.indent_level = expand_indent(indent)
         if options.verbose >= 2:
             print(self.logical_line[:80].rstrip())
-        for name, check, argument_names in self.logical_checks:
+        for name, check, argument_names in options.logical_checks:
             if options.verbose >= 3:
                 print('   ', name)
             result = self.run_check(check, argument_names)
@@ -1047,7 +1045,7 @@ def selftest():
     """
     count_passed = 0
     count_failed = 0
-    checks = find_checks('physical_line') + find_checks('logical_line')
+    checks = options.physical_checks + options.logical_checks
     for name, check, argument_names in checks:
         for line in check.__doc__.splitlines():
             line = line.lstrip()
@@ -1142,6 +1140,8 @@ def process_options(arglist=None):
         options.ignore = options.ignore.split(',')
     else:
         options.ignore = []
+    options.physical_checks = find_checks('physical_line')
+    options.logical_checks = find_checks('logical_line')
     options.counters = {}
     options.messages = {}
     return options, args
