@@ -5,23 +5,25 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-* Add --select option which is mirror of --ignore
+* Add --select option which is mirror of --ignore.
 
-* New check W603 warns about the deprecated operator ``<>``
+* Add checks E261 and E262 for spaces before inline comments.
 
-* Performance improvement, due to rewriting of E225
+* New check W603 warns about the deprecated operator ``<>``.
+
+* Performance improvement, due to rewriting of E225.
 
 * E225 now accepts:
 
-  - no whitespace after unary operator or similar (Issue #9)
+  - no whitespace after unary operator or similar. (Issue #9)
 
-  - lambda function with argument unpacking or keyword defaults
+  - lambda function with argument unpacking or keyword defaults.
 
-  - print statement extended form: ``print >>sys.stderr, "Hello world!"``
+  - print statement extended form: ``print >>sys.stderr, "Hello world!"``.
 
-* Reserve "2 blank lines" for module-level logical blocks (E303)
+* Reserve "2 blank lines" for module-level logical blocks. (E303)
 
-* Allow multi-line comments (E302, issue #10)
+* Allow multi-line comments. (E302, issue #10)
 
 
 0.4.2 (2009-10-22)
@@ -46,7 +48,7 @@ Changelog
   #2). This also prevents an exception when traversing directories
   with non ``*.py`` files.
 
-* E231 should allow commas to be followed by ``)`` (Issue #3)
+* E231 should allow commas to be followed by ``)``. (Issue #3)
 
 * Spaces are not longer required around the equals sign for keyword
   arguments or default parameter values.

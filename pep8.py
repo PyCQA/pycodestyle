@@ -170,9 +170,9 @@ def trailing_whitespace(physical_line):
     Okay: spam(1)
     W291: spam(1)\s
     """
-    physical_line = physical_line.rstrip('\n') # chr(10), newline
-    physical_line = physical_line.rstrip('\r') # chr(13), carriage return
-    physical_line = physical_line.rstrip('\x0c') # chr(12), form feed, ^L
+    physical_line = physical_line.rstrip('\n')    # chr(10), newline
+    physical_line = physical_line.rstrip('\r')    # chr(13), carriage return
+    physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
     stripped = physical_line.rstrip()
     if physical_line != stripped:
         return len(stripped), "W291 trailing whitespace"
@@ -241,7 +241,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     E304: @decorator\n\ndef a():\n    pass
     """
     if line_number == 1:
-        return # Don't expect blank lines before the first line
+        return  # Don't expect blank lines before the first line
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
         if max_blank_lines:
@@ -312,9 +312,9 @@ def missing_whitespace(logical_line):
         if char in ',;:' and line[index + 1] not in WHITESPACE:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']'):
-                continue # Slice syntax, no space required
+                continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
-                continue # Allow tuple with only one element: (3,)
+                continue  # Allow tuple with only one element: (3,)
             return index, "E231 missing whitespace after '%s'" % char
 
 
@@ -527,6 +527,37 @@ def whitespace_around_named_parameter_equals(logical_line):
             parens -= 1
 
 
+def whitespace_before_inline_comment(logical_line, tokens):
+    """
+    Separate inline comments by at least two spaces.
+
+    An inline comment is a comment on the same line as a statement.  Inline
+    comments should be separated by at least two spaces from the statement.
+    They should start with a # and a single space.
+
+    Okay: x = x + 1  # Increment x
+    Okay: x = x + 1    # Increment x
+    E261: x = x + 1 # Increment x
+    E262: x = x + 1  #Increment x
+    E262: x = x + 1  #  Increment x
+    """
+    prev_end = (0, 0)
+    for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.NL:
+            continue
+        if token_type == tokenize.COMMENT:
+            if line[:start[1]].strip() == '':
+                continue
+            if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
+                return (prev_end,
+                        "E261 at least two spaces before inline comment")
+            if (len(text) > 1 and text.startswith('#  ')
+                           or not text.startswith('# ')):
+                return start, "E262 inline comment should start with '# '"
+        else:
+            prev_end = end
+
+
 def imports_on_separate_lines(logical_line):
     r"""
     Imports should usually be on separate lines.
@@ -576,9 +607,9 @@ def compound_statements(logical_line):
     found = line.find(':')
     if -1 < found < len(line) - 1:
         before = line[:found]
-        if (before.count('{') <= before.count('}') and # {'a': 1} (dict)
-            before.count('[') <= before.count(']') and # [1:2] (slice)
-            not re.search(r'\blambda\b', before)):     # lambda x: x
+        if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
+            before.count('[') <= before.count(']') and  # [1:2] (slice)
+            not re.search(r'\blambda\b', before)):      # lambda x: x
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
@@ -789,11 +820,11 @@ class Checker:
             if previous:
                 end_line, end = previous[3]
                 start_line, start = token[2]
-                if end_line != start_line: # different row
+                if end_line != start_line:  # different row
                     if self.lines[end_line - 1][end - 1] not in '{[(':
                         logical.append(' ')
                         length += 1
-                elif end != start: # different column
+                elif end != start:  # different column
                     fill = self.lines[end_line - 1][end:start]
                     logical.append(fill)
                     length += len(fill)
@@ -896,9 +927,9 @@ class Checker:
         if options.testsuite:
             basename = os.path.basename(self.filename)
             if basename[:4] != code:
-                return # Don't care about other errors or warnings
+                return  # Don't care about other errors or warnings
             if 'not' not in basename:
-                return # Don't print the expected error message
+                return  # Don't print the expected error message
         if ignore_code(code):
             return
         if options.counters[code] == 1 or options.repeat:
@@ -921,11 +952,11 @@ def input_file(filename):
     if options.verbose:
         message('checking ' + filename)
     files_counter_before = options.counters.get('files', 0)
-    if options.testsuite: # Keep showing errors for multiple tests
+    if options.testsuite:  # Keep showing errors for multiple tests
         options.counters = {}
     options.counters['files'] = files_counter_before + 1
     errors = Checker(filename).check_all()
-    if options.testsuite: # Check if the expected error was found
+    if options.testsuite:  # Check if the expected error was found
         basename = os.path.basename(filename)
         code = basename[:4]
         count = options.counters.get(code, 0)
