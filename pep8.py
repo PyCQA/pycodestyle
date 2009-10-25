@@ -546,7 +546,7 @@ def whitespace_before_inline_comment(logical_line, tokens):
         if token_type == tokenize.NL:
             continue
         if token_type == tokenize.COMMENT:
-            if line[:start[1]].strip() == '':
+            if not line[:start[1]].strip():
                 continue
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
                 return (prev_end,
@@ -687,39 +687,6 @@ def expand_indent(line):
     return result
 
 
-##############################################################################
-# Framework to run all checks
-##############################################################################
-
-
-def message(text):
-    """Print a message."""
-    # print >> sys.stderr, options.prog + ': ' + text
-    # print >> sys.stderr, text
-    print(text)
-
-
-def find_checks(argument_name):
-    """
-    Find all globally visible functions where the first argument name
-    starts with argument_name.
-    """
-    checks = []
-    for name, function in globals().items():
-        if not inspect.isfunction(function):
-            continue
-        args = inspect.getargspec(function)[0]
-        if args and args[0].startswith(argument_name):
-            codes = ERRORCODE_REGEX.findall(
-                        inspect.getdoc(function) or '') or ['']
-            for code in codes:
-                if not code or not ignore_code(code):
-                    checks.append((name, function, args))
-                    break
-    checks.sort()
-    return checks
-
-
 def mute_string(text):
     """
     Replace contents with 'xxx' to prevent syntax matching.
@@ -743,6 +710,38 @@ def mute_string(text):
         start += 2
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
+
+
+def message(text):
+    """Print a message."""
+    # print >> sys.stderr, options.prog + ': ' + text
+    # print >> sys.stderr, text
+    print(text)
+
+
+##############################################################################
+# Framework to run all checks
+##############################################################################
+
+
+def find_checks(argument_name):
+    """
+    Find all globally visible functions where the first argument name
+    starts with argument_name.
+    """
+    checks = []
+    for name, function in globals().items():
+        if not inspect.isfunction(function):
+            continue
+        args = inspect.getargspec(function)[0]
+        if args and args[0].startswith(argument_name):
+            codes = ERRORCODE_REGEX.findall(inspect.getdoc(function) or '')
+            for code in codes or ['']:
+                if not code or not ignore_code(code):
+                    checks.append((name, function, args))
+                    break
+    checks.sort()
+    return checks
 
 
 class Checker:
