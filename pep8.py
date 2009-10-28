@@ -650,9 +650,9 @@ def python_3000_not_equal(logical_line, tokens):
     backwards compatibility only. New code should always use !=.
     The older syntax is removed in Python 3000.
     """
-    for token in tokens:
-        if token[0] == tokenize.OP and token[1] == '<>':
-            return token[2], "W603 '<>' is deprecated, use '!='"
+    pos = logical_line.find('<>')
+    if pos > -1:
+        return pos, "W603 '<>' is deprecated, use '!='"
 
 
 ##############################################################################
