@@ -5,7 +5,7 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-* Decode the files properly when using Python 3. (Issue #13)
+* Fix decoding errors with Python 3. (Issue #13)
 
 * Add --select option which is mirror of --ignore.
 

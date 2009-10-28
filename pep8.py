@@ -107,7 +107,6 @@ __revision__ = '$Rev$'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 
-ENCODING_REGEX = re.compile(r'#.*coding[=:]\s*([-\w.]+)')
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
@@ -121,8 +120,6 @@ BINARY_OPERATORS = """
 """.split()
 UNARY_OPERATORS = ['**', '*', '+', '-']
 OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
-
-IMPLICIT_ENCODING = '' == ''.encode()
 
 options = None
 args = None
@@ -663,24 +660,6 @@ def python_3000_not_equal(logical_line, tokens):
 ##############################################################################
 
 
-def read_lines(filename):
-    """
-    Read file with proper encoding (Python 3000).
-    With Python2, we do not care because the encoding is implicit.
-    """
-    if IMPLICIT_ENCODING:
-        return open(filename).readlines()
-    encoding = 'utf-8'
-    fstream = open(filename, 'rb')
-    for l in 0, 1:
-        match = ENCODING_REGEX.match(fstream.readline().decode())
-        if match is not None:
-            encoding = match.group(1)
-            break
-    fstream.close()
-    return open(filename, encoding=encoding).readlines()
-
-
 def expand_indent(line):
     """
     Return the amount of indentation.
@@ -773,7 +752,11 @@ class Checker:
     def __init__(self, filename):
         if filename:
             self.filename = filename
-            self.lines = read_lines(filename)
+            try:
+                self.lines = open(filename).readlines()
+            except UnicodeDecodeError:
+                # Errors may occur with non-UTF8 files in Python 3000
+                self.lines = open(filename, errors='replace').readlines()
         else:
             self.filename = 'stdin'
             self.lines = []
