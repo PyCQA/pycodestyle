@@ -115,8 +115,8 @@ ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 WHITESPACE = ' \t'
 
 BINARY_OPERATORS = """
-+= != %= ^= &= |= == **= //= >>= <<= // << >>
--= <> %  ^  &  |  =   *=  /=  >=  <= /  <  >
++= != %= ^= &= |= == **= //= >>= <<= // >> <<
+-= <> %  ^  &  |  =   *=  /=  >=  <= /  >  <
 """.split()
 UNARY_OPERATORS = ['**', '*', '+', '-']
 OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
@@ -443,7 +443,8 @@ def missing_whitespace_around_operator(logical_line, tokens):
     prev_type = tokenize.OP
     prev_text = prev_end = None
     for token_type, text, start, end, line in tokens:
-        if token_type in (tokenize.NL, tokenize.NEWLINE):
+        if token_type in (tokenize.NL, tokenize.NEWLINE, tokenize.ERRORTOKEN):
+            # ERRORTOKEN is triggered by backticks in Python 3000
             continue
         if text in ('(', 'lambda'):
             parens += 1
@@ -653,6 +654,16 @@ def python_3000_not_equal(logical_line):
     pos = logical_line.find('<>')
     if pos > -1:
         return pos, "W603 '<>' is deprecated, use '!='"
+
+
+def python_3000_backticks(logical_line):
+    """
+    Backticks are removed in Python 3000.
+    Use repr() instead.
+    """
+    pos = logical_line.find('`')
+    if pos > -1:
+        return pos, "W604 backticks are deprecated, use 'repr()'"
 
 
 ##############################################################################
