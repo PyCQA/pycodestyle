@@ -19,8 +19,6 @@ Changelog
 
   - lambda function with argument unpacking or keyword defaults.
 
-  - print statement extended form: ``print >>sys.stderr, "Hello world!"``.
-
 * Reserve "2 blank lines" for module-level logical blocks. (E303)
 
 * Allow multi-line comments. (E302, issue #10)

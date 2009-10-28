@@ -115,10 +115,10 @@ ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 WHITESPACE = ' \t'
 
 BINARY_OPERATORS = """
-+= != %= ^= &= |= == **= //= >>= <<= // <<
--= <> %  ^  &  |  =   *=  /=  >=  <= / < >
++= != %= ^= &= |= == **= //= >>= <<= // << >>
+-= <> %  ^  &  |  =   *=  /=  >=  <= /  <  >
 """.split()
-UNARY_OPERATORS = ['**', '*', '+', '-', '>>']
+UNARY_OPERATORS = ['**', '*', '+', '-']
 OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
 
 options = None
