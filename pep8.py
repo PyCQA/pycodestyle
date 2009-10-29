@@ -461,8 +461,8 @@ def missing_whitespace_around_operator(logical_line, tokens):
             elif text in BINARY_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
-                if not (prev_type == tokenize.OP or
-                   (prev_type == tokenize.NAME and iskeyword(prev_text))):
+                if ((prev_type != tokenize.OP or prev_text in '}])') and not
+                    (prev_type == tokenize.NAME and iskeyword(prev_text))):
                     # Allow unary operators: -123, -x, +1.
                     # Allow argument unpacking: foo(*args, **kwargs).
                     need_space = True
