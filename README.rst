@@ -78,13 +78,13 @@ Quick help is available on the command line::
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq
+    -r, --repeat         show all occurrences of the same error
     --exclude=patterns   exclude files or directories which match these comma
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
                          these comma separated patterns (default: *.py)
     --select=errors      select errors and warnings (e.g. E,W6)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
-    --repeat             show all occurrences of the same error
     --show-source        show source code for each error
     --show-pep8          show text of PEP 8 for each error
     --statistics         count errors and warnings
@@ -113,4 +113,3 @@ http://github.com/jcrocholl/pep8/
 (Yes it's lame to have two that are not forks of one another. At some
 point in the future it is hoped some git magic will clean this
 situation up.)
-
