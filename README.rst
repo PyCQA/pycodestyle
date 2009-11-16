@@ -7,6 +7,11 @@ in `PEP 8`_.
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 
+Mailing List
+--------
+http://groups.google.com/group/pep8
+
+
 Features
 --------
 
@@ -97,20 +102,13 @@ Feedback
 --------
 
 Your feedback is more than welcome. Write email to
-johann@rocholl.net or post bugs and feature requests here:
+johann@rocholl.net or post bugs and feature requests on github:
 
-http://github.com/cburroughs/pep8.py/issues
-
+http://github.com/jcrocholl/pep8/issues
 
 Source download
 ---------------
 
 The source code is currently available on github. Fork away!
 
-http://github.com/cburroughs/pep8.py/
 http://github.com/jcrocholl/pep8/
-
-(Yes it's lame to have two that are not forks of one another. At some
-point in the future it is hoped some git magic will clean this
-situation up.)
-
