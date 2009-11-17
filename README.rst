@@ -8,7 +8,7 @@ in `PEP 8`_.
 
 
 Mailing List
---------
+------------
 http://groups.google.com/group/pep8
 
 
@@ -20,7 +20,7 @@ Features
 * Parseable output: Jump to error location in your editor.
 
 * Small: Just one Python file, requires only stdlib.  You can use just the
-  pep8.py file for this purpose
+  pep8.py file for this purpose.
 
 * Easy_installable, of course!
 
