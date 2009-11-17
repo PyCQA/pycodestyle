@@ -1,6 +1,4 @@
 TODO
 ====
 
-- script to verify testcases pass.
-
-- testcase for ignoring '#' before function change change.
+- ...
