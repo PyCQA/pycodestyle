@@ -80,6 +80,7 @@ Quick help is available on the command line::
   Usage: pep8.py [options] input ...
 
   Options:
+    --version            show program's version number and exit
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq

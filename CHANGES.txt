@@ -5,6 +5,8 @@ Changelog
 0.5 (unreleased)
 ----------------
 
+* Add the switch --version.
+
 * Fix decoding errors with Python 3. (Issue #13)
 
 * Add --select option which is mirror of --ignore.

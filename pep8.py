@@ -1149,8 +1149,8 @@ def process_options(arglist=None):
     Process options passed either via arglist or via command line args.
     """
     global options, args
-    usage = "%prog [options] input ..."
-    parser = OptionParser(usage)
+    parser = OptionParser(version=__version__,
+                          usage="%prog [options] input ...")
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
