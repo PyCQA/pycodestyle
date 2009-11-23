@@ -110,6 +110,7 @@ INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
+E301NOT_REGEX = re.compile(r'class |def |u?r?["\']')
 
 WHITESPACE = ' \t'
 
@@ -233,9 +234,9 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     Okay: def a():\n    pass\n\n\ndef b():\n    pass
     Okay: def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass
 
-    E301: class Foo:\n    def bar():\n        pass
+    E301: class Foo:\n    b = 0\n    def bar():\n        pass
     E302: def a():\n    pass\n\ndef b(n):\n    pass
-    E302: def a():\n    pass\n\n\n\ndef b(n):\n    pass
+    E303: def a():\n    pass\n\n\n\ndef b(n):\n    pass
     E303: def a():\n\n\n\n    pass
     E304: @decorator\n\ndef a():\n    pass
     """
@@ -245,16 +246,16 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     if previous_logical.startswith('@'):
         if max_blank_lines:
             return 0, "E304 blank lines found after function decorator"
+    elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
+        return 0, "E303 too many blank lines (%d)" % max_blank_lines
     elif (logical_line.startswith('def ') or
           logical_line.startswith('class ') or
           logical_line.startswith('@')):
-        if indent_level and max_blank_lines != 1:
-            return 0, "E301 expected 1 blank line, found %d" % max_blank_lines
-        elif not indent_level and max_blank_lines != 2:
+        if indent_level:
+            if not (max_blank_lines or E301NOT_REGEX.match(previous_logical)):
+                return 0, "E301 expected 1 blank line, found 0"
+        elif max_blank_lines != 2:
             return 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
-    elif (max_blank_lines > 2 or
-         (indent_level and max_blank_lines == 2)):
-        return 0, "E303 too many blank lines (%d)" % max_blank_lines
 
 
 def extraneous_whitespace(logical_line):

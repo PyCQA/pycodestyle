@@ -5,6 +5,9 @@ Changelog
 0.5 (unreleased)
 ----------------
 
+* Blank line is not mandatory before the first class method or nested
+  function definition, even if there's a docstring. (Issue #1)
+
 * Add the switch --version.
 
 * Fix decoding errors with Python 3. (Issue #13)
