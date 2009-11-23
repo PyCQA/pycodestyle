@@ -10,7 +10,7 @@ Changelog
 
 * Add the switch --version.
 
-* Fix decoding errors with Python 3. (Issue #13)
+* Fix decoding errors with Python 3. (Issue #13 [1]_)
 
 * Add --select option which is mirror of --ignore.
 
@@ -24,13 +24,13 @@ Changelog
 
 * E225 now accepts:
 
-  - no whitespace after unary operator or similar. (Issue #9)
+  - no whitespace after unary operator or similar. (Issue #9 [1]_)
 
   - lambda function with argument unpacking or keyword defaults.
 
 * Reserve "2 blank lines" for module-level logical blocks. (E303)
 
-* Allow multi-line comments. (E302, issue #10)
+* Allow multi-line comments. (E302, issue #10 [1]_)
 
 
 0.4.2 (2009-10-22)
@@ -49,16 +49,20 @@ Changelog
 * Added --count option to print the total number of errors and warnings.
 
 * Further improvements to the handling of comments and blank lines.
-  (Issue #1 and others changes.)
+  (Issue #1 [1]_ and others changes.)
 
 * Check all py files in directory when passed a directory (Issue
-  #2). This also prevents an exception when traversing directories
+  #2 [1]_). This also prevents an exception when traversing directories
   with non ``*.py`` files.
 
-* E231 should allow commas to be followed by ``)``. (Issue #3)
+* E231 should allow commas to be followed by ``)``. (Issue #3 [1]_)
 
 * Spaces are not longer required around the equals sign for keyword
   arguments or default parameter values.
+
+
+.. [1] These issues refer to the `previous issue tracker`_.
+.. _previous issue tracker:  http://github.com/cburroughs/pep8.py/issues
 
 
 0.3.1 (2009-09-14)
