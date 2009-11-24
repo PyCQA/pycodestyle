@@ -105,6 +105,7 @@ from keyword import iskeyword
 from fnmatch import fnmatch
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
+DEFAULT_IGNORE = ['E24']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -1212,7 +1213,7 @@ def process_options(arglist=None):
         options.ignore = []
     else:
         # The default choice: ignore controversial checks
-        options.ignore = ['E24']
+        options.ignore = DEFAULT_IGNORE
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
     options.counters = {}
