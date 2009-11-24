@@ -64,8 +64,8 @@ Changelog
   arguments or default parameter values.
 
 
-.. [1] These issues refer to the `previous issue tracker`_.
-.. _previous issue tracker:  http://github.com/cburroughs/pep8.py/issues
+.. [1] These issues refer to the `previous issue tracker`__.
+.. __:  http://github.com/cburroughs/pep8.py/issues
 
 
 0.3.1 (2009-09-14)
