@@ -114,10 +114,9 @@ E301NOT_REGEX = re.compile(r'class |def |u?r?["\']')
 
 WHITESPACE = ' \t'
 
-BINARY_OPERATORS = """
-+= != %= ^= &= |= == **= //= >>= <<= // >> <<
--= <> %  ^  &  |  =   *=  /=  >=  <= /  >  <
-""".split()
+BINARY_OPERATORS = ['**=', '*=', '+=', '-=', '!=', '<>',
+    '%=', '^=', '&=', '|=', '==', '/=', '//=', '>=', '<=', '>>=', '<<=',
+    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '>',  '<',  '>>',  '<<']
 UNARY_OPERATORS = ['**', '*', '+', '-']
 OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
 
@@ -481,6 +480,11 @@ def whitespace_around_comma(logical_line):
       align it with another.
 
     JCR: This should also be applied around comma etc.
+    Note: these checks are disabled by default
+
+    Okay: a = (1, 2)
+    E241: a = (1,  2)
+    E242: a = (1,\t2)
     """
     line = logical_line
     for separator in ',;:':
@@ -1203,9 +1207,12 @@ def process_options(arglist=None):
     elif options.select:
         # Ignore all checks which are not explicitly selected
         options.ignore = ['']
-    else:
-        # The default choice: all checks are required
+    elif options.testsuite or options.doctest:
+        # For doctest and testsuite, all checks are required
         options.ignore = []
+    else:
+        # The default choice: ignore controversial checks
+        options.ignore = ['E24']
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
     options.counters = {}
