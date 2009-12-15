@@ -5,6 +5,9 @@ Changelog
 0.5 (unreleased)
 ----------------
 
+* Changed the ``--count`` switch to print to sys.stderr and set
+  exit code to 1 if any error or warning is found.
+
 * E241 and E242 are removed from the standard checks. If you want to
   include these checks, use switch ``--select=E,W``. (Issue #4)
 

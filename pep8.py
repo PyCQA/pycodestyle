@@ -1181,7 +1181,9 @@ def process_options(arglist=None):
     parser.add_option('--statistics', action='store_true',
                       help="count errors and warnings")
     parser.add_option('--count', action='store_true',
-                      help="count total number of errors and warnings")
+                      help="print total number of errors and warnings "
+                        "to standard error and set exit code to 1 if "
+                        "total is not null")
     parser.add_option('--benchmark', action='store_true',
                       help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',
@@ -1242,7 +1244,13 @@ def _main():
     if options.benchmark:
         print_benchmark(elapsed)
     if options.count:
-        print(get_count())
+        count = get_count()
+        if count:
+            # Any error or warning occurs: exit code is 1
+            # Print count to sys.stderr
+            sys.exit(str(count))
+        # No error and no warning: exit code is 0
+        sys.exit(0)
 
 
 if __name__ == '__main__':

@@ -94,7 +94,8 @@ Quick help is available on the command line::
     --show-source        show source code for each error
     --show-pep8          show text of PEP 8 for each error
     --statistics         count errors and warnings
-    --count              count total number of errors and warnings
+    --count              print total number of errors and warnings to standard
+                         error and set exit code to 1 if total is not null
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
     --doctest            run doctest on myself
