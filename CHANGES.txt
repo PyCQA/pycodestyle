@@ -6,16 +6,16 @@ Changelog
 ----------------
 
 * E241 and E242 are removed from the standard checks. If you want to
-  to include these checks, use switch ``--select=E,W``. (Issue #4)
+  include these checks, use switch ``--select=E,W``. (Issue #4)
 
 * Blank line is not mandatory before the first class method or nested
   function definition, even if there's a docstring. (Issue #1)
 
-* Add the switch --version.
+* Add the switch ``--version``.
 
 * Fix decoding errors with Python 3. (Issue #13 [1]_)
 
-* Add --select option which is mirror of --ignore.
+* Add ``--select`` option which is mirror of ``--ignore``.
 
 * Add checks E261 and E262 for spaces before inline comments.
 
@@ -49,7 +49,7 @@ Changelog
 
 * New and greatly expanded self tests.
 
-* Added --count option to print the total number of errors and warnings.
+* Added ``--count`` option to print the total number of errors and warnings.
 
 * Further improvements to the handling of comments and blank lines.
   (Issue #1 [1]_ and others changes.)
