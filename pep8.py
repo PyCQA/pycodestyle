@@ -92,7 +92,7 @@ for space.
 
 """
 
-__version__ = '0.5dev'
+__version__ = '0.5.0'
 
 import os
 import sys

@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-0.5 (unreleased)
-----------------
+0.5.0 (2010-02-17)
+------------------
 
 * Changed the ``--count`` switch to print to sys.stderr and set
   exit code to 1 if any error or warning is found.
