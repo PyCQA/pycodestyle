@@ -1246,11 +1246,8 @@ def _main():
     if options.count:
         count = get_count()
         if count:
-            # Any error or warning occurs: exit code is 1
-            # Print count to sys.stderr
-            sys.exit(str(count))
-        # No error and no warning: exit code is 0
-        sys.exit(0)
+            sys.stderr.write(str(count) + '\n')
+            sys.exit(1)
 
 
 if __name__ == '__main__':
