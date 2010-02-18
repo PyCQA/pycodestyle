@@ -63,7 +63,7 @@ Changelog
 
 * E231 should allow commas to be followed by ``)``. (Issue #3 [1]_)
 
-* Spaces are not longer required around the equals sign for keyword
+* Spaces are no longer required around the equals sign for keyword
   arguments or default parameter values.
 
 
