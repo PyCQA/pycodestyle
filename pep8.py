@@ -840,7 +840,8 @@ class Checker(object):
                 end_line, end = previous[3]
                 start_line, start = token[2]
                 if end_line != start_line:  # different row
-                    if self.lines[end_line - 1][end - 1] not in '{[(':
+                    if (self.lines[end_line - 1][end - 1] not in '{[('
+                        and text not in ')}]'):
                         logical.append(' ')
                         length += 1
                 elif end != start:  # different column

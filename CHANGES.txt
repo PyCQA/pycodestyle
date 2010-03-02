@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+0.5.1 (unreleased)
+------------------
+
+* Allow a new line before closing ``)``, ``}`` or ``]``. (Issue #5)
+
+
 0.5.0 (2010-02-17)
 ------------------
 
