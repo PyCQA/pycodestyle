@@ -112,14 +112,21 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 E301NOT_REGEX = re.compile(r'class |def |u?r?["\']')
+WHITESPACE_AROUND_OPERATOR_REGEX = re.compile('  \W+|\W+  |\t\W+|\W+\t')
+EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
+WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
+   re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+
 
 WHITESPACE = ' \t'
 
-BINARY_OPERATORS = ['**=', '*=', '+=', '-=', '!=', '<>',
+BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '>=', '<=', '>>=', '<<=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '>',  '<',  '>>',  '<<']
-UNARY_OPERATORS = ['**', '*', '+', '-']
-OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
+    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '>',  '<',  '>>',  '<<'])
+UNARY_OPERATORS = frozenset(['**', '*', '+', '-'])
+OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
+SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
+                         tokenize.DEDENT, tokenize.NEWLINE])
 
 options = None
 args = None
@@ -279,18 +286,17 @@ def extraneous_whitespace(logical_line):
     E203: if x == 4 : print x, y; x, y = y, x
     """
     line = logical_line
-    for char in '([{':
-        found = line.find(char + ' ')
-        if found > -1:
+    for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
+        text = match.group()
+        char = text.strip()
+        found = match.start()
+        if text == char + ' ' and char in '([{':
             return found + 1, "E201 whitespace after '%s'" % char
-    for char in '}])':
-        found = line.find(' ' + char)
-        if found > -1 and line[found - 1] != ',':
-            return found, "E202 whitespace before '%s'" % char
-    for char in ',;:':
-        found = line.find(' ' + char)
-        if found > -1:
-            return found, "E203 whitespace before '%s'" % char
+        if text == ' ' + char:
+            if char in '}])' and line[found - 1] != ',':
+                return found, "E202 whitespace before '%s'" % char
+            if char in ',;:':
+                return found, "E203 whitespace before '%s'" % char
 
 
 def missing_whitespace(logical_line):
@@ -392,20 +398,20 @@ def whitespace_around_operator(logical_line):
     E223: a = 4\t+ 5
     E224: a = 4 +\t5
     """
-    line = logical_line
-    for operator in OPERATORS:
-        found = line.find('  ' + operator)
-        if found > -1:
-            return found, "E221 multiple spaces before operator"
-        found = line.find(operator + '  ')
-        if found > -1:
-            return found, "E222 multiple spaces after operator"
-        found = line.find('\t' + operator)
-        if found > -1:
-            return found, "E223 tab before operator"
-        found = line.find(operator + '\t')
-        if found > -1:
-            return found, "E224 tab after operator"
+    for match in WHITESPACE_AROUND_OPERATOR_REGEX.finditer(logical_line):
+        text = match.group()
+        operator = text.strip()
+        if operator not in OPERATORS:
+            continue
+        offset = match.start()
+        if text.find('  ' + operator) != -1:
+            return offset, "E221 multiple spaces before operator"
+        if text.find(operator + '  ') != -1:
+            return offset, "E222 multiple spaces after operator"
+        if text.find('\t' + operator) != -1:
+            return offset, "E223 tab before operator"
+        if text.find(operator + '\t') != -1:
+            return offset, "E224 tab after operator"
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -513,23 +519,15 @@ def whitespace_around_named_parameter_equals(logical_line):
     E251: return magic(r = real, i = imag)
     """
     parens = 0
-    window = '   '
-    equal_ok = ['==', '!=', '<=', '>=']
-
-    for pos, c in enumerate(logical_line):
-        window = window[1:] + c
-        if parens:
-            if window[0] in WHITESPACE and window[1] == '=':
-                if window[1:] not in equal_ok:
-                    issue = "E251 no spaces around keyword / parameter equals"
-                    return pos, issue
-            if window[2] in WHITESPACE and window[1] == '=':
-                if window[:2] not in equal_ok:
-                    issue = "E251 no spaces around keyword / parameter equals"
-                    return pos, issue
-        if c == '(':
+    for match in WHITESPACE_AROUND_NAMED_PARAMETER_REGEX.finditer(
+            logical_line):
+        text = match.group()
+        if parens and len(text) == 3:
+            issue = "E251 no spaces around keyword / parameter equals"
+            return match.start(), issue
+        if text == '(':
             parens += 1
-        elif c == ')':
+        elif text == ')':
             parens -= 1
 
 
@@ -830,9 +828,7 @@ class Checker(object):
         previous = None
         for token in self.tokens:
             token_type, text = token[0:2]
-            if token_type in (tokenize.COMMENT, tokenize.NL,
-                              tokenize.INDENT, tokenize.DEDENT,
-                              tokenize.NEWLINE):
+            if token_type in SKIP_TOKENS:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
