@@ -103,6 +103,11 @@ import tokenize
 from optparse import OptionParser
 from keyword import iskeyword
 from fnmatch import fnmatch
+try:
+    frozenset
+except NameError:
+    from sets import ImmutableSet as frozenset
+
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = ['E24']
