@@ -465,7 +465,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
             if start == prev_end:
                 return prev_end, "E225 missing whitespace around operator"
             need_space = False
-        elif token_type == tokenize.OP:
+        elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
