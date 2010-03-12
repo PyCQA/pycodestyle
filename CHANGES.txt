@@ -5,6 +5,10 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Performance improvements.
+
+* Fix an exception when the line starts with an operator.
+
 * Allow a new line before closing ``)``, ``}`` or ``]``. (Issue #5)
 
 
