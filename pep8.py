@@ -92,7 +92,7 @@ for space.
 
 """
 
-__version__ = '0.5.0'
+__version__ = '0.5.1dev'
 
 import os
 import sys
@@ -110,7 +110,7 @@ except NameError:
 
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
-DEFAULT_IGNORE = ['E24']
+DEFAULT_IGNORE = 'E24'
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -841,7 +841,9 @@ class Checker(object):
                 end_line, end = previous[3]
                 start_line, start = token[2]
                 if end_line != start_line:  # different row
-                    if self.lines[end_line - 1][end - 1] not in '{[(':
+                    prev_text = self.lines[end_line - 1][end - 1]
+                    if prev_text == ',' or (prev_text not in '{[('
+                                            and text not in '}])'):
                         logical.append(' ')
                         length += 1
                 elif end != start:  # different column
@@ -1216,7 +1218,7 @@ def process_options(arglist=None):
         options.ignore = []
     else:
         # The default choice: ignore controversial checks
-        options.ignore = DEFAULT_IGNORE
+        options.ignore = DEFAULT_IGNORE.split(',')
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
     options.counters = {}
