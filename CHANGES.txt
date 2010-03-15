@@ -7,6 +7,8 @@ Changelog
 
 * Performance improvements.
 
+* Fix E225: reject ``True+False`` when running on Python 3.
+
 * Fix an exception when the line starts with an operator.
 
 * Allow a new line before closing ``)``, ``}`` or ``]``. (Issue #5)

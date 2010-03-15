@@ -99,9 +99,9 @@ import sys
 import re
 import time
 import inspect
+import keyword
 import tokenize
 from optparse import OptionParser
-from keyword import iskeyword
 from fnmatch import fnmatch
 try:
     frozenset
@@ -132,6 +132,8 @@ UNARY_OPERATORS = frozenset(['**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
+E225NOT_KEYWORDS = \
+    frozenset(keyword.kwlist) - frozenset(['False', 'None', 'True'])
 
 options = None
 args = None
@@ -383,7 +385,7 @@ def whitespace_before_parameters(logical_line, tokens):
             start != prev_end and
             prev_type == tokenize.NAME and
             (index < 2 or tokens[index - 2][1] != 'class') and
-            (not iskeyword(prev_text))):
+            (not keyword.iskeyword(prev_text))):
             return prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
@@ -472,10 +474,15 @@ def missing_whitespace_around_operator(logical_line, tokens):
             elif text in BINARY_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
-                if ((prev_type != tokenize.OP or prev_text in '}])') and not
-                    (prev_type == tokenize.NAME and iskeyword(prev_text))):
-                    # Allow unary operators: -123, -x, +1.
-                    # Allow argument unpacking: foo(*args, **kwargs).
+                # Allow unary operators: -123, -x, +1.
+                # Allow argument unpacking: foo(*args, **kwargs).
+                if prev_type == tokenize.OP:
+                    if prev_text in '}])':
+                        need_space = True
+                elif prev_type == tokenize.NAME:
+                    if prev_text not in E225NOT_KEYWORDS:
+                        need_space = True
+                else:
                     need_space = True
             if need_space and start == prev_end:
                 return prev_end, "E225 missing whitespace around operator"
