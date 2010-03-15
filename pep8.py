@@ -686,6 +686,20 @@ def python_3000_backticks(logical_line):
 ##############################################################################
 
 
+if '' == ''.encode():
+
+    # Python 2: implicit encoding.
+    def readlines(filename):
+        return open(filename).readlines()
+
+else:
+
+    # Python 3: decode to latin-1, without reading the encoding declaration.
+    # This function is lazy, because identifiers are restricted to ASCII.
+    def readlines(filename):
+        return open(filename, encoding='latin-1').readlines()
+
+
 def expand_indent(line):
     """
     Return the amount of indentation.
@@ -778,11 +792,7 @@ class Checker(object):
     def __init__(self, filename):
         if filename:
             self.filename = filename
-            try:
-                self.lines = open(filename).readlines()
-            except UnicodeDecodeError:
-                # Errors may occur with non-UTF8 files in Python 3000
-                self.lines = open(filename, errors='replace').readlines()
+            self.lines = readlines(filename)
         else:
             self.filename = 'stdin'
             self.lines = []

@@ -7,6 +7,8 @@ Changelog
 
 * Performance improvements.
 
+* Fix decoding and checking non-UTF8 files in Python 3.
+
 * Fix E225: reject ``True+False`` when running on Python 3.
 
 * Fix an exception when the line starts with an operator.
