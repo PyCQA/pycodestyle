@@ -124,7 +124,6 @@ OPERATORS = BINARY_OPERATORS + UNARY_OPERATORS
 options = None
 args = None
 
-
 ##############################################################################
 # Plugins (check functions) for physical lines
 ##############################################################################
@@ -773,6 +772,11 @@ class Checker(object):
             except UnicodeDecodeError:
                 # Errors may occur with non-UTF8 files in Python 3000
                 self.lines = open(filename, errors='replace').readlines()
+            
+            # file to write to
+            if options.fix:
+                self.writer = open("fixed_" + filename,"w")
+            
         else:
             self.filename = 'stdin'
             self.lines = []
@@ -814,12 +818,16 @@ class Checker(object):
         self.physical_line = line
         if self.indent_char is None and len(line) and line[0] in ' \t':
             self.indent_char = line[0]
+        errors = False
         for name, check, argument_names in options.physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
-
+                if options.fix:
+                    fix_line(self,check)
+        if options.fix: self.writer.write(self.physical_line)
+            
     def build_tokens_line(self):
         """
         Build a logical line from tokens.
@@ -960,7 +968,7 @@ class Checker(object):
                 message(' ' * offset + '^')
             if options.show_pep8:
                 message(check.__doc__.lstrip('\n').rstrip())
-
+            
 
 def input_file(filename):
     """
@@ -1190,6 +1198,9 @@ def process_options(arglist=None):
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+    parser.add_option('-f', '--fix', action='count',
+                      help="create a new file with *some* things fixed "
+                       "to match PEP8")
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
@@ -1222,6 +1233,30 @@ def process_options(arglist=None):
     options.messages = {}
     return options, args
 
+
+def report_fix(s):
+    """
+    Prints out a message when something has been fixed
+    using fix_line(). Doesn't print if the --quiet flag
+    was specified.
+    """
+    if not options.quiet:
+        print " - pep8 fix:",s
+    
+def fix_line(checker, check):
+    """
+    Given a Checker object and a check function,
+    fixes the line in the Checker object if it knows how.    
+    This function only runs if the --fix flag is used.
+    """
+    # change tabs to 4 spaces
+    if check is tabs_obsolete:
+        checker.physical_line = checker.physical_line.replace("\t","    ")
+        report_fix("tab converted to 4 spaces.")
+    # add newline to end of file
+    if check is missing_newline:
+        checker.physical_line += "\n"
+        report_fix("newline added to end of file.")
 
 def _main():
     """
