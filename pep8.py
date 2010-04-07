@@ -1257,7 +1257,15 @@ def fix_line(checker, check):
     if check is missing_newline:
         checker.physical_line += "\n"
         report_fix("newline added to end of file.")
-
+    # remove whitespace from end of line
+    if check is trailing_whitespace:
+        checker.physical_line = re.sub(r' *$',"",checker.physical_line)
+        report_fix("whitespace stripped from end of line.")
+    # remove superfluous blank lines from end of file
+    if check is trailing_blank_lines:
+        checker.physical_line = ""
+        report_fix("superfluous trailing blank line removed from end of file.")
+    
 def _main():
     """
     Parse options and run checks on Python source.
