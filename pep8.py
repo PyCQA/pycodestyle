@@ -775,8 +775,16 @@ class Checker(object):
             
             # file to write to
             if options.fix:
-                self.writer = open("fixed_" + filename,"w")
-            
+                if options.inplace: write_filename = filename
+                else: write_filename = "fixed_" + filename
+                try:
+                    self.writer = open(write_filename,"w")
+                    if not options.inplace: report_fix(write_filename + " created.")
+                    else: report_fix("modifying " + filename + " in place.")
+                except IOError:
+                    print sys.exc_info()
+                    raise SystemExit
+                
         else:
             self.filename = 'stdin'
             self.lines = []
@@ -1201,6 +1209,9 @@ def process_options(arglist=None):
     parser.add_option('-f', '--fix', action='count',
                       help="create a new file with *some* things fixed "
                        "to match PEP8")
+    parser.add_option('-i', '--inplace', action='count',
+                      help="use with the --fix flag. Makes modifications "
+                       "in-place.")
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
