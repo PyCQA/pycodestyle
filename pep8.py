@@ -935,10 +935,12 @@ class Checker(object):
         """
         Report an error, according to options.
         """
+        code = text[:4]
+        if ignore_code(code):
+            return
         if options.quiet == 1 and not self.file_errors:
             message(self.filename)
         self.file_errors += 1
-        code = text[:4]
         options.counters[code] = options.counters.get(code, 0) + 1
         options.messages[code] = text[5:]
         if options.quiet:
@@ -949,8 +951,6 @@ class Checker(object):
                 return  # Don't care about other errors or warnings
             if 'not' not in basename:
                 return  # Don't print the expected error message
-        if ignore_code(code):
-            return
         if options.counters[code] == 1 or options.repeat:
             message("%s:%s:%d: %s" %
                     (self.filename, line_number, offset + 1, text))

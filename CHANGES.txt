@@ -1,6 +1,8 @@
 Changelog
 =========
 
+* ``--ignored`` checks are now really ignored, especially in
+  conjunction with ``--count``. (Issue #8 - http://bit.ly/aQx5jB)
 
 0.5.0 (2010-02-17)
 ------------------
