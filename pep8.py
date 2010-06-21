@@ -172,7 +172,7 @@ def trailing_whitespace(physical_line):
          matching a blank line to its indentation level avoids mistakenly
          terminating a multi-line statement (e.g. class declaration) when
          pasting code into the standard Python interpreter.
-         
+
          [1] http://docs.python.org/reference/lexical_analysis.html#blank-lines
 
     The warning returned varies on whether the line itself is blank, for easier
