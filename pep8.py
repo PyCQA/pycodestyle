@@ -175,16 +175,20 @@ def trailing_whitespace(physical_line):
          
          [1] http://docs.python.org/reference/lexical_analysis.html#blank-lines
 
+    The warning returned varies on whether the line itself is blank, for easier
+    filtering for those who want to indent their blank lines.
+
     Okay: spam(1)
-    Okay: class Foo(object):\n    \n    bang = 12
     W291: spam(1)\s
+    W293: class Foo(object):\n    \n    bang = 12
     """
     physical_line = physical_line.rstrip('\n')    # chr(10), newline
     physical_line = physical_line.rstrip('\r')    # chr(13), carriage return
     physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
     stripped = physical_line.rstrip()
-    if physical_line != stripped and stripped != '':
-        return len(stripped), "W291 trailing whitespace"
+    if physical_line != stripped:
+        warning_code = "W291" if stripped != '' else "W293"
+        return len(stripped), "%s trailing whitespace" % warning_code
 
 
 def trailing_blank_lines(physical_line, lines, line_number):
