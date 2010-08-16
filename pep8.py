@@ -411,9 +411,9 @@ def whitespace_around_operator(logical_line):
         if operator not in OPERATORS:
             continue
         offset = match.start()
-        if text.find('  ' + operator) != -1:
+        if text.startswith('  '):
             return offset, "E221 multiple spaces before operator"
-        if text.find(operator + '  ') != -1:
+        if text.endswith('  '):
             return offset, "E222 multiple spaces after operator"
         if text.find('\t' + operator) != -1:
             return offset, "E223 tab before operator"
