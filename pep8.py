@@ -116,7 +116,7 @@ INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
-E301NOT_REGEX = re.compile(r'class |def |u?r?["\']')
+DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 WHITESPACE_AROUND_OPERATOR_REGEX = re.compile('  \W+|\W+  |\t\W+|\W+\t')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
@@ -233,7 +233,8 @@ def maximum_line_length(physical_line):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical, blank_lines_before_comment):
+                previous_logical, previous_indent_level,
+                blank_lines_before_comment):
     r"""
     Separate top-level function and class definitions with two blank lines.
 
@@ -266,7 +267,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
           logical_line.startswith('class ') or
           logical_line.startswith('@')):
         if indent_level:
-            if not (max_blank_lines or E301NOT_REGEX.match(previous_logical)):
+            if not (max_blank_lines or previous_indent_level < indent_level or
+                    DOCSTRING_REGEX.match(previous_logical)):
                 return 0, "E301 expected 1 blank line, found 0"
         elif max_blank_lines != 2:
             return 0, "E302 expected 2 blank lines, found %d" % max_blank_lines

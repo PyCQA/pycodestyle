@@ -5,6 +5,8 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Fix E301: do not require a blank line before an indented block. (Issue #14)
+
 * Fix E203 to accept NumPy slice notation ``a[0, :]``. (Issue #13)
 
 * Performance improvements.
