@@ -5,6 +5,8 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Fix E203 to accept NumPy slice notation ``a[0, :]``. (Issue #13)
+
 * Performance improvements.
 
 * Fix decoding and checking non-UTF8 files in Python 3.

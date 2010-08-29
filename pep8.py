@@ -299,8 +299,8 @@ def extraneous_whitespace(logical_line):
         found = match.start()
         if text == char + ' ' and char in '([{':
             return found + 1, "E201 whitespace after '%s'" % char
-        if text == ' ' + char:
-            if char in '}])' and line[found - 1] != ',':
+        if text == ' ' + char and line[found - 1] != ',':
+            if char in '}])':
                 return found, "E202 whitespace before '%s'" % char
             if char in ',;:':
                 return found, "E203 whitespace before '%s'" % char
