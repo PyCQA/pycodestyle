@@ -1280,11 +1280,11 @@ def _main():
         print_statistics()
     if options.benchmark:
         print_benchmark(elapsed)
-    if options.count:
-        count = get_count()
-        if count:
+    count = get_count()
+    if count:
+        if options.count:
             sys.stderr.write(str(count) + '\n')
-            sys.exit(1)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
