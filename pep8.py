@@ -134,6 +134,7 @@ SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
 E225NOT_KEYWORDS = \
     frozenset(keyword.kwlist) - frozenset(['False', 'None', 'True'])
+BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
 args = None
@@ -704,13 +705,10 @@ def python_3000_backticks(logical_line):
 
 
 if '' == ''.encode():
-
     # Python 2: implicit encoding.
     def readlines(filename):
         return open(filename).readlines()
-
 else:
-
     # Python 3: decode to latin-1, without reading the encoding declaration.
     # This function is lazy, because identifiers are restricted to ASCII.
     def readlines(filename):
@@ -813,8 +811,7 @@ class Checker(object):
         else:
             self.filename = 'stdin'
             self.lines = []
-        options.counters['physical lines'] = \
-            options.counters.get('physical lines', 0) + len(self.lines)
+        options.counters['physical lines'] += len(self.lines)
 
     def readline(self):
         """
@@ -896,8 +893,7 @@ class Checker(object):
         """
         Build a line from tokens and run all logical checks on it.
         """
-        options.counters['logical lines'] = \
-            options.counters.get('logical lines', 0) + 1
+        options.counters['logical lines'] += 1
         self.build_tokens_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
@@ -978,8 +974,11 @@ class Checker(object):
         if options.quiet == 1 and not self.file_errors:
             message(self.filename)
         self.file_errors += 1
-        options.counters[code] = options.counters.get(code, 0) + 1
-        options.messages[code] = text[5:]
+        if code in options.counters:
+            options.counters[code] += 1
+        else:
+            options.counters[code] = 1
+            options.messages[code] = text[5:]
         if options.quiet:
             return
         if options.testsuite:
@@ -1007,10 +1006,7 @@ def input_file(filename):
         return {}
     if options.verbose:
         message('checking ' + filename)
-    files_counter_before = options.counters.get('files', 0)
-    if options.testsuite:  # Keep showing errors for multiple tests
-        options.counters = {}
-    options.counters['files'] = files_counter_before + 1
+    options.counters['files'] += 1
     errors = Checker(filename).check_all()
     if options.testsuite:  # Check if the expected error was found
         basename = os.path.basename(filename)
@@ -1018,6 +1014,8 @@ def input_file(filename):
         count = options.counters.get(code, 0)
         if count == 0 and 'not' not in basename:
             message("%s: error %s not found" % (filename, code))
+        # Keep showing errors for multiple tests
+        reset_counters()
 
 
 def input_dir(dirname):
@@ -1030,8 +1028,7 @@ def input_dir(dirname):
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
-        options.counters['directories'] = \
-            options.counters.get('directories', 0) + 1
+        options.counters['directories'] += 1
         dirs.sort()
         for subdir in dirs:
             if excluded(subdir):
@@ -1076,6 +1073,13 @@ def ignore_code(code):
     for ignore in options.ignore:
         if code.startswith(ignore):
             return True
+
+
+def reset_counters():
+    for key in list(options.counters.keys()):
+        if key not in BENCHMARK_KEYS:
+            del options.counters[key]
+    options.messages = {}
 
 
 def get_error_statistics():
@@ -1128,13 +1132,10 @@ def print_benchmark(elapsed):
     Print benchmark numbers.
     """
     print('%-7.2f %s' % (elapsed, 'seconds elapsed'))
-    keys = ['directories', 'files',
-            'logical lines', 'physical lines']
-    for key in keys:
-        if key in options.counters:
-            print('%-7d %s per second (%d total)' % (
-                options.counters[key] / elapsed, key,
-                options.counters[key]))
+    for key in BENCHMARK_KEYS:
+        print('%-7d %s per second (%d total)' % (
+            options.counters[key] / elapsed, key,
+            options.counters[key]))
 
 
 def selftest():
@@ -1157,16 +1158,17 @@ def selftest():
                 part = part.replace(r'\s', ' ')
                 checker.lines.append(part + '\n')
             options.quiet = 2
-            options.counters = {}
             checker.check_all()
             error = None
             if code == 'Okay':
-                if len(options.counters) > 1:
+                if len(options.counters) > len(BENCHMARK_KEYS):
                     codes = [key for key in options.counters.keys()
-                             if key != 'logical lines']
+                             if key not in BENCHMARK_KEYS]
                     error = "incorrectly found %s" % ', '.join(codes)
             elif options.counters.get(code, 0) == 0:
                 error = "failed to find %s" % code
+            # Reset the counters
+            reset_counters()
             if not error:
                 count_passed += 1
             else:
@@ -1255,7 +1257,7 @@ def process_options(arglist=None):
         options.ignore = DEFAULT_IGNORE.split(',')
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
-    options.counters = {}
+    options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
     return options, args
 
