@@ -5,6 +5,9 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* ``--ignore`` checks are now really ignored, especially in
+  conjunction with ``--count``. (Issue #8)
+
 * Blank lines with spaces yield W293 instead of W291: some developers
   want to ignore this warning and indent the blank lines to paste their
   code easily in the Python interpreter.
