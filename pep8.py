@@ -201,8 +201,10 @@ def trailing_whitespace(physical_line):
     physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
     stripped = physical_line.rstrip()
     if physical_line != stripped:
-        warning_code = "W291" if stripped != '' else "W293"
-        return len(stripped), "%s trailing whitespace" % warning_code
+        if stripped:
+            return len(stripped), "W291 trailing whitespace"
+        else:
+            return 0, "W293 blank line contains whitespace"
 
 
 def trailing_blank_lines(physical_line, lines, line_number):

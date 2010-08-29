@@ -5,6 +5,10 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Blank lines with spaces yield W293 instead of W291: some developers
+  want to ignore this warning and indent the blank lines to paste their
+  code easily in the Python interpreter.
+
 * Fix E301: do not require a blank line before an indented block. (Issue #14)
 
 * Fix E203 to accept NumPy slice notation ``a[0, :]``. (Issue #13)
