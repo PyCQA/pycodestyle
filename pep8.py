@@ -415,9 +415,9 @@ def whitespace_around_operator(logical_line):
             return offset, "E221 multiple spaces before operator"
         if text.endswith('  '):
             return offset, "E222 multiple spaces after operator"
-        if text.find('\t' + operator) != -1:
+        if text.startswith('\t'):
             return offset, "E223 tab before operator"
-        if text.find(operator + '\t') != -1:
+        if text.endswith('\t'):
             return offset, "E224 tab after operator"
 
 
