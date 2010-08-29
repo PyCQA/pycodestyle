@@ -178,18 +178,31 @@ def tabs_obsolete(physical_line):
 
 
 def trailing_whitespace(physical_line):
-    """
+    r"""
     JCR: Trailing whitespace is superfluous.
+    FBM: Except when it occurs as part of a blank line (i.e. the line is
+         nothing but whitespace). According to Python docs[1] a line with only
+         whitespace is considered a blank line, and is to be ignored. However,
+         matching a blank line to its indentation level avoids mistakenly
+         terminating a multi-line statement (e.g. class declaration) when
+         pasting code into the standard Python interpreter.
+
+         [1] http://docs.python.org/reference/lexical_analysis.html#blank-lines
+
+    The warning returned varies on whether the line itself is blank, for easier
+    filtering for those who want to indent their blank lines.
 
     Okay: spam(1)
     W291: spam(1)\s
+    W293: class Foo(object):\n    \n    bang = 12
     """
     physical_line = physical_line.rstrip('\n')    # chr(10), newline
     physical_line = physical_line.rstrip('\r')    # chr(13), carriage return
     physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
     stripped = physical_line.rstrip()
     if physical_line != stripped:
-        return len(stripped), "W291 trailing whitespace"
+        warning_code = "W291" if stripped != '' else "W293"
+        return len(stripped), "%s trailing whitespace" % warning_code
 
 
 def trailing_blank_lines(physical_line, lines, line_number):
