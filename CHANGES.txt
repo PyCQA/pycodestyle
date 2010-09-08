@@ -5,7 +5,7 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
-* Fix E501 for lines containing multibyte encoded characters.
+* Fix E501 for lines containing multibyte encoded characters. (Issue #7)
 
 * Fix E221, E222, E223, E224 not detected in some cases. (Issue #16)
 
