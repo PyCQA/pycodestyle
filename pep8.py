@@ -117,7 +117,8 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-WHITESPACE_AROUND_OPERATOR_REGEX = re.compile('  \W+|\W+  |\t\W+|\W+\t')
+WHITESPACE_AROUND_OPERATOR_REGEX = \
+    re.compile('([^\w\s]*)\s*(\t|  )\s*([^\w\s]*)')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
@@ -426,19 +427,15 @@ def whitespace_around_operator(logical_line):
     E224: a = 4 +\t5
     """
     for match in WHITESPACE_AROUND_OPERATOR_REGEX.finditer(logical_line):
-        text = match.group()
-        operator = text.strip()
-        if operator not in OPERATORS:
-            continue
-        offset = match.start()
-        if text.startswith('  '):
-            return offset, "E221 multiple spaces before operator"
-        if text.endswith('  '):
-            return offset, "E222 multiple spaces after operator"
-        if text.startswith('\t'):
-            return offset, "E223 tab before operator"
-        if text.endswith('\t'):
-            return offset, "E224 tab after operator"
+        before, whitespace, after = match.groups()
+        tab = whitespace == '\t'
+        offset = match.start(2)
+        if before in OPERATORS:
+            return offset, ("E224 tab after operator" if tab
+                            else "E222 multiple spaces after operator")
+        elif after in OPERATORS:
+            return offset, ("E223 tab before operator" if tab
+                            else "E221 multiple spaces before operator")
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
