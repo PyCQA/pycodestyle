@@ -5,6 +5,8 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Fix E211 to reject ``v = dic['a'] ['b']``. (Issue #17)
+
 * Exit code is always 1 if any error or warning is found. (Issue #10)
 
 * ``--ignore`` checks are now really ignored, especially in

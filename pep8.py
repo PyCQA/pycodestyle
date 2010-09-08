@@ -401,8 +401,10 @@ def whitespace_before_parameters(logical_line, tokens):
         if (token_type == tokenize.OP and
             text in '([' and
             start != prev_end and
-            prev_type == tokenize.NAME and
+            (prev_type == tokenize.NAME or prev_text in '}])') and
+            # Syntax "class A (B):" is allowed, but avoid it
             (index < 2 or tokens[index - 2][1] != 'class') and
+            # Allow "return (a.foo for a in range(5))"
             (not keyword.iskeyword(prev_text))):
             return prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
