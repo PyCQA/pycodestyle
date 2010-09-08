@@ -120,7 +120,7 @@ DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 WHITESPACE_AROUND_OPERATOR_REGEX = re.compile('  \W+|\W+  |\t\W+|\W+\t')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
-    re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+   re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
 
 
 WHITESPACE = ' \t'
@@ -709,9 +709,8 @@ if '' == ''.encode():
     def readlines(filename):
         return open(filename).readlines()
 else:
-    # Python 3: decode to latin-1.
-    # This function is lazy, it does not read the encoding declaration.
-    # XXX: use tokenize.detect_encoding()
+    # Python 3: decode to latin-1, without reading the encoding declaration.
+    # This function is lazy, because identifiers are restricted to ASCII.
     def readlines(filename):
         return open(filename, encoding='latin-1').readlines()
 
@@ -903,8 +902,8 @@ class Checker(object):
         if options.verbose >= 2:
             print(self.logical_line[:80].rstrip())
         for name, check, argument_names in options.logical_checks:
-            if options.verbose >= 4:
-                print('   ' + name)
+            if options.verbose >= 3:
+                print('   ', name)
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
@@ -934,13 +933,7 @@ class Checker(object):
         self.tokens = []
         parens = 0
         for token in tokenize.generate_tokens(self.readline_check_physical):
-            if options.verbose >= 3:
-                if token[2][0] == token[3][0]:
-                    pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
-                else:
-                    pos = 'l.%s' % token[3][0]
-                print('l.%s\t%s\t%s\t%r' %
-                    (token[2][0], pos, tokenize.tok_name[token[0]], token[1]))
+            # print(tokenize.tok_name[token[0]], repr(token))
             self.tokens.append(token)
             token_type, text = token[0:2]
             if token_type == tokenize.OP and text in '([{':
