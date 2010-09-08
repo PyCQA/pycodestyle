@@ -111,6 +111,7 @@ except NameError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
+MAX_LINE_LENGTH = 79
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -239,9 +240,18 @@ def maximum_line_length(physical_line):
     For flowing long blocks of text (docstrings or comments), limiting the
     length to 72 characters is recommended.
     """
-    length = len(physical_line.rstrip())
-    if length > 79:
-        return 79, "E501 line too long (%d characters)" % length
+    line = physical_line.rstrip()
+    length = len(line)
+    if length > MAX_LINE_LENGTH:
+        try:
+            # The line could contain multi-byte characters
+            if not hasattr(line, 'decode'):   # Python 3
+                line = line.encode('latin-1')
+            length = len(line.decode('utf-8'))
+        except UnicodeDecodeError:
+            pass
+    if length > MAX_LINE_LENGTH:
+        return MAX_LINE_LENGTH, "E501 line too long (%d characters)" % length
 
 
 ##############################################################################

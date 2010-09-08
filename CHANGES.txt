@@ -5,6 +5,8 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Fix E501 for lines containing multibyte encoded characters.
+
 * Fix E221, E222, E223, E224 not detected in some cases. (Issue #16)
 
 * Fix E211 to reject ``v = dic['a'] ['b']``. (Issue #17)

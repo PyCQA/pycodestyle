@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Rectangle(Blob):
 
         def __init__(self, width, height,
@@ -12,3 +15,12 @@ class Rectangle(Blob):
                                  (width, height))
             Blob.__init__(self, width, height,
                           color, emphasis, highlight)
+
+
+# Some random text with multi-byte characters (utf-8 encoded)
+#
+# Εδώ μάτσο κειμένων τη, τρόπο πιθανό διευθυντές ώρα μη. Νέων απλό παράγει ροή
+# κι, το επί δεδομένη καθορίζουν. Πάντως ζητήσεις περιβάλλοντος ένα με, τη
+# ξέχασε αρπάζεις φαινόμενο όλη. Τρέξει εσφαλμένη χρησιμοποίησέ νέα τι. Θα όρο
+# πετάνε φακέλους, άρα με διακοπής λαμβάνουν εφαμοργής. Λες κι μειώσει
+# καθυστερεί.
