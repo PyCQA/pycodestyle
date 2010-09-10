@@ -5,6 +5,8 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Fix E225: accept ``print >>sys.stderr, "..."`` syntax.
+
 * Fix E501 for lines containing multibyte encoded characters. (Issue #7)
 
 * Fix E221, E222, E223, E224 not detected in some cases. (Issue #16)

@@ -128,9 +128,9 @@ WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
 WHITESPACE = ' \t'
 
 BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
-    '%=', '^=', '&=', '|=', '==', '/=', '//=', '>=', '<=', '>>=', '<<=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '>',  '<',  '>>',  '<<'])
-UNARY_OPERATORS = frozenset(['**', '*', '+', '-'])
+    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
+    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
