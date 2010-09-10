@@ -134,8 +134,8 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
-E225NOT_KEYWORDS = \
-    frozenset(keyword.kwlist) - frozenset(['False', 'None', 'True'])
+E225NOT_KEYWORDS = (frozenset(keyword.kwlist + ['print']) -
+                    frozenset(['False', 'None', 'True']))
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
@@ -441,11 +441,11 @@ def whitespace_around_operator(logical_line):
         tab = whitespace == '\t'
         offset = match.start(2)
         if before in OPERATORS:
-            return offset, ("E224 tab after operator" if tab
-                            else "E222 multiple spaces after operator")
+            return offset, (tab and "E224 tab after operator" or
+                            "E222 multiple spaces after operator")
         elif after in OPERATORS:
-            return offset, ("E223 tab before operator" if tab
-                            else "E221 multiple spaces before operator")
+            return offset, (tab and "E223 tab before operator" or
+                            "E221 multiple spaces before operator")
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
