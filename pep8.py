@@ -1185,7 +1185,7 @@ def selftest():
                     codes = [key for key in options.counters.keys()
                              if key not in BENCHMARK_KEYS]
                     error = "incorrectly found %s" % ', '.join(codes)
-            elif options.counters.get(code, 0) == 0:
+            elif not options.counters.get(code):
                 error = "failed to find %s" % code
             # Reset the counters
             reset_counters()
@@ -1252,7 +1252,7 @@ def process_options(arglist=None):
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
-    if len(args) == 0 and not options.doctest:
+    if not args and not options.doctest:
         parser.error('input not specified')
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
