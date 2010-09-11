@@ -491,9 +491,13 @@ def missing_whitespace_around_operator(logical_line, tokens):
         elif text == ')':
             parens -= 1
         if need_space:
-            if start == prev_end:
+            if start != prev_end:
+                need_space = False
+            elif text == '>' and prev_text == '<':
+                # Tolerate the "<>" operator, even if running Python 3
+                pass
+            else:
                 return prev_end, "E225 missing whitespace around operator"
-            need_space = False
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
