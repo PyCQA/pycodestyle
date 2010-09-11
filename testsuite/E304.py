@@ -1,4 +1,0 @@
-@decorator
-
-def function():
-    pass

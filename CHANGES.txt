@@ -5,6 +5,10 @@ Changelog
 0.5.1 (unreleased)
 ------------------
 
+* Test suite reorganized and enhanced in order to check more failures
+  with fewer test files.  Read the ``run_tests`` docstring for details
+  about the syntax.
+
 * Fix E225: accept ``print >>sys.stderr, "..."`` syntax.
 
 * Fix E501 for lines containing multibyte encoded characters. (Issue #7)

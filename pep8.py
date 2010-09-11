@@ -818,13 +818,15 @@ class Checker(object):
     Load a Python source file, tokenize it, check coding style.
     """
 
-    def __init__(self, filename):
-        if filename:
-            self.filename = filename
+    def __init__(self, filename, lines=None):
+        self.filename = filename
+        if filename is None:
+            self.filename = 'stdin'
+            self.lines = lines or []
+        elif lines is None:
             self.lines = readlines(filename)
         else:
-            self.filename = 'stdin'
-            self.lines = []
+            self.lines = lines
         options.counters['physical lines'] += len(self.lines)
 
     def readline(self):
@@ -933,12 +935,14 @@ class Checker(object):
                                   text, check)
         self.previous_logical = self.logical_line
 
-    def check_all(self):
+    def check_all(self, expected=None, line_offset=0):
         """
         Run all checks on the input file.
         """
-        self.file_errors = 0
+        self.expected = expected or ()
+        self.line_offset = line_offset
         self.line_number = 0
+        self.file_errors = 0
         self.indent_char = None
         self.indent_level = 0
         self.previous_logical = ''
@@ -993,23 +997,19 @@ class Checker(object):
             return
         if options.quiet == 1 and not self.file_errors:
             message(self.filename)
-        self.file_errors += 1
         if code in options.counters:
             options.counters[code] += 1
         else:
             options.counters[code] = 1
             options.messages[code] = text[5:]
-        if options.quiet:
+        if options.quiet or code in self.expected:
+            # Don't care about expected errors or warnings
             return
-        if options.testsuite:
-            basename = os.path.basename(self.filename)
-            if basename[:4] != code:
-                return  # Don't care about other errors or warnings
-            if 'not' not in basename:
-                return  # Don't print the expected error message
+        self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
             message("%s:%s:%d: %s" %
-                    (self.filename, line_number, offset + 1, text))
+                    (self.filename, self.line_offset + line_number,
+                     offset + 1, text))
             if options.show_source:
                 line = self.lines[line_number - 1]
                 message(line.rstrip())
@@ -1022,29 +1022,20 @@ def input_file(filename):
     """
     Run all checks on a Python source file.
     """
-    if excluded(filename):
-        return {}
     if options.verbose:
         message('checking ' + filename)
-    options.counters['files'] += 1
     errors = Checker(filename).check_all()
-    if options.testsuite:  # Check if the expected error was found
-        basename = os.path.basename(filename)
-        code = basename[:4]
-        count = options.counters.get(code, 0)
-        if count == 0 and 'not' not in basename:
-            message("%s: error %s not found" % (filename, code))
-        # Keep showing errors for multiple tests
-        reset_counters()
 
 
-def input_dir(dirname):
+def input_dir(dirname, runner=None):
     """
     Check all Python source files in this directory and all subdirectories.
     """
     dirname = dirname.rstrip('/')
     if excluded(dirname):
         return
+    if runner is None:
+        runner = input_file
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             message('directory ' + root)
@@ -1055,8 +1046,9 @@ def input_dir(dirname):
                 dirs.remove(subdir)
         files.sort()
         for filename in files:
-            if filename_match(filename):
-                input_file(os.path.join(root, filename))
+            if filename_match(filename) and not excluded(filename):
+                options.counters['files'] += 1
+                runner(os.path.join(root, filename))
 
 
 def excluded(filename):
@@ -1156,6 +1148,56 @@ def print_benchmark(elapsed):
         print('%-7d %s per second (%d total)' % (
             options.counters[key] / elapsed, key,
             options.counters[key]))
+
+
+def run_tests(filename):
+    """
+    Run all the tests from a file.
+
+    A test file can provide many tests.  Each test starts with a declaration.
+    This declaration is a single line starting with '#:'.
+    It declares codes of expected failures, separated by spaces or 'Okay'
+    if no failure is expected.
+    If the file does not contain such declaration, it should pass all tests.
+    If the declaration is empty, following lines are not checked, until next
+    declaration.
+
+    Examples:
+
+     * Only E224 and W701 are expected:         #: E224 W701
+     * Following example is conform:            #: Okay
+     * Don't check these lines:                 #:
+    """
+    lines = readlines(filename) + ['#:\n']
+    line_offset = 0
+    codes = ['Okay']
+    testcase = []
+    for index, line in enumerate(lines):
+        if not line.startswith('#:'):
+            if codes:
+                # Collect the lines of the test case
+                testcase.append(line)
+            continue
+        if codes and index > 0:
+            label = '%s:%s:1' % (filename, line_offset + 1)
+            codes = [c for c in codes if c != 'Okay']
+            # Run the checker
+            errors = Checker(filename, testcase).check_all(codes, line_offset)
+            # Check if the expected errors were found
+            for code in codes:
+                if not options.counters.get(code):
+                    errors += 1
+                    message('%s: error %s not found' % (label, code))
+            if options.verbose and not errors:
+                message('%s: passed (%s)' % (label, ' '.join(codes)))
+            # Keep showing errors for multiple tests
+            reset_counters()
+        # output the real line numbers
+        line_offset = index
+        # configure the expected errors
+        codes = line.split()[1:]
+        # empty the test case buffer
+        del testcase[:]
 
 
 def selftest():
@@ -1291,12 +1333,17 @@ def _main():
         import doctest
         doctest.testmod(verbose=options.verbose)
         selftest()
+    if options.testsuite:
+        runner = run_tests
+    else:
+        runner = input_file
     start_time = time.time()
     for path in args:
         if os.path.isdir(path):
-            input_dir(path)
-        else:
-            input_file(path)
+            input_dir(path, runner=runner)
+        elif not excluded(path):
+            options.counters['files'] += 1
+            runner(path)
     elapsed = time.time() - start_time
     if options.statistics:
         print_statistics()

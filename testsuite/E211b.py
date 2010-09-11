@@ -1,1 +1,0 @@
-dict ['key'] = list [index]

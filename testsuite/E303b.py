@@ -1,7 +1,0 @@
-print
-
-
-
-# comment
-
-print
