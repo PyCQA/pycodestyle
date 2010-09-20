@@ -22,14 +22,25 @@ Features
 * Small: Just one Python file, requires only stdlib. You can use just
   the pep8.py file for this purpose.
 
-* Easy_installable, of course!
-
+* Comes with a comprehensive test suite.
 
 Installation
 ------------
 
-Just an ``easy_install pep8`` ought to do the trick.
+You can install, upgrade, uninstall pep8.py with these commands::
 
+  $ sudo pip install pep8
+  $ sudo pip install --upgrade pep8
+  $ sudo pip uninstall pep8
+
+Or if you don't have `pip`::
+
+  $ sudo easy_install pep8
+
+There's also a package for Debian/Ubuntu, but it's not always the
+latest version::
+
+  $ sudo apt-get install pep8
 
 Example usage and output
 ------------------------

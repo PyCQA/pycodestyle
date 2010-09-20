@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.5.1dev'
+version = '0.6.0'
 long_description = '\n\n'.join([open('README.rst').read(),
                                 open('CHANGES.txt').read(),
                                 open('TODO.txt').read()])

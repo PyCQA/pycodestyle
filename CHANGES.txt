@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.5.1 (unreleased)
+0.6.0 (2010-09-19)
 ------------------
 
 * Test suite reorganized and enhanced in order to check more failures
