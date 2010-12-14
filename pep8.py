@@ -242,7 +242,7 @@ def maximum_line_length(physical_line):
     """
     line = physical_line.rstrip()
     length = len(line)
-    if length > MAX_LINE_LENGTH:
+    if length > options.max_line_length:
         try:
             # The line could contain multi-byte characters
             if not hasattr(line, 'decode'):   # Python 3
@@ -250,8 +250,9 @@ def maximum_line_length(physical_line):
             length = len(line.decode('utf-8'))
         except UnicodeDecodeError:
             pass
-    if length > MAX_LINE_LENGTH:
-        return MAX_LINE_LENGTH, "E501 line too long (%d characters)" % length
+    if length > options.max_line_length:
+        return options.max_line_length, \
+            "E501 line too long (%d characters)" % length
 
 
 ##############################################################################
@@ -1289,6 +1290,10 @@ def process_options(arglist=None):
                       help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
+    parser.add_option('--max-line-length', type='int', metavar='n',
+                      default=MAX_LINE_LENGTH,
+                      help="set to a higher value to relax pep8 "
+                      "line length restictions")
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
     options, args = parser.parse_args(arglist)
