@@ -90,6 +90,19 @@ and space, the rest of the line is example source code. If you put 'r'
 before the docstring, you can use \n for newline, \t for tab and \s
 for space.
 
+You can also change the error messages format by writing plugins. The
+error formatting plugins first argument name is error_details:
+
+def default(error_details)
+def pylint(error_details)
+
+This functions will receive a dictionary with the following fields:
+
+- text: contains a description of the error.
+- filename,
+- line,
+- and column where the error was found.
+
 """
 
 __version__ = '0.5.1dev'
@@ -111,6 +124,7 @@ except NameError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
+DEFAULT_ERROR_FORMATTER = 'default'
 MAX_LINE_LENGTH = 79
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
@@ -713,6 +727,28 @@ def python_3000_backticks(logical_line):
 
 
 ##############################################################################
+# Error formatting plugins
+##############################################################################
+
+
+def default(error_details):
+    """
+    Default pep8 error formatter.
+    """
+    return "%(filename)s:%(line)s:%(column)d: %(text)s" % error_details
+
+
+def pylint(error_details):
+    """
+    pylint parseable like error formatter.
+    """
+    # Get the error code and explanation from the error text
+    code, _, explanation = error_details['text'].partition(' ')
+    return ("%s:%s: [%s] %s" % (error_details['filename'],
+        error_details['line'], code, explanation))
+
+
+##############################################################################
 # Helper functions
 ##############################################################################
 
@@ -793,24 +829,44 @@ def message(text):
 ##############################################################################
 
 
-def find_checks(argument_name):
+def find_plugins(argument_name):
     """
     Find all globally visible functions where the first argument name
     starts with argument_name.
     """
-    checks = []
+    plugins = []
     for name, function in globals().items():
         if not inspect.isfunction(function):
             continue
         args = inspect.getargspec(function)[0]
         if args and args[0].startswith(argument_name):
-            codes = ERRORCODE_REGEX.findall(inspect.getdoc(function) or '')
-            for code in codes or ['']:
-                if not code or not ignore_code(code):
-                    checks.append((name, function, args))
-                    break
-    checks.sort()
+            plugins.append((name, function, args))
+    plugins.sort()
+    return plugins
+
+
+def find_checks(argument_name):
+    """
+    Find all plugins whose docstring contains one or more error code
+    definitions.
+    """
+    checks = []
+    for name, function, args in find_plugins(argument_name):
+        codes = ERRORCODE_REGEX.findall(inspect.getdoc(function) or '')
+        for code in codes or ['']:
+            if not code or not ignore_code(code):
+                checks.append((name, function, args))
+                break
     return checks
+
+
+def find_formatters():
+    """
+    Find all the error formatters and return a dictionary in the form
+    (name, function).
+    """
+    formatters = find_plugins('error_details')
+    return dict((formatter[0], formatter[1]) for formatter in formatters)
 
 
 class Checker(object):
@@ -1007,9 +1063,12 @@ class Checker(object):
             return
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
-            message("%s:%s:%d: %s" %
-                    (self.filename, self.line_offset + line_number,
-                     offset + 1, text))
+            error_details = {
+                'filename': self.filename,
+                'line': self.line_offset + line_number,
+                'column': offset + 1,
+                'text': text}
+            message(options.error_formatter(error_details))
             if options.show_source:
                 line = self.lines[line_number - 1]
                 message(line.rstrip())
@@ -1255,6 +1314,8 @@ def process_options(arglist=None):
     Process options passed either via arglist or via command line args.
     """
     global options, args
+    error_formatters = find_formatters()
+
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.add_option('-v', '--verbose', default=0, action='count',
@@ -1263,6 +1324,11 @@ def process_options(arglist=None):
                       help="report only file names, or nothing with -qq")
     parser.add_option('-r', '--repeat', action='store_true',
                       help="show all occurrences of the same error")
+    parser.add_option('--format', metavar='format',
+                      default=DEFAULT_ERROR_FORMATTER,
+                      choices=error_formatters.keys(),
+                      help="set the error messages format style "
+                        "[%s]" % '|'.join(error_formatters.keys()))
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
                       help="exclude files or directories which match these "
                         "comma separated patterns (default: %s)" %
@@ -1319,6 +1385,7 @@ def process_options(arglist=None):
         options.ignore = DEFAULT_IGNORE.split(',')
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
+    options.error_formatter = error_formatters[options.format]
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
     return options, args
