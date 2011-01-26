@@ -109,6 +109,7 @@ Quick help is available on the command line::
                          error and set exit code to 1 if total is not null
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
+    --max-line-length=n  set to a higher value to relax pep8 line length
     --doctest            run doctest on myself
 
 Feedback
