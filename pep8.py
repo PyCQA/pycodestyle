@@ -844,6 +844,21 @@ class Checker(object):
         used to feed tokenize.generate_tokens.
         """
         line = self.readline()
+
+        def parse_inline_flags(sign):
+            """
+            Parse inline flags in source file.
+
+            Flags are specified as follows:
+
+            #:PEP8 +E101 -W603
+            """
+            return set(map(lambda s: s[1:].strip(),
+                filter(lambda s: s.startswith(sign), line.split(" ")[1:])))
+
+        if line.lstrip().startswith('#:PEP8'):
+            self.expected = (self.expected | parse_inline_flags('-')) \
+                    - parse_inline_flags('+')
         if line:
             self.check_physical(line)
         return line
@@ -939,7 +954,7 @@ class Checker(object):
         """
         Run all checks on the input file.
         """
-        self.expected = expected or ()
+        self.expected = set(expected or ())
         self.line_offset = line_offset
         self.line_number = 0
         self.file_errors = 0
