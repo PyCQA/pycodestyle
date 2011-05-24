@@ -1041,9 +1041,12 @@ def input_dir(dirname, runner=None):
             message('directory ' + root)
         options.counters['directories'] += 1
         dirs.sort()
+        excluded_dirs = []
         for subdir in dirs:
             if excluded(subdir):
-                dirs.remove(subdir)
+                excluded_dirs.append(subdir)
+        for subdir in excluded_dirs:
+            dirs.remove(subdir)
         files.sort()
         for filename in files:
             if filename_match(filename) and not excluded(filename):
