@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.5.1 (2010-04-07)
+------------------
+* '--fix' flag added. Using this flag will cause pep8 to create
+  a new file 'fixed_filename.py' containing some basic fixes for
+  'filename.py'. ~ Aditya Bhargava
+
+* '--inplace' flag added. Use this with the '--fix' flag to make
+  changes in-place in the files. Be warned that this tool makes no
+  guarantees about the changes. ~ Aditya Bhargava
+  
+* Basic framework created for adding more fixes when '--fix' is run.
+  Two new names added to the global namespace: report_fix and fix_line.
+  Small changes added to the Checker class constructor and check_physical
+  method. ~ Aditya Bhargava
+
 
 0.6.0 (2010-09-19)
 ------------------

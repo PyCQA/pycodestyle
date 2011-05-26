@@ -141,7 +141,6 @@ BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 options = None
 args = None
 
-
 ##############################################################################
 # Plugins (check functions) for physical lines
 ##############################################################################
@@ -827,6 +826,19 @@ class Checker(object):
             self.lines = readlines(filename)
         else:
             self.lines = lines
+
+        # file to write to
+        if options.fix:
+            if options.inplace: write_filename = filename
+            else: write_filename = "fixed_" + filename
+            try:
+                self.writer = open(write_filename,"w")
+                if not options.inplace: report_fix(write_filename + " created.")
+                else: report_fix("modifying " + filename + " in place.")
+            except IOError:
+                print sys.exc_info()
+                raise SystemExit
+
         options.counters['physical lines'] += len(self.lines)
 
     def readline(self):
@@ -864,12 +876,16 @@ class Checker(object):
         self.physical_line = line
         if self.indent_char is None and len(line) and line[0] in ' \t':
             self.indent_char = line[0]
+        errors = False
         for name, check, argument_names in options.physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
-
+                if options.fix:
+                    fix_line(self,check)
+        if options.fix: self.writer.write(self.physical_line)
+            
     def build_tokens_line(self):
         """
         Build a logical line from tokens.
@@ -1016,7 +1032,7 @@ class Checker(object):
                 message(' ' * offset + '^')
             if options.show_pep8:
                 message(check.__doc__.lstrip('\n').rstrip())
-
+            
 
 def input_file(filename):
     """
@@ -1291,6 +1307,12 @@ def process_options(arglist=None):
                       help="run regression tests from dir")
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+    parser.add_option('-f', '--fix', action='count',
+                      help="create a new file with *some* things fixed "
+                       "to match PEP8")
+    parser.add_option('-i', '--inplace', action='count',
+                      help="use with the --fix flag. Makes modifications "
+                       "in-place.")
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
@@ -1324,6 +1346,38 @@ def process_options(arglist=None):
     return options, args
 
 
+def report_fix(s):
+    """
+    Prints out a message when something has been fixed
+    using fix_line(). Doesn't print if the --quiet flag
+    was specified.
+    """
+    if not options.quiet:
+        print " - pep8 fix:",s
+    
+def fix_line(checker, check):
+    """
+    Given a Checker object and a check function,
+    fixes the line in the Checker object if it knows how.    
+    This function only runs if the --fix flag is used.
+    """
+    # change tabs to 4 spaces
+    if check is tabs_obsolete:
+        checker.physical_line = checker.physical_line.replace("\t","    ")
+        report_fix("tab converted to 4 spaces.")
+    # add newline to end of file
+    if check is missing_newline:
+        checker.physical_line += "\n"
+        report_fix("newline added to end of file.")
+    # remove whitespace from end of line
+    if check is trailing_whitespace:
+        checker.physical_line = re.sub(r' *$',"",checker.physical_line)
+        report_fix("whitespace stripped from end of line.")
+    # remove superfluous blank lines from end of file
+    if check is trailing_blank_lines:
+        checker.physical_line = ""
+        report_fix("superfluous trailing blank line removed from end of file.")
+    
 def _main():
     """
     Parse options and run checks on Python source.
