@@ -180,6 +180,11 @@ def tabs_obsolete(physical_line):
         return indent.index('\t'), "W191 indentation contains tabs"
 
 
+def fix_tabs_obsolete(checker):
+    checker.physical_line = checker.physical_line.replace("\t","    ")
+    report_fix("tab converted to 4 spaces.")
+
+
 def trailing_whitespace(physical_line):
     r"""
     JCR: Trailing whitespace is superfluous.
