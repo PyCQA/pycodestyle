@@ -483,6 +483,14 @@ def whitespace_before_parameters(logical_line, tokens):
         prev_end = end
 
 
+def fix_whitespace_before_parameters(checker, line_number, line_offset, text):
+    line = checker.fixed_lines[line_number - 1]
+    whitespace_start = line_offset
+    while line[whitespace_start-1] in WHITESPACE:
+        whitespace_start -= 1
+    yield ((line_number, whitespace_start), (line_number, line_offset+1), '')
+
+
 def whitespace_around_operator(logical_line):
     """
     Avoid extraneous whitespace in the following situations:
