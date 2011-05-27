@@ -377,6 +377,20 @@ def extraneous_whitespace(logical_line):
                 return found, "E203 whitespace before '%s'" % char
 
 
+def fix_extraneous_whitespace(checker, line_number, line_offset, text):
+    line = checker.fixed_lines[line_number-1]
+    if text.startswith('E201'):
+        whitespace_end = line_offset
+        while line[whitespace_end+1] == ' ':
+            whitespace_end += 1
+        yield ((line_number, line_offset), (line_number, whitespace_end+1), '')
+    elif text.startswith('E202') or text.startswith('E203'):
+        whitespace_start = line_offset
+        while line[whitespace_start-1] == ' ':
+            whitespace_start -= 1
+        yield ((line_number, whitespace_start), (line_number, line_offset+1), '')
+
+
 def missing_whitespace(logical_line):
     """
     JCR: Each comma, semicolon or colon should be followed by whitespace.
