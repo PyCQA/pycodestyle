@@ -307,9 +307,9 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
         if max_blank_lines:
-            return 0, "E304 blank lines found after function decorator"
+            return 0, "E304 blank lines found after function decorator (%d)" % max_blank_lines
     elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
-        return 0, "E303 too many blank lines (%d)" % max_blank_lines
+        return 0, "E303 too many blank lines (%d>%d)" % (max_blank_lines, 1 if indent_level else 2)
     elif (logical_line.startswith('def ') or
           logical_line.startswith('class ') or
           logical_line.startswith('@')):
@@ -319,6 +319,28 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 return 0, "E301 expected 1 blank line, found 0"
         elif max_blank_lines != 2:
             return 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
+
+
+def fix_blank_lines(checker, line_number, line_offset, text):
+    # Adjust line_number to back before comments
+    while checker.fixed_lines[line_number-2].lstrip().startswith('#'):
+        line_number -= 1;
+
+    if text.startswith('E301'):
+        yield ((line_number, 0), (line_number, 0), '\n')
+    elif text.startswith('E302'):
+        _, _, lines_found = text.rpartition(' ')
+        lines_found = int(lines_found)
+        yield ((line_number, 0), (line_number, 0), '\n'*(2-lines_found))
+    elif text.startswith('E303'):
+        _, _, line_info = text.rpartition(' ')
+        lines_found, _, lines_needed = line_info.strip('()').partition('>')
+        lines_found, lines_needed = int(lines_found), int(lines_needed)
+        yield ((line_number-(lines_found - lines_needed), 0), (line_number, 0), '')
+    elif text.startswith('E304'):
+        _, _, extra_lines = text.rpartition(' ')
+        extra_lines = int(extra_lines.strip('()'))
+        yield ((line_number-extra_lines, 0), (line_number, 0), '')
 
 
 def extraneous_whitespace(logical_line):
