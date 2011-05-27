@@ -124,6 +124,8 @@ WHITESPACE_AROUND_OPERATOR_REGEX = \
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+WHITESPACE_AROUND_COMMA_REGEX = \
+    re.compile(r'[,;:](\t|\s\s+)\S')
 
 
 WHITESPACE = ' \t'
@@ -141,6 +143,7 @@ BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
 args = None
+
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -722,15 +725,31 @@ def whitespace_around_comma(logical_line):
     Okay: a = (1, 2)
     E241: a = (1,  2)
     E242: a = (1,\t2)
+    E242: a = (1, \t2)
     """
     line = logical_line
-    for separator in ',;:':
-        found = line.find(separator + '  ')
-        if found > -1:
-            yield found + 1, "E241 multiple spaces after '%s'" % separator
-        found = line.find(separator + '\t')
-        if found > -1:
-            yield found + 1, "E242 tab after '%s'" % separator
+    for match in WHITESPACE_AROUND_COMMA_REGEX.finditer(line): 
+        if '\t' in match.group():
+            yield match.start()+1, "E242 tab after '%s'" % match.group()[0]
+        else:
+            yield match.start()+1, "E241 multiple spaces after '%s'" % match.group()[0]
+
+
+def fix_whitespace_around_comma(checker, line_number, line_offset, text):
+    r"""
+    a = (1, 2) -> a = (1, 2)
+    a = (1,  2) -> a = (1, 2)
+    a = (1,\t2) -> a = (1, 2)
+    a = (1, \t2) -> a = (1, 2)
+    a = (1,\t 2) -> a = (1, 2)
+    """
+    line = checker.lines[line_number-1]
+
+    whitespace_end = line_offset
+    while line[whitespace_end+1] in WHITESPACE:
+        whitespace_end += 1
+
+    yield ((line_number, line_offset), (line_number, whitespace_end+1), ' ')
 
 
 def whitespace_around_named_parameter_equals(logical_line):
@@ -761,8 +780,35 @@ def whitespace_around_named_parameter_equals(logical_line):
             parens -= 1
 
 
-def whitespace_before_inline_comment(logical_line, tokens):
+def fix_whitespace_around_named_parameter_equals(checker, line_number, line_offset, text):
+    r"""
+    def complex(real, imag=0.0): -> def complex(real, imag=0.0):
+    return magic(r=real, i=imag) -> return magic(r=real, i=imag)
+    boolean(a == b) -> boolean(a == b)
+    boolean(a != b) -> boolean(a != b)
+    boolean(a <= b) -> boolean(a <= b)
+    boolean(a >= b) -> boolean(a >= b)
+
+    def complex(real, imag = 0.0): -> def complex(real, imag=0.0):
+    return magic(r = real, i = imag) -> return magic(r=real, i=imag)
+    return magic(r = =real, i = imag) -> return magic(r==real, i=imag)
     """
+    line = checker.lines[line_number - 1]
+    whitespace_end = line_offset
+    while line[whitespace_end+1] in WHITESPACE:
+        whitespace_end += 1
+
+    yield ((line_number, line_offset), (line_number, whitespace_end+1), '')
+
+    eq_offset = whitespace_end+1
+    whitespace_end += 1
+    while line[whitespace_end+1] in WHITESPACE:
+        whitespace_end += 1
+    yield ((line_number, eq_offset+1), (line_number, whitespace_end+1), '')
+
+
+def whitespace_before_inline_comment(logical_line, tokens):
+    r"""
     Separate inline comments by at least two spaces.
 
     An inline comment is a comment on the same line as a statement.  Inline
@@ -784,12 +830,31 @@ def whitespace_before_inline_comment(logical_line, tokens):
                 continue
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
                 yield (prev_end,
-                       "E261 at least two spaces before inline comment")
+                        "E261 at least two spaces before inline comment")
             if (len(text) > 1 and text.startswith('#  ')
-                           or not text.startswith('# ')):
+                    or not text.startswith('# ')):
                 yield start, "E262 inline comment should start with '# '"
         else:
             prev_end = end
+
+
+def fix_whitespace_before_inline_comment(checker, line_number, line_offset, text):
+    r"""
+    x = x + 1  # Increment x -> x = x + 1  # Increment x
+    x = x + 1    # Increment x -> x = x + 1    # Increment x
+    x = x + 1 # Increment x -> x = x + 1  # Increment x
+    x = x + 1  #Increment x -> x = x + 1  # Increment x
+    x = x + 1  #  Increment x -> x = x + 1  # Increment x
+    """
+    if text.startswith("E261"):
+        yield (line_number, line_offset+1), (line_number, line_offset+1), ' '
+    elif text.startswith("E262"):
+        line = checker.lines[line_number - 1]
+        whitespace_end = line_offset
+        while line[whitespace_end+1] in WHITESPACE:
+            whitespace_end += 1
+
+        yield ((line_number, line_offset+1), (line_number, whitespace_end+1), ' ')
 
 
 def imports_on_separate_lines(logical_line):
@@ -810,6 +875,28 @@ def imports_on_separate_lines(logical_line):
         found = line.find(',')
         if found > -1:
             yield found, "E401 multiple imports on one line"
+
+
+def fix_imports_on_separate_lines(checker, line_number, line_offset, text):
+    r"""
+    import os\nimport sys -> import os\nimport sys
+    import sys, os -> import sys\nimport os
+    import sys,  os -> import sys\nimport os
+
+    from subprocess import Popen, PIPE -> from subprocess import Popen, PIPE
+    from myclas import MyClass -> from myclas import MyClass
+    from foo.bar.yourclass import YourClass -> from foo.bar.yourclass import YourClass
+    import myclass -> import myclass
+    import foo.bar.yourclass -> import foo.bar.yourclass
+    """
+    line = checker.lines[line_number - 1]
+    comma_idx = line.find(',')
+    while comma_idx != -1:
+        if line[comma_idx+1] in WHITESPACE:
+            yield (line_number, comma_idx), (line_number, comma_idx+1), '\nimport'
+        else:
+            yield (line_number, comma_idx), (line_number, comma_idx+1), '\nimport '
+        comma_idx = line.find(',', comma_idx + 1)
 
 
 def compound_statements(logical_line):
