@@ -1032,7 +1032,7 @@ class Checker(object):
                 self.report_error(original_number, original_offset,
                                   text, check)
                 if options.fix:
-                    self.edits.extend(list(fix_logical_line(self, original_number, original_offset, text, check)))
+                    self.edits.extend(fix_logical_line(self, original_number, original_offset, text, check))
         self.previous_logical = self.logical_line
 
     def check_all(self, expected=None, line_offset=0):
@@ -1462,6 +1462,8 @@ def fix_logical_line(checker, line_number, line_offset, text, check):
     if hasattr(check, 'fix'):
         print "fixing logical", line_number, line_offset, text
         return check.fix(checker, line_number, line_offset, text) 
+    else:
+        return []
 
 
 def apply_edits(lines, edits):
