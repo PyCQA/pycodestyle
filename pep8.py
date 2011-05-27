@@ -813,6 +813,16 @@ def find_checks(argument_name):
     return checks
 
 
+def attach_fix_functions(checks):
+    for (name, function, _) in checks:
+        fix_fn = globals().get('fix_' + name)
+        
+        if not inspect.isfunction(fix_fn):
+            continue
+
+        function.fix = fix_fn
+
+
 class Checker(object):
     """
     Load a Python source file, tokenize it, check coding style.
@@ -831,7 +841,8 @@ class Checker(object):
         # file to write to
         if options.fix:
             if options.inplace: write_filename = filename
-            else: write_filename = "fixed_" + filename
+            else: write_filename = os.path.join(os.path.dirname(filename),
+                                                "fixed_" + os.path.basename(filename))
             try:
                 self.writer = open(write_filename,"w")
                 if not options.inplace: report_fix(write_filename + " created.")
@@ -839,6 +850,8 @@ class Checker(object):
             except IOError:
                 traceback.print_exc()
                 raise SystemExit
+            self.edits = []
+            self.fixed_lines = []
 
         options.counters['physical lines'] += len(self.lines)
 
@@ -884,8 +897,9 @@ class Checker(object):
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
                 if options.fix:
-                    fix_line(self,check)
-        if options.fix: self.writer.write(self.physical_line)
+                    fix_physical_line(self,check)
+        if options.fix:
+            self.fixed_lines.append(self.physical_line)
             
     def build_tokens_line(self):
         """
@@ -950,6 +964,8 @@ class Checker(object):
                                                + offset - token_offset)
                 self.report_error(original_number, original_offset,
                                   text, check)
+                if options.fix:
+                    self.edits.extend(list(fix_logical_line(self, original_number, original_offset, text, check)))
         self.previous_logical = self.logical_line
 
     def check_all(self, expected=None, line_offset=0):
@@ -1003,6 +1019,9 @@ class Checker(object):
                     # Python < 2.6 behaviour, which does not generate NL after
                     # a comment which is on a line by itself.
                     self.tokens = []
+
+        if options.fix:
+            self.writer.writelines(apply_edits(self.fixed_lines, self.edits))
         return self.file_errors
 
     def report_error(self, line_number, offset, text, check):
@@ -1041,7 +1060,7 @@ def input_file(filename):
     """
     if options.verbose:
         message('checking ' + filename)
-    errors = Checker(filename).check_all()
+    return Checker(filename).check_all()
 
 
 def input_dir(dirname, runner=None):
@@ -1342,6 +1361,11 @@ def process_options(arglist=None):
         options.ignore = DEFAULT_IGNORE.split(',')
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
+
+    if options.fix:
+        attach_fix_functions(options.physical_checks)
+        attach_fix_functions(options.logical_checks)
+
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
     return options, args
@@ -1356,29 +1380,35 @@ def report_fix(s):
     if not options.quiet:
         print " - pep8 fix:",s
     
-def fix_line(checker, check):
+def fix_physical_line(checker, check):
     """
     Given a Checker object and a check function,
     fixes the line in the Checker object if it knows how.    
     This function only runs if the --fix flag is used.
     """
-    # change tabs to 4 spaces
-    if check is tabs_obsolete:
-        checker.physical_line = checker.physical_line.replace("\t","    ")
-        report_fix("tab converted to 4 spaces.")
-    # add newline to end of file
-    if check is missing_newline:
-        checker.physical_line += "\n"
-        report_fix("newline added to end of file.")
-    # remove whitespace from end of line
-    if check is trailing_whitespace:
-        checker.physical_line = re.sub(r' *$',"",checker.physical_line)
-        report_fix("whitespace stripped from end of line.")
-    # remove superfluous blank lines from end of file
-    if check is trailing_blank_lines:
-        checker.physical_line = ""
-        report_fix("superfluous trailing blank line removed from end of file.")
-    
+    if hasattr(check, 'fix'):
+        print "fixing physical"
+        check.fix(checker)
+
+
+def fix_logical_line(checker, line_number, line_offset, text, check):
+    if hasattr(check, 'fix'):
+        print "fixing logical", line_number, line_offset, text
+        return check.fix(checker, line_number, line_offset, text) 
+
+
+def apply_edits(lines, edits):
+    # Go through the edits, starting with the last one so
+    # that line numbers aren't messed up
+    for edit in sorted(edits, key=lambda e: e[1], reverse=True):
+        (st_l, st_o), (end_l, end_o), repl = edit
+        lines[end_l-1] = lines[end_l-1][:st_o] + repl + lines[end_l-1][end_o:]
+        if st_l != end_l:
+            del lines[st_l-1:end_l-1]
+
+    return lines
+
+
 def _main():
     """
     Parse options and run checks on Python source.
