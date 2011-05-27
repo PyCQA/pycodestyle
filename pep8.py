@@ -101,6 +101,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import traceback
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -836,7 +837,7 @@ class Checker(object):
                 if not options.inplace: report_fix(write_filename + " created.")
                 else: report_fix("modifying " + filename + " in place.")
             except IOError:
-                print sys.exc_info()
+                traceback.print_exc()
                 raise SystemExit
 
         options.counters['physical lines'] += len(self.lines)
