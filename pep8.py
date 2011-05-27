@@ -381,12 +381,12 @@ def fix_extraneous_whitespace(checker, line_number, line_offset, text):
     line = checker.fixed_lines[line_number-1]
     if text.startswith('E201'):
         whitespace_end = line_offset
-        while line[whitespace_end+1] == ' ':
+        while line[whitespace_end+1] in WHITESPACE:
             whitespace_end += 1
         yield ((line_number, line_offset), (line_number, whitespace_end+1), '')
     elif text.startswith('E202') or text.startswith('E203'):
         whitespace_start = line_offset
-        while line[whitespace_start-1] == ' ':
+        while line[whitespace_start-1] in WHITESPACE:
             whitespace_start -= 1
         yield ((line_number, whitespace_start), (line_number, line_offset+1), '')
 
