@@ -244,6 +244,11 @@ def missing_newline(physical_line):
         return len(physical_line), "W292 no newline at end of file"
 
 
+def fix_missing_newline(checker):
+    checker.physical_line += "\n"
+    report_fix("newline added to end of file.")
+
+
 def maximum_line_length(physical_line):
     """
     Limit all lines to a maximum of 79 characters.
