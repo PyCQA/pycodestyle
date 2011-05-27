@@ -231,6 +231,11 @@ def trailing_blank_lines(physical_line, lines, line_number):
         return 0, "W391 blank line at end of file"
 
 
+def fix_trailing_blank_lines(checker):
+    checker.physical_line = ""
+    report_fix("superfluous trailing blank line removed from end of file.")
+
+
 def missing_newline(physical_line):
     """
     JCR: The last line should have a newline.
