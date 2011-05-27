@@ -416,6 +416,10 @@ def missing_whitespace(logical_line):
             yield index, "E231 missing whitespace after '%s'" % char
 
 
+def fix_missing_whitespace(checker, line_number, line_offset, text):
+    yield (line_number, line_offset+1), (line_number, line_offset+1), ' '
+
+
 def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level):
     r"""
