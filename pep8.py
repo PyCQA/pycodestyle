@@ -215,6 +215,11 @@ def trailing_whitespace(physical_line):
             return 0, "W293 blank line contains whitespace"
 
 
+def fix_trailing_whitespace(checker):
+    checker.physical_line = re.sub(r' *$',"",checker.physical_line)
+    report_fix("whitespace stripped from end of line.")
+
+
 def trailing_blank_lines(physical_line, lines, line_number):
     r"""
     JCR: Trailing blank lines are superfluous.
