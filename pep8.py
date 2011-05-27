@@ -1117,17 +1117,11 @@ class Checker(object):
 
         # file to write to
         if options.fix:
-            if options.inplace: write_filename = filename
-            else: write_filename = os.path.join(os.path.dirname(filename),
+            if options.inplace:
+                self.write_filename = filename
+            else:
+                self.write_filename = os.path.join(os.path.dirname(filename),
                                                 "fixed_" + os.path.basename(filename))
-            try:
-                self.writer = open(write_filename,"w")
-                if not options.inplace: report_fix(write_filename + " created.")
-                else: report_fix("modifying " + filename + " in place.")
-            except IOError:
-                traceback.print_exc()
-                raise SystemExit
-
         self.edits = set()
 
         options.counters['physical lines'] += len(self.lines)
@@ -1291,8 +1285,15 @@ class Checker(object):
                     # a comment which is on a line by itself.
                     self.tokens = []
 
-        if options.fix:
-            self.writer.writelines(self.edited_lines())
+        if options.fix and self.edits:
+            try:
+                with open(self.write_filename, "w") as writer:
+                    report_fix("Writing changes to %s" % self.write_filename)
+                    writer.writelines(self.edited_lines())
+            except IOError:
+                traceback.print_exc()
+                raise SystemExit
+
         return self.file_errors
 
     def edited_lines(self):
