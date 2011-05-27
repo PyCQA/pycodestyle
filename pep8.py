@@ -307,18 +307,18 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
         if max_blank_lines:
-            return 0, "E304 blank lines found after function decorator (%d)" % max_blank_lines
+            yield 0, "E304 blank lines found after function decorator (%d)" % max_blank_lines
     elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
-        return 0, "E303 too many blank lines (%d>%d)" % (max_blank_lines, 1 if indent_level else 2)
+        yield 0, "E303 too many blank lines (%d>%d)" % (max_blank_lines, 1 if indent_level else 2)
     elif (logical_line.startswith('def ') or
           logical_line.startswith('class ') or
           logical_line.startswith('@')):
         if indent_level:
             if not (max_blank_lines or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
-                return 0, "E301 expected 1 blank line, found 0"
+                yield 0, "E301 expected 1 blank line, found 0"
         elif max_blank_lines != 2:
-            return 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
+            yield 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
 
 
 def fix_blank_lines(checker, line_number, line_offset, text):
@@ -369,12 +369,12 @@ def extraneous_whitespace(logical_line):
         char = text.strip()
         found = match.start()
         if text == char + ' ' and char in '([{':
-            return found + 1, "E201 whitespace after '%s'" % char
+            yield found + 1, "E201 whitespace after '%s'" % char
         if text == ' ' + char and line[found - 1] != ',':
             if char in '}])':
-                return found, "E202 whitespace before '%s'" % char
+                yield found, "E202 whitespace before '%s'" % char
             if char in ',;:':
-                return found, "E203 whitespace before '%s'" % char
+                yield found, "E203 whitespace before '%s'" % char
 
 
 def fix_extraneous_whitespace(checker, line_number, line_offset, text):
@@ -413,7 +413,7 @@ def missing_whitespace(logical_line):
                 continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
                 continue  # Allow tuple with only one element: (3,)
-            return index, "E231 missing whitespace after '%s'" % char
+            yield index, "E231 missing whitespace after '%s'" % char
 
 
 def indentation(logical_line, previous_logical, indent_char,
@@ -435,12 +435,12 @@ def indentation(logical_line, previous_logical, indent_char,
     E113: a = 1\n    b = 2
     """
     if indent_char == ' ' and indent_level % 4:
-        return 0, "E111 indentation is not a multiple of four"
+        yield 0, "E111 indentation is not a multiple of four"
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
-        return 0, "E112 expected an indented block"
+        yield 0, "E112 expected an indented block"
     if indent_level > previous_indent_level and not indent_expect:
-        return 0, "E113 unexpected indentation"
+        yield 0, "E113 unexpected indentation"
 
 
 def whitespace_before_parameters(logical_line, tokens):
@@ -473,7 +473,7 @@ def whitespace_before_parameters(logical_line, tokens):
             (index < 2 or tokens[index - 2][1] != 'class') and
             # Allow "return (a.foo for a in range(5))"
             (not keyword.iskeyword(prev_text))):
-            return prev_end, "E211 whitespace before '%s'" % text
+            yield prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
         prev_end = end
@@ -497,11 +497,11 @@ def whitespace_around_operator(logical_line):
         tab = whitespace == '\t'
         offset = match.start(2)
         if before in OPERATORS:
-            return offset, (tab and "E224 tab after operator" or
-                            "E222 multiple spaces after operator")
+            yield offset, (tab and "E224 tab after operator" or
+                           "E222 multiple spaces after operator")
         elif after in OPERATORS:
-            return offset, (tab and "E223 tab before operator" or
-                            "E221 multiple spaces before operator")
+            yield offset, (tab and "E223 tab before operator" or
+                           "E221 multiple spaces before operator")
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -553,7 +553,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 pass
             else:
-                return prev_end, "E225 missing whitespace around operator"
+                yield prev_end, "E225 missing whitespace around operator"
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
@@ -572,7 +572,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 else:
                     need_space = True
             if need_space and start == prev_end:
-                return prev_end, "E225 missing whitespace around operator"
+                yield prev_end, "E225 missing whitespace around operator"
         prev_type = token_type
         prev_text = text
         prev_end = end
@@ -596,10 +596,10 @@ def whitespace_around_comma(logical_line):
     for separator in ',;:':
         found = line.find(separator + '  ')
         if found > -1:
-            return found + 1, "E241 multiple spaces after '%s'" % separator
+            yield found + 1, "E241 multiple spaces after '%s'" % separator
         found = line.find(separator + '\t')
         if found > -1:
-            return found + 1, "E242 tab after '%s'" % separator
+            yield found + 1, "E242 tab after '%s'" % separator
 
 
 def whitespace_around_named_parameter_equals(logical_line):
@@ -623,7 +623,7 @@ def whitespace_around_named_parameter_equals(logical_line):
         text = match.group()
         if parens and len(text) == 3:
             issue = "E251 no spaces around keyword / parameter equals"
-            return match.start(), issue
+            yield match.start(), issue
         if text == '(':
             parens += 1
         elif text == ')':
@@ -652,11 +652,11 @@ def whitespace_before_inline_comment(logical_line, tokens):
             if not line[:start[1]].strip():
                 continue
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
-                return (prev_end,
-                        "E261 at least two spaces before inline comment")
+                yield (prev_end,
+                       "E261 at least two spaces before inline comment")
             if (len(text) > 1 and text.startswith('#  ')
                            or not text.startswith('# ')):
-                return start, "E262 inline comment should start with '# '"
+                yield start, "E262 inline comment should start with '# '"
         else:
             prev_end = end
 
@@ -678,7 +678,7 @@ def imports_on_separate_lines(logical_line):
     if line.startswith('import '):
         found = line.find(',')
         if found > -1:
-            return found, "E401 multiple imports on one line"
+            yield found, "E401 multiple imports on one line"
 
 
 def compound_statements(logical_line):
@@ -713,10 +713,10 @@ def compound_statements(logical_line):
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             not re.search(r'\blambda\b', before)):      # lambda x: x
-            return found, "E701 multiple statements on one line (colon)"
+            yield found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
-        return found, "E702 multiple statements on one line (semicolon)"
+        yield found, "E702 multiple statements on one line (semicolon)"
 
 
 def python_3000_has_key(logical_line):
@@ -729,7 +729,7 @@ def python_3000_has_key(logical_line):
     """
     pos = logical_line.find('.has_key(')
     if pos > -1:
-        return pos, "W601 .has_key() is deprecated, use 'in'"
+        yield pos, "W601 .has_key() is deprecated, use 'in'"
 
 
 def python_3000_raise_comma(logical_line):
@@ -744,7 +744,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match:
-        return match.start(1), "W602 deprecated form of raising exception"
+        yield match.start(1), "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
@@ -755,7 +755,7 @@ def python_3000_not_equal(logical_line):
     """
     pos = logical_line.find('<>')
     if pos > -1:
-        return pos, "W603 '<>' is deprecated, use '!='"
+        yield pos, "W603 '<>' is deprecated, use '!='"
 
 
 def python_3000_backticks(logical_line):
@@ -765,7 +765,7 @@ def python_3000_backticks(logical_line):
     """
     pos = logical_line.find('`')
     if pos > -1:
-        return pos, "W604 backticks are deprecated, use 'repr()'"
+        yield pos, "W604 backticks are deprecated, use 'repr()'"
 
 
 ##############################################################################
@@ -1007,8 +1007,7 @@ class Checker(object):
         for name, check, argument_names in options.logical_checks:
             if options.verbose >= 4:
                 print('   ' + name)
-            result = self.run_check(check, argument_names)
-            if result is not None:
+            for result in self.run_check(check, argument_names):
                 offset, text = result
                 if isinstance(offset, tuple):
                     original_number, original_offset = offset
