@@ -792,6 +792,9 @@ def fix_whitespace_around_named_parameter_equals(checker, line_number, line_offs
     def complex(real, imag = 0.0): -> def complex(real, imag=0.0):
     return magic(r = real, i = imag) -> return magic(r=real, i=imag)
     return magic(r = =real, i = imag) -> return magic(r==real, i=imag)
+
+    foo = bar(x   = y(name='name')) -> foo = bar(x =y(name='name'))
+    foo = bar(x =y(name='name')) -> foo = bar(x=y(name='name'))
     """
     line = checker.lines[line_number - 1]
     whitespace_end = line_offset
@@ -1125,7 +1128,7 @@ class Checker(object):
                 traceback.print_exc()
                 raise SystemExit
 
-        self.edits = []
+        self.edits = set()
 
         options.counters['physical lines'] += len(self.lines)
 
@@ -1169,7 +1172,7 @@ class Checker(object):
             if result is not None:
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
-                self.edits.extend(fix_line(self, self.line_number, offset, text, check))
+                self.edits.update(fix_line(self, self.line_number, offset, text, check))
             
     def build_tokens_line(self):
         """
@@ -1233,7 +1236,7 @@ class Checker(object):
                                                + offset - token_offset)
                 self.report_error(original_number, original_offset,
                                   text, check)
-                self.edits.extend(fix_line(self, original_number, original_offset, text, check))
+                self.edits.update(fix_line(self, original_number, original_offset, text, check))
         self.previous_logical = self.logical_line
 
     def check_all(self, expected=None, line_offset=0):
@@ -1691,17 +1694,30 @@ def fix_line(checker, line_number, line_offset, text, check):
     This function only runs if the --fix flag is used.
     """
     if hasattr(check, 'fix'):
-        return check.fix(checker, line_number, line_offset, text)
-    else:
-        return []
+        for start, end, repl in check.fix(checker, line_number, line_offset, text):
+            yield start, end, repl, text[0:4]
 
 
 def apply_edits(lines, edits):
+    #print lines, edits
     output_lines = list(lines)
-    # Go through the edits, starting with the last one so
-    # that line numbers aren't messed up
-    for edit in sorted(edits, key=lambda e: e[1], reverse=True):
-        (st_l, st_o), (end_l, end_o), repl = edit
+    
+    earliest_edit_point = (sys.maxint, sys.maxint)
+    # Sort the edits, favoring edits that end later and start earlier
+    # Ending later means that we don't mess up unapplied edits by shifting indices
+    # on them
+    # Starting earlier means that we do the edits with the widest scope first, which
+    # hopefully minimizes the total number if times pep8 --fix needs to be run
+    for edit in sorted(edits, key=lambda e: (e[1], -e[0][0], -e[0][1]), reverse=True):
+        (st_l, st_o), (end_l, end_o), repl, code = edit
+
+        if (end_l, end_o) > earliest_edit_point:
+            report_fix("Skipping edit to fix %s starting at line %s, offset %s" % (code, st_l, st_o))
+            continue
+        else:
+            report_fix("Applying fix for %s at line %s, offset %s" % (code, st_l, st_o))
+            earliest_edit_point = (st_l, st_o)
+
         output_lines[end_l-1] = output_lines[end_l-1][:st_o] + repl + output_lines[end_l-1][end_o:]
         if st_l != end_l:
             del output_lines[st_l-1:end_l-1]
