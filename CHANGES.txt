@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.5.1 (2010-04-07)
+0.6.2 (2011-06-3)
 ------------------
 * '--fix' flag added. Using this flag will cause pep8 to create
   a new file 'fixed_filename.py' containing some basic fixes for
