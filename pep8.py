@@ -1162,6 +1162,37 @@ def find_checks(argument_name):
     return checks
 
 
+def parse_added_and_changed_line_numbers(diff):
+    """Returns an iterator of line numbers that are added or changed in the
+    given diff"""
+    chunk_header = re.compile(r'\n@@ -\d+,\d+ \+(\d+),(\d+) @@ [^\n]*\n', re.M)
+    splits = chunk_header.split(diff)
+    assert splits and (len(splits) - 1) % 3 == 0
+    assert splits[0].startswith('diff --git a/'), 'Bogus diff output:\n%s' % (
+        splits[0],)
+    from itertools import izip
+    eol = False
+    for startline, numlines, chunk in izip(*([iter(splits[1:])] * 3)):
+        lineno = int(startline)
+        for line in chunk.split('\n'):
+            assert not eol, 'Empty line encountered, should only happen at EOL'
+            if line.startswith('+'):
+                yield lineno
+            elif line.startswith('-'):
+                continue
+            elif line == '':
+                eol = True
+            else:
+                assert line.startswith(' '), 'Bogus diff chunk:\n%s\n'\
+                    '... the bogus line is line %d:\n%s\n%s' % (
+                        chunk,
+                        lineno - int(startline),
+                        line,
+                        line.encode('hex')
+                    )
+            lineno += 1
+
+
 class Checker(object):
     """
     Load a Python source file, tokenize it, check coding style.
@@ -1177,6 +1208,17 @@ class Checker(object):
         else:
             self.lines = lines
         options.counters['physical lines'] += len(self.lines)
+        if options.gitdiff:
+            from subprocess import Popen, PIPE
+            diffp = Popen(["git", "diff", filename], stdout=PIPE)
+            diff, _ = diffp.communicate()
+            if diff:
+                changed_lines = set(parse_added_and_changed_line_numbers(diff))
+                self.include_lineno = lambda lineno: lineno in changed_lines
+            else:
+                self.include_lineno = lambda lineno: False
+        else:
+            self.include_lineno = lambda lineno: True
 
     def readline(self):
         """
@@ -1193,7 +1235,7 @@ class Checker(object):
         used to feed tokenize.generate_tokens.
         """
         line = self.readline()
-        if line:
+        if line and self.include_lineno(self.line_number):
             self.check_physical(line)
         return line
 
@@ -1265,7 +1307,12 @@ class Checker(object):
         self.indent_level = expand_indent(indent)
         if options.verbose >= 2:
             print(self.logical_line[:80].rstrip())
-        for name, check, argument_names in options.logical_checks:
+        logical_checks = options.logical_checks \
+            if any(self.include_lineno(lineno) for lineno in
+                   range(self.mapping[0][1][2][0],
+                         self.mapping[-1][1][3][0] + 1)) \
+            else ()
+        for name, check, argument_names in logical_checks:
             if options.verbose >= 4:
                 print('   ' + name)
             for result in self.run_check(check, argument_names):
@@ -1278,8 +1325,9 @@ class Checker(object):
                             original_number = token[2][0]
                             original_offset = (token[2][1]
                                                + offset - token_offset)
-                self.report_error(original_number, original_offset,
-                                  text, check)
+                if self.include_lineno(original_number):
+                    self.report_error(original_number, original_offset,
+                                      text, check)
         self.previous_logical = self.logical_line
 
     def generate_tokens(self):
@@ -1698,6 +1746,8 @@ def process_options(arglist=None):
                       help="when parsing directories, only check filenames "
                            "matching these comma separated patterns "
                            "(default: %default)")
+    parser.add_option('--gitdiff', action='store_true',
+                      help="report only lines changed according to git diff")
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
