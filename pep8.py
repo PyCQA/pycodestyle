@@ -114,7 +114,7 @@ DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
 MAX_LINE_LENGTH = 79
 
-DEFAULT_CONFIG = os.path.expanduser('~/.pep8.py.conf')
+DEFAULT_CONFIG = os.path.expanduser('~/.pep8')
 DEFAULT_OPTION_LIST = ('verbose', 'quiet', 'repeat', 'exclude', 'filename',
     'select', 'ignore', 'show-source', 'show-pep8', 'statistics',
     'count', 'benchmark', 'testsuite', 'doctest', 'config')
@@ -1299,7 +1299,7 @@ def process_options(arglist=None):
                       help="run doctest on myself")
     parser.add_option('--config', metavar='config-file',
                       default=DEFAULT_CONFIG,
-                      help='Config file location')
+                      help='config file location')
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
