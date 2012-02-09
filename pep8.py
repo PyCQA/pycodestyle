@@ -108,6 +108,11 @@ try:
 except NameError:
     from sets import ImmutableSet as frozenset
 
+#Fix to work on Jython 2.2.1
+try:
+    UnicodeDecodeError
+except NameError:
+    UnicodeDecodeError = UnicodeError
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
