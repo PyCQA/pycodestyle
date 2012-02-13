@@ -156,6 +156,10 @@ OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
+DIFF_TYPES = {
+    'git': ["git", "diff", "HEAD"],
+    'hg': ["hg", "diff"],
+    'svn': ["svn", "diff"]}
 
 options = None
 args = None
@@ -1174,11 +1178,17 @@ def parse_added_and_changed_line_numbers(diff):
     eol = False
     for startline, numlines, chunk in izip(*([iter(splits[1:])] * 3)):
         lineno = int(startline)
+        prevmod = 0
+        include_context = 2
         for line in chunk.split('\n'):
             assert not eol, 'Empty line encountered, should only happen at EOL'
             if line.startswith('+'):
+                prevmod = include_context
                 yield lineno
             elif line.startswith('-'):
+                prevmod = include_context
+                continue
+            elif line == r'\ No newline at end of file':
                 continue
             elif line == '':
                 eol = True
@@ -1190,6 +1200,9 @@ def parse_added_and_changed_line_numbers(diff):
                         line,
                         line.encode('hex')
                     )
+                if prevmod:
+                    prevmod -= 1
+                    yield lineno
             lineno += 1
 
 
@@ -1208,10 +1221,14 @@ class Checker(object):
         else:
             self.lines = lines
         options.counters['physical lines'] += len(self.lines)
-        if options.gitdiff:
+        if options.diff:
             from subprocess import Popen, PIPE
-            diffp = Popen(["git", "diff", filename], stdout=PIPE)
-            diff, _ = diffp.communicate()
+            diffcmdargs = DIFF_TYPES.get(options.diff) or options.diff.split()
+            if '{}' in diffcmdargs:
+                diffcmdargs[diffcmdargs.find('{}')] = filename
+            elif filename not in diffcmdargs:
+                diffcmdargs.append(filename)
+            diff, _ = Popen(diffcmdargs, stdout=PIPE).communicate()
             if diff:
                 changed_lines = set(parse_added_and_changed_line_numbers(diff))
                 self.include_lineno = lambda lineno: lineno in changed_lines
@@ -1746,8 +1763,13 @@ def process_options(arglist=None):
                       help="when parsing directories, only check filenames "
                            "matching these comma separated patterns "
                            "(default: %default)")
-    parser.add_option('--gitdiff', action='store_true',
-                      help="report only lines changed according to git diff")
+    parser.add_option('--diff', type='string', default='',
+                      help="report only lines changed according to a diff. "
+                           "Pass an argument to specify how to get the diff: "
+                           "'git' for git diff HEAD (default); "
+                           "'hg' for hg diff; "
+                           "'svn' for svn diff; "
+                           "anything else specifies a command to run")
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
