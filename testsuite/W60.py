@@ -3,6 +3,8 @@ if a.has_key("b"):
     print a
 #: W602
 raise DummyError, "Message"
+#: Okay
+raise t, v, tb
 #: W603
 if x <> 0:
     x = 0
