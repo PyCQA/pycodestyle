@@ -5,6 +5,10 @@ Changelog
 0.6.2 UNRELEASED
 ----------------
 
+* Now ``--first`` prints only the first occurence of each error.
+  The ``--repeat`` flag becomes obsolete because it is the default
+  behaviour. (Issue #6)
+
 * Allow to specify ``--max-line-length``. (Issue #36)
 
 * Make the shebang more flexible. (Issue #26)

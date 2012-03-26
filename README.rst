@@ -95,7 +95,8 @@ Quick help is available on the command line::
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq
-    -r, --repeat         show all occurrences of the same error
+    -r, --repeat         (obsolete) show all occurrences of the same error
+    --first              show first occurrence of each error
     --exclude=patterns   exclude files or directories which match these comma
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
