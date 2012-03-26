@@ -108,6 +108,7 @@ try:
 except NameError:
     from sets import ImmutableSet as frozenset
 
+
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
 MAX_LINE_LENGTH = 79
@@ -124,6 +125,7 @@ EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
+
 
 WHITESPACE = ' \t'
 
