@@ -1319,7 +1319,7 @@ def process_options(arglist=None):
     elif options.select:
         # Ignore all checks which are not explicitly selected
         options.ignore = ['']
-    elif options.testsuite or options.doctest:
+    elif options.testsuite or options.doctest or not DEFAULT_IGNORE:
         # For doctest and testsuite, all checks are required
         options.ignore = []
     else:
