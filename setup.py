@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.6.0'
+version = '0.6.1'
 long_description = '\n\n'.join([open('README.rst').read(),
                                 open('CHANGES.txt').read(),
                                 open('TODO.txt').read()])
@@ -9,7 +9,6 @@ setup(name='pep8',
       version=version,
       description="Python style guide checker",
       long_description=long_description,
-      classifiers=[],
       keywords='pep8',
       author='Johann C. Rocholl',
       author_email='johann@rocholl.net',
@@ -28,4 +27,15 @@ setup(name='pep8',
               'pep8 = pep8:_main',
               ],
           },
-      )
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+      ],
+)

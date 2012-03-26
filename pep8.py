@@ -92,7 +92,7 @@ for space.
 
 """
 
-__version__ = '0.5.1dev'
+__version__ = '0.6.2dev'
 
 import os
 import sys
@@ -1041,8 +1041,7 @@ def input_dir(dirname, runner=None):
         if options.verbose:
             message('directory ' + root)
         options.counters['directories'] += 1
-        dirs.sort()
-        for subdir in dirs:
+        for subdir in sorted(dirs):
             if excluded(subdir):
                 dirs.remove(subdir)
         files.sort()

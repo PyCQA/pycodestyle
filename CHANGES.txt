@@ -2,6 +2,22 @@ Changelog
 =========
 
 
+0.6.2 UNRELEASED
+----------------
+
+* Add PyPI classifiers. (Issue #43)
+
+* Fix the ``--exclude``option. (Issue #48)
+
+* Fix W602, accept ``raise`` with 3 arguments. (Issue #34)
+
+
+0.6.1 (2010-10-03)
+------------------
+
+* Fix inconsistent version numbers. (Issue #21)
+
+
 0.6.0 (2010-09-19)
 ------------------
 
