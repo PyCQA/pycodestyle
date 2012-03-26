@@ -1291,8 +1291,8 @@ def process_options(arglist=None):
                       help="run regression tests from dir")
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
-                      help="set to a higher value to relax pep8 "
-                      "line length restictions")
+                      help="set maximum allowed line length (default: %d)" %
+                      MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
     options, args = parser.parse_args(arglist)

@@ -5,6 +5,8 @@ Changelog
 0.6.2 UNRELEASED
 ----------------
 
+* Allow to specify ``--max-line-length``. (Issue #36)
+
 * Make the shebang more flexible. (Issue #26)
 
 * Add testsuite to the bundle. (Issue #25)
