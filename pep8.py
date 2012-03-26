@@ -108,12 +108,6 @@ try:
 except NameError:
     from sets import ImmutableSet as frozenset
 
-#Fix to work on Jython 2.2.1
-try:
-    UnicodeDecodeError
-except NameError:
-    UnicodeDecodeError = UnicodeError
-
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
 MAX_LINE_LENGTH = 79
@@ -254,7 +248,7 @@ def maximum_line_length(physical_line):
             if not hasattr(line, 'decode'):   # Python 3
                 line = line.encode('latin-1')
             length = len(line.decode('utf-8'))
-        except UnicodeDecodeError:
+        except UnicodeError:
             pass
     if length > MAX_LINE_LENGTH:
         return MAX_LINE_LENGTH, "E501 line too long (%d characters)" % length

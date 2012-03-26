@@ -5,6 +5,8 @@ Changelog
 0.6.2 UNRELEASED
 ----------------
 
+* Fixes for Jython. (Issue #49)
+
 * Add PyPI classifiers. (Issue #43)
 
 * Fix the ``--exclude``option. (Issue #48)
