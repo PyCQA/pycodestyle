@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
-version = '0.7.0'
+version = '0.7.1dev'
 long_description = '\n\n'.join([open('README.rst').read(),
                                 open('CHANGES.txt').read(),
-                                open('TODO.txt').read()])
+#                               open('TODO.txt').read(),
+                               ])
 
 setup(
     name='pep8',
