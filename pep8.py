@@ -1004,8 +1004,8 @@ class Checker(object):
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
             print("%s:%s:%d: %s" %
-                    (self.filename, self.line_offset + line_number,
-                     offset + 1, text))
+                  (self.filename, self.line_offset + line_number,
+                   offset + 1, text))
             if options.show_source:
                 line = self.lines[line_number - 1]
                 print(line.rstrip())
@@ -1142,8 +1142,8 @@ def print_benchmark(elapsed):
     print('%-7.2f %s' % (elapsed, 'seconds elapsed'))
     for key in BENCHMARK_KEYS:
         print('%-7d %s per second (%d total)' % (
-            options.counters[key] / elapsed, key,
-            options.counters[key]))
+              options.counters[key] / elapsed, key,
+              options.counters[key]))
 
 
 def run_tests(filename):
