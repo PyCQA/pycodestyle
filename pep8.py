@@ -115,7 +115,7 @@ MAX_LINE_LENGTH = 79
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
-RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w\s*,\s*\w\s*,\s*\w')
+RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
