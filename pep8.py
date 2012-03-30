@@ -1036,7 +1036,8 @@ def input_dir(dirname, runner=None):
         if options.verbose:
             print('directory ' + root)
         options.counters['directories'] += 1
-        for subdir in sorted(dirs):
+        dirs.sort()
+        for subdir in dirs[:]:
             if excluded(subdir):
                 dirs.remove(subdir)
         files.sort()
