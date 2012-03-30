@@ -784,13 +784,6 @@ def mute_string(text):
     return text[:start] + 'x' * (end - start) + text[end:]
 
 
-def message(text):
-    """Print a message."""
-    # print >> sys.stderr, options.prog + ': ' + text
-    # print >> sys.stderr, text
-    print(text)
-
-
 ##############################################################################
 # Framework to run all checks
 ##############################################################################
@@ -999,7 +992,7 @@ class Checker(object):
         if ignore_code(code):
             return
         if options.quiet == 1 and not self.file_errors:
-            message(self.filename)
+            print(self.filename)
         if code in options.counters:
             options.counters[code] += 1
         else:
@@ -1010,15 +1003,15 @@ class Checker(object):
             return
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
-            message("%s:%s:%d: %s" %
+            print("%s:%s:%d: %s" %
                     (self.filename, self.line_offset + line_number,
                      offset + 1, text))
             if options.show_source:
                 line = self.lines[line_number - 1]
-                message(line.rstrip())
-                message(' ' * offset + '^')
+                print(line.rstrip())
+                print(' ' * offset + '^')
             if options.show_pep8:
-                message(check.__doc__.lstrip('\n').rstrip())
+                print(check.__doc__.lstrip('\n').rstrip())
 
 
 def input_file(filename):
@@ -1026,7 +1019,7 @@ def input_file(filename):
     Run all checks on a Python source file.
     """
     if options.verbose:
-        message('checking ' + filename)
+        print('checking ' + filename)
     errors = Checker(filename).check_all()
 
 
@@ -1041,7 +1034,7 @@ def input_dir(dirname, runner=None):
         runner = input_file
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
-            message('directory ' + root)
+            print('directory ' + root)
         options.counters['directories'] += 1
         for subdir in sorted(dirs):
             if excluded(subdir):
@@ -1189,9 +1182,9 @@ def run_tests(filename):
             for code in codes:
                 if not options.counters.get(code):
                     errors += 1
-                    message('%s: error %s not found' % (label, code))
+                    print('%s: error %s not found' % (label, code))
             if options.verbose and not errors:
-                message('%s: passed (%s)' % (label, ' '.join(codes)))
+                print('%s: passed (%s)' % (label, ' '.join(codes)))
             # Keep showing errors for multiple tests
             reset_counters()
         # output the real line numbers
