@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+0.7.1 UNRELEASED
+----------------
+
+* Fix W602 ``raise`` to handle multi-char names. (Issue #53)
+
+
 0.7.0 (2012-03-26)
 ------------------
 
