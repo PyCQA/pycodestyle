@@ -29,7 +29,7 @@ Changelog
 
 * Fix W602, accept ``raise`` with 3 arguments. (Issue #34)
 
-* Correctly select all tests if DEFAULT_IGNORE == ''.
+* Correctly select all tests if ``DEFAULT_IGNORE == ''``.
 
 
 0.6.1 (2010-10-03)
