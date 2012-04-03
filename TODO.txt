@@ -1,4 +1,0 @@
-TODO
-====
-
-- Release version 1.0 after a brief stabilization period.
