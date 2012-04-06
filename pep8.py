@@ -101,6 +101,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import ConfigParser
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -112,6 +113,11 @@ except NameError:
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
 MAX_LINE_LENGTH = 79
+
+DEFAULT_CONFIG = os.path.expanduser('~/.pep8.py.conf')
+DEFAULT_OPTION_LIST = ('verbose', 'quiet', 'repeat', 'exclude', 'filename',
+    'select', 'ignore', 'show-source', 'show-pep8', 'statistics',
+    'count', 'benchmark', 'testsuite', 'doctest', 'config')
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -1293,11 +1299,28 @@ def process_options(arglist=None):
                       MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+    parser.add_option('--config', metavar='config-file',
+                      default=DEFAULT_CONFIG,
+                      help='Config file location')
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
     if not args and not options.doctest:
         parser.error('input not specified')
+
+    if options.config and os.path.isfile(options.config):
+        config = ConfigParser.RawConfigParser()
+        config.read(options.config)
+        for opt in DEFAULT_OPTION_LIST:
+            p_opt = opt.replace('-', '_')
+            try:
+                options.__dict__[p_opt] = config.get('pep8', opt)
+            except ConfigParser.NoOptionError:
+                try:
+                    options.__dict__[p_opt] = config.get('pep8', p_opt)
+                except ConfigParser.NoOptionError:
+                    pass
+
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
     for index in range(len(options.exclude)):
