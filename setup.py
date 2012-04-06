@@ -1,16 +1,32 @@
 from setuptools import setup, find_packages
 
-version = '1.0'
-long_description = '\n\n'.join([open('README.rst').read(),
-                                open('CHANGES.txt').read(),
-#                               open('TODO.txt').read(),
-                               ])
+
+def get_version():
+    f = open('pep8.py')
+    try:
+        for line in f:
+            if line.startswith('__version__'):
+                return eval(line.split('=')[-1])
+    finally:
+        f.close()
+
+
+def get_long_description():
+    descr = []
+    for fname in 'README.rst', 'CHANGES.txt':   # , 'TODO.txt'
+        f = open(fname)
+        try:
+            descr.append(f.read())
+        finally:
+            f.close()
+    return '\n\n'.join(descr)
+
 
 setup(
     name='pep8',
-    version=version,
+    version=get_version(),
     description="Python style guide checker",
-    long_description=long_description,
+    long_description=get_long_description(),
     keywords='pep8',
     author='Johann C. Rocholl',
     author_email='johann@rocholl.net',
