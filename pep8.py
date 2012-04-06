@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # pep8.py - Check Python source code formatting, according to PEP 8
 # Copyright (C) 2006 Johann C. Rocholl <johann@rocholl.net>
 #
@@ -92,7 +92,7 @@ for space.
 
 """
 
-__version__ = '0.5.1dev'
+__version__ = '0.7.1dev'
 
 import os
 import sys
@@ -115,6 +115,7 @@ MAX_LINE_LENGTH = 79
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
+RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
@@ -123,6 +124,7 @@ WHITESPACE_AROUND_OPERATOR_REGEX = \
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+LAMBDA_REGEX = re.compile(r'\blambda\b')
 
 
 WHITESPACE = ' \t'
@@ -242,16 +244,17 @@ def maximum_line_length(physical_line):
     """
     line = physical_line.rstrip()
     length = len(line)
-    if length > MAX_LINE_LENGTH:
+    if length > options.max_line_length:
         try:
             # The line could contain multi-byte characters
             if not hasattr(line, 'decode'):   # Python 3
                 line = line.encode('latin-1')
             length = len(line.decode('utf-8'))
-        except UnicodeDecodeError:
+        except UnicodeError:
             pass
-    if length > MAX_LINE_LENGTH:
-        return MAX_LINE_LENGTH, "E501 line too long (%d characters)" % length
+    if length > options.max_line_length:
+        return options.max_line_length, \
+            "E501 line too long (%d characters)" % length
 
 
 ##############################################################################
@@ -656,7 +659,7 @@ def compound_statements(logical_line):
         before = line[:found]
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
-            not re.search(r'\blambda\b', before)):      # lambda x: x
+            not LAMBDA_REGEX.search(before)):           # lambda x: x
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
@@ -687,7 +690,7 @@ def python_3000_raise_comma(logical_line):
     form will be removed in Python 3000.
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
-    if match:
+    if match and not RERAISE_COMMA_REGEX.match(logical_line):
         return match.start(1), "W602 deprecated form of raising exception"
 
 
@@ -779,13 +782,6 @@ def mute_string(text):
         start += 2
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
-
-
-def message(text):
-    """Print a message."""
-    # print >> sys.stderr, options.prog + ': ' + text
-    # print >> sys.stderr, text
-    print(text)
 
 
 ##############################################################################
@@ -996,7 +992,7 @@ class Checker(object):
         if ignore_code(code):
             return
         if options.quiet == 1 and not self.file_errors:
-            message(self.filename)
+            print(self.filename)
         if code in options.counters:
             options.counters[code] += 1
         else:
@@ -1007,15 +1003,15 @@ class Checker(object):
             return
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
-            message("%s:%s:%d: %s" %
-                    (self.filename, self.line_offset + line_number,
-                     offset + 1, text))
+            print("%s:%s:%d: %s" %
+                  (self.filename, self.line_offset + line_number,
+                   offset + 1, text))
             if options.show_source:
                 line = self.lines[line_number - 1]
-                message(line.rstrip())
-                message(' ' * offset + '^')
+                print(line.rstrip())
+                print(' ' * offset + '^')
             if options.show_pep8:
-                message(check.__doc__.lstrip('\n').rstrip())
+                print(check.__doc__.lstrip('\n').rstrip())
 
 
 def input_file(filename):
@@ -1023,7 +1019,7 @@ def input_file(filename):
     Run all checks on a Python source file.
     """
     if options.verbose:
-        message('checking ' + filename)
+        print('checking ' + filename)
     errors = Checker(filename).check_all()
 
 
@@ -1038,10 +1034,10 @@ def input_dir(dirname, runner=None):
         runner = input_file
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
-            message('directory ' + root)
+            print('directory ' + root)
         options.counters['directories'] += 1
         dirs.sort()
-        for subdir in dirs:
+        for subdir in dirs[:]:
             if excluded(subdir):
                 dirs.remove(subdir)
         files.sort()
@@ -1146,8 +1142,8 @@ def print_benchmark(elapsed):
     print('%-7.2f %s' % (elapsed, 'seconds elapsed'))
     for key in BENCHMARK_KEYS:
         print('%-7d %s per second (%d total)' % (
-            options.counters[key] / elapsed, key,
-            options.counters[key]))
+              options.counters[key] / elapsed, key,
+              options.counters[key]))
 
 
 def run_tests(filename):
@@ -1187,9 +1183,9 @@ def run_tests(filename):
             for code in codes:
                 if not options.counters.get(code):
                     errors += 1
-                    message('%s: error %s not found' % (label, code))
+                    print('%s: error %s not found' % (label, code))
             if options.verbose and not errors:
-                message('%s: passed (%s)' % (label, ' '.join(codes)))
+                print('%s: passed (%s)' % (label, ' '.join(codes)))
             # Keep showing errors for multiple tests
             reset_counters()
         # output the real line numbers
@@ -1261,8 +1257,10 @@ def process_options(arglist=None):
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
                       help="report only file names, or nothing with -qq")
-    parser.add_option('-r', '--repeat', action='store_true',
-                      help="show all occurrences of the same error")
+    parser.add_option('-r', '--repeat', default=True, action='store_true',
+                      help="(obsolete) show all occurrences of the same error")
+    parser.add_option('--first', action='store_false', dest='repeat',
+                      help="show first occurrence of each error")
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
                       help="exclude files or directories which match these "
                         "comma separated patterns (default: %s)" %
@@ -1289,6 +1287,10 @@ def process_options(arglist=None):
                       help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',
                       help="run regression tests from dir")
+    parser.add_option('--max-line-length', type='int', metavar='n',
+                      default=MAX_LINE_LENGTH,
+                      help="set maximum allowed line length (default: %d)" %
+                      MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
     options, args = parser.parse_args(arglist)
@@ -1311,7 +1313,7 @@ def process_options(arglist=None):
     elif options.select:
         # Ignore all checks which are not explicitly selected
         options.ignore = ['']
-    elif options.testsuite or options.doctest:
+    elif options.testsuite or options.doctest or not DEFAULT_IGNORE:
         # For doctest and testsuite, all checks are required
         options.ignore = []
     else:

@@ -1,8 +1,0 @@
-TODO
-====
-
-- Should command line option --repeat be enabled by default?
-
-- Does command line option --ignore properly prevent status code 1?
-
-- Release version 1.0 after a brief stabilization period.
