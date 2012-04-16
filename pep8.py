@@ -188,10 +188,10 @@ def fix_tabs_obsolete(checker, line_number, line_offset, text):
     if True:\n    return -> if True:\n    return
     if True:\n\treturn -> if True:\n    return
     """
-    next_tab = checker.lines[line_number-1].find("\t")
+    next_tab = checker.lines[line_number - 1].find("\t")
     while next_tab != -1:
-        yield (line_number, next_tab), (line_number, next_tab+1), "    "
-        next_tab = checker.lines[line_number-1].find("\t", next_tab+1)
+        yield (line_number, next_tab), (line_number, next_tab + 1), "    "
+        next_tab = checker.lines[line_number - 1].find("\t", next_tab + 1)
 
 
 def trailing_whitespace(physical_line):
@@ -234,7 +234,7 @@ def fix_trailing_whitespace(checker, line_number, line_offset, text):
     """
     line = checker.lines[line_number - 1]
     first_trailingwhitespace = len(line)
-    while first_trailingwhitespace > 0 and line[first_trailingwhitespace-1] in WHITESPACE+'\n':
+    while first_trailingwhitespace > 0 and line[first_trailingwhitespace - 1] in WHITESPACE + '\n':
         first_trailingwhitespace -= 1
     yield (line_number, first_trailingwhitespace), (line_number, len(line)), '\n'
 
@@ -270,7 +270,7 @@ def fix_missing_newline(checker, line_number, line_offset, text):
     r"""
     No tests for this fix
     """
-    line_len = len(checker.lines[line_number-1])
+    line_len = len(checker.lines[line_number - 1])
     yield (line_number, line_len), (line_number, line_len), '\n'
 
 
@@ -358,7 +358,7 @@ def fix_blank_lines(checker, line_number, line_offset, text):
     @decorator\n\ndef a():\n    pass -> @decorator\ndef a():\n    pass
     """
     # Adjust line_number to back before comments
-    while checker.lines[line_number-2].lstrip().startswith('#'):
+    while checker.lines[line_number - 2].lstrip().startswith('#'):
         line_number -= 1;
 
     if text.startswith('E301'):
@@ -366,16 +366,16 @@ def fix_blank_lines(checker, line_number, line_offset, text):
     elif text.startswith('E302'):
         _, _, lines_found = text.rpartition(' ')
         lines_found = int(lines_found)
-        yield ((line_number, 0), (line_number, 0), '\n'*(2-lines_found))
+        yield ((line_number, 0), (line_number, 0), '\n' * (2 - lines_found))
     elif text.startswith('E303'):
         _, _, line_info = text.rpartition(' ')
         lines_found, _, lines_needed = line_info.strip('()').partition('>')
         lines_found, lines_needed = int(lines_found), int(lines_needed)
-        yield ((line_number-(lines_found - lines_needed), 0), (line_number, 0), '')
+        yield ((line_number - (lines_found - lines_needed), 0), (line_number, 0), '')
     elif text.startswith('E304'):
         _, _, extra_lines = text.rpartition(' ')
         extra_lines = int(extra_lines.strip('()'))
-        yield ((line_number-extra_lines, 0), (line_number, 0), '')
+        yield ((line_number - extra_lines, 0), (line_number, 0), '')
 
 
 def extraneous_whitespace(logical_line):
@@ -427,17 +427,17 @@ def fix_extraneous_whitespace(checker, line_number, line_offset, text):
     if x == 4: print x, y ; x, y = y, x -> if x == 4: print x, y; x, y = y, x
     if x == 4 : print x, y; x, y = y, x -> if x == 4: print x, y; x, y = y, x
     """
-    line = checker.lines[line_number-1]
+    line = checker.lines[line_number - 1]
     if text.startswith('E201'):
         whitespace_end = line_offset
-        while line[whitespace_end+1] in WHITESPACE:
+        while line[whitespace_end + 1] in WHITESPACE:
             whitespace_end += 1
-        yield ((line_number, line_offset), (line_number, whitespace_end+1), '')
+        yield ((line_number, line_offset), (line_number, whitespace_end + 1), '')
     elif text.startswith('E202') or text.startswith('E203'):
         whitespace_start = line_offset
-        while line[whitespace_start-1] in WHITESPACE:
+        while line[whitespace_start - 1] in WHITESPACE:
             whitespace_start -= 1
-        yield ((line_number, whitespace_start), (line_number, line_offset+1), '')
+        yield ((line_number, whitespace_start), (line_number, line_offset + 1), '')
 
 
 def missing_whitespace(logical_line):
@@ -477,7 +477,7 @@ def fix_missing_whitespace(checker, line_number, line_offset, text):
     foo(bar,baz) -> foo(bar, baz)
     foo(bar,baz,bar) -> foo(bar, baz, bar)
     """
-    yield (line_number, line_offset+1), (line_number, line_offset+1), ' '
+    yield (line_number, line_offset + 1), (line_number, line_offset + 1), ' '
 
 
 def indentation(logical_line, previous_logical, indent_char,
@@ -554,9 +554,9 @@ def fix_whitespace_before_parameters(checker, line_number, line_offset, text):
     """
     line = checker.lines[line_number - 1]
     whitespace_start = line_offset
-    while line[whitespace_start-1] in WHITESPACE:
+    while line[whitespace_start - 1] in WHITESPACE:
         whitespace_start -= 1
-    yield ((line_number, whitespace_start), (line_number, line_offset+1), '')
+    yield ((line_number, whitespace_start), (line_number, line_offset + 1), '')
 
 
 def whitespace_around_operator(logical_line):
@@ -595,17 +595,17 @@ def fix_whitespace_around_operator(checker, line_number, line_offset, text):
     a = 4 +\t5 -> a = 4 + 5
     a = 4 +\t 5 -> a = 4 + 5
     """
-    line = checker.lines[line_number-1]
+    line = checker.lines[line_number - 1]
 
     whitespace_end = line_offset
-    while line[whitespace_end+1] in WHITESPACE:
+    while line[whitespace_end + 1] in WHITESPACE:
         whitespace_end += 1
 
     whitespace_start = line_offset
-    while line[whitespace_start-1] in WHITESPACE:
+    while line[whitespace_start - 1] in WHITESPACE:
         whitespace_start -= 1
 
-    yield ((line_number, whitespace_start), (line_number, whitespace_end+1), ' ')
+    yield ((line_number, whitespace_start), (line_number, whitespace_end + 1), ' ')
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -684,6 +684,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
         prev_text = text
         prev_end = end
 
+
 def fix_missing_whitespace_around_operator(checker, line_number, line_offset, text):
     r"""
     i = i + 1 -> i = i + 1
@@ -728,11 +729,11 @@ def whitespace_around_comma(logical_line):
     E242: a = (1, \t2)
     """
     line = logical_line
-    for match in WHITESPACE_AROUND_COMMA_REGEX.finditer(line): 
+    for match in WHITESPACE_AROUND_COMMA_REGEX.finditer(line):
         if '\t' in match.group():
-            yield match.start()+1, "E242 tab after '%s'" % match.group()[0]
+            yield match.start() + 1, "E242 tab after '%s'" % match.group()[0]
         else:
-            yield match.start()+1, "E241 multiple spaces after '%s'" % match.group()[0]
+            yield match.start() + 1, "E241 multiple spaces after '%s'" % match.group()[0]
 
 
 def fix_whitespace_around_comma(checker, line_number, line_offset, text):
@@ -743,13 +744,13 @@ def fix_whitespace_around_comma(checker, line_number, line_offset, text):
     a = (1, \t2) -> a = (1, 2)
     a = (1,\t 2) -> a = (1, 2)
     """
-    line = checker.lines[line_number-1]
+    line = checker.lines[line_number - 1]
 
     whitespace_end = line_offset
-    while line[whitespace_end+1] in WHITESPACE:
+    while line[whitespace_end + 1] in WHITESPACE:
         whitespace_end += 1
 
-    yield ((line_number, line_offset), (line_number, whitespace_end+1), ' ')
+    yield ((line_number, line_offset), (line_number, whitespace_end + 1), ' ')
 
 
 def whitespace_around_named_parameter_equals(logical_line):
@@ -798,16 +799,19 @@ def fix_whitespace_around_named_parameter_equals(checker, line_number, line_offs
     """
     line = checker.lines[line_number - 1]
     whitespace_end = line_offset
-    while line[whitespace_end+1] in WHITESPACE:
+    while line[whitespace_end + 1] in WHITESPACE:
         whitespace_end += 1
 
-    yield ((line_number, line_offset), (line_number, whitespace_end+1), '')
+    if line[whitespace_end] in WHITESPACE:
+        yield ((line_number, line_offset), (line_number, whitespace_end + 1), '')
 
-    eq_offset = whitespace_end+1
+    eq_offset = whitespace_end + 1
     whitespace_end += 1
-    while line[whitespace_end+1] in WHITESPACE:
+    while line[whitespace_end + 1] in WHITESPACE:
         whitespace_end += 1
-    yield ((line_number, eq_offset+1), (line_number, whitespace_end+1), '')
+
+    if line[whitespace_end] in WHITESPACE:
+        yield ((line_number, eq_offset + 1), (line_number, whitespace_end + 1), '')
 
 
 def whitespace_before_inline_comment(logical_line, tokens):
@@ -850,14 +854,14 @@ def fix_whitespace_before_inline_comment(checker, line_number, line_offset, text
     x = x + 1  #  Increment x -> x = x + 1  # Increment x
     """
     if text.startswith("E261"):
-        yield (line_number, line_offset+1), (line_number, line_offset+1), ' '
+        yield (line_number, line_offset + 1), (line_number, line_offset + 1), ' '
     elif text.startswith("E262"):
         line = checker.lines[line_number - 1]
         whitespace_end = line_offset
-        while line[whitespace_end+1] in WHITESPACE:
+        while line[whitespace_end + 1] in WHITESPACE:
             whitespace_end += 1
 
-        yield ((line_number, line_offset+1), (line_number, whitespace_end+1), ' ')
+        yield ((line_number, line_offset + 1), (line_number, whitespace_end + 1), ' ')
 
 
 def imports_on_separate_lines(logical_line):
@@ -895,10 +899,10 @@ def fix_imports_on_separate_lines(checker, line_number, line_offset, text):
     line = checker.lines[line_number - 1]
     comma_idx = line.find(',')
     while comma_idx != -1:
-        if line[comma_idx+1] in WHITESPACE:
-            yield (line_number, comma_idx), (line_number, comma_idx+1), '\nimport'
+        if line[comma_idx + 1] in WHITESPACE:
+            yield (line_number, comma_idx), (line_number, comma_idx + 1), '\nimport'
         else:
-            yield (line_number, comma_idx), (line_number, comma_idx+1), '\nimport '
+            yield (line_number, comma_idx), (line_number, comma_idx + 1), '\nimport '
         comma_idx = line.find(',', comma_idx + 1)
 
 
@@ -1093,7 +1097,7 @@ def find_checks(argument_name):
 def attach_fix_functions(checks):
     for (name, function, _) in checks:
         fix_fn = globals().get('fix_' + name)
-        
+
         if not inspect.isfunction(fix_fn):
             continue
 
@@ -1167,7 +1171,7 @@ class Checker(object):
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
                 self.edits.update(fix_line(self, self.line_number, offset, text, check))
-            
+
     def build_tokens_line(self):
         """
         Build a logical line from tokens.
@@ -1327,7 +1331,7 @@ class Checker(object):
                 message(' ' * offset + '^')
             if options.show_pep8:
                 message(check.__doc__.lstrip('\n').rstrip())
-            
+
 
 def input_file(filename):
     """
@@ -1528,7 +1532,7 @@ def selftest():
         checker = Checker(None)
         checker.lines.extend(prep_lines(source))
         return checker
- 
+
     count_passed = 0
     count_failed = 0
     checks = options.physical_checks + options.logical_checks
@@ -1563,7 +1567,7 @@ def selftest():
                     print("pep8.py: %s:" % error)
                     for line in checker.lines:
                         print(line.rstrip())
-        
+
         if hasattr(check, 'fix'):
             for line in check.fix.__doc__.splitlines():
                 line = line.lstrip()
@@ -1586,7 +1590,6 @@ def selftest():
                     print("Expected: %r" % expected)
                     print("Actual:   %r" % actual)
 
-                
     if options.verbose:
         print("%d passed and %d failed." % (count_passed, count_failed))
         if count_failed:
@@ -1686,12 +1689,13 @@ def report_fix(s):
     was specified.
     """
     if not options.quiet:
-        print " - pep8 fix:",s
-    
+        print " - pep8 fix:", s
+
+
 def fix_line(checker, line_number, line_offset, text, check):
     """
     Given a Checker object and a check function,
-    fixes the line in the Checker object if it knows how.    
+    fixes the line in the Checker object if it knows how.
     This function only runs if the --fix flag is used.
     """
     if hasattr(check, 'fix'):
@@ -1702,7 +1706,7 @@ def fix_line(checker, line_number, line_offset, text, check):
 def apply_edits(lines, edits):
     #print lines, edits
     output_lines = list(lines)
-    
+
     earliest_edit_point = (sys.maxint, sys.maxint)
     # Sort the edits, favoring edits that end later and start earlier
     # Ending later means that we don't mess up unapplied edits by shifting indices
@@ -1719,9 +1723,9 @@ def apply_edits(lines, edits):
             report_fix("Applying fix for %s at line %s, offset %s" % (code, st_l, st_o))
             earliest_edit_point = (st_l, st_o)
 
-        output_lines[end_l-1] = output_lines[end_l-1][:st_o] + repl + output_lines[end_l-1][end_o:]
+        output_lines[end_l - 1] = output_lines[end_l - 1][:st_o] + repl + output_lines[end_l - 1][end_o:]
         if st_l != end_l:
-            del output_lines[st_l-1:end_l-1]
+            del output_lines[st_l - 1:end_l - 1]
 
     return output_lines
 
