@@ -941,7 +941,7 @@ def compound_statements(logical_line):
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             not LAMBDA_REGEX.search(before)):           # lambda x: x
-            return found, "E701 multiple statements on one line (colon)"
+            yield found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
         yield found, "E702 multiple statements on one line (semicolon)"
