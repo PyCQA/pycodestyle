@@ -972,7 +972,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        return match.start(1), "W602 deprecated form of raising exception"
+        yield match.start(1), "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
