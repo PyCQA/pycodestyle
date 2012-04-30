@@ -121,6 +121,8 @@ ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 WHITESPACE_AROUND_OPERATOR_REGEX = \
     re.compile('([^\w\s]*)\s*(\t|  )\s*([^\w\s]*)')
+WHITESPACE_AROUND_KEYWORD_REGEX = \
+    re.compile('([^\s]*)\s*(\t|  )\s*([^\s]*)')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
@@ -136,8 +138,8 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
-E225NOT_KEYWORDS = (frozenset(keyword.kwlist + ['print']) -
-                    frozenset(['False', 'None', 'True']))
+KEYWORDS = frozenset(keyword.kwlist + ['print'])
+E225NOT_KEYWORDS = KEYWORDS - frozenset(['False', 'None', 'True'])
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
@@ -336,6 +338,28 @@ def extraneous_whitespace(logical_line):
                 return found, "E202 whitespace before '%s'" % char
             if char in ',;:':
                 return found, "E203 whitespace before '%s'" % char
+
+
+def whitespace_around_keywords(logical_line):
+    """
+    Avoid extraneous whitespace around keywords.
+
+    Okay: True and False
+    E271: True and  False
+    E272: True  and False
+    E273: True and\tFalse
+    E274: True\tand False
+    """
+    for match in WHITESPACE_AROUND_KEYWORD_REGEX.finditer(logical_line):
+        before, whitespace, after = match.groups()
+        tab = whitespace == '\t'
+        offset = match.start(2)
+        if before in KEYWORDS:
+            return offset, (tab and "E273 tab after keyword" or
+                            "E271 multiple spaces after keyword")
+        elif after in KEYWORDS:
+            return offset, (tab and "E274 tab before keyword" or
+                            "E272 multiple spaces before keyword")
 
 
 def missing_whitespace(logical_line):
