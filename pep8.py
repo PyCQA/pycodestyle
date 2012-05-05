@@ -92,7 +92,7 @@ for space.
 
 """
 
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 import os
 import sys
@@ -101,6 +101,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import traceback
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -124,6 +125,8 @@ WHITESPACE_AROUND_OPERATOR_REGEX = \
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+WHITESPACE_AROUND_COMMA_REGEX = \
+    re.compile(r'[,;:](\t|\s\s+)\S')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 
 
@@ -182,6 +185,17 @@ def tabs_obsolete(physical_line):
         return indent.index('\t'), "W191 indentation contains tabs"
 
 
+def fix_tabs_obsolete(checker, line_number, line_offset, text):
+    r"""
+    if True:\n    return -> if True:\n    return
+    if True:\n\treturn -> if True:\n    return
+    """
+    next_tab = checker.lines[line_number - 1].find("\t")
+    while next_tab != -1:
+        yield (line_number, next_tab), (line_number, next_tab + 1), "    "
+        next_tab = checker.lines[line_number - 1].find("\t", next_tab + 1)
+
+
 def trailing_whitespace(physical_line):
     r"""
     JCR: Trailing whitespace is superfluous.
@@ -212,6 +226,21 @@ def trailing_whitespace(physical_line):
             return 0, "W293 blank line contains whitespace"
 
 
+def fix_trailing_whitespace(checker, line_number, line_offset, text):
+    r"""
+    spam(1) -> spam(1)
+    spam(1)\s -> spam(1)
+    spam(1)\t -> spam(1)
+    spam(1)\t\s -> spam(1)
+    class Foo(object):\n    \n    bang = 12 -> class Foo(object):\n\n    bang = 12
+    """
+    line = checker.lines[line_number - 1]
+    first_trailingwhitespace = len(line)
+    while first_trailingwhitespace > 0 and line[first_trailingwhitespace - 1] in WHITESPACE + '\n':
+        first_trailingwhitespace -= 1
+    yield (line_number, first_trailingwhitespace), (line_number, len(line)), '\n'
+
+
 def trailing_blank_lines(physical_line, lines, line_number):
     r"""
     JCR: Trailing blank lines are superfluous.
@@ -223,12 +252,28 @@ def trailing_blank_lines(physical_line, lines, line_number):
         return 0, "W391 blank line at end of file"
 
 
+def fix_trailing_blank_lines(checker, line_number, line_offset, text):
+    r"""
+    spam(1) -> spam(1)
+    spam(1)\n -> spam(1)
+    """
+    yield (line_number, 0), (line_number, 1), ''
+
+
 def missing_newline(physical_line):
     """
     JCR: The last line should have a newline.
     """
     if physical_line.rstrip() == physical_line:
         return len(physical_line), "W292 no newline at end of file"
+
+
+def fix_missing_newline(checker, line_number, line_offset, text):
+    r"""
+    No tests for this fix
+    """
+    line_len = len(checker.lines[line_number - 1])
+    yield (line_number, line_len), (line_number, line_len), '\n'
 
 
 def maximum_line_length(physical_line):
@@ -290,18 +335,50 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
         if max_blank_lines:
-            return 0, "E304 blank lines found after function decorator"
+            yield 0, "E304 blank lines found after function decorator (%d)" % max_blank_lines
     elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
-        return 0, "E303 too many blank lines (%d)" % max_blank_lines
+        yield 0, "E303 too many blank lines (%d>%d)" % (max_blank_lines, 1 if indent_level else 2)
     elif (logical_line.startswith('def ') or
           logical_line.startswith('class ') or
           logical_line.startswith('@')):
         if indent_level:
             if not (max_blank_lines or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
-                return 0, "E301 expected 1 blank line, found 0"
+                yield 0, "E301 expected 1 blank line, found 0"
         elif max_blank_lines != 2:
-            return 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
+            yield 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
+
+
+def fix_blank_lines(checker, line_number, line_offset, text):
+    r"""
+    def a():\n    pass\n\n\ndef b():\n    pass -> def a():\n    pass\n\n\ndef b():\n    pass
+    def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass -> def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass
+
+    class Foo:\n    b = 0\n    def bar():\n        pass -> class Foo:\n    b = 0\n\n    def bar():\n        pass
+    def a():\n    pass\n\ndef b(n):\n    pass -> def a():\n    pass\n\n\ndef b(n):\n    pass
+    def a():\n    pass\n\n\n\ndef b(n):\n    pass -> def a():\n    pass\n\n\ndef b(n):\n    pass
+    def a():\n\n\n\n    pass -> def a():\n\n    pass
+    @decorator\n\ndef a():\n    pass -> @decorator\ndef a():\n    pass
+    """
+    # Adjust line_number to back before comments
+    while checker.lines[line_number - 2].lstrip().startswith('#'):
+        line_number -= 1;
+
+    if text.startswith('E301'):
+        yield ((line_number, 0), (line_number, 0), '\n')
+    elif text.startswith('E302'):
+        _, _, lines_found = text.rpartition(' ')
+        lines_found = int(lines_found)
+        yield ((line_number, 0), (line_number, 0), '\n' * (2 - lines_found))
+    elif text.startswith('E303'):
+        _, _, line_info = text.rpartition(' ')
+        lines_found, _, lines_needed = line_info.strip('()').partition('>')
+        lines_found, lines_needed = int(lines_found), int(lines_needed)
+        yield ((line_number - (lines_found - lines_needed), 0), (line_number, 0), '')
+    elif text.startswith('E304'):
+        _, _, extra_lines = text.rpartition(' ')
+        extra_lines = int(extra_lines.strip('()'))
+        yield ((line_number - extra_lines, 0), (line_number, 0), '')
 
 
 def extraneous_whitespace(logical_line):
@@ -330,12 +407,40 @@ def extraneous_whitespace(logical_line):
         char = text.strip()
         found = match.start()
         if text == char + ' ' and char in '([{':
-            return found + 1, "E201 whitespace after '%s'" % char
+            yield found + 1, "E201 whitespace after '%s'" % char
         if text == ' ' + char and line[found - 1] != ',':
             if char in '}])':
-                return found, "E202 whitespace before '%s'" % char
+                yield found, "E202 whitespace before '%s'" % char
             if char in ',;:':
-                return found, "E203 whitespace before '%s'" % char
+                yield found, "E203 whitespace before '%s'" % char
+
+
+def fix_extraneous_whitespace(checker, line_number, line_offset, text):
+    r"""
+    spam(ham[1], {eggs: 2}) -> spam(ham[1], {eggs: 2})
+    spam( ham[1], {eggs: 2}) -> spam(ham[1], {eggs: 2})
+    spam(ham[ 1], {eggs: 2}) -> spam(ham[1], {eggs: 2})
+    spam(ham[1], { eggs: 2}) -> spam(ham[1], {eggs: 2})
+    spam(ham[1], {eggs: 2} ) -> spam(ham[1], {eggs: 2})
+    spam(ham[1 ], {eggs: 2}) -> spam(ham[1], {eggs: 2})
+    spam(ham[1], {eggs: 2 }) -> spam(ham[1], {eggs: 2})
+    spam( ham[1], {eggs: 2 }) -> spam(ham[1], {eggs: 2})
+
+    if x == 4: print x, y; x, y = y , x -> if x == 4: print x, y; x, y = y, x
+    if x == 4: print x, y ; x, y = y, x -> if x == 4: print x, y; x, y = y, x
+    if x == 4 : print x, y; x, y = y, x -> if x == 4: print x, y; x, y = y, x
+    """
+    line = checker.lines[line_number - 1]
+    if text.startswith('E201'):
+        whitespace_end = line_offset
+        while line[whitespace_end + 1] in WHITESPACE:
+            whitespace_end += 1
+        yield ((line_number, line_offset), (line_number, whitespace_end + 1), '')
+    elif text.startswith('E202') or text.startswith('E203'):
+        whitespace_start = line_offset
+        while line[whitespace_start - 1] in WHITESPACE:
+            whitespace_start -= 1
+        yield ((line_number, whitespace_start), (line_number, line_offset + 1), '')
 
 
 def missing_whitespace(logical_line):
@@ -360,7 +465,22 @@ def missing_whitespace(logical_line):
                 continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
                 continue  # Allow tuple with only one element: (3,)
-            return index, "E231 missing whitespace after '%s'" % char
+            yield index, "E231 missing whitespace after '%s'" % char
+
+
+def fix_missing_whitespace(checker, line_number, line_offset, text):
+    r"""
+    [a, b] -> [a, b]
+    (3,) -> (3,)
+    a[1:4] -> a[1:4]
+    a[:4] -> a[:4]
+    a[1:] -> a[1:]
+    a[1:4:2] -> a[1:4:2]
+    ['a','b'] -> ['a', 'b']
+    foo(bar,baz) -> foo(bar, baz)
+    foo(bar,baz,bar) -> foo(bar, baz, bar)
+    """
+    yield (line_number, line_offset + 1), (line_number, line_offset + 1), ' '
 
 
 def indentation(logical_line, previous_logical, indent_char,
@@ -382,12 +502,12 @@ def indentation(logical_line, previous_logical, indent_char,
     E113: a = 1\n    b = 2
     """
     if indent_char == ' ' and indent_level % 4:
-        return 0, "E111 indentation is not a multiple of four"
+        yield 0, "E111 indentation is not a multiple of four"
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
-        return 0, "E112 expected an indented block"
+        yield 0, "E112 expected an indented block"
     if indent_level > previous_indent_level and not indent_expect:
-        return 0, "E113 unexpected indentation"
+        yield 0, "E113 unexpected indentation"
 
 
 def whitespace_before_parameters(logical_line, tokens):
@@ -420,14 +540,30 @@ def whitespace_before_parameters(logical_line, tokens):
             (index < 2 or tokens[index - 2][1] != 'class') and
             # Allow "return (a.foo for a in range(5))"
             (not keyword.iskeyword(prev_text))):
-            return prev_end, "E211 whitespace before '%s'" % text
+            yield prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
         prev_end = end
 
 
-def whitespace_around_operator(logical_line):
+def fix_whitespace_before_parameters(checker, line_number, line_offset, text):
+    r"""
+    spam(1) -> spam(1)
+    spam (1) -> spam(1)
+
+    dict['key'] = list[index] -> dict['key'] = list[index]
+    dict ['key'] = list[index] -> dict['key'] = list[index]
+    dict['key'] = list [index] -> dict['key'] = list[index]
     """
+    line = checker.lines[line_number - 1]
+    whitespace_start = line_offset
+    while line[whitespace_start - 1] in WHITESPACE:
+        whitespace_start -= 1
+    yield ((line_number, whitespace_start), (line_number, line_offset + 1), '')
+
+
+def whitespace_around_operator(logical_line):
+    r"""
     Avoid extraneous whitespace in the following situations:
 
     - More than one space around an assignment (or other) operator to
@@ -444,11 +580,35 @@ def whitespace_around_operator(logical_line):
         tab = whitespace == '\t'
         offset = match.start(2)
         if before in OPERATORS:
-            return offset, (tab and "E224 tab after operator" or
-                            "E222 multiple spaces after operator")
+            yield offset, (tab and "E224 tab after operator" or
+                           "E222 multiple spaces after operator")
         elif after in OPERATORS:
-            return offset, (tab and "E223 tab before operator" or
-                            "E221 multiple spaces before operator")
+            yield offset, (tab and "E223 tab before operator" or
+                           "E221 multiple spaces before operator")
+
+
+def fix_whitespace_around_operator(checker, line_number, line_offset, text):
+    r"""
+    a = 12 + 3 -> a = 12 + 3
+    a = 4  + 5 -> a = 4 + 5
+    a = 4 \t+ 5 -> a = 4 + 5
+    a = 4 +  5 -> a = 4 + 5
+    a = 4\t+ 5 -> a = 4 + 5
+    a = 4\t + 5 -> a = 4 + 5
+    a = 4 +\t5 -> a = 4 + 5
+    a = 4 +\t 5 -> a = 4 + 5
+    """
+    line = checker.lines[line_number - 1]
+
+    whitespace_end = line_offset
+    while line[whitespace_end + 1] in WHITESPACE:
+        whitespace_end += 1
+
+    whitespace_start = line_offset
+    while line[whitespace_start - 1] in WHITESPACE:
+        whitespace_start -= 1
+
+    yield ((line_number, whitespace_start), (line_number, whitespace_end + 1), ' ')
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -480,6 +640,8 @@ def missing_whitespace_around_operator(logical_line, tokens):
     E225: c = (a+b) * (a-b)
     E225: c = alpha -4
     E225: z = x **y
+    E225: c = (a + b)*(a - b)
+    E225: c = (a +b)*(a - b)
     """
     parens = 0
     need_space = False
@@ -500,7 +662,8 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 pass
             else:
-                return prev_end, "E225 missing whitespace around operator"
+                yield prev_end, "E225 missing whitespace around operator"
+                need_space = False
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
@@ -519,10 +682,38 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 else:
                     need_space = True
             if need_space and start == prev_end:
-                return prev_end, "E225 missing whitespace around operator"
+                yield prev_end, "E225 missing whitespace around operator"
         prev_type = token_type
         prev_text = text
         prev_end = end
+
+
+def fix_missing_whitespace_around_operator(checker, line_number, line_offset, text):
+    r"""
+    i = i + 1 -> i = i + 1
+    submitted += 1 -> submitted += 1
+    x = x * 2 - 1 -> x = x * 2 - 1
+    hypot2 = x * x + y * y -> hypot2 = x * x + y * y
+    c = (a + b) * (a - b) -> c = (a + b) * (a - b)
+    foo(bar, key='word', *args, **kwargs) -> foo(bar, key='word', *args, **kwargs)
+    baz(**kwargs) -> baz(**kwargs)
+    negative = -1 -> negative = -1
+    spam(-1) -> spam(-1)
+    alpha[:-i] -> alpha[:-i]
+    if not -5 < x < +5:\n    pass -> if not -5 < x < +5:\n    pass
+    lambda *args, **kw: (args, kw) -> lambda *args, **kw: (args, kw)
+
+    i=i+1 -> i = i + 1
+    submitted +=1 -> submitted += 1
+    x = x*2 - 1 -> x = x * 2 - 1
+    hypot2 = x*x + y*y -> hypot2 = x * x + y * y
+    c = (a+b) * (a-b) -> c = (a + b) * (a - b)
+    c = alpha -4 -> c = alpha - 4
+    z = x **y -> z = x ** y
+    c = (a + b)*(a - b) -> c = (a + b) * (a - b)
+    c = (a +b)*(a - b) -> c = (a + b) * (a - b)
+    """
+    yield ((line_number, line_offset), (line_number, line_offset), ' ')
 
 
 def whitespace_around_comma(logical_line):
@@ -538,15 +729,31 @@ def whitespace_around_comma(logical_line):
     Okay: a = (1, 2)
     E241: a = (1,  2)
     E242: a = (1,\t2)
+    E242: a = (1, \t2)
     """
     line = logical_line
-    for separator in ',;:':
-        found = line.find(separator + '  ')
-        if found > -1:
-            return found + 1, "E241 multiple spaces after '%s'" % separator
-        found = line.find(separator + '\t')
-        if found > -1:
-            return found + 1, "E242 tab after '%s'" % separator
+    for match in WHITESPACE_AROUND_COMMA_REGEX.finditer(line):
+        if '\t' in match.group():
+            yield match.start() + 1, "E242 tab after '%s'" % match.group()[0]
+        else:
+            yield match.start() + 1, "E241 multiple spaces after '%s'" % match.group()[0]
+
+
+def fix_whitespace_around_comma(checker, line_number, line_offset, text):
+    r"""
+    a = (1, 2) -> a = (1, 2)
+    a = (1,  2) -> a = (1, 2)
+    a = (1,\t2) -> a = (1, 2)
+    a = (1, \t2) -> a = (1, 2)
+    a = (1,\t 2) -> a = (1, 2)
+    """
+    line = checker.lines[line_number - 1]
+
+    whitespace_end = line_offset
+    while line[whitespace_end + 1] in WHITESPACE:
+        whitespace_end += 1
+
+    yield ((line_number, line_offset), (line_number, whitespace_end + 1), ' ')
 
 
 def whitespace_around_named_parameter_equals(logical_line):
@@ -570,15 +777,48 @@ def whitespace_around_named_parameter_equals(logical_line):
         text = match.group()
         if parens and len(text) == 3:
             issue = "E251 no spaces around keyword / parameter equals"
-            return match.start(), issue
+            yield match.start(), issue
         if text == '(':
             parens += 1
         elif text == ')':
             parens -= 1
 
 
-def whitespace_before_inline_comment(logical_line, tokens):
+def fix_whitespace_around_named_parameter_equals(checker, line_number, line_offset, text):
+    r"""
+    def complex(real, imag=0.0): -> def complex(real, imag=0.0):
+    return magic(r=real, i=imag) -> return magic(r=real, i=imag)
+    boolean(a == b) -> boolean(a == b)
+    boolean(a != b) -> boolean(a != b)
+    boolean(a <= b) -> boolean(a <= b)
+    boolean(a >= b) -> boolean(a >= b)
+
+    def complex(real, imag = 0.0): -> def complex(real, imag=0.0):
+    return magic(r = real, i = imag) -> return magic(r=real, i=imag)
+    return magic(r = =real, i = imag) -> return magic(r==real, i=imag)
+
+    foo = bar(x   = y(name='name')) -> foo = bar(x =y(name='name'))
+    foo = bar(x =y(name='name')) -> foo = bar(x=y(name='name'))
     """
+    line = checker.lines[line_number - 1]
+    whitespace_end = line_offset
+    while line[whitespace_end + 1] in WHITESPACE:
+        whitespace_end += 1
+
+    if line[whitespace_end] in WHITESPACE:
+        yield ((line_number, line_offset), (line_number, whitespace_end + 1), '')
+
+    eq_offset = whitespace_end + 1
+    whitespace_end += 1
+    while line[whitespace_end + 1] in WHITESPACE:
+        whitespace_end += 1
+
+    if line[whitespace_end] in WHITESPACE:
+        yield ((line_number, eq_offset + 1), (line_number, whitespace_end + 1), '')
+
+
+def whitespace_before_inline_comment(logical_line, tokens):
+    r"""
     Separate inline comments by at least two spaces.
 
     An inline comment is a comment on the same line as a statement.  Inline
@@ -599,13 +839,32 @@ def whitespace_before_inline_comment(logical_line, tokens):
             if not line[:start[1]].strip():
                 continue
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
-                return (prev_end,
+                yield (prev_end,
                         "E261 at least two spaces before inline comment")
             if (len(text) > 1 and text.startswith('#  ')
-                           or not text.startswith('# ')):
-                return start, "E262 inline comment should start with '# '"
+                    or not text.startswith('# ')):
+                yield start, "E262 inline comment should start with '# '"
         else:
             prev_end = end
+
+
+def fix_whitespace_before_inline_comment(checker, line_number, line_offset, text):
+    r"""
+    x = x + 1  # Increment x -> x = x + 1  # Increment x
+    x = x + 1    # Increment x -> x = x + 1    # Increment x
+    x = x + 1 # Increment x -> x = x + 1  # Increment x
+    x = x + 1  #Increment x -> x = x + 1  # Increment x
+    x = x + 1  #  Increment x -> x = x + 1  # Increment x
+    """
+    if text.startswith("E261"):
+        yield (line_number, line_offset + 1), (line_number, line_offset + 1), ' '
+    elif text.startswith("E262"):
+        line = checker.lines[line_number - 1]
+        whitespace_end = line_offset
+        while line[whitespace_end + 1] in WHITESPACE:
+            whitespace_end += 1
+
+        yield ((line_number, line_offset + 1), (line_number, whitespace_end + 1), ' ')
 
 
 def imports_on_separate_lines(logical_line):
@@ -625,7 +884,29 @@ def imports_on_separate_lines(logical_line):
     if line.startswith('import '):
         found = line.find(',')
         if found > -1:
-            return found, "E401 multiple imports on one line"
+            yield found, "E401 multiple imports on one line"
+
+
+def fix_imports_on_separate_lines(checker, line_number, line_offset, text):
+    r"""
+    import os\nimport sys -> import os\nimport sys
+    import sys, os -> import sys\nimport os
+    import sys,  os -> import sys\nimport os
+
+    from subprocess import Popen, PIPE -> from subprocess import Popen, PIPE
+    from myclas import MyClass -> from myclas import MyClass
+    from foo.bar.yourclass import YourClass -> from foo.bar.yourclass import YourClass
+    import myclass -> import myclass
+    import foo.bar.yourclass -> import foo.bar.yourclass
+    """
+    line = checker.lines[line_number - 1]
+    comma_idx = line.find(',')
+    while comma_idx != -1:
+        if line[comma_idx + 1] in WHITESPACE:
+            yield (line_number, comma_idx), (line_number, comma_idx + 1), '\nimport'
+        else:
+            yield (line_number, comma_idx), (line_number, comma_idx + 1), '\nimport '
+        comma_idx = line.find(',', comma_idx + 1)
 
 
 def compound_statements(logical_line):
@@ -660,10 +941,10 @@ def compound_statements(logical_line):
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             not LAMBDA_REGEX.search(before)):           # lambda x: x
-            return found, "E701 multiple statements on one line (colon)"
+            yield found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
-        return found, "E702 multiple statements on one line (semicolon)"
+        yield found, "E702 multiple statements on one line (semicolon)"
 
 
 def python_3000_has_key(logical_line):
@@ -676,7 +957,7 @@ def python_3000_has_key(logical_line):
     """
     pos = logical_line.find('.has_key(')
     if pos > -1:
-        return pos, "W601 .has_key() is deprecated, use 'in'"
+        yield pos, "W601 .has_key() is deprecated, use 'in'"
 
 
 def python_3000_raise_comma(logical_line):
@@ -691,7 +972,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        return match.start(1), "W602 deprecated form of raising exception"
+        yield match.start(1), "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
@@ -702,7 +983,7 @@ def python_3000_not_equal(logical_line):
     """
     pos = logical_line.find('<>')
     if pos > -1:
-        return pos, "W603 '<>' is deprecated, use '!='"
+        yield pos, "W603 '<>' is deprecated, use '!='"
 
 
 def python_3000_backticks(logical_line):
@@ -712,7 +993,7 @@ def python_3000_backticks(logical_line):
     """
     pos = logical_line.find('`')
     if pos > -1:
-        return pos, "W604 backticks are deprecated, use 'repr()'"
+        yield pos, "W604 backticks are deprecated, use 'repr()'"
 
 
 ##############################################################################
@@ -809,6 +1090,16 @@ def find_checks(argument_name):
     return checks
 
 
+def attach_fix_functions(checks):
+    for (name, function, _) in checks:
+        fix_fn = globals().get('fix_' + name)
+
+        if not inspect.isfunction(fix_fn):
+            continue
+
+        function.fix = fix_fn
+
+
 class Checker(object):
     """
     Load a Python source file, tokenize it, check coding style.
@@ -823,6 +1114,16 @@ class Checker(object):
             self.lines = readlines(filename)
         else:
             self.lines = lines
+
+        # file to write to
+        if options.fix:
+            if options.inplace:
+                self.write_filename = filename
+            else:
+                self.write_filename = os.path.join(os.path.dirname(filename),
+                                                "fixed_" + os.path.basename(filename))
+        self.edits = set()
+
         options.counters['physical lines'] += len(self.lines)
 
     def readline(self):
@@ -865,6 +1166,7 @@ class Checker(object):
             if result is not None:
                 offset, text = result
                 self.report_error(self.line_number, offset, text, check)
+                self.edits.update(fix_line(self, self.line_number, offset, text, check))
 
     def build_tokens_line(self):
         """
@@ -916,8 +1218,7 @@ class Checker(object):
         for name, check, argument_names in options.logical_checks:
             if options.verbose >= 4:
                 print('   ' + name)
-            result = self.run_check(check, argument_names)
-            if result is not None:
+            for result in self.run_check(check, argument_names):
                 offset, text = result
                 if isinstance(offset, tuple):
                     original_number, original_offset = offset
@@ -929,6 +1230,7 @@ class Checker(object):
                                                + offset - token_offset)
                 self.report_error(original_number, original_offset,
                                   text, check)
+                self.edits.update(fix_line(self, original_number, original_offset, text, check))
         self.previous_logical = self.logical_line
 
     def check_all(self, expected=None, line_offset=0):
@@ -982,7 +1284,20 @@ class Checker(object):
                     # Python < 2.6 behaviour, which does not generate NL after
                     # a comment which is on a line by itself.
                     self.tokens = []
+
+        if options.fix and self.edits:
+            try:
+                with open(self.write_filename, "w") as writer:
+                    report_fix("Writing changes to %s" % self.write_filename)
+                    writer.writelines(self.edited_lines())
+            except IOError:
+                traceback.print_exc()
+                raise SystemExit
+
         return self.file_errors
+
+    def edited_lines(self):
+        return apply_edits(self.lines, self.edits)
 
     def report_error(self, line_number, offset, text, check):
         """
@@ -1200,6 +1515,20 @@ def selftest():
     """
     Test all check functions with test cases in docstrings.
     """
+
+    def prep_lines(lines):
+        out_lines = []
+        for part in lines.split(r'\n'):
+            part = part.replace(r'\t', '\t')
+            part = part.replace(r'\s', ' ')
+            out_lines.append(part + '\n')
+        return out_lines
+
+    def prep_checker(source):
+        checker = Checker(None)
+        checker.lines.extend(prep_lines(source))
+        return checker
+
     count_passed = 0
     count_failed = 0
     checks = options.physical_checks + options.logical_checks
@@ -1210,11 +1539,7 @@ def selftest():
             if match is None:
                 continue
             code, source = match.groups()
-            checker = Checker(None)
-            for part in source.split(r'\n'):
-                part = part.replace(r'\t', '\t')
-                part = part.replace(r'\s', ' ')
-                checker.lines.append(part + '\n')
+            checker = prep_checker(source)
             options.quiet = 2
             checker.check_all()
             error = None
@@ -1238,6 +1563,29 @@ def selftest():
                     print("pep8.py: %s:" % error)
                     for line in checker.lines:
                         print(line.rstrip())
+
+        if hasattr(check, 'fix'):
+            for line in check.fix.__doc__.splitlines():
+                line = line.lstrip()
+                if ' -> ' not in line:
+                    continue
+
+                source, _, result = line.partition(' -> ')
+                checker = prep_checker(source)
+                options.quiet = 2
+                checker.check_all()
+                reset_counters()
+                expected = ''.join(prep_lines(result))
+                actual = ''.join(checker.edited_lines())
+                if expected == actual:
+                    count_passed += 1
+                else:
+                    count_failed += 1
+                    print("pep8.py: Failed to fix lines in doctest for %s" % check.fix.__name__)
+                    print("Source:   %r" % ''.join(checker.lines))
+                    print("Expected: %r" % expected)
+                    print("Actual:   %r" % actual)
+
     if options.verbose:
         print("%d passed and %d failed." % (count_passed, count_failed))
         if count_failed:
@@ -1293,6 +1641,12 @@ def process_options(arglist=None):
                       MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+    parser.add_option('-f', '--fix', action='count',
+                      help="create a new file with *some* things fixed "
+                       "to match PEP8")
+    parser.add_option('-i', '--inplace', action='count',
+                      help="use with the --fix flag. Makes modifications "
+                       "in-place.")
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
@@ -1321,9 +1675,61 @@ def process_options(arglist=None):
         options.ignore = DEFAULT_IGNORE.split(',')
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
+
+    attach_fix_functions(options.physical_checks)
+    attach_fix_functions(options.logical_checks)
+
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
     return options, args
+
+
+def report_fix(s):
+    """
+    Prints out a message when something has been fixed
+    using fix_line(). Doesn't print if the --quiet flag
+    was specified.
+    """
+    if not options.quiet:
+        print " - pep8 fix:", s
+
+
+def fix_line(checker, line_number, line_offset, text, check):
+    """
+    Given a Checker object and a check function,
+    fixes the line in the Checker object if it knows how.
+    This function only runs if the --fix flag is used.
+    """
+    if hasattr(check, 'fix'):
+        for start, end, repl in check.fix(checker, line_number, line_offset, text):
+            yield start, end, repl, text[0:4]
+
+
+def apply_edits(lines, edits):
+    #print lines, edits
+    output_lines = list(lines)
+
+    earliest_edit_point = (sys.maxint, sys.maxint)
+    # Sort the edits, favoring edits that end later and start earlier
+    # Ending later means that we don't mess up unapplied edits by shifting indices
+    # on them
+    # Starting earlier means that we do the edits with the widest scope first, which
+    # hopefully minimizes the total number if times pep8 --fix needs to be run
+    for edit in sorted(edits, key=lambda e: (e[1], -e[0][0], -e[0][1]), reverse=True):
+        (st_l, st_o), (end_l, end_o), repl, code = edit
+
+        if (end_l, end_o) > earliest_edit_point:
+            report_fix("Skipping edit to fix %s starting at line %s, offset %s" % (code, st_l, st_o))
+            continue
+        else:
+            report_fix("Applying fix for %s at line %s, offset %s" % (code, st_l, st_o))
+            earliest_edit_point = (st_l, st_o)
+
+        output_lines[end_l - 1] = output_lines[end_l - 1][:st_o] + repl + output_lines[end_l - 1][end_o:]
+        if st_l != end_l:
+            del output_lines[st_l - 1:end_l - 1]
+
+    return output_lines
 
 
 def _main():
