@@ -2,6 +2,48 @@ Changelog
 =========
 
 
+1.0.1 (2012-04-06)
+------------------
+
+* Fix inconsistent version numbers.
+
+
+1.0 (2012-04-04)
+----------------
+
+* Fix W602 ``raise`` to handle multi-char names. (Issue #53)
+
+
+0.7.0 (2012-03-26)
+------------------
+
+* Now ``--first`` prints only the first occurence of each error.
+  The ``--repeat`` flag becomes obsolete because it is the default
+  behaviour. (Issue #6)
+
+* Allow to specify ``--max-line-length``. (Issue #36)
+
+* Make the shebang more flexible. (Issue #26)
+
+* Add testsuite to the bundle. (Issue #25)
+
+* Fixes for Jython. (Issue #49)
+
+* Add PyPI classifiers. (Issue #43)
+
+* Fix the ``--exclude`` option. (Issue #48)
+
+* Fix W602, accept ``raise`` with 3 arguments. (Issue #34)
+
+* Correctly select all tests if ``DEFAULT_IGNORE == ''``.
+
+
+0.6.1 (2010-10-03)
+------------------
+
+* Fix inconsistent version numbers. (Issue #21)
+
+
 0.6.0 (2010-09-19)
 ------------------
 

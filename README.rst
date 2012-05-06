@@ -95,7 +95,8 @@ Quick help is available on the command line::
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq
-    -r, --repeat         show all occurrences of the same error
+    -r, --repeat         (obsolete) show all occurrences of the same error
+    --first              show first occurrence of each error
     --exclude=patterns   exclude files or directories which match these comma
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
@@ -109,6 +110,7 @@ Quick help is available on the command line::
                          error and set exit code to 1 if total is not null
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
+    --max-line-length=n  set maximum allowed line length (default 79)
     --doctest            run doctest on myself
 
 Feedback
