@@ -254,7 +254,7 @@ def maximum_line_length(physical_line):
             pass
     if length > options.max_line_length:
         return options.max_line_length, \
-            "E501 line too long (%d characters)" % length
+            "E501 line should have at most %d characters instead of %d" % (options.max_line_length, length)
 
 
 ##############################################################################
@@ -660,7 +660,7 @@ def compound_statements(logical_line):
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             not LAMBDA_REGEX.search(before)):           # lambda x: x
-            return found, "E701 multiple statements on one line (colon)"
+            return found, "E701 multiple statements on one line (colon) should be changed to one statement per line"
     found = line.find(';')
     if -1 < found:
         return found, "E702 multiple statements on one line (semicolon) should be changed to one statement per line"
@@ -691,7 +691,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        return match.start(1), "W602 deprecated form of raising exception"
+        return match.start(1), "W602 exception arguments should be passed in paranthesis"
 
 
 def python_3000_not_equal(logical_line):
