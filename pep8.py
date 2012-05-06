@@ -232,7 +232,7 @@ def fix_trailing_whitespace(checker, line_number, line_offset, text):
     spam(1)\s -> spam(1)
     spam(1)\t -> spam(1)
     spam(1)\t\s -> spam(1)
-    class Foo(object):\n    \n    bang = 12 -> class Foo(object):\n\n    bang = 12
+    class Foo(object):\n    \n  bang = 12 -> class Foo(object):\n\n  bang = 12
     """
     line = checker.lines[line_number - 1]
     first_trailingwhitespace = len(line)
@@ -362,7 +362,7 @@ def fix_blank_lines(checker, line_number, line_offset, text):
     """
     # Adjust line_number to back before comments
     while checker.lines[line_number - 2].lstrip().startswith('#'):
-        line_number -= 1;
+        line_number -= 1
 
     if text.startswith('E301'):
         yield ((line_number, 0), (line_number, 0), '\n')
