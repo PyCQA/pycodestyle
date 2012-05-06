@@ -1116,12 +1116,8 @@ class Checker(object):
             self.lines = lines
 
         # file to write to
-        if options.fix:
-            if options.inplace:
-                self.write_filename = filename
-            else:
-                self.write_filename = os.path.join(os.path.dirname(filename),
-                                                "fixed_" + os.path.basename(filename))
+        if options.fixed:
+            self.write_filename = os.path.join(options.fixed, os.path.basename(filename))
         self.edits = set()
 
         options.counters['physical lines'] += len(self.lines)
@@ -1285,7 +1281,7 @@ class Checker(object):
                     # a comment which is on a line by itself.
                     self.tokens = []
 
-        if options.fix and self.edits:
+        if options.fixed and self.edits:
             try:
                 with open(self.write_filename, "w") as writer:
                     report_fix("Writing changes to %s" % self.write_filename)
@@ -1641,12 +1637,9 @@ def process_options(arglist=None):
                       MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
-    parser.add_option('-f', '--fix', action='count',
-                      help="create a new file with *some* things fixed "
-                       "to match PEP8")
-    parser.add_option('-i', '--inplace', action='count',
-                      help="use with the --fix flag. Makes modifications "
-                       "in-place.")
+    parser.add_option('-f', '--fixed', metavar='output_dir', default=None,
+                      help="fix mistakes and stored corrected version in "
+                        " 'output_dir' if not used no fixes will be made")
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
