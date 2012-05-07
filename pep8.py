@@ -1673,7 +1673,7 @@ def process_options(arglist=None):
     attach_fix_functions(options.logical_checks)
 
     # Create the output directory if using --fixed
-    if options.fixed:
+    if options.fixed and not os.path.exists(options.fixed):
         os.makedirs(options.fixed)
 
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
