@@ -1672,6 +1672,10 @@ def process_options(arglist=None):
     attach_fix_functions(options.physical_checks)
     attach_fix_functions(options.logical_checks)
 
+    # Create the output directory if using --fixed
+    if options.fixed:
+        os.makedirs(options.fixed)
+
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
     return options, args
