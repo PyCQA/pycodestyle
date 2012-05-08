@@ -98,6 +98,7 @@ import os
 import sys
 import re
 import time
+import errno
 import inspect
 import keyword
 import tokenize
@@ -1013,6 +1014,16 @@ else:
         return open(filename, encoding='latin-1').readlines()
 
 
+def _make_directory(directory):
+    """
+    Like `os.makedirs` but does nothing if the folder already exists.
+    """
+    try:
+        os.makedirs(directory)
+    except OSError, error:
+        if error.errno != errno.EEXIST:
+            raise
+
 def expand_indent(line):
     """
     Return the amount of indentation.
@@ -1673,8 +1684,8 @@ def process_options(arglist=None):
     attach_fix_functions(options.logical_checks)
 
     # Create the output directory if using --fixed
-    if options.fixed and not os.path.exists(options.fixed):
-        os.makedirs(options.fixed)
+    if options.fixed:
+        _make_directory(options.fixed)
 
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
