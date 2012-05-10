@@ -1,6 +1,10 @@
 test :
 	python pep8.py --testsuite testsuite
 
+fixedtest :
+	python pep8.py --fixed=testsuite/fixed --testsuite testsuite
+	diff testsuite/expected_fixed testsuite/fixed
+
 selftest :
 	python pep8.py --repeat --statistics pep8.py
 
