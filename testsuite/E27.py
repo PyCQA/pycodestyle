@@ -8,3 +8,7 @@ True  and False
 True and		False
 #: E274
 True		and	False
+#: E272
+this  and False
+#: E274
+this		and	False

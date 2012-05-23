@@ -42,6 +42,7 @@ W warnings
 500 line length
 600 deprecation
 700 statements
+900 syntax error
 
 You can add checks to this program by writing plugins. Each plugin is
 a simple function that is called for each line of source code, either
@@ -138,8 +139,8 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
-KEYWORDS = frozenset(keyword.kwlist + ['print'])
-E225NOT_KEYWORDS = KEYWORDS - frozenset(['False', 'None', 'True'])
+KEYWORDS = (frozenset(keyword.kwlist + ['print']) -
+            frozenset(['False', 'None', 'True']))
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
@@ -538,7 +539,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     if prev_text in '}])':
                         need_space = True
                 elif prev_type == tokenize.NAME:
-                    if prev_text not in E225NOT_KEYWORDS:
+                    if prev_text not in KEYWORDS:
                         need_space = True
                 else:
                     need_space = True
@@ -955,6 +956,22 @@ class Checker(object):
                                   text, check)
         self.previous_logical = self.logical_line
 
+    def generate_tokens(self):
+        """
+        Check if the syntax is valid.
+        """
+        try:
+            for token in tokenize.generate_tokens(self.readline_check_physical):
+                yield token
+        except (SyntaxError, tokenize.TokenError):
+            exc_type, exc = sys.exc_info()[:2]
+            offset = exc.args[1]
+            if len(offset) > 2:
+                offset = offset[1:3]
+            self.report_error(offset[0], offset[1],
+                              'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
+                              self.generate_tokens)
+
     def check_all(self, expected=None, line_offset=0):
         """
         Run all checks on the input file.
@@ -970,7 +987,7 @@ class Checker(object):
         self.blank_lines_before_comment = 0
         self.tokens = []
         parens = 0
-        for token in tokenize.generate_tokens(self.readline_check_physical):
+        for token in self.generate_tokens():
             if options.verbose >= 3:
                 if token[2][0] == token[3][0]:
                     pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
