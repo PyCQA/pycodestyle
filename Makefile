@@ -26,11 +26,11 @@ multitest :
 	python3.0 pep8.py --doctest
 	python3.1 pep8.py --doctest
 	python3.2 pep8.py --doctest
-	python2.3 pep8.py --repeat --statistics pep8.py
-	python2.4 pep8.py --repeat --statistics pep8.py
-	python2.5 pep8.py --repeat --statistics pep8.py
-	python2.6 pep8.py --repeat --statistics pep8.py
-	python2.7 pep8.py --repeat --statistics pep8.py
-	python3.0 pep8.py --repeat --statistics pep8.py
-	python3.1 pep8.py --repeat --statistics pep8.py
-	python3.2 pep8.py --repeat --statistics pep8.py
+	python2.3 pep8.py --statistics pep8.py
+	python2.4 pep8.py --statistics pep8.py
+	python2.5 pep8.py --statistics pep8.py
+	python2.6 pep8.py --statistics pep8.py
+	python2.7 pep8.py --statistics pep8.py
+	python3.0 pep8.py --statistics pep8.py
+	python3.1 pep8.py --statistics pep8.py
+	python3.2 pep8.py --statistics pep8.py
