@@ -168,7 +168,7 @@ def tabs_or_spaces(physical_line, indent_char):
     indent = INDENT_REGEX.match(physical_line).group(1)
     for offset, char in enumerate(indent):
         if char != indent_char:
-            return offset, "E101 indentation contains mixed spaces and tabs"
+            return offset, "E101 indentation should use spaces instead of mixed spaces and tabs"
 
 
 def tabs_obsolete(physical_line):
@@ -181,7 +181,7 @@ def tabs_obsolete(physical_line):
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
     if indent.count('\t'):
-        return indent.index('\t'), "W191 indentation contains tabs"
+        return indent.index('\t'), "W191 indentation should use spaces instead of tabs"
 
 
 def trailing_whitespace(physical_line):
@@ -209,9 +209,9 @@ def trailing_whitespace(physical_line):
     stripped = physical_line.rstrip()
     if physical_line != stripped:
         if stripped:
-            return len(stripped), "W291 trailing whitespace"
+            return len(stripped), "W291 trailing whitespace should be removed"
         else:
-            return 0, "W293 blank line contains whitespace"
+            return 0, "W293 whitespace in blank line should be removed"
 
 
 def trailing_blank_lines(physical_line, lines, line_number):
@@ -222,7 +222,7 @@ def trailing_blank_lines(physical_line, lines, line_number):
     W391: spam(1)\n
     """
     if physical_line.strip() == '' and line_number == len(lines):
-        return 0, "W391 blank line at end of file"
+        return 0, "W391 blank line at end of file should be removed"
 
 
 def missing_newline(physical_line):
@@ -230,7 +230,7 @@ def missing_newline(physical_line):
     JCR: The last line should have a newline.
     """
     if physical_line.rstrip() == physical_line:
-        return len(physical_line), "W292 no newline at end of file"
+        return len(physical_line), "W292 the last line should have a newline"
 
 
 def maximum_line_length(physical_line):
@@ -256,7 +256,7 @@ def maximum_line_length(physical_line):
             pass
     if length > options.max_line_length:
         return options.max_line_length, \
-            "E501 line too long (%d characters)" % length
+            "E501 line should have at most %d characters instead of %d" % (options.max_line_length, length)
 
 
 ##############################################################################
@@ -292,7 +292,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
         if max_blank_lines:
-            return 0, "E304 blank lines found after function decorator"
+            return 0, "E304 blank lines after function decorator should be removed"
     elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
         return 0, "E303 too many blank lines (%d)" % max_blank_lines
     elif (logical_line.startswith('def ') or
@@ -332,12 +332,12 @@ def extraneous_whitespace(logical_line):
         char = text.strip()
         found = match.start()
         if text == char + ' ' and char in '([{':
-            return found + 1, "E201 whitespace after '%s'" % char
+            return found + 1, "E201 whitespace after '%s' should be removed" % char
         if text == ' ' + char and line[found - 1] != ',':
             if char in '}])':
-                return found, "E202 whitespace before '%s'" % char
+                return found, "E202 whitespace before '%s' should be removed" % char
             if char in ',;:':
-                return found, "E203 whitespace before '%s'" % char
+                return found, "E203 whitespace before '%s' should be removed" % char
 
 
 def whitespace_around_keywords(logical_line):
@@ -384,7 +384,7 @@ def missing_whitespace(logical_line):
                 continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
                 continue  # Allow tuple with only one element: (3,)
-            return index, "E231 missing whitespace after '%s'" % char
+            return index, "E231 after '%s' a whitespace should be added" % char
 
 
 def indentation(logical_line, previous_logical, indent_char,
@@ -406,7 +406,7 @@ def indentation(logical_line, previous_logical, indent_char,
     E113: a = 1\n    b = 2
     """
     if indent_char == ' ' and indent_level % 4:
-        return 0, "E111 indentation is not a multiple of four"
+        return 0, "E111 indentation should be a multiple of 4"
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
         return 0, "E112 expected an indented block"
@@ -444,7 +444,7 @@ def whitespace_before_parameters(logical_line, tokens):
             (index < 2 or tokens[index - 2][1] != 'class') and
             # Allow "return (a.foo for a in range(5))"
             (not keyword.iskeyword(prev_text))):
-            return prev_end, "E211 whitespace before '%s'" % text
+            return prev_end, "E211 whitespace before '%s' should be removed" % text
         prev_type = token_type
         prev_text = text
         prev_end = end
@@ -468,11 +468,11 @@ def whitespace_around_operator(logical_line):
         tab = whitespace == '\t'
         offset = match.start(2)
         if before in OPERATORS:
-            return offset, (tab and "E224 tab after operator" or
-                            "E222 multiple spaces after operator")
+            return offset, (tab and "E224 tab after operator should be replaced by space" or
+                            "E222 multiple spaces after operator should be replaced by a single space")
         elif after in OPERATORS:
-            return offset, (tab and "E223 tab before operator" or
-                            "E221 multiple spaces before operator")
+            return offset, (tab and "E223 tab before operator should be replaced by space" or
+                            "E221 multiple spaces before operator should be replaced by a single space")
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -524,7 +524,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 pass
             else:
-                return prev_end, "E225 missing whitespace around operator"
+                return prev_end, "E225 whitespace around operator should be added"
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
@@ -543,7 +543,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 else:
                     need_space = True
             if need_space and start == prev_end:
-                return prev_end, "E225 missing whitespace around operator"
+                return prev_end, "E225 whitespace around operator should be added"
         prev_type = token_type
         prev_text = text
         prev_end = end
@@ -567,10 +567,10 @@ def whitespace_around_comma(logical_line):
     for separator in ',;:':
         found = line.find(separator + '  ')
         if found > -1:
-            return found + 1, "E241 multiple spaces after '%s'" % separator
+            return found + 1, "E241 multiple spaces after '%s' should be replaced by a single space" % separator
         found = line.find(separator + '\t')
         if found > -1:
-            return found + 1, "E242 tab after '%s'" % separator
+            return found + 1, "E242 tab after '%s' should be replaced by space" % separator
 
 
 def whitespace_around_named_parameter_equals(logical_line):
@@ -593,7 +593,7 @@ def whitespace_around_named_parameter_equals(logical_line):
             logical_line):
         text = match.group()
         if parens and len(text) == 3:
-            issue = "E251 no spaces around keyword / parameter equals"
+            issue = "E251 spaces around keyword / parameter equals should be removed"
             return match.start(), issue
         if text == '(':
             parens += 1
@@ -624,7 +624,7 @@ def whitespace_before_inline_comment(logical_line, tokens):
                 continue
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
                 return (prev_end,
-                        "E261 at least two spaces before inline comment")
+                        "E261 at least two spaces should preceed inline comment")
             if (len(text) > 1 and text.startswith('#  ')
                            or not text.startswith('# ')):
                 return start, "E262 inline comment should start with '# '"
@@ -649,7 +649,7 @@ def imports_on_separate_lines(logical_line):
     if line.startswith('import '):
         found = line.find(',')
         if found > -1:
-            return found, "E401 multiple imports on one line"
+            return found, "E401 multiple imports should be changed to one import per line"
 
 
 def compound_statements(logical_line):
@@ -684,10 +684,10 @@ def compound_statements(logical_line):
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             not LAMBDA_REGEX.search(before)):           # lambda x: x
-            return found, "E701 multiple statements on one line (colon)"
+            return found, "E701 multiple statements on one line (colon) should be changed to one statement per line"
     found = line.find(';')
     if -1 < found:
-        return found, "E702 multiple statements on one line (semicolon)"
+        return found, "E702 multiple statements on one line (semicolon) should be changed to one statement per line"
 
 
 def python_3000_has_key(logical_line):
@@ -700,7 +700,7 @@ def python_3000_has_key(logical_line):
     """
     pos = logical_line.find('.has_key(')
     if pos > -1:
-        return pos, "W601 .has_key() is deprecated, use 'in'"
+        return pos, "W601 '.has_key()' should be replaced by 'in'"
 
 
 def python_3000_raise_comma(logical_line):
@@ -715,7 +715,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        return match.start(1), "W602 deprecated form of raising exception"
+        return match.start(1), "W602 exception arguments should be passed in paranthesis"
 
 
 def python_3000_not_equal(logical_line):
@@ -726,7 +726,7 @@ def python_3000_not_equal(logical_line):
     """
     pos = logical_line.find('<>')
     if pos > -1:
-        return pos, "W603 '<>' is deprecated, use '!='"
+        return pos, "W603 '<>' should be replaced by '!='"
 
 
 def python_3000_backticks(logical_line):
@@ -736,7 +736,7 @@ def python_3000_backticks(logical_line):
     """
     pos = logical_line.find('`')
     if pos > -1:
-        return pos, "W604 backticks are deprecated, use 'repr()'"
+        return pos, "W604 backticks should be replaced by 'repr()'"
 
 
 ##############################################################################
