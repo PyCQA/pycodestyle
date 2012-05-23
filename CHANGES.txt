@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+1.0.2 (UNRELEASED)
+------------------
+
+* Add E271, E272, E273 and E274 for extraneous whitespace around
+  keywords. (Issue #57)
+
+
 1.0.1 (2012-04-06)
 ------------------
 
