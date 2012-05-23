@@ -8,6 +8,10 @@ Changelog
 * Add E271, E272, E273 and E274 for extraneous whitespace around
   keywords. (Issue #57)
 
+* Add ``tox.ini`` configuration file for tests. (Issue #61)
+
+* Add ``.travis.yml`` configuration for continuous integration. (Issue #62)
+
 
 1.0.1 (2012-04-06)
 ------------------
