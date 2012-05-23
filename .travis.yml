@@ -1,0 +1,11 @@
+language: python
+python:
+  - 2.5
+  - 2.6
+  - 2.7
+  - 3.2
+  - pypy
+script:
+  - python pep8.py --testsuite testsuite
+  - python pep8.py --repeat --statistics pep8.py
+  - python pep8.py --doctest
