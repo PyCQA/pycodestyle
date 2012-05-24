@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.0.2 (UNRELEASED)
-------------------
+1.1 (2012-05-24)
+----------------
 
 * Add E901 for syntax errors. (Issues #63 and #30)
 
@@ -12,7 +12,8 @@ Changelog
 
 * Add ``tox.ini`` configuration file for tests. (Issue #61)
 
-* Add ``.travis.yml`` configuration for continuous integration. (Issue #62)
+* Add ``.travis.yml`` configuration file for continuous integration.
+  (Issue #62)
 
 
 1.0.1 (2012-04-06)
