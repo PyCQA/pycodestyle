@@ -960,8 +960,9 @@ class Checker(object):
         """
         Check if the syntax is valid.
         """
+        tokengen = tokenize.generate_tokens(self.readline_check_physical)
         try:
-            for token in tokenize.generate_tokens(self.readline_check_physical):
+            for token in tokengen:
                 yield token
         except (SyntaxError, tokenize.TokenError):
             exc_type, exc = sys.exc_info()[:2]
@@ -997,21 +998,22 @@ class Checker(object):
                     (token[2][0], pos, tokenize.tok_name[token[0]], token[1]))
             self.tokens.append(token)
             token_type, text = token[0:2]
-            if token_type == tokenize.OP and text in '([{':
-                parens += 1
-            if token_type == tokenize.OP and text in '}])':
-                parens -= 1
-            if token_type == tokenize.NEWLINE and not parens:
+            if token_type == tokenize.OP:
+                if text in '([{':
+                    parens += 1
+                elif text in '}])':
+                    parens -= 1
+            elif token_type == tokenize.NEWLINE and not parens:
                 self.check_logical()
                 self.blank_lines = 0
                 self.blank_lines_before_comment = 0
                 self.tokens = []
-            if token_type == tokenize.NL and not parens:
+            elif token_type == tokenize.NL and not parens:
                 if len(self.tokens) <= 1:
                     # The physical line contains only this token.
                     self.blank_lines += 1
                 self.tokens = []
-            if token_type == tokenize.COMMENT:
+            elif token_type == tokenize.COMMENT:
                 source_line = token[4]
                 token_start = token[2][1]
                 if source_line[:token_start].strip() == '':
