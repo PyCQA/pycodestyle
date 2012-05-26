@@ -5,7 +5,11 @@ python:
   - 2.7
   - 3.2
   - pypy
+  - 3.1
+  - 2.4
+install:
+  - pip freeze
 script:
   - python pep8.py --testsuite testsuite
-  - python pep8.py --repeat --statistics pep8.py
+  - python pep8.py --statistics pep8.py
   - python pep8.py --doctest
