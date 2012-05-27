@@ -132,9 +132,11 @@ LAMBDA_REGEX = re.compile(r'\blambda\b')
 
 WHITESPACE = ' \t'
 
-BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
-    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+BINARY_OPERATORS = frozenset([
+    '**=', '*=', '+=', '-=', '!=', '<>', '%=', '^=', '&=', '|=', '==',
+    '/=', '//=', '<=', '>=', '<<=', '>>=', '%',  '^',  '&',  '|',  '=',
+    '/',  '//',  '<',  '>',  '<<',
+])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
@@ -587,13 +589,13 @@ def whitespace_before_parameters(logical_line, tokens):
     for index in range(1, len(tokens)):
         token_type, text, start, end, line = tokens[index]
         if (token_type == tokenize.OP and
-            text in '([' and
-            start != prev_end and
-            (prev_type == tokenize.NAME or prev_text in '}])') and
-            # Syntax "class A (B):" is allowed, but avoid it
-            (index < 2 or tokens[index - 2][1] != 'class') and
-            # Allow "return (a.foo for a in range(5))"
-            (not keyword.iskeyword(prev_text))):
+                text in '([' and
+                start != prev_end and
+                (prev_type == tokenize.NAME or prev_text in '}])') and
+                # Syntax "class A (B):" is allowed, but avoid it
+                (index < 2 or tokens[index - 2][1] != 'class') and
+                # Allow "return (a.foo for a in range(5))"
+                (not keyword.iskeyword(prev_text))):
             return prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
@@ -775,8 +777,8 @@ def whitespace_before_inline_comment(logical_line, tokens):
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
                 return (prev_end,
                         "E261 at least two spaces before inline comment")
-            if (len(text) > 1 and text.startswith('#  ')
-                           or not text.startswith('# ')):
+            if (len(text) > 1 and (text.startswith('#  ') or not
+                                   text.startswith('# '))):
                 return start, "E262 inline comment should start with '# '"
         else:
             prev_end = end
@@ -833,7 +835,7 @@ def compound_statements(logical_line):
         before = line[:found]
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
-            not LAMBDA_REGEX.search(before)):           # lambda x: x
+                not LAMBDA_REGEX.search(before)):       # lambda x: x
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
@@ -1143,8 +1145,10 @@ class Checker(object):
                     pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
                 else:
                     pos = 'l.%s' % token[3][0]
-                print('l.%s\t%s\t%s\t%r' %
-                    (token[2][0], pos, tokenize.tok_name[token[0]], token[1]))
+                print 'l.%s\t%s\t%s\t%r' % (
+                    token[2][0], pos, tokenize.tok_name[token[0]],
+                    token[1]
+                )
             self.tokens.append(token)
             token_type, text = token[0:2]
             if token_type == tokenize.OP:
@@ -1166,7 +1170,8 @@ class Checker(object):
                 source_line = token[4]
                 token_start = token[2][1]
                 if source_line[:token_start].strip() == '':
-                    self.blank_lines_before_comment = max(self.blank_lines,
+                    self.blank_lines_before_comment = max(
+                        self.blank_lines,
                         self.blank_lines_before_comment)
                     self.blank_lines = 0
                 if text.endswith('\n') and not parens:
@@ -1454,13 +1459,13 @@ def process_options(arglist=None):
     parser.add_option('--first', action='store_false', dest='repeat',
                       help="show first occurrence of each error")
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
-                      help="exclude files or directories which match these "
-                        "comma separated patterns (default: %s)" %
-                        DEFAULT_EXCLUDE)
+                      help=("exclude files or directories which match these "
+                            "comma separated patterns (default: %s)" %
+                            DEFAULT_EXCLUDE))
     parser.add_option('--filename', metavar='patterns', default='*.py',
-                      help="when parsing directories, only check filenames "
-                        "matching these comma separated patterns (default: "
-                        "*.py)")
+                      help=("when parsing directories, only check filenames "
+                            "matching these comma separated patterns "
+                            "(default: *.py)"))
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
@@ -1472,9 +1477,9 @@ def process_options(arglist=None):
     parser.add_option('--statistics', action='store_true',
                       help="count errors and warnings")
     parser.add_option('--count', action='store_true',
-                      help="print total number of errors and warnings "
-                        "to standard error and set exit code to 1 if "
-                        "total is not null")
+                      help=("print total number of errors and warnings "
+                            "to standard error and set exit code to 1 if "
+                            "total is not null"))
     parser.add_option('--benchmark', action='store_true',
                       help="measure processing speed")
     parser.add_option('--testsuite', metavar='dir',

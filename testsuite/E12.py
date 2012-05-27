@@ -126,3 +126,23 @@ if bar:
         "to match that of the opening "
         "bracket's line"
     )
+#: Okay
+# you want vertical alignment, so use a parens
+if ((foo.bar("baz") and
+     foo.bar("frop")
+     )):
+    print "yes"
+
+# also ok, but starting to look like LISP
+if ((foo.bar("baz") and
+     foo.bar("frop"))):
+    print "yes"
+#: Okay
+# print('l.%s\t%s\t%s\t%r' %
+#     (token[2][0], pos, tokenize.tok_name[token[0]], token[1]))
+print 'l.{line}\t{pos}\t{name}\t{text}'.format(
+    line=token[2][0],
+    pos=pos,
+    name=tokenize.tok_name[token[0]],
+    text=repr(token[1]),
+)
