@@ -127,6 +127,9 @@ WHITESPACE_AROUND_KEYWORD_REGEX = \
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
+COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
+COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
+                                r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 
 
@@ -139,8 +142,8 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
                          tokenize.DEDENT, tokenize.NEWLINE])
-KEYWORDS = (frozenset(keyword.kwlist + ['print']) -
-            frozenset(['False', 'None', 'True']))
+SINGLETONS = frozenset(['False', 'None', 'True'])
+KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
@@ -725,6 +728,59 @@ def explicit_line_join(logical_line, tokens):
         prev_end = end
 
 
+def comparison_to_singleton(logical_line):
+    """
+    Comparisons to singletons like None should always be done
+    with "is" or "is not", never the equality operators.
+
+    E711: if arg != None:
+    Okay: if arg is not None:
+
+    Also, beware of writing if x when you really mean if x is not None --
+    e.g. when testing whether a variable or argument that defaults to None was
+    set to some other value.  The other value might have a type (such as a
+    container) that could be false in a boolean context!
+    """
+    match = COMPARE_SINGLETON_REGEX.search(logical_line)
+    if match:
+        same = (match.group(1) == '==')
+        singleton = match.group(2)
+        if singleton in ('None',):
+            code = 'E711'
+            msg = "'if cond %s %s:'" % (same and 'is' or 'is not', singleton)
+        else:
+            code = 'E712'
+            nonzero = ((same and singleton == 'True' and same) or
+                       (singleton == 'False' and not same))
+            msg = ("'if cond is %s:' or 'if%scond:'" %
+                   (nonzero and 'True' or 'False', nonzero and ' ' or ' not '))
+        return match.start(1), ("%s comparison to %s should be %s" %
+                                (code, singleton, msg))
+
+
+def comparison_type(logical_line):
+    """
+    Object type comparisons should always use isinstance() instead of
+    comparing types directly.
+
+    Okay: if isinstance(obj, int):
+    E721: if type(obj) is type(1):
+
+    When checking if an object is a string, keep in mind that it might be a
+    unicode string too! In Python 2.3, str and unicode have a common base
+    class, basestring, so you can do:
+
+    Okay: if isinstance(obj, basestring):
+    Okay: if type(a1) is type(b1):
+    """
+    match = COMPARE_TYPE_REGEX.search(logical_line)
+    if match:
+        inst = match.group(3)
+        if inst and isidentifier(inst) and inst not in SINGLETONS:
+            return  # Allow comparison for types which are not obvious
+        return match.start(1), "E721 do not compare types, use 'isinstance()'"
+
+
 def python_3000_has_key(logical_line):
     """
     The {}.has_key() method will be removed in the future version of
@@ -783,6 +839,9 @@ if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
         return open(filename).readlines()
+
+    def isidentifier(s):
+        return re.match('[a-zA-Z_]\w*', s)
 else:
     # Python 3: decode to latin-1.
     # This function is lazy, it does not read the encoding declaration.
@@ -790,6 +849,8 @@ else:
     def readlines(filename):
         return open(filename, encoding='latin-1').readlines()
 
+    def isidentifier(s):
+        return s.isidentifier()
 
 def expand_indent(line):
     r"""

@@ -5,6 +5,10 @@ Changelog
 1.2 (UNRELEASED)
 ----------------
 
+* Add E721 for direct type comparisons. (Issue #47)
+
+* Add E711 and E712 for comparisons to singletons. (Issue #46)
+
 * Fix spurious E225 and E701 for function annotations. (Issue #29)
 
 * Add E502 for explicit line join between brackets.
