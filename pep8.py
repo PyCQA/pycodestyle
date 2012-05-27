@@ -460,8 +460,10 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             parens.append([])
 
         if line > 0:
-            if max_physical_line < line and token_type != tokenize.NEWLINE:
-                if depth > 0 and last_backslash[line - 1] is not None:
+            if max_physical_line < line and not token_type in (
+                    tokenize.NEWLINE, tokenize.NL):
+                if depth > 0 and len(last_backslash) >= line and \
+                        last_backslash[line - 1] is not None:
                     return(last_backslash[line - 1], "E127 unnecessary "
                            "continuation backslash")
                 # this is the beginning of a continuation line.
@@ -507,7 +509,10 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
                 # check that this line is either visually indented vs
                 # the opening parens, or a hanging indent.
-                if start[1] == start_col:
+                if start[1] == last_token_multiline:
+                    # continuing right after a multiline string is OK
+                    pass
+                elif start[1] == start_col:
                     # visual.  fine.
                     pass
                 elif min_indent is not None:
@@ -536,7 +541,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                         return(start, "E125 continuation line over-"
                                "indented")
 
-    # keep track of bracket depth and look for visual indenting
+        # keep track of bracket depth and look for visual indenting
         if token_type == tokenize.OP and text in '([{':
             visual_min.append(None)
             depth += 1
@@ -571,6 +576,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             if len(parens[open_line]):
                 visual_min[depth] = parens[open_line][-1][1]
 
+        # exceptions that need to processed at the end of lines
         if len(last_backslash) - 1 < line:
             while len(last_backslash) < line:
                 last_backslash.append(None)
@@ -578,6 +584,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 (end[0], len(orig_line) - 2) if orig_line.endswith('\\\n')
                 else None
             )
+
+        last_token_multiline = (end[1] if start[0] != end[0] else None)
 
     if indent_next and rel_indent[-1][1] == 4:
         return(last_indent, "E126 statement with indented block ends "

@@ -175,3 +175,34 @@ if foo is None and bar is "frop" and \
 if (foo is None and bar is "e127" and \
         blah == 'yeah'):
     blah = 'yeahnah'
+#: Okay
+if blah:
+    # is this actually readable?  :)
+    multiline_literal = """
+while True:
+    if True:
+        1
+""".lstrip()
+    multiline_literal = (
+        """
+while True:
+    if True:
+        1
+""".lstrip()
+    )
+    multiline_literal = (
+        """
+while True:
+    if True:
+        1
+"""
+        .lstrip()
+    )
+#: Okay
+if blah:
+    multiline_visual = ("""
+while True:
+    if True:
+        1
+"""
+                        .lstrip())
