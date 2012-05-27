@@ -1318,7 +1318,8 @@ def process_options(arglist=None):
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
-                      help="show text of PEP 8 for each error")
+                      help="show text of PEP 8 for each error "
+                        "(implies --first)")
     parser.add_option('--statistics', action='store_true',
                       help="count errors and warnings")
     parser.add_option('--count', action='store_true',
@@ -1337,6 +1338,8 @@ def process_options(arglist=None):
                       help="run doctest on myself")
 
     options, args = parser.parse_args(arglist)
+    if options.show_pep8:
+        options.repeat = False
     if options.testsuite:
         args.append(options.testsuite)
     if not args and not options.doctest:

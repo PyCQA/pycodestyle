@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+1.2 (UNRELEASED)
+----------------
+
+* Option ``--show-pep8`` implies ``--first``.
+
+
 1.1 (2012-05-24)
 ----------------
 
