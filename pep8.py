@@ -852,6 +852,7 @@ else:
     def isidentifier(s):
         return s.isidentifier()
 
+
 def expand_indent(line):
     r"""
     Return the amount of indentation.
