@@ -118,3 +118,11 @@ result = {
         }
     ]
 }
+#: Okay
+if bar:
+    return(
+        start, 'E122 lines starting with a '
+        'closing bracket should be indented '
+        "to match that of the opening "
+        "bracket's line"
+    )

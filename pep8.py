@@ -445,7 +445,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     parens = []  # for looking back to see where a bracket was opened
     max_physical_line = 0
     visual_min = [None]  # visual indent columns by indent depth
-    rel_indent = [[0,indent_level]]  # relative indents of physical lines
+    rel_indent = [[0, 0]]  # relative indents of physical lines
     last_indent = None
     if options.verbose >= 3:
         print ">>> " + tokens[0][4],
@@ -478,8 +478,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     for open_line in range(line - 1, -1, -1):
                         if len(parens[open_line]) > 0:
                             break
-                    if open_line is None:
-                        import pdb; pdb.set_trace()
 
                     # check to see if visual indenting is active
                     min_indent = visual_min[depth]
@@ -497,8 +495,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
                     # check that this line is either visually indented vs
                     # the opening parens, or a hanging indent.
-                    if len(parens[open_line]) == 0:
-                        import pdb; pdb.set_trace()
                     start_col, end_col = parens[open_line][-1]
                     if start[1] == start_col:
                         # visual.  fine.
@@ -539,11 +535,12 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 visual_min[depth] = visual_min[depth - 1]
             parens[line].append([start[1], end[1]])
             if options.verbose >= 4:
-                print "bracket depth {d} seen, col {c}, visual min = {m}".format(
-                    d=depth,
-                    c=start[1],
-                    m=visual_min[depth],
-                )
+                print "bracket depth {d} seen, col {c}, visual min = {m}"\
+                    .format(
+                        d=depth,
+                        c=start[1],
+                        m=visual_min[depth],
+                    )
         elif len(parens[line]) > 0 and token_type != tokenize.NL:
             # text after an open parens starts visual indenting
             if visual_min[depth] is None:
