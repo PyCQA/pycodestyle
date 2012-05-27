@@ -5,6 +5,8 @@ Changelog
 1.2 (UNRELEASED)
 ----------------
 
+* Fix spurious E225 and E701 for function annotations. (Issue #29)
+
 * Add E502 for explicit line join between brackets.
 
 * Fix E901 when printing source with ``--show-source``.

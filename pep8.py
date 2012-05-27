@@ -521,8 +521,9 @@ def missing_whitespace_around_operator(logical_line, tokens):
         if need_space:
             if start != prev_end:
                 need_space = False
-            elif text == '>' and prev_text == '<':
+            elif text == '>' and prev_text in ('<', '-'):
                 # Tolerate the "<>" operator, even if running Python 3
+                # Deal with Python 3's annotated return value "->"
                 pass
             else:
                 return prev_end, "E225 missing whitespace around operator"
@@ -684,6 +685,7 @@ def compound_statements(logical_line):
         before = line[:found]
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
+            before.count('(') <= before.count(')') and  # (Python 3 annotation)
             not LAMBDA_REGEX.search(before)):           # lambda x: x
             return found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
