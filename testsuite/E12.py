@@ -146,3 +146,7 @@ print 'l.{line}\t{pos}\t{name}\t{text}'.format(
     name=tokenize.tok_name[token[0]],
     text=repr(token[1]),
 )
+#: Okay
+if os.path.exists(os.path.join(path, PEP8_BIN)):
+    cmd = ([os.path.join(path, PEP8_BIN)] +
+           self._pep8_options(targetfile))

@@ -560,6 +560,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 if len(parens[open_line]) > 0:
                     parens[open_line].pop()
                     break
+            if len(parens[open_line]):
+                visual_min[depth] = parens[open_line][-1][1]
 
     if indent_next and rel_indent[-1][1] == 4:
         return(last_indent, "E126 statement with indented block ends "
