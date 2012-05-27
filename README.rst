@@ -4,6 +4,8 @@ pep8 - Python style guide checker
 pep8 is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
+.. image:: https://secure.travis-ci.org/jcrocholl/pep8.png?branch=master
+
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 
@@ -47,7 +49,7 @@ Example usage and output
 
 ::
 
-  $ pep8 optparse.py
+  $ pep8 --first optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -60,18 +62,19 @@ Example usage and output
 You can also make pep8.py show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8 --show-source --show-pep8 testsuite/E111.py
-  testsuite/E111.py:2:3: E111 indentation is not a multiple of four
-    print x
-    ^
-      Use 4 spaces per indentation level.
+  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  testsuite/E40.py:2:10: E401 multiple imports on one line
+  import os, sys
+           ^
+      Imports should usually be on separate lines.
 
-      For really old code that you don't want to mess up, you can
-      continue to use 8-space tabs.
+      Okay: import os\nimport sys
+      E401: import sys, os
+
 
 Or you can display how often each error was found::
 
-  $ pep8 --statistics -qq --filename=*.py Python-2.5/Lib
+  $ pep8 --statistics -qq Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -104,13 +107,13 @@ Quick help is available on the command line::
     --select=errors      select errors and warnings (e.g. E,W6)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
     --show-source        show source code for each error
-    --show-pep8          show text of PEP 8 for each error
+    --show-pep8          show text of PEP 8 for each error (implies --first)
     --statistics         count errors and warnings
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
     --benchmark          measure processing speed
     --testsuite=dir      run regression tests from dir
-    --max-line-length=n  set maximum allowed line length (default 79)
+    --max-line-length=n  set maximum allowed line length (default: 79)
     --doctest            run doctest on myself
 
 Feedback
