@@ -4,8 +4,6 @@ pep8 - Python style guide checker
 pep8 is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
-.. image:: https://secure.travis-ci.org/jcrocholl/pep8.png?branch=master
-
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 
@@ -126,6 +124,10 @@ http://github.com/jcrocholl/pep8/issues
 
 Source download
 ---------------
+
+.. image:: https://secure.travis-ci.org/jcrocholl/pep8.png?branch=master
+   :target: https://secure.travis-ci.org/jcrocholl/pep8
+   :alt: Build status
 
 The source code is currently available on github. Fork away!
 
