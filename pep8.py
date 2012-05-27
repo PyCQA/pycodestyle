@@ -449,6 +449,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     visual_min = [None]  # visual indent columns by indent depth
     rel_indent = [[0, 0]]  # relative indents of physical lines
     last_indent = None
+    last_backslash = []
     if options.verbose >= 3:
         print ">>> " + tokens[0][4],
 
@@ -460,6 +461,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
         if line > 0:
             if max_physical_line < line and token_type != tokenize.NEWLINE:
+                if depth > 0 and last_backslash[line - 1] is not None:
+                    return(last_backslash[line - 1], "E127 unnecessary "
+                           "continuation backslash")
                 # this is the beginning of a continuation line.
                 max_physical_line = line
                 last_indent = start
@@ -566,6 +570,14 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     break
             if len(parens[open_line]):
                 visual_min[depth] = parens[open_line][-1][1]
+
+        if len(last_backslash) - 1 < line:
+            while len(last_backslash) < line:
+                last_backslash.append(None)
+            last_backslash.append(
+                (end[0], len(orig_line) - 2) if orig_line.endswith('\\\n')
+                else None
+            )
 
     if indent_next and rel_indent[-1][1] == 4:
         return(last_indent, "E126 statement with indented block ends "

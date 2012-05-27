@@ -171,3 +171,7 @@ if foo is None and bar is "frop" and \
 #: Okay
 """This is a multi-line
    docstring."""
+#: E127
+if (foo is None and bar is "e127" and \
+        blah == 'yeah'):
+    blah = 'yeahnah'
