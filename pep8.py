@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.1'
+__version__ = '1.2dev'
 
 import os
 import sys
@@ -181,7 +181,7 @@ def tabs_obsolete(physical_line):
     W191: if True:\n\treturn
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
-    if indent.count('\t'):
+    if '\t' in indent:
         return indent.index('\t'), "W191 indentation contains tabs"
 
 
@@ -222,7 +222,7 @@ def trailing_blank_lines(physical_line, lines, line_number):
     Okay: spam(1)
     W391: spam(1)\n
     """
-    if physical_line.strip() == '' and line_number == len(lines):
+    if not physical_line.rstrip() and line_number == len(lines):
         return 0, "W391 blank line at end of file"
 
 
@@ -342,7 +342,7 @@ def extraneous_whitespace(logical_line):
 
 
 def whitespace_around_keywords(logical_line):
-    """
+    r"""
     Avoid extraneous whitespace around keywords.
 
     Okay: True and False
@@ -452,7 +452,7 @@ def whitespace_before_parameters(logical_line, tokens):
 
 
 def whitespace_around_operator(logical_line):
-    """
+    r"""
     Avoid extraneous whitespace in the following situations:
 
     - More than one space around an assignment (or other) operator to
@@ -551,7 +551,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
 
 
 def whitespace_around_comma(logical_line):
-    """
+    r"""
     Avoid extraneous whitespace in the following situations:
 
     - More than one space around an assignment (or other) operator to
@@ -649,7 +649,7 @@ def imports_on_separate_lines(logical_line):
     line = logical_line
     if line.startswith('import '):
         found = line.find(',')
-        if found > -1:
+        if -1 < found:
             return found, "E401 multiple imports on one line"
 
 
@@ -758,19 +758,19 @@ else:
 
 
 def expand_indent(line):
-    """
+    r"""
     Return the amount of indentation.
     Tabs are expanded to the next multiple of 8.
 
     >>> expand_indent('    ')
     4
-    >>> expand_indent('\\t')
+    >>> expand_indent('\t')
     8
-    >>> expand_indent('    \\t')
+    >>> expand_indent('    \t')
     8
-    >>> expand_indent('       \\t')
+    >>> expand_indent('       \t')
     8
-    >>> expand_indent('        \\t')
+    >>> expand_indent('        \t')
     16
     """
     result = 0
@@ -883,7 +883,7 @@ class Checker(object):
         Run all physical checks on a raw input line.
         """
         self.physical_line = line
-        if self.indent_char is None and len(line) and line[0] in ' \t':
+        if self.indent_char is None and line[:1] in (' ', '\t'):
             self.indent_char = line[0]
         for name, check, argument_names in options.physical_checks:
             result = self.run_check(check, argument_names)
@@ -923,8 +923,7 @@ class Checker(object):
             length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
-        assert self.logical_line.lstrip() == self.logical_line
-        assert self.logical_line.rstrip() == self.logical_line
+        assert self.logical_line.strip() == self.logical_line
 
     def check_logical(self):
         """
@@ -1336,6 +1335,7 @@ def process_options(arglist=None):
                       MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+
     options, args = parser.parse_args(arglist)
     if options.testsuite:
         args.append(options.testsuite)
@@ -1343,10 +1343,11 @@ def process_options(arglist=None):
         parser.error('input not specified')
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
-    for index in range(len(options.exclude)):
-        options.exclude[index] = options.exclude[index].rstrip('/')
+    for index, value in enumerate(options.exclude):
+        options.exclude[index] = value.rstrip('/')
     if options.filename:
         options.filename = options.filename.split(',')
+
     if options.select:
         options.select = options.select.split(',')
     else:
@@ -1362,6 +1363,7 @@ def process_options(arglist=None):
     else:
         # The default choice: ignore controversial checks
         options.ignore = DEFAULT_IGNORE.split(',')
+
     options.physical_checks = find_checks('physical_line')
     options.logical_checks = find_checks('logical_line')
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
