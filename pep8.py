@@ -691,6 +691,38 @@ def compound_statements(logical_line):
         return found, "E702 multiple statements on one line (semicolon)"
 
 
+def explicit_line_join(logical_line, tokens):
+    r"""
+    Avoid explicit line join between brackets.
+
+    The preferred way of wrapping long lines is by using Python's implied line
+    continuation inside parentheses, brackets and braces.  Long lines can be
+    broken over multiple lines by wrapping expressions in parentheses.  These
+    should be used in preference to using a backslash for line continuation.
+
+    E502: aaa = [123, \\n       123]
+    E502: aaa = ("bbb " \\n       "ccc")
+
+    Okay: aaa = [123,\n       123]
+    Okay: aaa = ("bbb "\n       "ccc")
+    Okay: aaa = "bbb " \\n      "ccc"
+    """
+    newlines = tokenize.NEWLINE, tokenize.NL
+    prev_type = tokenize.NEWLINE
+    prev_end = (0, 0)
+    parens = 0
+    for token_type, text, start, end, line in tokens:
+        if start[0] != prev_end[0] and parens and prev_type not in newlines:
+            return prev_end, "E502 the backslash is redundant between brackets"
+        if token_type == tokenize.OP:
+            if text in '([{':
+                parens += 1
+            elif text in ')]}':
+                parens -= 1
+        prev_type = token_type
+        prev_end = end
+
+
 def python_3000_has_key(logical_line):
     """
     The {}.has_key() method will be removed in the future version of
@@ -1049,7 +1081,10 @@ class Checker(object):
                   (self.filename, self.line_offset + line_number,
                    offset + 1, text))
             if options.show_source:
-                line = self.lines[line_number - 1]
+                if line_number > len(self.lines):
+                    line = ''
+                else:
+                    line = self.lines[line_number - 1]
                 print(line.rstrip())
                 print(' ' * offset + '^')
             if options.show_pep8:

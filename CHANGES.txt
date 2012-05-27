@@ -5,6 +5,10 @@ Changelog
 1.2 (UNRELEASED)
 ----------------
 
+* Add E502 for explicit line join between brackets.
+
+* Fix E901 when printing source with ``--show-source``.
+
 * Option ``--show-pep8`` implies ``--first``.
 
 
