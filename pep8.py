@@ -459,7 +459,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             parens.append([])
 
         if line > 0:
-            if max_physical_line < line:
+            if max_physical_line < line and token_type != tokenize.NEWLINE:
                 # this is the beginning of a continuation line.
                 max_physical_line = line
                 last_indent = start
@@ -480,55 +480,59 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     for open_line in range(line - 1, -1, -1):
                         if len(parens[open_line]) > 0:
                             break
-
-                    # check to see if visual indenting is active
-                    min_indent = visual_min[depth]
-                    if min_indent is not None:
-                        if start[1] < min_indent:
-                            return(start, 'E120 continuation line '
-                                   'insufficiently indentated for visual '
-                                   'indent; hanging indents should have '
-                                   'no arguments on the first line')
-
-                    # for E122
-                    eff_depth = depth
-                    if token_type == tokenize.OP and text in ']})':
-                        eff_depth -= 1
-
-                    # check that this line is either visually indented vs
-                    # the opening parens, or a hanging indent.
                     start_col, end_col = parens[open_line][-1]
-                    if start[1] == start_col:
-                        # visual.  fine.
-                        pass
-                    elif min_indent is not None:
-                        over_indent = start[1] - end_col
-                        if start[1] > end_col and not (
-                                over_indent == 4 and indent_next):
-                            return(start, "E121 continuation line over-"
-                                   "indented for visual indent")
-                    else:
-                        # hanging indent.
-                        x = rel_indent[line][1] - rel_indent[open_line][1]
-                        if eff_depth != depth:
-                            if x != 0:
-                                return(
-                                    start, 'E122 lines starting with a '
-                                    'closing bracket should be indented '
-                                    "to match that of the opening "
-                                    "bracket's line"
-                                )
-                        elif (x <= 0):
-                            return(start, 'E123 continuation line '
-                                   'missing indent or outdented')
-                        elif (x % 4):
-                            return(start, 'E124 continuation line not '
-                                   'indented on a 4-space boundary')
-                        elif (x > 4) and not (x == 8 and indent_next):
-                            return(start, "E125 continuation line over-"
-                                   "indented")
+                    hang = rel_indent[line][1] - rel_indent[open_line][1]
+                else:
+                    # an unbracketed continuation line (ie, backslash)
+                    start_col = 0
+                    hang = rel_indent[line][1]
 
-        # keep track of bracket depth and look for visual indenting
+                # check to see if visual indenting is active
+                min_indent = visual_min[depth]
+                if min_indent is not None:
+                    if start[1] < min_indent:
+                        return(start, 'E120 continuation line '
+                               'insufficiently indentated for visual '
+                               'indent; hanging indents should have no '
+                               'arguments on the first line')
+
+                # for E122
+                eff_depth = depth
+                if token_type == tokenize.OP and text in ']})':
+                    eff_depth -= 1
+
+                # check that this line is either visually indented vs
+                # the opening parens, or a hanging indent.
+                if start[1] == start_col:
+                    # visual.  fine.
+                    pass
+                elif min_indent is not None:
+                    over_indent = start[1] - end_col
+                    if start[1] > end_col and not (
+                            over_indent == 4 and indent_next):
+                        return(start, "E121 continuation line over-"
+                               "indented for visual indent")
+                else:
+                    # hanging indent.
+                    if eff_depth != depth:
+                        if hang != 0:
+                            return(
+                                start, 'E122 lines starting with a '
+                                'closing bracket should be indented '
+                                "to match that of the opening "
+                                "bracket's line"
+                            )
+                    elif (hang <= 0):
+                        return(start, 'E123 continuation line '
+                               'missing indent or outdented')
+                    elif (hang % 4):
+                        return(start, 'E124 continuation line not '
+                               'indented on a 4-space boundary')
+                    elif (hang > 4) and not (hang == 8 and indent_next):
+                        return(start, "E125 continuation line over-"
+                               "indented")
+
+    # keep track of bracket depth and look for visual indenting
         if token_type == tokenize.OP and text in '([{':
             visual_min.append(None)
             depth += 1

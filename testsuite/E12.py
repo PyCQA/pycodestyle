@@ -150,3 +150,24 @@ print 'l.{line}\t{pos}\t{name}\t{text}'.format(
 if os.path.exists(os.path.join(path, PEP8_BIN)):
     cmd = ([os.path.join(path, PEP8_BIN)] +
            self._pep8_options(targetfile))
+#: E125
+fixed = re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] + \
+        target[c + 1:]
+#: Okay
+fixed = (re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] +
+         target[c + 1:])
+fixed = (
+    re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] +
+    target[c + 1:]
+)
+#: E126
+if foo is None and bar is "frop" and \
+    blah == 'yeah':
+    blah = 'yeahnah'
+#: Okay
+if foo is None and bar is "frop" and \
+        blah == 'yeah':
+    blah = 'yeahnah'
+#: Okay
+"""This is a multi-line
+   docstring."""
