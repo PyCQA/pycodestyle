@@ -57,6 +57,10 @@ hypot2 = x*x + y*y
 #: E225
 c = (a+b) * (a-b)
 #: E225
+c = (a + b)*(a - b)
+#: E225
+c = (a +b)*(a - b)
+#: E225
 c =-1
 #: E225
 c = alpha -4
