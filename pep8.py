@@ -1294,9 +1294,9 @@ class Checker(object):
 
         if options.fixed and self.edits:
             try:
-                with open(self.write_filename, "w") as writer:
-                    report_fix("Writing changes to %s" % self.write_filename)
-                    writer.writelines(self.edited_lines())
+                writer = open(self.write_filename, "w")
+                report_fix("Writing changes to %s" % self.write_filename)
+                writer.writelines(self.edited_lines())
             except IOError:
                 traceback.print_exc()
                 raise SystemExit
@@ -1692,14 +1692,14 @@ def process_options(arglist=None):
     return options, args
 
 
-def report_fix(s):
+def report_fix(msg):
     """
     Prints out a message when something has been fixed
     using fix_line(). Doesn't print if the --quiet flag
     was specified.
     """
     if not options.quiet:
-        print " - pep8 fix:", s
+        print " - pep8 fix: %s" % (msg)
 
 
 def fix_line(checker, line_number, line_offset, text, check):
