@@ -1294,8 +1294,12 @@ class Checker(object):
 
         if options.fixed and self.edits:
             writer = open(self.write_filename, "w")
-            report_fix("Writing changes to %s" % self.write_filename)
-            writer.writelines(self.edited_lines())
+
+            try:
+                report_fix("Writing changes to %s" % self.write_filename)
+                writer.writelines(self.edited_lines())
+            finally:
+                writer.close()
 
         return self.file_errors
 
