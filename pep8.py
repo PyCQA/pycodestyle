@@ -1293,13 +1293,9 @@ class Checker(object):
                     self.tokens = []
 
         if options.fixed and self.edits:
-            try:
-                writer = open(self.write_filename, "w")
-                report_fix("Writing changes to %s" % self.write_filename)
-                writer.writelines(self.edited_lines())
-            except IOError:
-                traceback.print_exc()
-                raise SystemExit
+            writer = open(self.write_filename, "w")
+            report_fix("Writing changes to %s" % self.write_filename)
+            writer.writelines(self.edited_lines())
 
         return self.file_errors
 
@@ -1699,7 +1695,7 @@ def report_fix(msg):
     was specified.
     """
     if not options.quiet:
-        print " - pep8 fix: %s" % (msg)
+        print(" - pep8 fix: %s" % (msg))
 
 
 def fix_line(checker, line_number, line_offset, text, check):
