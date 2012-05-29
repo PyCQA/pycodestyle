@@ -443,54 +443,46 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     # indents are allowed to have an extra 4 spaces.
     indent_next = logical_line.endswith(':')
 
-    depth = 0
-
-    parens = []             # remember where a bracket was opened
-    max_physical_row = 0
+    row = depth = 0
+    parens = [[]]             # remember where a bracket was opened
     visual_min = [None]     # visual indent columns by indent depth
-    rel_indent = [[0, 0]]   # relative indents of physical lines
-    last_indent = None
-    last_backslash = []
+    rel_indent = [0]        # relative indents of physical lines
     if options.verbose >= 3:
+        # print("    " + "         ".join('0123456'))
+        # print("   " + " 0 2 4 6 8" * 7)
         print(">>> " + tokens[0][4].rstrip())
 
     for token_type, text, start, end, line in tokens:
-        row = start[0] - first_row
-        while len(parens) < row + 1:
-            parens.append([])
+        newline = row < start[0] - first_row
+        if newline:
+            row = start[0] - first_row
+            while len(parens) < row + 1:
+                parens.append([])
 
-        if max_physical_row < row and token_type not in (
-                tokenize.NEWLINE, tokenize.NL):
-            # if depth > 0 and len(last_backslash) >= row and \
-            #         last_backslash[row - 1] is not None:
-            #     yield last_backslash[row - 1], \
-            #         "E502 unnecessary continuation backslash"
+        if newline and token_type not in (tokenize.NEWLINE, tokenize.NL):
             # this is the beginning of a continuation line.
-            max_physical_row = row
             last_indent = start
             if options.verbose >= 3:
                 print("... " + line.rstrip())
 
             # record the initial indent.  if lines were missing (eg,
             # multi-line strings) then pad the list out
-            while len(rel_indent) < row + 1:
+            while len(rel_indent) < row:
                 rel_indent.append(None)
-            rel_indent[row] = [depth, start[1] - indent_level]
+            rel_indent.append(start[1] - indent_level)
 
-            if depth > 0:
+            if depth:
                 # a bracket expression in a continuation line.
 
                 # first, find the line that it was opened on
-                open_row = None
                 for open_row in range(row - 1, -1, -1):
-                    if len(parens[open_row]) > 0:
+                    if parens[open_row]:
                         break
-                start_col, end_col = parens[open_row][-1]
-                hang = rel_indent[row][1] - rel_indent[open_row][1]
+                start_col = parens[open_row][-1]
             else:
                 # an unbracketed continuation line (ie, backslash)
-                start_col = 0
-                hang = rel_indent[row][1]
+                start_col = open_row = 0
+            hang = rel_indent[row] - rel_indent[open_row]
 
             err = None
             # check to see if visual indenting is active
@@ -502,28 +494,20 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                            'indent; hanging indents should have no '
                            'arguments on the first line')
 
-            # for E121
-            eff_depth = depth
-            if token_type == tokenize.OP and text in ']})':
-                eff_depth -= 1
-
             # check that this line is either visually indented vs
             # the opening parens, or a hanging indent.
-            if start[1] == last_token_multiline:
-                # continuing right after a multiline string is OK
-                pass
-            elif start[1] == start_col:
-                # visual.  fine.
+            if start[1] in (last_token_multiline, start_col):
+                # continuing right after a multiline string
+                # or if the line is visually indenting, it is fine.
                 pass
             elif min_indent is not None:
-                over_indent = start[1] - end_col
-                if start[1] > end_col and not (
-                        over_indent == 4 and indent_next):
+                over_indent = start[1] - start_col - 1
+                if over_indent > 0 and not (over_indent == 4 and indent_next):
                     err = (start, "E127 continuation line over-"
                            "indented for visual indent")
             else:
                 # hanging indent.
-                if eff_depth != depth:
+                if token_type == tokenize.OP and text in ']})':
                     if hang != 0:
                         err = (
                             start, 'E121 lines starting with a '
@@ -548,19 +532,17 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
         # keep track of bracket depth and look for visual indenting
         if token_type == tokenize.OP and text in '([{':
-            visual_min.append(None)
             depth += 1
+            visual_min.append(visual_min[depth - 1])
+            parens[row].append(start[1])
             assert len(visual_min) == depth + 1
-            if depth > 0:
-                visual_min[depth] = visual_min[depth - 1]
-            parens[row].append([start[1], end[1]])
             if options.verbose >= 4:
                 print("bracket depth %s seen, col %s, visual min = %s" %
                       (depth, start[1], visual_min[depth]))
-        elif len(parens[row]) > 0 and token_type != tokenize.NL:
+        elif (parens[row] and token_type != tokenize.NL and
+              not visual_min[depth]):
             # text after an open parens starts visual indenting
-            if visual_min[depth] is None:
-                visual_min[depth] = start[1]
+            visual_min[depth] = start[1]
             if options.verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
 
@@ -568,27 +550,18 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             depth -= 1
             visual_min.pop()
             for open_row in range(row, -1, -1):
-                if len(parens[open_row]) > 0:
+                if parens[open_row]:
                     parens[open_row].pop()
                     break
-            if len(parens[open_row]):
-                visual_min[depth] = parens[open_row][-1][1]
-
-        # exceptions that need to processed at the end of lines
-        if len(last_backslash) - 1 < row:
-            while len(last_backslash) < row:
-                last_backslash.append(None)
-            if line.endswith('\\\n'):
-                last_backslash.append((end[0], len(line) - 2))
-            else:
-                last_backslash.append(None)
+            if parens[open_row]:
+                visual_min[depth] = parens[open_row][-1] + 1
 
         if start[0] == end[0]:
             last_token_multiline = None
         else:
             last_token_multiline = end[1]
 
-    if indent_next and rel_indent[-1][1] == 4:
+    if indent_next and rel_indent[-1] == 4:
         yield (last_indent, "E123 statement with indented block ends "
                "with continuation line indented by 4 spaces")
 
@@ -888,20 +861,20 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = ("bbb "\n       "ccc")
     Okay: aaa = "bbb " \\n    "ccc"
     """
-    newlines = tokenize.NEWLINE, tokenize.NL
-    prev_type = tokenize.NEWLINE
-    prev_end = (0, 0)
+    prev_start = prev_end = -1
     parens = 0
     for token_type, text, start, end, line in tokens:
-        if start[0] != prev_end[0] and parens and prev_type not in newlines:
-            yield prev_end, "E502 the backslash is redundant between brackets"
+        if start[0] != prev_start and parens and backslash:
+            yield backslash, "E502 the backslash is redundant between brackets"
+        if end[0] != prev_end:
+            line = line.splitlines()[-1]
+            backslash = line.endswith('\\') and (end[0], len(line) - 1)
         if token_type == tokenize.OP:
             if text in '([{':
                 parens += 1
             elif text in ')]}':
                 parens -= 1
-        prev_type = token_type
-        prev_end = end
+        prev_start, prev_end = start[0], end[0]
 
 
 def comparison_to_singleton(logical_line):
@@ -1492,7 +1465,7 @@ def run_tests(filename):
                 # Collect the lines of the test case
                 testcase.append(line)
             continue
-        if codes and index > 0:
+        if codes and index:
             label = '%s:%s:1' % (filename, line_offset + 1)
             codes = [c for c in codes if c != 'Okay']
             # Run the checker
