@@ -5,6 +5,10 @@ Changelog
 1.2 (UNRELEASED)
 ----------------
 
+* Add E121 through E127 for continuation line indentation.  These
+  checks are disabled by default.  If you want to force all checks,
+  use switch ``--select=E,W``.  Patch by Sam Vilain. (Issue #64)
+
 * Add E721 for direct type comparisons. (Issue #47)
 
 * Add E711 and E712 for comparisons to singletons. (Issue #46)
