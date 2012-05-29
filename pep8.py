@@ -552,7 +552,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         if token_type == tokenize.OP and text in '([{':
             visual_min.append(None)
             depth += 1
-            assert(len(visual_min) == depth + 1)
+            assert len(visual_min) == depth + 1
             if depth > 0:
                 visual_min[depth] = visual_min[depth - 1]
             parens[line].append([start[1], end[1]])
@@ -587,12 +587,15 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         if len(last_backslash) - 1 < line:
             while len(last_backslash) < line:
                 last_backslash.append(None)
-            last_backslash.append(
-                (end[0], len(orig_line) - 2) if orig_line.endswith('\\\n')
-                else None
-            )
+            if orig_line.endswith('\\\n'):
+                last_backslash.append((end[0], len(orig_line) - 2))
+            else:
+                last_backslash.append(None)
 
-        last_token_multiline = (end[1] if start[0] != end[0] else None)
+        if start[0] == end[0]:
+            last_token_multiline = None
+        else:
+            last_token_multiline = end[1]
 
     if indent_next and rel_indent[-1][1] == 4:
         yield (last_indent, "E123 statement with indented block ends "
