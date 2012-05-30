@@ -198,7 +198,7 @@ while True:
 """
         .lstrip()
     )
-#: Okay
+#
 if blah:
     multiline_visual = ("""
 while True:
@@ -206,3 +206,44 @@ while True:
         1
 """
                         .lstrip())
+#: Okay
+rv = {'aaa': 42}
+rv.update(dict.fromkeys((
+    'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
+    'reasonComment_de', 'reasonComment_it'), '?'))
+
+rv.update(dict.fromkeys(('qualif_nr', 'reasonComment_en',
+                         'reasonComment_fr', 'reasonComment_de',
+                         'reasonComment_it'), '?'))
+
+rv.update(dict.fromkeys(('qualif_nr', 'reasonComment_en', 'reasonComment_fr',
+          'reasonComment_de', 'reasonComment_it'), '?'))
+
+event_obj.write(cursor, user_id, {
+    'user': user,
+    'summary': text,
+    'data': data,
+})
+
+event_obj.write(cursor, user_id, {
+    'user': user,
+    'summary': text,
+    'data': {'aaa': 1, 'bbb': 2},
+})
+
+event_obj.write(cursor, user_id, {
+    'user': user,
+    'summary': text,
+    'data': {
+        'aaa': 1,
+        'bbb': 2},
+})
+
+event_obj.write(cursor, user_id, {
+    'user': user,
+    'summary': text,
+    'data': {'timestamp': now, 'content': {
+        'aaa': 1,
+        'bbb': 2
+    }},
+})
