@@ -140,8 +140,8 @@ BINARY_OPERATORS = frozenset([
     '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
-SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.INDENT,
-                         tokenize.DEDENT, tokenize.NEWLINE])
+SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
+                         tokenize.INDENT, tokenize.DEDENT])
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
@@ -502,7 +502,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
             # check that this line is either visually indented vs
             # the opening parens, or a hanging indent.
-            if start[1] in (last_token_multiline, start_col):
+            if last_token_multiline or start[1] == start_col:
                 # continuing right after a multiline string
                 # or if the line is visually indenting, it is fine.
                 pass
@@ -564,10 +564,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     visual_min[depth] = parens[open_row][-1] + 1
             assert len(visual_min) == depth + 1
 
-        if start[0] == end[0]:
-            last_token_multiline = None
-        else:
-            last_token_multiline = end[1]
+        last_token_multiline = (start[0] != end[0])
 
     if indent_next and rel_indent[-1] == 4:
         yield (last_indent, "E123 statement with indented block ends "

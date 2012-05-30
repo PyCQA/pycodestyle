@@ -171,10 +171,6 @@ if foo is None and bar is "frop" and \
 #: Okay
 """This is a multi-line
    docstring."""
-##: E502
-#if (foo is None and bar is "e127" and \
-#        blah == 'yeah'):
-#    blah = 'yeahnah'
 #: Okay
 if blah:
     # is this actually readable?  :)
@@ -247,3 +243,55 @@ event_obj.write(cursor, user_id, {
         'bbb': 2
     }},
 })
+##: E126
+#
+#
+#def qualify_by_address(self, cr, uid, ids, context=None,
+#        params_to_check=frozenset(QUALIF_BY_ADDRESS_PARAM)):
+#    """ This gets called by the web server """
+#: E123
+
+
+def qualify_by_address(
+    self, cr, uid, ids, context=None,
+    params_to_check=frozenset(QUALIF_BY_ADDRESS_PARAM)):
+    """ This gets called by the web server """
+#: Okay
+
+
+def qualify_by_address(
+        self, cr, uid, ids, context=None,
+        params_to_check=frozenset(QUALIF_BY_ADDRESS_PARAM)):
+    """ This gets called by the web server """
+#: Okay
+_ipv4_re = re.compile('^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+                      '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+                      '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.'
+                      '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
+
+#
+fct("""
+    AAA """ + status_2_string)
+
+#
+if context:
+    msg = """\
+action: GET-CONFIG
+payload:
+    ip_address: "%(ip)s"
+    username: "%(username)s"
+""" % context
+
+#
+if context:
+    msg = """\
+action: \
+GET-CONFIG
+""" % context
+#
+if context:
+    msg = """\
+action: """\
+"""GET-CONFIG
+""" % context
+#:
