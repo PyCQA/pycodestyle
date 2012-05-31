@@ -432,17 +432,17 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
       continuation line.
 
     Okay: a = (\n)
-    E121: a = (\n    )
+    E123: a = (\n    )
 
     Okay: a = (\n    42)
-    E121: a = (42\n    )
-    E122: a = (\n   42)
-    E123: if (a or\n    b):\n    pass
-    E124: a = (\n42)
-    E125: a = (\n        42)
-    E126: a = (24,\n    42)
+    E121: a = (\n   42)
+    E122: a = (\n42)
+    E123: a = (42\n    )
+    E124: a = (24,\n     42\n)
+    E125: if (a or\n    b):\n    pass
+    E126: a = (\n        42)
     E127: a = (24,\n      42)
-    E128: a = (24,\n     42\n)
+    E128: a = (24,\n    42)
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
@@ -514,15 +514,11 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     if hasattr(indent[depth], 'add'):
                         indent[depth] = min(indent[depth] or [0])
                     if start[1] < indent[depth] - 4:
-                        yield (start, 'E128 closing bracket '
-                               'missing visual indent')
+                        yield (start, 'E124 closing bracket '
+                               'missing visual indentation')
                 elif hang == 4 or not is_visual:
-                    yield (
-                        start, 'E121 lines starting with a '
-                        'closing bracket should be indented '
-                        "to match that of the opening "
-                        "bracket's line"
-                    )
+                    yield (start, 'E123 closing bracket does not match '
+                           'indentation of opening bracket\'s line')
             elif is_visual:
                 # Visual indent is verified
                 for d1 in range(d, depth + 1):
@@ -533,27 +529,27 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 if hasattr(indent[depth], 'add'):
                     indent[depth] = min(indent[depth])
                 if start[1] < indent[depth]:
-                    yield (start, 'E126 continuation line '
-                           'insufficiently indented for visual '
-                           'indent; hanging indents should have no '
-                           'arguments on the first line')
+                    # hanging indents should have no arguments on the first line
+                    yield (start, 'E128 continuation line '
+                           'under-indented for visual indent')
 
                 elif is_not_hanging:
-                    yield (start, "E127 continuation line over-"
-                           "indented for visual indent")
+                    yield (start, 'E127 continuation line over-'
+                           'indented for visual indent')
             else:
                 # hanging indent.
                 if hasattr(indent[depth], 'add'):
                     indent[depth] = None
 
                 if hang <= 0:
-                    yield (start, 'E124 continuation line '
-                           'missing indent or outdented')
+                    yield (start, 'E122 continuation line '
+                           'missing indentation or outdented')
                 elif hang % 4:
-                    yield (start, 'E122 continuation line not '
-                           'indented on a 4-space boundary')
+                    yield (start, 'E121 continuation line indentation '
+                           'is not a multiple of four')
                 elif is_not_hanging:
-                    yield (start, "E125 continuation line over-indented")
+                    yield (start, 'E126 continuation line over-indented '
+                           'for hanging indent')
 
                 # parent indents should not be more than this one
                 indent[depth] = start[1]
@@ -598,8 +594,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         last_token_multiline = (start[0] != end[0])
 
     if indent_next and rel_indent[-1] == 4:
-        yield (last_indent, "E123 statement with indented block ends "
-               "with continuation line indented by 4 spaces")
+        yield (last_indent, "E125 continuation line does not distinguish "
+               "itself from next logical line")
 
 
 def whitespace_before_parameters(logical_line, tokens):
