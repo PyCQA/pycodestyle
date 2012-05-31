@@ -5,7 +5,7 @@ Changelog
 1.2 (UNRELEASED)
 ----------------
 
-* Add E121 through E127 for continuation line indentation.  These
+* Add E121 through E128 for continuation line indentation.  These
   checks are disabled by default.  If you want to force all checks,
   use switch ``--select=E,W``.  Patch by Sam Vilain. (Issue #64)
 

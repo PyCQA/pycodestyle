@@ -107,7 +107,7 @@ from fnmatch import fnmatch
 try:
     frozenset
 except NameError:
-    from sets import ImmutableSet as frozenset
+    from sets import Set as set, ImmutableSet as frozenset
 
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
@@ -433,8 +433,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
     """
     first_row = tokens[0][2][0]
-    last_row = tokens[-1][2][0]
-    if first_row == last_row:
+    nrows = 1 + tokens[-1][2][0] - first_row
+    if nrows == 1:
         return
 
     # indent_next tells us whether the next block is indented; assuming
@@ -443,10 +443,14 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     # indents are allowed to have an extra 4 spaces.
     indent_next = logical_line.endswith(':')
 
+    indent_string = None
     row = depth = 0
-    parens = [[]]           # remember where a bracket was opened
-    visual_min = [None]     # visual indent columns by indent depth
-    rel_indent = [0]        # relative indents of physical lines
+    # remember how many brackets were opened on each line
+    parens = [0] * nrows
+    # relative indents of physical lines
+    rel_indent = [0] * nrows
+    # visual indent columns by indent depth
+    indent = [indent_level]
     if options.verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -454,115 +458,130 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         newline = row < start[0] - first_row
         if newline:
             row = start[0] - first_row
-            while len(parens) < row + 1:
-                parens.append([])
+            newline = (not last_token_multiline and
+                       token_type not in (tokenize.NL, tokenize.NEWLINE))
 
-        if newline and token_type not in (tokenize.NEWLINE, tokenize.NL):
+        if newline:
             # this is the beginning of a continuation line.
             last_indent = start
             if options.verbose >= 3:
                 print("... " + line.rstrip())
 
-            # record the initial indent.  if lines were missing (eg,
-            # multi-line strings) then pad the list out
-            while len(rel_indent) < row:
-                rel_indent.append(None)
-            rel_indent.append(start[1] - indent_level)
+            # record the initial indent.
+            rel_indent[row] = start[1] - indent_level
 
             if depth:
                 # a bracket expression in a continuation line.
-
-                # first, find the line that it was opened on
+                # find the line that it was opened on
                 for open_row in range(row - 1, -1, -1):
                     if parens[open_row]:
                         break
-                start_col = parens[open_row][-1]
             else:
                 # an unbracketed continuation line (ie, backslash)
-                start_col = open_row = 0
+                open_row = 0
             hang = rel_indent[row] - rel_indent[open_row]
 
-            err = None
-            # check to see if visual indenting is active
-            min_indent = visual_min[depth]
-            if min_indent is not None:
-                if start[1] < min_indent:
-                    # Does it match a previous visual indent?
-                    try:
-                        idepth = visual_min.index(start[1]) + 1
-                    except ValueError:
-                        idepth = None
-                    if idepth and None not in visual_min[idepth:]:
-                        visual_min[idepth:] = [start[1]] * (1 + depth - idepth)
-                    else:
-                        err = (start, 'E126 continuation line '
-                               'insufficiently indented for visual '
-                               'indent; hanging indents should have no '
-                               'arguments on the first line')
+            # we have candidates for visual indent
+            d = depth
+            while d and hasattr(indent[d], 'add'):
+                if start[1] in indent[d]:
+                    is_visual_indent = True
+                    break
+                d -= 1
+            else:
+                is_visual_indent = (d and start[1] == indent[d])
+            is_not_hanging = not (hang == 4 or
+                                  (indent_next and rel_indent[row] == 8))
 
-            # check that this line is either visually indented vs
-            # the opening parens, or a hanging indent.
-            if last_token_multiline or start[1] == start_col:
-                # continuing right after a multiline string
-                # or if the line is visually indenting, it is fine.
+            if token_type != tokenize.OP and start[1] == indent_string:
+                # Indented string with implicit concatenation
                 pass
-            elif min_indent is not None:
-                over_indent = start[1] - start_col - 1
-                if over_indent > 0 and not (over_indent == 4 and indent_next):
-                    err = (start, "E127 continuation line over-"
+            elif token_type == tokenize.OP and text in ']})':
+                # This line starts with a closing bracket
+                if hang == 0:
+                    if hasattr(indent[depth], 'add'):
+                        indent[depth] = min(indent[depth] or [0])
+                    if start[1] < indent[depth] - 4:
+                        yield (start, 'E128 closing bracket '
+                               'missing visual indent')
+                elif hang == 4 or not is_visual_indent:
+                    yield (
+                        start, 'E121 lines starting with a '
+                        'closing bracket should be indented '
+                        "to match that of the opening "
+                        "bracket's line"
+                    )
+            elif is_visual_indent:
+                # Visual indent is verified
+                for d1 in range(d, depth + 1):
+                    indent[d1] = start[1]
+                indent[depth] = start[1]
+            elif indent[depth]:
+                # Visual indent is broken
+                if hasattr(indent[depth], 'add'):
+                    indent[depth] = min(indent[depth])
+                if start[1] < indent[depth]:
+                    yield (start, 'E126 continuation line '
+                           'insufficiently indented for visual '
+                           'indent; hanging indents should have no '
+                           'arguments on the first line')
+
+                elif is_not_hanging:
+                    yield (start, "E127 continuation line over-"
                            "indented for visual indent")
             else:
                 # hanging indent.
-                if token_type == tokenize.OP and text in ']})':
-                    if hang != 0:
-                        err = (
-                            start, 'E121 lines starting with a '
-                            'closing bracket should be indented '
-                            "to match that of the opening "
-                            "bracket's line"
-                        )
-                elif (hang <= 0):
-                    err = (start, 'E124 continuation line '
-                           'missing indent or outdented')
-                elif (hang % 4):
-                    err = (start, 'E122 continuation line not '
-                           'indented on a 4-space boundary')
-                elif (hang > 4) and not (hang == 8 and indent_next):
-                    err = (start, "E125 continuation line over-"
-                           "indented")
+                if hasattr(indent[depth], 'add'):
+                    indent[depth] = None
 
-            if err:
-                # TODO Correctly yield successive errors
-                yield err
-                return
+                if hang <= 0:
+                    yield (start, 'E124 continuation line '
+                           'missing indent or outdented')
+                elif hang % 4:
+                    yield (start, 'E122 continuation line not '
+                           'indented on a 4-space boundary')
+                elif is_not_hanging:
+                    yield (start, "E125 continuation line over-indented")
+
+                # parent indents should not be more than this one
+                indent[depth] = start[1]
+                d = depth - 1
+                while hasattr(indent[d], 'add'):
+                    indent[d] = set([i for i in indent[d] if i <= start[1]])
+                    d -= 1
 
         # look for visual indenting
-        if (parens[row] and token_type != tokenize.NL and
-              not visual_min[depth]):
+        if ((parens[row] and token_type != tokenize.NL and
+             hasattr(indent[depth], 'add'))):
             # text after an open parens starts visual indenting
-            visual_min[depth] = start[1]
+            indent[depth].add(start[1])
             if options.verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
+
+        # deal with implicit string concatenation
+        if indent_string:
+            if token_type == tokenize.OP and text != '%':
+                indent_string = None
+        elif token_type == tokenize.STRING:
+            indent_string = start[1]
 
         # keep track of bracket depth
         if token_type == tokenize.OP:
             if text in '([{':
+                indent.append(set())
                 depth += 1
-                visual_min.append(None)
-                parens[row].append(start[1])
+                parens[row] += 1
                 if options.verbose >= 4:
                     print("bracket depth %s seen, col %s, visual min = %s" %
-                          (depth, start[1], visual_min[depth]))
+                          (depth, start[1], indent[depth]))
             elif text in ')]}':
+                indent.pop()
                 depth -= 1
-                visual_min.pop()
-                for open_row in range(row, -1, -1):
-                    if parens[open_row]:
-                        parens[open_row].pop()
+                for idx in range(row, -1, -1):
+                    if parens[idx]:
+                        parens[idx] -= 1
                         break
-                if parens[open_row]:
-                    visual_min[depth] = parens[open_row][-1] + 1
-            assert len(visual_min) == depth + 1
+            assert len(indent) == depth + 1
 
         last_token_multiline = (start[0] != end[0])
 
