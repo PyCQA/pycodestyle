@@ -529,7 +529,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 if hasattr(indent[depth], 'add'):
                     indent[depth] = min(indent[depth])
                 if start[1] < indent[depth]:
-                    # hanging indents should have no arguments on the first line
                     yield (start, 'E128 continuation line '
                            'under-indented for visual indent')
 
