@@ -419,7 +419,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 
 def continuation_line_indentation(logical_line, tokens, indent_level):
-    """
+    r"""
     Continuation lines should align wrapped elements either vertically using
     Python's implicit line joining inside parentheses, brackets and braces, or
     using a hanging indent.
@@ -431,6 +431,18 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     - further indentation should be used to clearly distinguish itself as a
       continuation line.
 
+    Okay: a = (\n)
+    E121: a = (\n    )
+
+    Okay: a = (\n    42)
+    E121: a = (42\n    )
+    E122: a = (\n   42)
+    E123: if (a or\n    b):\n    pass
+    E124: a = (\n42)
+    E125: a = (\n        42)
+    E126: a = (24,\n    42)
+    E127: a = (24,\n      42)
+    E128: a = (24,\n     42\n)
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
@@ -485,11 +497,11 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             d = depth
             while d and hasattr(indent[d], 'add'):
                 if start[1] in indent[d]:
-                    is_visual_indent = True
+                    is_visual = True
                     break
                 d -= 1
             else:
-                is_visual_indent = (d and start[1] == indent[d])
+                is_visual = (d and start[1] == indent[d])
             is_not_hanging = not (hang == 4 or
                                   (indent_next and rel_indent[row] == 8))
 
@@ -504,14 +516,14 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     if start[1] < indent[depth] - 4:
                         yield (start, 'E128 closing bracket '
                                'missing visual indent')
-                elif hang == 4 or not is_visual_indent:
+                elif hang == 4 or not is_visual:
                     yield (
                         start, 'E121 lines starting with a '
                         'closing bracket should be indented '
                         "to match that of the opening "
                         "bracket's line"
                     )
-            elif is_visual_indent:
+            elif is_visual:
                 # Visual indent is verified
                 for d1 in range(d, depth + 1):
                     indent[d1] = start[1]
