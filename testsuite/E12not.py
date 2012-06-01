@@ -403,4 +403,22 @@ d = dict('foo',
               "comma separated patterns (default: %s)" %
               DEFAULT_EXCLUDE)
 
-#
+
+# parens used to allow the indenting.
+troublefree_hash = {
+    "hash": "value",
+    "long": ("the quick brown fox jumps over the lazy dog before doing a "
+             "somersault"),
+    "long key that tends to happen more when you're indented": (
+        "stringwithalongtoken you don't want to break"
+    ),
+}
+
+# another accepted form
+troublefree_hash = {
+    "hash": "value",
+    "long": "the quick brown fox jumps over the lazy dog before doing "
+            "a somersault",
+    ("long key that tends to happen more "
+     "when you're indented"): "stringwithalongtoken you don't want to break",
+}

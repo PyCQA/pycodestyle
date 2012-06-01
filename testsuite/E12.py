@@ -148,4 +148,16 @@ print "hello", (
     "there",
      # "john",
     "dude")
+#: E127
+troublesome_hash = {
+    "hash": "value",
+    "long": "the quick brown fox jumps over the lazy dog before doing a "
+        "somersault",
+}
+#: E127
+# probably not easily fixed, without using 'ast'
+troublesome_hash_ii = {
+    "long key that tends to happen more when you're indented":
+        "stringwithalongtoken you don't want to break",
+}
 #:
