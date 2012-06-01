@@ -1498,7 +1498,7 @@ def run_tests(filename):
                 testcase.append(line)
             continue
         if codes and index:
-            label = '%s:%s:1' % (filename, line_offset + 1)
+            label = '%s:%s:1' % (filename, line_offset)
             codes = [c for c in codes if c != 'Okay']
             # Run the checker
             errors = Checker(filename, testcase).check_all(codes, line_offset)
@@ -1508,11 +1508,11 @@ def run_tests(filename):
                     errors += 1
                     print('%s: error %s not found' % (label, code))
             if options.verbose and not errors:
-                print('%s: passed (%s)' % (label, ' '.join(codes)))
+                print('%s: passed (%s)' % (label, ' '.join(codes) or 'Okay'))
             # Keep showing errors for multiple tests
             reset_counters()
         # output the real line numbers
-        line_offset = index
+        line_offset = index + 1
         # configure the expected errors
         codes = line.split()[1:]
         # empty the test case buffer
