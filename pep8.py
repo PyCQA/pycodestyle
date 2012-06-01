@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.2'
+__version__ = '1.3a0'
 
 import os
 import sys
@@ -114,22 +114,24 @@ DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E12,E24'
 MAX_LINE_LENGTH = 79
 
+SINGLETONS = frozenset(['False', 'None', 'True'])
+KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
+
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-WHITESPACE_AROUND_OPERATOR_REGEX = \
-    re.compile('([^\w\s]*)\s*(\t|  )\s*([^\w\s]*)')
-WHITESPACE_AROUND_KEYWORD_REGEX = \
-    re.compile('([^\s]*)\s*(\t|  )\s*([^\s]*)')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
     re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
 COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
                                 r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
+KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
+                           r'|'.join(KEYWORDS))
+OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 
 
@@ -142,8 +144,6 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
-SINGLETONS = frozenset(['False', 'None', 'True'])
-KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
 
 options = None
@@ -354,16 +354,18 @@ def whitespace_around_keywords(logical_line):
     E273: True and\tFalse
     E274: True\tand False
     """
-    for match in WHITESPACE_AROUND_KEYWORD_REGEX.finditer(logical_line):
-        before, whitespace, after = match.groups()
-        tab = whitespace == '\t'
-        offset = match.start(2)
-        if before in KEYWORDS:
-            yield offset, (tab and "E273 tab after keyword" or
-                           "E271 multiple spaces after keyword")
-        elif after in KEYWORDS:
-            yield offset, (tab and "E274 tab before keyword" or
-                           "E272 multiple spaces before keyword")
+    for match in KEYWORD_REGEX.finditer(logical_line):
+        before, after = match.groups()
+
+        if '\t' in before:
+            yield match.start(1), "E274 tab before keyword"
+        elif len(before) > 1:
+            yield match.start(1), "E272 multiple spaces before keyword"
+
+        if '\t' in after:
+            yield match.start(2), "E273 tab after keyword"
+        elif len(after) > 1:
+            yield match.start(2), "E271 multiple spaces after keyword"
 
 
 def missing_whitespace(logical_line):
@@ -646,16 +648,18 @@ def whitespace_around_operator(logical_line):
     E223: a = 4\t+ 5
     E224: a = 4 +\t5
     """
-    for match in WHITESPACE_AROUND_OPERATOR_REGEX.finditer(logical_line):
-        before, whitespace, after = match.groups()
-        tab = whitespace == '\t'
-        offset = match.start(2)
-        if before in OPERATORS:
-            yield offset, (tab and "E224 tab after operator" or
-                           "E222 multiple spaces after operator")
-        elif after in OPERATORS:
-            yield offset, (tab and "E223 tab before operator" or
-                           "E221 multiple spaces before operator")
+    for match in OPERATOR_REGEX.finditer(logical_line):
+        before, after = match.groups()
+
+        if '\t' in before:
+            yield match.start(1), "E223 tab before operator"
+        elif len(before) > 1:
+            yield match.start(1), "E221 multiple spaces before operator"
+
+        if '\t' in after:
+            yield match.start(2), "E224 tab after operator"
+        elif len(after) > 1:
+            yield match.start(2), "E222 multiple spaces after operator"
 
 
 def missing_whitespace_around_operator(logical_line, tokens):
@@ -931,7 +935,7 @@ def comparison_to_singleton(logical_line):
             msg = "'if cond %s %s:'" % (same and 'is' or 'is not', singleton)
         else:
             code = 'E712'
-            nonzero = ((same and singleton == 'True' and same) or
+            nonzero = ((singleton == 'True' and same) or
                        (singleton == 'False' and not same))
             msg = ("'if cond is %s:' or 'if%scond:'" %
                    (nonzero and 'True' or 'False', nonzero and ' ' or ' not '))
