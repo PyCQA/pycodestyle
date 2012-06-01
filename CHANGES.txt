@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.2 (UNRELEASED)
+1.2 (2012-06-01)
 ----------------
 
 * Add E121 through E128 for continuation line indentation.  These
@@ -18,6 +18,9 @@ Changelog
 * Add E502 for explicit line join between brackets.
 
 * Fix E901 when printing source with ``--show-source``.
+
+* Report all errors for each checker, instead of reporting only the
+  first occurence for each line.
 
 * Option ``--show-pep8`` implies ``--first``.
 
