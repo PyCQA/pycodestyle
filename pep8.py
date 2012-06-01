@@ -930,15 +930,14 @@ def comparison_to_singleton(logical_line):
     if match:
         same = (match.group(1) == '==')
         singleton = match.group(2)
+        msg = "'if cond %s %s:'" % (same and 'is' or 'is not', singleton)
         if singleton in ('None',):
             code = 'E711'
-            msg = "'if cond %s %s:'" % (same and 'is' or 'is not', singleton)
         else:
             code = 'E712'
             nonzero = ((singleton == 'True' and same) or
                        (singleton == 'False' and not same))
-            msg = ("'if cond is %s:' or 'if%scond:'" %
-                   (nonzero and 'True' or 'False', nonzero and ' ' or ' not '))
+            msg += " or 'if%scond:'" % (nonzero and ' ' or ' not ')
         yield match.start(1), ("%s comparison to %s should be %s" %
                                (code, singleton, msg))
 
