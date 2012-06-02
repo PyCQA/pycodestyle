@@ -120,6 +120,10 @@ DEFAULT_CONFIG = os.path.join(
     os.getenv("XDG_CONFIG_HOME") or
     os.path.join(os.getenv("HOME"), ".config"), "pep8")
 MAX_LINE_LENGTH = 79
+REPORT_FORMAT = {
+    'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
+    'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
+}
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
@@ -1335,9 +1339,11 @@ class Checker(object):
             return
         self.file_errors += 1
         if options.counters[code] == 1 or options.repeat:
-            print("%s:%s:%d: %s" %
-                  (self.filename, self.line_offset + line_number,
-                   offset + 1, text))
+            print(options.format % {
+                'path': self.filename,
+                'row': self.line_offset + line_number, 'col': offset + 1,
+                'code': code, 'text': text[4:].lstrip(),
+            })
             if options.show_source:
                 if line_number > len(self.lines):
                     line = ''
@@ -1676,6 +1682,8 @@ def process_options(arglist=None):
                       help="run doctest on myself")
     parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
                       help='config file location (default: %default)')
+    parser.add_option('--format', metavar='format', default='default',
+                      help='set the error format [default|pylint|<custom>]')
 
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
@@ -1717,6 +1725,8 @@ def process_options(arglist=None):
     options.logical_checks = find_checks('logical_line')
     options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
     options.messages = {}
+    options.format = REPORT_FORMAT.get(options.format.lower(),
+                                       options.format)
     return options, args
 
 

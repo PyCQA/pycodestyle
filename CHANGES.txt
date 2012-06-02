@@ -20,6 +20,8 @@ Changelog
 * Fixed a crash when parsed code is invalid (too many
   closing brackets).
 
+* New option ``--format`` to customize the error format. (Issue #23)
+
 
 1.2 (2012-06-01)
 ----------------
