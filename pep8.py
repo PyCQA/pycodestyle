@@ -1627,6 +1627,7 @@ def read_config(options, args, arglist, parser):
 
     return options
 
+
 def process_options(arglist=None):
     """
     Process options passed either via arglist or via command line args.
@@ -1644,12 +1645,11 @@ def process_options(arglist=None):
                       help="show first occurrence of each error")
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
                       help="exclude files or directories which match these "
-                           "comma separated patterns (default: %s)" %
-                           DEFAULT_EXCLUDE)
+                           "comma separated patterns (default: %default)")
     parser.add_option('--filename', metavar='patterns', default='*.py',
                       help="when parsing directories, only check filenames "
-                           "matching these comma separated patterns (default: "
-                           "*.py)")
+                           "matching these comma separated patterns "
+                           "(default: %default)")
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
@@ -1671,12 +1671,12 @@ def process_options(arglist=None):
                       help="run regression tests from dir")
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
-                      help="set maximum allowed line length (default: %d)" %
-                      MAX_LINE_LENGTH)
+                      help="set maximum allowed line length "
+                           "(default: %default)")
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
     parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
-                      help='config file location')
+                      help='config file location (default: %default)')
 
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
