@@ -269,9 +269,9 @@ def maximum_line_length(physical_line):
             length = len(line.decode('utf-8'))
         except UnicodeError:
             pass
-    if length > options.max_line_length:
-        return options.max_line_length, \
-            "E501 line too long (%d characters)" % length
+        if length > options.max_line_length:
+            return options.max_line_length, \
+                "E501 line too long (%d characters)" % length
 
 
 ##############################################################################
@@ -1118,7 +1118,7 @@ def find_checks(argument_name):
             continue
         args = inspect.getargspec(function)[0]
         if args and args[0].startswith(argument_name):
-            codes = ERRORCODE_REGEX.findall(inspect.getdoc(function) or '')
+            codes = ERRORCODE_REGEX.findall(function.__doc__ or '')
             for code in codes or ['']:
                 if not code or not ignore_code(code):
                     checks.append((name, function, args))
