@@ -14,6 +14,9 @@ Changelog
 
 * Rewrite E27 checks to run faster.
 
+* Fixed a crash when parsed code is invalid (too many
+  closing brackets).
+
 
 1.2 (2012-06-01)
 ----------------

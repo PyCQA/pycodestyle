@@ -590,7 +590,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 if options.verbose >= 4:
                     print("bracket depth %s seen, col %s, visual min = %s" %
                           (depth, start[1], indent[depth]))
-            elif text in ')]}':
+            elif text in ')]}' and depth > 0:
                 indent.pop()
                 depth -= 1
                 for idx in range(row, -1, -1):
