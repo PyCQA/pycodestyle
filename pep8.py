@@ -155,7 +155,7 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
-BENCHMARK_KEYS = ('directories', 'files', 'logical lines', 'physical lines')
+BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 options = None
 args = None
@@ -1327,17 +1327,19 @@ class Checker(object):
         code = text[:4]
         if ignore_code(code):
             return
-        if options.quiet == 1 and not self.file_errors:
-            print(self.filename)
         if code in options.counters:
             options.counters[code] += 1
         else:
             options.counters[code] = 1
             options.messages[code] = text[5:]
-        if options.quiet or code in self.expected:
-            # Don't care about expected errors or warnings
+        if code in self.expected:
             return
         self.file_errors += 1
+        if options.quiet:
+            if options.quiet == 1 and not self.file_errors:
+                print(self.filename)
+            # Don't care about expected errors or warnings
+            return
         if options.counters[code] == 1 or options.repeat:
             print(options.format % {
                 'path': self.filename,
@@ -1361,7 +1363,7 @@ def input_file(filename):
     """
     if options.verbose:
         print('checking ' + filename)
-    errors = Checker(filename).check_all()
+    return Checker(filename).check_all()
 
 
 def input_dir(dirname, runner=None):
@@ -1373,6 +1375,7 @@ def input_dir(dirname, runner=None):
         return
     if runner is None:
         runner = input_file
+    count_failed = 0
     for root, dirs, files in os.walk(dirname):
         if options.verbose:
             print('directory ' + root)
@@ -1385,7 +1388,8 @@ def input_dir(dirname, runner=None):
         for filename in files:
             if filename_match(filename) and not excluded(filename):
                 options.counters['files'] += 1
-                runner(os.path.join(root, filename))
+                count_failed += runner(os.path.join(root, filename))
+    return count_failed
 
 
 def excluded(filename):
@@ -1509,6 +1513,7 @@ def run_tests(filename):
     line_offset = 0
     codes = ['Okay']
     testcase = []
+    count_failed = 0
     for index, line in enumerate(lines):
         if not line.startswith('#:'):
             if codes:
@@ -1529,20 +1534,26 @@ def run_tests(filename):
                 print('%s: passed (%s)' % (label, ' '.join(codes) or 'Okay'))
             # Keep showing errors for multiple tests
             reset_counters()
+            options.counters['test cases'] += 1
+            if errors:
+                count_failed += 1
         # output the real line numbers
         line_offset = index + 1
         # configure the expected errors
         codes = line.split()[1:]
         # empty the test case buffer
         del testcase[:]
+    return count_failed
 
 
 def selftest():
     """
     Test all check functions with test cases in docstrings.
     """
-    count_passed = 0
+    count_all = 0
     count_failed = 0
+    quiet = options.quiet
+    options.quiet = 2
     checks = options.physical_checks + options.logical_checks
     for name, check, argument_names in checks:
         for line in check.__doc__.splitlines():
@@ -1556,7 +1567,6 @@ def selftest():
                 part = part.replace(r'\t', '\t')
                 part = part.replace(r'\s', ' ')
                 checker.lines.append(part + '\n')
-            options.quiet = 2
             checker.check_all()
             error = None
             if code == 'Okay':
@@ -1568,23 +1578,21 @@ def selftest():
                 error = "failed to find %s" % code
             # Reset the counters
             reset_counters()
+            count_all += 1
             if not error:
-                count_passed += 1
+                if options.verbose:
+                    print("%s: %s" % (code, source))
             else:
                 count_failed += 1
                 if len(checker.lines) == 1:
-                    print("pep8.py: %s: %s" %
-                          (error, checker.lines[0].rstrip()))
+                    print("%s: %s: %s" %
+                          (__file__, error, checker.lines[0].rstrip()))
                 else:
-                    print("pep8.py: %s:" % error)
+                    print("%s: %s:" % (__file__, error))
                     for line in checker.lines:
                         print(line.rstrip())
-    if options.verbose:
-        print("%d passed and %d failed." % (count_passed, count_failed))
-        if count_failed:
-            print("Test failed.")
-        else:
-            print("Test passed.")
+    options.quiet = quiet
+    return count_failed, count_all
 
 
 def read_config(options, args, arglist, parser):
@@ -1735,30 +1743,49 @@ def _main():
     Parse options and run checks on Python source.
     """
     options, args = process_options()
+    count_failed = 0
     if options.doctest:
         import doctest
-        doctest.testmod(verbose=options.verbose)
-        selftest()
+        fail_d, done_d = doctest.testmod(report=False, verbose=options.verbose)
+        fail_s, done_s = selftest()
+        count_failed = fail_s + fail_d
+        if not options.quiet:
+            count_passed = done_d + done_s - count_failed
+            print("%d passed and %d failed." % (count_passed, count_failed))
+            if count_failed:
+                print("Test failed.")
+            else:
+                print("Test passed.")
+        if count_failed:
+            sys.exit(1)
     if options.testsuite:
+        BENCHMARK_KEYS.append('test cases')
+        options.counters['test cases'] = 0
         runner = run_tests
     else:
         runner = input_file
     start_time = time.time()
     for path in args:
         if os.path.isdir(path):
-            input_dir(path, runner=runner)
+            count_failed += input_dir(path, runner=runner)
         elif not excluded(path):
             options.counters['files'] += 1
-            runner(path)
+            count_failed += runner(path)
     elapsed = time.time() - start_time
     if options.statistics:
         print_statistics()
     if options.benchmark:
         print_benchmark(elapsed)
-    count = get_count()
-    if count:
+    if options.testsuite and not options.quiet:
+        print("%(physical lines)d lines tested (%(files)d files, "
+              "%(test cases)d test cases)." % options.counters)
+        if count_failed:
+            print("%d failed." % count_failed)
+        else:
+            print("Test passed.")
+    if count_failed:
         if options.count:
-            sys.stderr.write(str(count) + '\n')
+            sys.stderr.write(str(count_failed) + '\n')
         sys.exit(1)
 
 

@@ -22,6 +22,9 @@ Changelog
 
 * New option ``--format`` to customize the error format. (Issue #23)
 
+* Correctly report the count of failures and set the exit code to 1
+  when the ``--doctest`` or the ``--testsuite`` fails.
+
 
 1.2 (2012-06-01)
 ----------------
