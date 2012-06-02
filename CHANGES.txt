@@ -10,6 +10,9 @@ Changelog
 
 * Fix E502 for backslash embedded in multi-line string. (Issue #68)
 
+* Enable the new checkers from the E12 series in the default
+  configuration.
+
 * Suggest less error-prone alternatives for E712 errors.
 
 * Rewrite E27 checks to run faster.

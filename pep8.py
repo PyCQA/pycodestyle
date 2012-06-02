@@ -115,7 +115,7 @@ except ImportError:
 
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
-DEFAULT_IGNORE = 'E12,E24'
+DEFAULT_IGNORE = 'E24'
 DEFAULT_CONFIG = os.path.join(
     os.getenv("XDG_CONFIG_HOME") or
     os.path.join(os.getenv("HOME"), ".config"), "pep8")
