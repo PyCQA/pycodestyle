@@ -1040,11 +1040,14 @@ if '' == ''.encode():
     def isidentifier(s):
         return re.match('[a-zA-Z_]\w*', s)
 else:
-    # Python 3: decode to latin-1.
-    # This function is lazy, it does not read the encoding declaration.
-    # XXX: use tokenize.detect_encoding()
+    # Python 3
     def readlines(filename):
-        return open(filename, encoding='latin-1').readlines()
+        try:
+            input_file = open(filename, 'rb')
+            encoding = tokenize.detect_encoding(input_file.readline)[0]
+        finally:
+            input_file.close()
+        return open(filename, encoding=encoding).readlines()
 
     def isidentifier(s):
         return s.isidentifier()
