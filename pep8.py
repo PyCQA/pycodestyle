@@ -1047,7 +1047,11 @@ else:
             encoding = tokenize.detect_encoding(input_file.readline)[0]
         finally:
             input_file.close()
-        return open(filename, encoding=encoding).readlines()
+        try:
+            return open(filename, encoding=encoding).readlines()
+        except UnicodeDecodeError:
+            # Fall back if files are improperly declared
+            return open(filename, encoding='latin-1').readlines()
 
     def isidentifier(s):
         return s.isidentifier()
