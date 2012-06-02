@@ -108,10 +108,17 @@ try:
     frozenset
 except NameError:
     from sets import Set as set, ImmutableSet as frozenset
+try:
+    from configparser import RawConfigParser
+except ImportError:
+    from ConfigParser import RawConfigParser
 
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E12,E24'
+DEFAULT_CONFIG = os.path.join(
+    os.getenv("XDG_CONFIG_HOME") or
+    os.path.join(os.getenv("HOME"), ".config"), "pep8")
 MAX_LINE_LENGTH = 79
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
@@ -1572,6 +1579,52 @@ def selftest():
             print("Test passed.")
 
 
+def read_config(options, args, arglist, parser):
+    config = RawConfigParser()
+
+    user_conf = options.config
+    if os.path.isfile(user_conf):
+        if options.verbose:
+            print('user configuration: %s' % user_conf)
+        config.read(user_conf)
+
+    if len(args) == 1:
+        parent, tail = os.path.abspath(args[0]), True
+        while tail:
+            local_conf = os.path.join(parent, '.pep8')
+            if os.path.isfile(local_conf):
+                if options.verbose:
+                    print('local configuration: %s' % local_conf)
+                config.read(local_conf)
+                break
+            parent, tail = os.path.split(parent)
+
+    if config.has_section('pep8'):
+        option_list = dict([(o.dest, o.type or o.action)
+                            for o in parser.option_list if o.dest])
+
+        # First, read the defaut values
+        options, _ = parser.parse_args([])
+
+        # Second, parse the configuration
+        for opt in config.options('pep8'):
+            opt_type = option_list.get(opt)
+            if not opt_type:
+                print('Unknown option: %s' % opt)
+            elif opt_type in ('int', 'count'):
+                value = config.getint('pep8', opt)
+            elif opt_type == 'string':
+                value = config.get('pep8', opt)
+            else:
+                assert opt_type in ('store_true', 'store_false')
+                value = config.getboolean('pep8', opt)
+            setattr(options, opt, value)
+
+        # Third, overwrite with the command-line options
+        options, _ = parser.parse_args(arglist, values=options)
+
+    return options
+
 def process_options(arglist=None):
     """
     Process options passed either via arglist or via command line args.
@@ -1620,14 +1673,22 @@ def process_options(arglist=None):
                       MAX_LINE_LENGTH)
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
+    parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
+                      help='config file location')
 
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
         options.repeat = False
     if options.testsuite:
         args.append(options.testsuite)
-    if not args and not options.doctest:
-        parser.error('input not specified')
+    elif not options.doctest:
+        if not args:
+            if os.path.exists('.pep8'):
+                args = ['.']
+            else:
+                parser.error('input not specified')
+        options = read_config(options, args, arglist, parser)
+
     options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
     for index, value in enumerate(options.exclude):

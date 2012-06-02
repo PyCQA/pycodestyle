@@ -5,6 +5,9 @@ Changelog
 1.3 (UNRELEASED)
 ----------------
 
+* Read user configuration from ``~/.config/pep8``
+  and local configuration from ``./.pep8``. (Issue #22)
+
 * Suggest less error-prone alternatives for E712 errors.
 
 * Rewrite E27 checks to run faster.
