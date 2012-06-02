@@ -912,12 +912,14 @@ def explicit_line_join(logical_line, tokens):
                 backslash = (end[0], len(line.splitlines()[-1]) - 1)
             else:
                 backslash = None
+            prev_start = prev_end = end[0]
+        else:
+            prev_start = start[0]
         if token_type == tokenize.OP:
             if text in '([{':
                 parens += 1
             elif text in ')]}':
                 parens -= 1
-        prev_start, prev_end = start[0], end[0]
 
 
 def comparison_to_singleton(logical_line):
