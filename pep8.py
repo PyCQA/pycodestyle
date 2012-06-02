@@ -1590,16 +1590,15 @@ def read_config(options, args, arglist, parser):
             print('user configuration: %s' % user_conf)
         config.read(user_conf)
 
-    if len(args) == 1:
-        parent, tail = os.path.abspath(args[0]), True
-        while tail:
-            local_conf = os.path.join(parent, '.pep8')
-            if os.path.isfile(local_conf):
-                if options.verbose:
-                    print('local configuration: %s' % local_conf)
-                config.read(local_conf)
-                break
-            parent, tail = os.path.split(parent)
+    parent, tail = os.path.abspath(os.path.commonprefix(args)), True
+    while tail:
+        local_conf = os.path.join(parent, '.pep8')
+        if os.path.isfile(local_conf):
+            if options.verbose:
+                print('local configuration: %s' % local_conf)
+            config.read(local_conf)
+            break
+        parent, tail = os.path.split(parent)
 
     if config.has_section('pep8'):
         option_list = dict([(o.dest, o.type or o.action)
