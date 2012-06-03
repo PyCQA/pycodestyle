@@ -243,6 +243,8 @@ def trailing_blank_lines(physical_line, lines, line_number):
 def missing_newline(physical_line):
     """
     JCR: The last line should have a newline.
+
+    Reports warning W292.
     """
     if physical_line.rstrip() == physical_line:
         return len(physical_line), "W292 no newline at end of file"
@@ -258,6 +260,8 @@ def maximum_line_length(physical_line):
     ugly.  Therefore, please limit all lines to a maximum of 79 characters.
     For flowing long blocks of text (docstrings or comments), limiting the
     length to 72 characters is recommended.
+
+    Reports error E501.
     """
     line = physical_line.rstrip()
     length = len(line)
@@ -939,8 +943,9 @@ def comparison_to_singleton(logical_line):
     Comparisons to singletons like None should always be done
     with "is" or "is not", never the equality operators.
 
-    E711: if arg != None:
     Okay: if arg is not None:
+    E711: if arg != None:
+    E712: if arg == True:
 
     Also, beware of writing if x when you really mean if x is not None --
     e.g. when testing whether a variable or argument that defaults to None was
@@ -987,12 +992,12 @@ def comparison_type(logical_line):
 
 
 def python_3000_has_key(logical_line):
-    """
+    r"""
     The {}.has_key() method will be removed in the future version of
-    Python. Use the 'in' operation instead, like:
-    d = {"a": 1, "b": 2}
-    if "b" in d:
-        print d["b"]
+    Python. Use the 'in' operation instead.
+
+    Okay: if "alph" in d:\n    print d["alph"]
+    W601: assert d.has_key('alph')
     """
     pos = logical_line.find('.has_key(')
     if pos > -1:
@@ -1008,6 +1013,9 @@ def python_3000_raise_comma(logical_line):
     are long or include string formatting, you don't need to use line
     continuation characters thanks to the containing parentheses.  The older
     form will be removed in Python 3000.
+
+    Okay: raise DummyError("Message")
+    W602: raise DummyError, "Message"
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
@@ -1019,6 +1027,9 @@ def python_3000_not_equal(logical_line):
     != can also be written <>, but this is an obsolete usage kept for
     backwards compatibility only. New code should always use !=.
     The older syntax is removed in Python 3000.
+
+    Okay: if a != 'no':
+    W603: if a <> 'no':
     """
     pos = logical_line.find('<>')
     if pos > -1:
@@ -1029,6 +1040,9 @@ def python_3000_backticks(logical_line):
     """
     Backticks are removed in Python 3000.
     Use repr() instead.
+
+    Okay: val = repr(1 + 2)
+    W604: val = `1 + 2`
     """
     pos = logical_line.find('`')
     if pos > -1:
