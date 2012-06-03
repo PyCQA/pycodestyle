@@ -135,8 +135,6 @@ SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
-WHITESPACE_AROUND_NAMED_PARAMETER_REGEX = \
-    re.compile(r'[()]|\s=[^=]|[^=!<>]=\s')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
 COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
                                 r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
@@ -774,7 +772,7 @@ def whitespace_around_comma(logical_line):
             yield found + 1, "E242 tab after '%s'" % separator
 
 
-def whitespace_around_named_parameter_equals(logical_line):
+def whitespace_around_named_parameter_equals(logical_line, tokens):
     """
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value.
@@ -790,16 +788,25 @@ def whitespace_around_named_parameter_equals(logical_line):
     E251: return magic(r = real, i = imag)
     """
     parens = 0
-    for match in WHITESPACE_AROUND_NAMED_PARAMETER_REGEX.finditer(
-            logical_line):
-        text = match.group()
-        if parens and len(text) == 3:
-            issue = "E251 no spaces around keyword / parameter equals"
-            yield match.start(), issue
-        if text == '(':
-            parens += 1
-        elif text == ')':
-            parens -= 1
+    no_space = False
+    prev_end = None
+    for token_type, text, start, end, line in tokens:
+        if no_space:
+            no_space = False
+            if start != prev_end:
+                yield (prev_end,
+                       "E251 no spaces around keyword / parameter equals")
+        elif token_type == tokenize.OP:
+            if text == '(':
+                parens += 1
+            elif text == ')':
+                parens += 1
+            elif parens and text == '=':
+                no_space = True
+                if start != prev_end:
+                    yield (prev_end,
+                           "E251 no spaces around keyword / parameter equals")
+        prev_end = end
 
 
 def whitespace_before_inline_comment(logical_line, tokens):
