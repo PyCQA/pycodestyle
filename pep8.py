@@ -800,7 +800,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             if text == '(':
                 parens += 1
             elif text == ')':
-                parens += 1
+                parens -= 1
             elif parens and text == '=':
                 no_space = True
                 if start != prev_end:
