@@ -136,6 +136,7 @@ SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
+WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
 COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
                                 r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
@@ -344,12 +345,14 @@ def extraneous_whitespace(logical_line):
         text = match.group()
         char = text.strip()
         found = match.start()
-        if text == char + ' ' and char in '([{':
+        if text == char + ' ':
+            # assert char in '([{'
             yield found + 1, "E201 whitespace after '%s'" % char
-        if text == ' ' + char and line[found - 1] != ',':
+        elif line[found - 1] != ',':
             if char in '}])':
                 yield found, "E202 whitespace before '%s'" % char
-            if char in ',;:':
+            else:
+                # assert char in ',;:'
                 yield found, "E203 whitespace before '%s'" % char
 
 
@@ -755,7 +758,6 @@ def whitespace_around_comma(logical_line):
     - More than one space around an assignment (or other) operator to
       align it with another.
 
-    JCR: This should also be applied around comma etc.
     Note: these checks are disabled by default
 
     Okay: a = (1, 2)
@@ -763,13 +765,11 @@ def whitespace_around_comma(logical_line):
     E242: a = (1,\t2)
     """
     line = logical_line
-    for separator in ',;:':
-        found = line.find(separator + '  ')
-        if found > -1:
-            yield found + 1, "E241 multiple spaces after '%s'" % separator
-        found = line.find(separator + '\t')
-        if found > -1:
-            yield found + 1, "E242 tab after '%s'" % separator
+    for m in WHITESPACE_AFTER_COMMA_REGEX.finditer(line):
+        if '\t' in m.group():
+            yield m.start() + 1, "E242 tab after '%s'" % m.group()[0]
+        else:
+            yield m.start() + 1, "E241 multiple spaces after '%s'" % m.group()[0]
 
 
 def whitespace_around_named_parameter_equals(logical_line, tokens):
