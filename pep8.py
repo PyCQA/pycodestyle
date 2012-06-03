@@ -745,7 +745,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 elif prev_type == tokenize.NAME:
                     if prev_text not in KEYWORDS:
                         need_space = True
-                else:
+                elif prev_type not in SKIP_TOKENS:
                     need_space = True
             if need_space and start == prev_end:
                 yield prev_end, "E225 missing whitespace around operator"

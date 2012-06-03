@@ -10,6 +10,8 @@ Changelog
 
 * Fix E502 for backslash embedded in multi-line string. (Issue #68)
 
+* Fix E225 for Python 3 iterable unpacking (PEP 3132). (Issue #72)
+
 * Enable the new checkers from the E12 series in the default
   configuration.
 
