@@ -766,10 +766,11 @@ def whitespace_around_comma(logical_line):
     """
     line = logical_line
     for m in WHITESPACE_AFTER_COMMA_REGEX.finditer(line):
+        found = m.start() + 1
         if '\t' in m.group():
-            yield m.start() + 1, "E242 tab after '%s'" % m.group()[0]
+            yield found, "E242 tab after '%s'" % m.group()[0]
         else:
-            yield m.start() + 1, "E241 multiple spaces after '%s'" % m.group()[0]
+            yield found, "E241 multiple spaces after '%s'" % m.group()[0]
 
 
 def whitespace_around_named_parameter_equals(logical_line, tokens):
