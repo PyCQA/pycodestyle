@@ -220,7 +220,7 @@ def trailing_whitespace(physical_line):
     physical_line = physical_line.rstrip('\n')    # chr(10), newline
     physical_line = physical_line.rstrip('\r')    # chr(13), carriage return
     physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
-    stripped = physical_line.rstrip()
+    stripped = physical_line.rstrip(' \t\v')
     if physical_line != stripped:
         if stripped:
             return len(stripped), "W291 trailing whitespace"
