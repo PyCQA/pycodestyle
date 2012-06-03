@@ -261,13 +261,12 @@ def maximum_line_length(physical_line):
     line = physical_line.rstrip()
     length = len(line)
     if length > options.max_line_length:
-        try:
+        if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
-            if not hasattr(line, 'decode'):   # Python 3
-                line = line.encode('latin-1')
-            length = len(line.decode('utf-8'))
-        except UnicodeError:
-            pass
+            try:
+                length = len(line.decode('utf-8'))
+            except UnicodeError:
+                pass
         if length > options.max_line_length:
             return options.max_line_length, \
                 "E501 line too long (%d characters)" % length
