@@ -1035,7 +1035,11 @@ def python_3000_backticks(logical_line):
 if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
-        return open(filename).readlines()
+        try:
+            input_file = open(filename)
+            return input_file.readlines()
+        finally:
+            input_file.close()
 
     def isidentifier(s):
         return re.match('[a-zA-Z_]\w*', s)
@@ -1047,11 +1051,20 @@ else:
             encoding = tokenize.detect_encoding(input_file.readline)[0]
         finally:
             input_file.close()
+
         try:
-            return open(filename, encoding=encoding).readlines()
+            try:
+                input_file = open(filename, encoding=encoding)
+                return input_file.readlines()
+            finally:
+                input_file.close()
         except UnicodeDecodeError:
             # Fall back if files are improperly declared
-            return open(filename, encoding='latin-1').readlines()
+            try:
+                input_file = open(filename, encoding='latin-1')
+                return input_file.readlines()
+            finally:
+                input_file.close()
 
     def isidentifier(s):
         return s.isidentifier()
