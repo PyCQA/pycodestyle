@@ -110,6 +110,7 @@ except NameError:
     from sets import Set as set, ImmutableSet as frozenset
 try:
     from configparser import RawConfigParser
+    from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
 
@@ -1042,36 +1043,29 @@ def python_3000_backticks(logical_line):
 if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
+        f = open(filename)
         try:
-            input_file = open(filename)
-            return input_file.readlines()
+            return f.readlines()
         finally:
-            input_file.close()
+            f.close()
 
     def isidentifier(s):
-        return re.match('[a-zA-Z_]\w*', s)
+        return re.match(r'[a-zA-Z_]\w*', s)
 else:
     # Python 3
     def readlines(filename):
+        f = open(filename, 'rb')
         try:
-            input_file = open(filename, 'rb')
-            encoding = tokenize.detect_encoding(input_file.readline)[0]
-        finally:
-            input_file.close()
-
-        try:
-            try:
-                input_file = open(filename, encoding=encoding)
-                return input_file.readlines()
-            finally:
-                input_file.close()
-        except UnicodeDecodeError:
+            coding, lines = tokenize.detect_encoding(f.readline)
+            f = TextIOWrapper(f, coding, line_buffering=True)
+            return [l.decode(coding) for l in lines] + f.readlines()
+        except (LookupError, SyntaxError, UnicodeError):
+            f.close()
             # Fall back if files are improperly declared
-            try:
-                input_file = open(filename, encoding='latin-1')
-                return input_file.readlines()
-            finally:
-                input_file.close()
+            f = open(filename, encoding='latin-1')
+            return f.readlines()
+        finally:
+            f.close()
 
     def isidentifier(s):
         return s.isidentifier()
