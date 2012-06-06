@@ -474,6 +474,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     indent_next = logical_line.endswith(':')
 
     indent_string = None
+    indent_any = []
     row = depth = 0
     # remember how many brackets were opened on each line
     parens = [0] * nrows
@@ -481,6 +482,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     rel_indent = [0] * nrows
     # visual indent columns by indent depth
     indent = [indent_level]
+    first_visual = [indent_level]
     if options.verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -537,6 +539,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 elif hang == 4 or not is_visual:
                     yield (start, 'E123 closing bracket does not match '
                            'indentation of opening bracket\'s line')
+            elif (start[1], text) in indent_any:
+                # token lined up with matching one from a previous line
+                pass
             elif is_visual:
                 # Visual indent is verified
                 for d1 in range(d, depth + 1):
@@ -575,11 +580,14 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                     indent[d] = set([i for i in indent[d] if i <= start[1]])
                     d -= 1
 
+            indent_any = []
+
         # look for visual indenting
         if ((parens[row] and token_type != tokenize.NL and
-             hasattr(indent[depth], 'add'))):
-            # text after an open parens starts visual indenting
+             hasattr(indent[depth], 'add')) and
+                first_visual[depth] is None):
             indent[depth].add(start[1])
+            first_visual[depth] = start[1]
             if options.verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
 
@@ -590,10 +598,15 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         elif token_type == tokenize.STRING:
             indent_string = start[1]
 
+        # let people line up tokens, if they truly must.
+        if token_type == tokenize.OP:
+            indent_any.append((start[1], text))
+
         # keep track of bracket depth
         if token_type == tokenize.OP:
             if text in '([{':
                 indent.append(set())
+                first_visual.append(None)
                 depth += 1
                 parens[row] += 1
                 if options.verbose >= 4:
@@ -601,6 +614,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
                 indent.pop()
+                first_visual.pop()
                 depth -= 1
                 for idx in range(row, -1, -1):
                     if parens[idx]:
