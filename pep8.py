@@ -481,6 +481,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     rel_indent = [0] * nrows
     # visual indent columns by indent depth
     indent = [indent_level]
+    first_visual = [indent_level]
     if options.verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -577,9 +578,10 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
 
         # look for visual indenting
         if ((parens[row] and token_type != tokenize.NL and
-             hasattr(indent[depth], 'add'))):
-            # text after an open parens starts visual indenting
+             hasattr(indent[depth], 'add')) and
+                first_visual[depth] is None):
             indent[depth].add(start[1])
+            first_visual[depth] = start[1]
             if options.verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
 
@@ -594,6 +596,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         if token_type == tokenize.OP:
             if text in '([{':
                 indent.append(set())
+                first_visual.append(None)
                 depth += 1
                 parens[row] += 1
                 if options.verbose >= 4:
@@ -601,6 +604,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
                 indent.pop()
+                first_visual.pop()
                 depth -= 1
                 for idx in range(row, -1, -1):
                     if parens[idx]:

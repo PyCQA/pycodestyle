@@ -356,12 +356,13 @@ action: """\
 def unicode2html(s):
     """Convert the characters &<>'" in string s to HTML-safe sequences.
     Convert newline to <br> too."""
-    return unicode((s or '').replace('&', '&amp;')
-                            .replace('>', '&gt;')
-                            .replace('<', '&lt;')
-                            .replace("'", '&#39;')
-                            .replace('"', '&#34;')
-                            .replace('\n', '<br>\n'))
+    return unicode((s or '')
+                   .replace('&', '&amp;')
+                   .replace('>', '&gt;')
+                   .replace('<', '&lt;')
+                   .replace("'", '&#39;')
+                   .replace('"', '&#34;')
+                   .replace('\n', '<br>\n'))
 
 
 #
@@ -422,3 +423,6 @@ troublefree_hash = {
     ("long key that tends to happen more "
      "when you're indented"): "stringwithalongtoken you don't want to break",
 }
+
+foo(1, 2, 3,
+    4, 5, 6)

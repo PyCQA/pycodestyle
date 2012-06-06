@@ -161,3 +161,52 @@ troublesome_hash_ii = {
         "stringwithalongtoken you don't want to break",
 }
 #:
+#: E128
+foo(1, 2, 3,
+4, 5, 6)
+#: E128
+foo(1, 2, 3,
+ 4, 5, 6)
+#: E128
+foo(1, 2, 3,
+  4, 5, 6)
+#: E128
+foo(1, 2, 3,
+   4, 5, 6)
+#: E127
+why(1, 2, 3,
+     4, 5, 6)
+#: E127
+foo(1, 2, 3,
+      4, 5, 6)
+#: E127
+why(1, 2, 3,
+       4, 5, 6)
+#: E127
+why(1, 2, 3,
+        4, 5, 6)
+#: E127
+foo(1, 2, 3,
+         4, 5, 6)
+#: E127
+why(1, 2, 3,
+          4, 5, 6)
+#: E127
+why(1, 2, 3,
+           4, 5, 6)
+#: E127
+foo(1, 2, 3,
+            4, 5, 6)
+#: E127
+foo(1, 2, 3,
+             4, 5, 6)
+#: E127
+def unicode2html(s):
+    """Convert the characters &<>'" in string s to HTML-safe sequences.
+    Convert newline to <br> too."""
+    return unicode((s or '').replace('&', '&amp;')
+                            .replace('>', '&gt;')
+                            .replace('<', '&lt;')
+                            .replace("'", '&#39;')
+                            .replace('"', '&#34;')
+                            .replace('\n', '<br>\n'))
