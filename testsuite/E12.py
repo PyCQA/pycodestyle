@@ -199,3 +199,8 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
+#: E123
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
+              )

@@ -424,3 +424,15 @@ troublefree_hash = {
 
 foo(1, 2, 3,
     4, 5, 6)
+#: Okay
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" %
+              DEFAULT_EXCLUDE
+         )
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE,
+         foobar="this clearly should work, because it is at "
+                "the right indent level",
+         )
