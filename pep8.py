@@ -577,7 +577,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 # parent indents should not be more than this one
                 indent[depth] = start[1]
                 d = depth - 1
-                while hasattr(indent[d], 'add'):
+                while d >= 0 and hasattr(indent[d], 'add'):
                     indent[d] = set([i for i in indent[d] if i <= start[1]])
                     d -= 1
 
