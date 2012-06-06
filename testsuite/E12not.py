@@ -402,6 +402,18 @@ d = dict('foo',
               "comma separated patterns (default: %s)" %
               DEFAULT_EXCLUDE)
 
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s, %s)" %
+              (DEFAULT_EXCLUDE, DEFAULT_IGNORE)
+         )
+
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s, %s)" %
+              # who knows what might happen here?
+              (DEFAULT_EXCLUDE, DEFAULT_IGNORE)
+         )
 
 # parens used to allow the indenting.
 troublefree_hash = {
