@@ -160,4 +160,27 @@ troublesome_hash_ii = {
     "long key that tends to happen more when you're indented":
         "stringwithalongtoken you don't want to break",
 }
-#:
+#: E128
+foo(1, 2, 3,
+4, 5, 6)
+#: E128
+foo(1, 2, 3,
+ 4, 5, 6)
+#: E128
+foo(1, 2, 3,
+  4, 5, 6)
+#: E128
+foo(1, 2, 3,
+   4, 5, 6)
+#: E127
+foo(1, 2, 3,
+      4, 5, 6)
+#: E127
+foo(1, 2, 3,
+         4, 5, 6)
+#: E127
+foo(1, 2, 3,
+            4, 5, 6)
+#: E127
+foo(1, 2, 3,
+             4, 5, 6)

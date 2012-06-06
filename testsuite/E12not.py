@@ -363,7 +363,6 @@ def unicode2html(s):
                             .replace('"', '&#34;')
                             .replace('\n', '<br>\n'))
 
-
 #
 parser.add_option('--count', action='store_true',
                   help="print total number of errors and warnings "
@@ -422,3 +421,18 @@ troublefree_hash = {
     ("long key that tends to happen more "
      "when you're indented"): "stringwithalongtoken you don't want to break",
 }
+
+foo(1, 2, 3,
+    4, 5, 6)
+
+# TODO
+foo(1, 2, 3,
+     4, 5, 6)
+foo(1, 2, 3,
+       4, 5, 6)
+foo(1, 2, 3,
+        4, 5, 6)
+foo(1, 2, 3,
+          4, 5, 6)
+foo(1, 2, 3,
+           4, 5, 6)
