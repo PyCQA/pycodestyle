@@ -22,6 +22,8 @@ Changelog
 * Fixed a crash when parsed code is invalid (too many
   closing brackets).
 
+* Fix E127 and E128 for continuation line indentation. (Issue #74)
+
 * New option ``--format`` to customize the error format. (Issue #23)
 
 * Correctly report the count of failures and set the exit code to 1
