@@ -158,7 +158,6 @@ SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 options = None
-args = None
 
 
 ##############################################################################
@@ -1396,7 +1395,7 @@ class Checker(object):
             print(options.format % {
                 'path': self.filename,
                 'row': self.line_offset + line_number, 'col': offset + 1,
-                'code': code, 'text': text[4:].lstrip(),
+                'code': code, 'text': text[5:],
             })
             if options.show_source:
                 if line_number > len(self.lines):
@@ -1697,7 +1696,6 @@ def process_options(arglist=None):
     """
     Process options passed either via arglist or via command line args.
     """
-    global options, args
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.add_option('-v', '--verbose', default=0, action='count',
@@ -1794,6 +1792,7 @@ def _main():
     """
     Parse options and run checks on Python source.
     """
+    global options
     options, args = process_options()
     count_failed = 0
     if options.doctest:
