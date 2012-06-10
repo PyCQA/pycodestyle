@@ -1116,6 +1116,8 @@ def expand_indent(line):
     >>> expand_indent('        \t')
     16
     """
+    if '\t' not in line:
+        return len(line) - len(line.lstrip())
     result = 0
     for char in line:
         if char == '\t':
