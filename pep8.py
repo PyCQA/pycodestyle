@@ -525,9 +525,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
             is_not_hanging = not (hang == 4 or
                                   (indent_next and rel_indent[row] == 8))
 
-            if ((token_type == tokenize.OP and text == '(') or
-                token_type != tokenize.OP) and start[1] == indent_string:
-                # Indented string with implicit concatenation.  OK
+            if ((text == '(' or
+                 token_type != tokenize.OP) and start[1] == indent_string):
+                # Indented string with implicit concatenation.
                 pass
             elif token_type == tokenize.OP and text in ']})':
                 # This line starts with a closing bracket
