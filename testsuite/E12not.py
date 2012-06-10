@@ -363,7 +363,6 @@ def unicode2html(s):
                             .replace('"', '&#34;')
                             .replace('\n', '<br>\n'))
 
-
 #
 parser.add_option('--count', action='store_true',
                   help="print total number of errors and warnings "
@@ -403,6 +402,18 @@ d = dict('foo',
               "comma separated patterns (default: %s)" %
               DEFAULT_EXCLUDE)
 
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s, %s)" %
+              (DEFAULT_EXCLUDE, DEFAULT_IGNORE)
+         )
+
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s, %s)" %
+              # who knows what might happen here?
+              (DEFAULT_EXCLUDE, DEFAULT_IGNORE)
+         )
 
 # parens used to allow the indenting.
 troublefree_hash = {
@@ -422,3 +433,18 @@ troublefree_hash = {
     ("long key that tends to happen more "
      "when you're indented"): "stringwithalongtoken you don't want to break",
 }
+
+foo(1, 2, 3,
+    4, 5, 6)
+#: Okay
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" %
+              DEFAULT_EXCLUDE
+         )
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE,
+         foobar="this clearly should work, because it is at "
+                "the right indent level",
+         )
