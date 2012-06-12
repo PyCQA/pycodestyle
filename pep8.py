@@ -1521,6 +1521,12 @@ class StyleGuide(object):
             if 'paths' in options_dict:
                 self.paths = options_dict['paths']
 
+        if not options.reporter:
+            if options.quiet:
+                options.reporter = BasicReport
+            else:
+                options.reporter = StandardReport
+
         for index, value in enumerate(options.exclude):
             options.exclude[index] = value.rstrip('/')
         if not options.select:
@@ -1845,6 +1851,7 @@ def process_options(arglist=None):
                       help='set the error format [default|pylint|<custom>]')
 
     options, args = parser.parse_args(arglist)
+    options.reporter = None
     if options.show_pep8:
         options.repeat = False
     if options.testsuite:
@@ -1856,6 +1863,8 @@ def process_options(arglist=None):
             else:
                 parser.error('input not specified')
         options = read_config(options, args, arglist, parser)
+        if options.quiet == 1 and arglist is None:
+            options.reporter = FileReport
 
     options.exclude = options.exclude.split(',')
     if options.filename:
@@ -1870,13 +1879,6 @@ def process_options(arglist=None):
         # The default choice: ignore controversial checks
         # (for doctest and testsuite, all checks are required)
         options.ignore = DEFAULT_IGNORE.split(',')
-
-    if not options.quiet:
-        options.reporter = StandardReport
-    elif options.quiet == 1:
-        options.reporter = FileReport
-    else:
-        options.reporter = BasicReport
 
     return options, args
 
