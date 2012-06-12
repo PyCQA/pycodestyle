@@ -1320,7 +1320,7 @@ class Checker(object):
         """
         Run all checks on the input file.
         """
-        self.report.reset_file(self.filename, self.lines, expected, line_offset)
+        self.report_setfile(expected, line_offset)
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
@@ -1370,6 +1370,15 @@ class Checker(object):
                     self.tokens = []
         return self.report.file_errors
 
+    def report_setfile(self, expected, line_offset):
+        report = self.report
+        report.filename = self.filename
+        report.lines = self.lines
+        report.file_errors = 0
+        report.expected = expected or ()
+        report.line_offset = line_offset
+        report.counters['files'] += 1
+
 
 class BasicReport(object):
     print_filename = False
@@ -1388,14 +1397,6 @@ class BasicReport(object):
 
     def stop(self):
         self.elapsed = time.time() - self._start_time
-
-    def reset_file(self, filename, lines, expected=None, line_offset=0):
-        self.filename = filename
-        self.lines = lines
-        self.file_errors = 0
-        self.expected = expected or ()
-        self.line_offset = line_offset
-        self.counters['files'] += 1
 
     def reset_counters(self):
         for key in list(self.counters.keys()):
