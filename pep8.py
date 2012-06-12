@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.3a0'
+__version__ = '1.3a1'
 
 import os
 import sys
@@ -156,8 +156,6 @@ OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
-
-options = None
 
 
 ##############################################################################
@@ -249,7 +247,7 @@ def missing_newline(physical_line):
         return len(physical_line), "W292 no newline at end of file"
 
 
-def maximum_line_length(physical_line):
+def maximum_line_length(physical_line, max_line_length):
     """
     Limit all lines to a maximum of 79 characters.
 
@@ -264,15 +262,15 @@ def maximum_line_length(physical_line):
     """
     line = physical_line.rstrip()
     length = len(line)
-    if length > options.max_line_length:
+    if length > max_line_length:
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
                 length = len(line.decode('utf-8'))
             except UnicodeError:
                 pass
-        if length > options.max_line_length:
-            return options.max_line_length, \
+        if length > max_line_length:
+            return max_line_length, \
                 "E501 line too long (%d characters)" % length
 
 
@@ -435,7 +433,7 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, "E113 unexpected indentation"
 
 
-def continuation_line_indentation(logical_line, tokens, indent_level):
+def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     r"""
     Continuation lines should align wrapped elements either vertically using
     Python's implicit line joining inside parentheses, brackets and braces, or
@@ -482,7 +480,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
     # visual indent columns by indent depth
     indent = [indent_level]
     first_visual = [indent_level]
-    if options.verbose >= 3:
+    if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
     for token_type, text, start, end, line in tokens:
@@ -495,7 +493,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
         if newline:
             # this is the beginning of a continuation line.
             last_indent = start
-            if options.verbose >= 3:
+            if verbose >= 3:
                 print("... " + line.rstrip())
 
             # record the initial indent.
@@ -588,7 +586,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 first_visual[depth] is None):
             indent[depth].add(start[1])
             first_visual[depth] = start[1]
-            if options.verbose >= 4:
+            if verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
 
         # deal with implicit string concatenation
@@ -609,7 +607,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level):
                 first_visual.append(None)
                 depth += 1
                 parens[row] += 1
-                if options.verbose >= 4:
+                if verbose >= 4:
                     print("bracket depth %s seen, col %s, visual min = %s" %
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
@@ -1163,19 +1161,13 @@ def find_checks(argument_name):
     Find all globally visible functions where the first argument name
     starts with argument_name.
     """
-    checks = []
     for name, function in globals().items():
         if not inspect.isfunction(function):
             continue
         args = inspect.getargspec(function)[0]
         if args and args[0].startswith(argument_name):
             codes = ERRORCODE_REGEX.findall(function.__doc__ or '')
-            for code in codes or ['']:
-                if not code or not ignore_code(code):
-                    checks.append((name, function, args))
-                    break
-    checks.sort()
-    return checks
+            yield name, codes, function, args
 
 
 class Checker(object):
@@ -1183,7 +1175,16 @@ class Checker(object):
     Load a Python source file, tokenize it, check coding style.
     """
 
-    def __init__(self, filename, lines=None):
+    def __init__(self, filename, lines=None,
+                 options=None, report=None, **kwargs):
+        if options is None:
+            options = StyleGuide(kwargs).options
+        else:
+            assert not kwargs
+        self._physical_checks = options.physical_checks
+        self._logical_checks = options.logical_checks
+        self.max_line_length = options.max_line_length
+        self.verbose = options.verbose
         self.filename = filename
         if filename is None:
             self.filename = 'stdin'
@@ -1192,7 +1193,9 @@ class Checker(object):
             self.lines = readlines(filename)
         else:
             self.lines = lines
-        options.counters['physical lines'] += len(self.lines)
+        self.report = report or options.report
+        self.report_error = self.report.error
+        self.report.counters['physical lines'] += len(self.lines)
 
     def readline(self):
         """
@@ -1229,7 +1232,7 @@ class Checker(object):
         self.physical_line = line
         if self.indent_char is None and line[:1] in WHITESPACE:
             self.indent_char = line[0]
-        for name, check, argument_names in options.physical_checks:
+        for name, check, argument_names in self._physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
@@ -1273,29 +1276,27 @@ class Checker(object):
         """
         Build a line from tokens and run all logical checks on it.
         """
-        options.counters['logical lines'] += 1
+        self.report.counters['logical lines'] += 1
         self.build_tokens_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
         self.previous_indent_level = self.indent_level
         self.indent_level = expand_indent(indent)
-        if options.verbose >= 2:
+        if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
-        for name, check, argument_names in options.logical_checks:
-            if options.verbose >= 4:
+        for name, check, argument_names in self._logical_checks:
+            if self.verbose >= 4:
                 print('   ' + name)
             for result in self.run_check(check, argument_names):
                 offset, text = result
                 if isinstance(offset, tuple):
-                    original_number, original_offset = offset
+                    orig_number, orig_offset = offset
                 else:
                     for token_offset, token in self.mapping:
                         if offset >= token_offset:
-                            original_number = token[2][0]
-                            original_offset = (token[2][1]
-                                               + offset - token_offset)
-                self.report_error(original_number, original_offset,
-                                  text, check)
+                            orig_number = token[2][0]
+                            orig_offset = (token[2][1] + offset - token_offset)
+                self.report_error(orig_number, orig_offset, text, check)
         self.previous_logical = self.logical_line
 
     def generate_tokens(self):
@@ -1319,10 +1320,8 @@ class Checker(object):
         """
         Run all checks on the input file.
         """
-        self.expected = expected or ()
-        self.line_offset = line_offset
+        self.report.reset_file(self.filename, expected, line_offset)
         self.line_number = 0
-        self.file_errors = 0
         self.indent_char = None
         self.indent_level = 0
         self.previous_logical = ''
@@ -1331,7 +1330,7 @@ class Checker(object):
         self.tokens = []
         parens = 0
         for token in self.generate_tokens():
-            if options.verbose >= 3:
+            if self.verbose >= 3:
                 if token[2][0] == token[3][0]:
                     pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
                 else:
@@ -1369,293 +1368,391 @@ class Checker(object):
                     # Python < 2.6 behaviour, which does not generate NL after
                     # a comment which is on a line by itself.
                     self.tokens = []
-        return self.file_errors
+        return self.report.file_errors
 
-    def report_error(self, line_number, offset, text, check):
+
+class BasicReport(object):
+    print_filename = False
+
+    def __init__(self, options):
+        self._benchmark_keys = options.benchmark_keys
+        self._ignore_code = options.ignore_code
+        # Results
+        self.elapsed = 0
+        self.total_errors = 0
+        self.counters = dict.fromkeys(self._benchmark_keys, 0)
+        self.messages = {}
+
+    def start(self):
+        self._start_time = time.time()
+
+    def stop(self):
+        self.elapsed = time.time() - self._start_time
+
+    def reset_file(self, filename, expected=None, line_offset=0):
+        self.filename = filename
+        self.file_errors = 0
+        self.expected = expected or ()
+        self.line_offset = line_offset
+        self.counters['files'] += 1
+
+    def reset_counters(self):
+        for key in list(self.counters.keys()):
+            if key not in self._benchmark_keys:
+                del self.counters[key]
+        self.messages = {}
+
+    def error(self, line_number, offset, text, check):
         """
         Report an error, according to options.
         """
         code = text[:4]
-        if ignore_code(code):
+        if self._ignore_code(code):
             return
-        if code in options.counters:
-            options.counters[code] += 1
+        if code in self.counters:
+            self.counters[code] += 1
         else:
-            options.counters[code] = 1
-            options.messages[code] = text[5:]
+            self.counters[code] = 1
+            self.messages[code] = text[5:]
+        # Don't care about expected errors or warnings
         if code in self.expected:
             return
+        if self.print_filename and not self.file_errors:
+            print(self.filename)
         self.file_errors += 1
-        if options.quiet:
-            if options.quiet == 1 and not self.file_errors:
-                print(self.filename)
-            # Don't care about expected errors or warnings
-            return
-        if options.counters[code] == 1 or options.repeat:
-            print(options.format % {
+        self.total_errors += 1
+        return code
+
+    def get_count(self, prefix=''):
+        """Return the total count of errors and warnings."""
+        keys = list(self.messages.keys())
+        count = 0
+        for key in keys:
+            if key.startswith(prefix):
+                count += self.counters[key]
+        return count
+
+    def get_statistics(self, prefix=''):
+        """
+        Get statistics for message codes that start with the prefix.
+
+        prefix='' matches all errors and warnings
+        prefix='E' matches all errors
+        prefix='W' matches all warnings
+        prefix='E4' matches all errors that have to do with imports
+        """
+        stats = []
+        keys = list(self.messages.keys())
+        keys.sort()
+        for key in keys:
+            if key.startswith(prefix):
+                stats.append('%-7s %s %s' %
+                             (self.counters[key], key, self.messages[key]))
+        return stats
+
+    def print_statistics(self, prefix=''):
+        """Print overall statistics (number of errors and warnings)."""
+        for line in self.get_statistics(prefix):
+            print(line)
+
+    def print_benchmark(self):
+        """
+        Print benchmark numbers.
+        """
+        print('%-7.2f %s' % (self.elapsed, 'seconds elapsed'))
+        if self.elapsed:
+            for key in self._benchmark_keys:
+                print('%-7d %s per second (%d total)' % (
+                      self.counters[key] / self.elapsed, key,
+                      self.counters[key]))
+
+
+class FileReport(BasicReport):
+    print_filename = True
+
+
+class StandardReport(BasicReport):
+
+    def __init__(self, options):
+        super(StandardReport, self).__init__(options)
+        self._fmt = REPORT_FORMAT.get(options.format.lower(),
+                                      options.format)
+        self._repeat = options.repeat
+        self._show_source = options.show_source
+        self._show_pep8 = options.show_pep8
+
+    def error(self, line_number, offset, text, check):
+        """
+        Report an error, according to options.
+        """
+        code = super(StandardReport, self).error(line_number, offset,
+                                                 text, check)
+        if code and (self.counters[code] == 1 or self._repeat):
+            print(self._fmt % {
                 'path': self.filename,
                 'row': self.line_offset + line_number, 'col': offset + 1,
                 'code': code, 'text': text[5:],
             })
-            if options.show_source:
+            if self._show_source:
                 if line_number > len(self.lines):
                     line = ''
                 else:
                     line = self.lines[line_number - 1]
                 print(line.rstrip())
                 print(' ' * offset + '^')
-            if options.show_pep8:
+            if self._show_pep8:
                 print(check.__doc__.lstrip('\n').rstrip())
+        return code
 
 
-def input_file(filename):
+class StyleGuide(object):
     """
-    Run all checks on a Python source file.
+    Initialize a PEP-8 instance with few options.
     """
-    if options.verbose:
-        print('checking ' + filename)
-    return Checker(filename).check_all()
 
+    def __init__(self, *args, **kwargs):
+        # build options from the command line
+        options, self.paths = process_options()
+        if args or kwargs:
+            # build options from dict
+            options_dict = dict(*args, **kwargs)
+            options.__dict__.update(options_dict)
+            if 'paths' in options_dict:
+                self.paths = options_dict['paths']
 
-def input_dir(dirname, runner=None):
-    """
-    Check all Python source files in this directory and all subdirectories.
-    """
-    dirname = dirname.rstrip('/')
-    if excluded(dirname):
-        return
-    if runner is None:
-        runner = input_file
-    count_failed = 0
-    for root, dirs, files in os.walk(dirname):
-        if options.verbose:
-            print('directory ' + root)
-        options.counters['directories'] += 1
-        dirs.sort()
-        for subdir in dirs[:]:
-            if excluded(subdir):
-                dirs.remove(subdir)
-        files.sort()
-        for filename in files:
-            if filename_match(filename) and not excluded(filename):
-                options.counters['files'] += 1
-                count_failed += runner(os.path.join(root, filename))
-    return count_failed
-
-
-def excluded(filename):
-    """
-    Check if options.exclude contains a pattern that matches filename.
-    """
-    basename = os.path.basename(filename)
-    for pattern in options.exclude:
-        if fnmatch(basename, pattern):
-            # print basename, 'excluded because it matches', pattern
-            return True
-
-
-def filename_match(filename):
-    """
-    Check if options.filename contains a pattern that matches filename.
-    If options.filename is unspecified, this always returns True.
-    """
-    if not options.filename:
-        return True
-    for pattern in options.filename:
-        if fnmatch(filename, pattern):
-            return True
-
-
-def ignore_code(code):
-    """
-    Check if options.ignore contains a prefix of the error code.
-    If options.select contains a prefix of the error code, do not ignore it.
-    """
-    for select in options.select:
-        if code.startswith(select):
-            return False
-    for ignore in options.ignore:
-        if code.startswith(ignore):
-            return True
-
-
-def reset_counters():
-    for key in list(options.counters.keys()):
-        if key not in BENCHMARK_KEYS:
-            del options.counters[key]
-    options.messages = {}
-
-
-def get_error_statistics():
-    """Get error statistics."""
-    return get_statistics("E")
-
-
-def get_warning_statistics():
-    """Get warning statistics."""
-    return get_statistics("W")
-
-
-def get_statistics(prefix=''):
-    """
-    Get statistics for message codes that start with the prefix.
-
-    prefix='' matches all errors and warnings
-    prefix='E' matches all errors
-    prefix='W' matches all warnings
-    prefix='E4' matches all errors that have to do with imports
-    """
-    stats = []
-    keys = list(options.messages.keys())
-    keys.sort()
-    for key in keys:
-        if key.startswith(prefix):
-            stats.append('%-7s %s %s' %
-                         (options.counters[key], key, options.messages[key]))
-    return stats
-
-
-def get_count(prefix=''):
-    """Return the total count of errors and warnings."""
-    keys = list(options.messages.keys())
-    count = 0
-    for key in keys:
-        if key.startswith(prefix):
-            count += options.counters[key]
-    return count
-
-
-def print_statistics(prefix=''):
-    """Print overall statistics (number of errors and warnings)."""
-    for line in get_statistics(prefix):
-        print(line)
-
-
-def print_benchmark(elapsed):
-    """
-    Print benchmark numbers.
-    """
-    print('%-7.2f %s' % (elapsed, 'seconds elapsed'))
-    for key in BENCHMARK_KEYS:
-        print('%-7d %s per second (%d total)' % (
-              options.counters[key] / elapsed, key,
-              options.counters[key]))
-
-
-def run_tests(filename):
-    """
-    Run all the tests from a file.
-
-    A test file can provide many tests.  Each test starts with a declaration.
-    This declaration is a single line starting with '#:'.
-    It declares codes of expected failures, separated by spaces or 'Okay'
-    if no failure is expected.
-    If the file does not contain such declaration, it should pass all tests.
-    If the declaration is empty, following lines are not checked, until next
-    declaration.
-
-    Examples:
-
-     * Only E224 and W701 are expected:         #: E224 W701
-     * Following example is conform:            #: Okay
-     * Don't check these lines:                 #:
-    """
-    lines = readlines(filename) + ['#:\n']
-    line_offset = 0
-    codes = ['Okay']
-    testcase = []
-    count_failed = 0
-    for index, line in enumerate(lines):
-        if not line.startswith('#:'):
-            if codes:
-                # Collect the lines of the test case
-                testcase.append(line)
-            continue
-        if codes and index:
-            label = '%s:%s:1' % (filename, line_offset)
-            codes = [c for c in codes if c != 'Okay']
-            # Run the checker
-            errors = Checker(filename, testcase).check_all(codes, line_offset)
-            # Check if the expected errors were found
-            for code in codes:
-                if not options.counters.get(code):
-                    errors += 1
-                    print('%s: error %s not found' % (label, code))
-            if options.verbose and not errors:
-                print('%s: passed (%s)' % (label, ' '.join(codes) or 'Okay'))
-            # Keep showing errors for multiple tests
-            reset_counters()
-            options.counters['test cases'] += 1
-            if errors:
-                count_failed += 1
-        # output the real line numbers
-        line_offset = index + 1
-        # configure the expected errors
-        codes = line.split()[1:]
-        # empty the test case buffer
-        del testcase[:]
-    return count_failed
-
-
-def selftest():
-    """
-    Test all check functions with test cases in docstrings.
-    """
-    count_all = 0
-    count_failed = 0
-    quiet = options.quiet
-    options.quiet = 2
-    checks = options.physical_checks + options.logical_checks
-    for name, check, argument_names in checks:
-        for line in check.__doc__.splitlines():
-            line = line.lstrip()
-            match = SELFTEST_REGEX.match(line)
-            if match is None:
-                continue
-            code, source = match.groups()
-            checker = Checker(None)
-            for part in source.split(r'\n'):
-                part = part.replace(r'\t', '\t')
-                part = part.replace(r'\s', ' ')
-                checker.lines.append(part + '\n')
-            checker.check_all()
-            error = None
-            if code == 'Okay':
-                if len(options.counters) > len(BENCHMARK_KEYS):
-                    codes = [key for key in options.counters.keys()
-                             if key not in BENCHMARK_KEYS]
-                    error = "incorrectly found %s" % ', '.join(codes)
-            elif not options.counters.get(code):
-                error = "failed to find %s" % code
-            # Reset the counters
-            reset_counters()
-            count_all += 1
-            if not error:
-                if options.verbose:
-                    print("%s: %s" % (code, source))
+        for index, value in enumerate(options.exclude):
+            options.exclude[index] = value.rstrip('/')
+        if not options.select:
+            options.select = []
+        if not options.ignore:
+            if options.select:
+                # Ignore all checks which are not explicitly selected
+                options.ignore = ['']
             else:
-                count_failed += 1
-                if len(checker.lines) == 1:
-                    print("%s: %s: %s" %
-                          (__file__, error, checker.lines[0].rstrip()))
+                options.ignore = []
+
+        options.benchmark_keys = BENCHMARK_KEYS[:]
+        if options.testsuite:
+            self.runner = self.run_tests
+            options.benchmark_keys.append('test cases')
+        else:
+            self.runner = self.input_file
+        self.options = options
+        options.ignore_code = self.ignore_code
+        options.physical_checks = self.get_checks('physical_line')
+        options.logical_checks = self.get_checks('logical_line')
+        options.report = options.reporter(options)
+
+    def check_files(self, paths=None):
+        if paths is None:
+            paths = self.paths
+        runner = self.runner
+        report = self.options.report
+        report.start()
+        for path in paths:
+            if os.path.isdir(path):
+                self.input_dir(path)
+            elif not self.excluded(path):
+                runner(path)
+        report.stop()
+        return report
+
+    def input_file(self, filename, lines=None, expected=None, line_offset=0):
+        """
+        Run all checks on a Python source file.
+        """
+        if self.options.verbose:
+            print('checking %s' % filename)
+        fchecker = Checker(filename, lines=lines, options=self.options)
+        return fchecker.check_all(expected=expected, line_offset=line_offset)
+
+    def input_dir(self, dirname):
+        """
+        Check all Python source files in this directory and all subdirectories.
+        """
+        dirname = dirname.rstrip('/')
+        if self.excluded(dirname):
+            return 0
+        counters = self.options.report.counters
+        verbose = self.options.verbose
+        runner = self.runner
+        for root, dirs, files in os.walk(dirname):
+            if verbose:
+                print('directory ' + root)
+            counters['directories'] += 1
+            dirs.sort()
+            for subdir in dirs[:]:
+                if self.excluded(subdir):
+                    dirs.remove(subdir)
+            files.sort()
+            for filename in files:
+                if self.options.filename:
+                    # contain a pattern that matches?
+                    for pattern in self.options.filename:
+                        if fnmatch(filename, pattern):
+                            break
+                    else:
+                        continue
+                if not self.excluded(filename):
+                    runner(os.path.join(root, filename))
+
+    def excluded(self, filename):
+        """
+        Check if options.exclude contains a pattern that matches filename.
+        """
+        basename = os.path.basename(filename)
+        for pattern in self.options.exclude:
+            if fnmatch(basename, pattern):
+                # print basename, 'excluded because it matches', pattern
+                return True
+
+    def ignore_code(self, code):
+        """
+        Check if the error code should be ignored.
+
+        If 'options.select' contains a prefix of the error code,
+        return False.  Else, if 'options.ignore' contains a prefix of
+        the error code, return True.  If nothing match, return None.
+        """
+        for select in self.options.select:
+            if code.startswith(select):
+                return False
+        for ignore in self.options.ignore:
+            if code.startswith(ignore):
+                return True
+
+    def get_checks(self, argument_name):
+        """
+        Find all globally visible functions where the first argument name
+        starts with argument_name and which contain selected tests.
+        """
+        checks = []
+        for name, codes, function, args in find_checks(argument_name):
+            for code in codes:
+                if not code or not self.ignore_code(code):
+                    checks.append((name, function, args))
+                    break
+        checks.sort()
+        return checks
+
+    def run_tests(self, filename):
+        """
+        Run all the tests from a file.
+
+        A test file can provide many tests.  Each test starts with a
+        declaration.  This declaration is a single line starting with '#:'.
+        It declares codes of expected failures, separated by spaces or 'Okay'
+        if no failure is expected.
+        If the file does not contain such declaration, it should pass all
+        tests.  If the declaration is empty, following lines are not checked,
+        until next declaration.
+
+        Examples:
+
+         * Only E224 and W701 are expected:         #: E224 W701
+         * Following example is conform:            #: Okay
+         * Don't check these lines:                 #:
+        """
+        report = self.options.report
+        lines = readlines(filename) + ['#:\n']
+        line_offset = 0
+        codes = ['Okay']
+        testcase = []
+        count_failed = 0
+        count_files = report.counters['files']
+        for index, line in enumerate(lines):
+            if not line.startswith('#:'):
+                if codes:
+                    # Collect the lines of the test case
+                    testcase.append(line)
+                continue
+            if codes and index:
+                label = '%s:%s:1' % (filename, line_offset)
+                codes = [c for c in codes if c != 'Okay']
+                # Run the checker
+                errors = self.input_file(filename, testcase, expected=codes,
+                                         line_offset=line_offset)
+                # Check if the expected errors were found
+                for code in codes:
+                    if not report.counters.get(code):
+                        errors += 1
+                        print('%s: error %s not found' % (label, code))
+                if self.options.verbose and not errors:
+                    print('%s: passed (%s)' %
+                          (label, ' '.join(codes) or 'Okay'))
+                # Keep showing errors for multiple tests
+                report.reset_counters()
+                report.counters['test cases'] += 1
+                if errors:
+                    count_failed += 1
+            # output the real line numbers
+            line_offset = index + 1
+            # configure the expected errors
+            codes = line.split()[1:]
+            # empty the test case buffer
+            del testcase[:]
+        report.counters['files'] = count_files + 1
+        return count_failed
+
+    def selftest(self):
+        """
+        Test all check functions with test cases in docstrings.
+        """
+        count_all = 0
+        count_failed = 0
+        options = self.options
+        report = BasicReport(options)
+        counters = report.counters
+        checks = options.physical_checks + options.logical_checks
+        for name, check, argument_names in checks:
+            for line in check.__doc__.splitlines():
+                line = line.lstrip()
+                match = SELFTEST_REGEX.match(line)
+                if match is None:
+                    continue
+                code, source = match.groups()
+                checker = Checker(None, options=options, report=report)
+                for part in source.split(r'\n'):
+                    part = part.replace(r'\t', '\t')
+                    part = part.replace(r'\s', ' ')
+                    checker.lines.append(part + '\n')
+                checker.check_all()
+                error = None
+                if code == 'Okay':
+                    if len(counters) > len(options.benchmark_keys):
+                        codes = [key for key in counters.keys()
+                                 if key not in options.benchmark_keys]
+                        error = "incorrectly found %s" % ', '.join(codes)
+                elif not counters.get(code):
+                    error = "failed to find %s" % code
+                # Reset the counters
+                report.reset_counters()
+                count_all += 1
+                if not error:
+                    if options.verbose:
+                        print("%s: %s" % (code, source))
                 else:
-                    print("%s: %s:" % (__file__, error))
-                    for line in checker.lines:
-                        print(line.rstrip())
-    options.quiet = quiet
-    return count_failed, count_all
+                    count_failed += 1
+                    if len(checker.lines) == 1:
+                        print("%s: %s: %s" %
+                              (__file__, error, checker.lines[0].rstrip()))
+                    else:
+                        print("%s: %s:" % (__file__, error))
+                        for line in checker.lines:
+                            print(line.rstrip())
+        return count_failed, count_all
 
 
 def read_config(options, args, arglist, parser):
     config = RawConfigParser()
 
     user_conf = options.config
-    if os.path.isfile(user_conf):
+    if user_conf and os.path.isfile(user_conf):
         if options.verbose:
             print('user configuration: %s' % user_conf)
         config.read(user_conf)
 
-    parent, tail = os.path.abspath(os.path.commonprefix(args)), True
+    parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
         local_conf = os.path.join(parent, '.pep8')
         if os.path.isfile(local_conf):
@@ -1696,6 +1793,9 @@ def process_options(arglist=None):
     """
     Process options passed either via arglist or via command line args.
     """
+    if arglist is None and __name__ != '__main__':
+        # Don't read the command line if the module is used as a library.
+        arglist = []
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.add_option('-v', '--verbose', default=0, action='count',
@@ -1749,42 +1849,34 @@ def process_options(arglist=None):
     if options.testsuite:
         args.append(options.testsuite)
     elif not options.doctest:
-        if not args:
+        if not args and arglist is None:
             if os.path.exists('.pep8'):
                 args = ['.']
             else:
                 parser.error('input not specified')
         options = read_config(options, args, arglist, parser)
 
-    options.prog = os.path.basename(sys.argv[0])
     options.exclude = options.exclude.split(',')
-    for index, value in enumerate(options.exclude):
-        options.exclude[index] = value.rstrip('/')
     if options.filename:
         options.filename = options.filename.split(',')
 
     if options.select:
         options.select = options.select.split(',')
-    else:
-        options.select = []
     if options.ignore:
         options.ignore = options.ignore.split(',')
-    elif options.select:
-        # Ignore all checks which are not explicitly selected
-        options.ignore = ['']
-    elif options.testsuite or options.doctest or not DEFAULT_IGNORE:
-        # For doctest and testsuite, all checks are required
-        options.ignore = []
-    else:
+    elif (not options.select and DEFAULT_IGNORE and
+          not options.testsuite and not options.doctest):
         # The default choice: ignore controversial checks
+        # (for doctest and testsuite, all checks are required)
         options.ignore = DEFAULT_IGNORE.split(',')
 
-    options.physical_checks = find_checks('physical_line')
-    options.logical_checks = find_checks('logical_line')
-    options.counters = dict.fromkeys(BENCHMARK_KEYS, 0)
-    options.messages = {}
-    options.format = REPORT_FORMAT.get(options.format.lower(),
-                                       options.format)
+    if not options.quiet:
+        options.reporter = StandardReport
+    elif options.quiet == 1:
+        options.reporter = FileReport
+    else:
+        options.reporter = BasicReport
+
     return options, args
 
 
@@ -1792,13 +1884,12 @@ def _main():
     """
     Parse options and run checks on Python source.
     """
-    global options
-    options, args = process_options()
-    count_failed = 0
+    pep8style = StyleGuide()
+    options = pep8style.options
     if options.doctest:
         import doctest
         fail_d, done_d = doctest.testmod(report=False, verbose=options.verbose)
-        fail_s, done_s = selftest()
+        fail_s, done_s = pep8style.selftest()
         count_failed = fail_s + fail_d
         if not options.quiet:
             count_passed = done_d + done_s - count_failed
@@ -1809,34 +1900,22 @@ def _main():
                 print("Test passed.")
         if count_failed:
             sys.exit(1)
-    if options.testsuite:
-        BENCHMARK_KEYS.append('test cases')
-        options.counters['test cases'] = 0
-        runner = run_tests
-    else:
-        runner = input_file
-    start_time = time.time()
-    for path in args:
-        if os.path.isdir(path):
-            count_failed += input_dir(path, runner=runner)
-        elif not excluded(path):
-            options.counters['files'] += 1
-            count_failed += runner(path)
-    elapsed = time.time() - start_time
+    report = pep8style.check_files()
     if options.statistics:
-        print_statistics()
+        report.print_statistics()
     if options.benchmark:
-        print_benchmark(elapsed)
-    if options.testsuite and not options.quiet:
-        print("%(physical lines)d lines tested (%(files)d files, "
-              "%(test cases)d test cases)." % options.counters)
-        if count_failed:
-            print("%d failed." % count_failed)
-        else:
+        report.print_benchmark()
+    if options.testsuite:
+        if not options.quiet:
+            print("%(physical lines)d lines tested (%(files)d files, "
+                  "%(test cases)d test cases)." % report.counters)
+        if report.total_errors:
+            print("%d failed." % report.total_errors)
+        elif not options.quiet:
             print("Test passed.")
-    if count_failed:
+    if report.total_errors:
         if options.count:
-            sys.stderr.write(str(count_failed) + '\n')
+            sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
 
 

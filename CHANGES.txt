@@ -5,6 +5,13 @@ Changelog
 1.3 (UNRELEASED)
 ----------------
 
+.. warning::
+   The internal API is backwards incompatible.
+
+* Remove global configuration and refactor the library around
+  a ``StyleGuide`` class; add the ability to configure various
+  reporters. (Issue #66)
+
 * Read user configuration from ``~/.config/pep8``
   and local configuration from ``./.pep8``. (Issue #22)
 
