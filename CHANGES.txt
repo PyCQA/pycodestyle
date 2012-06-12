@@ -10,7 +10,7 @@ Changelog
 
 * Remove global configuration and refactor the library around
   a ``StyleGuide`` class; add the ability to configure various
-  reporters. (Issue #66)
+  reporters. (Issue #35 and #66)
 
 * Read user configuration from ``~/.config/pep8``
   and local configuration from ``./.pep8``. (Issue #22)
