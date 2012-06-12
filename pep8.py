@@ -144,6 +144,7 @@ KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
                            r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
+HUNK_REGEX = re.compile(r'^@@ -\d+,\d+ \+(\d+),(\d+) @@.*$')
 
 WHITESPACE = frozenset(' \t')
 BINARY_OPERATORS = frozenset([
@@ -1150,6 +1151,29 @@ def mute_string(text):
     return text[:start] + 'x' * (end - start) + text[end:]
 
 
+def parse_udiff(diff, patterns=None):
+    rv = {}
+    lastrow = path = None
+    for line in diff.splitlines():
+        if lastrow:
+            if line[:1] == '+':
+                rv[path].add(row)
+            if row == lastrow:
+                lastrow = None
+            elif line[:1] != '-':
+                row += 1
+        elif line[:3] == '+++':
+            path = line[4:].split('\t', 1)[0]
+            if path[:2] == 'b/':
+                path = path[2:]
+            rv[path] = set()
+        elif line[:3] == '@@ ':
+            row, nrows = [int(g) for g in HUNK_REGEX.match(line).groups()]
+            lastrow = nrows and (row + nrows - 1) or None
+    return dict([(path, rows) for (path, rows) in rv.items()
+                 if rows and filename_match(path, patterns)])
+
+
 ##############################################################################
 # Framework to run all checks
 ##############################################################################
@@ -1167,6 +1191,18 @@ def find_checks(argument_name):
         if args and args[0].startswith(argument_name):
             codes = ERRORCODE_REGEX.findall(function.__doc__ or '')
             yield name, codes, function, args
+
+
+def filename_match(filename, patterns):
+    """
+    Check if patterns contains a pattern that matches filename.
+    If patterns is unspecified, this always returns True.
+    """
+    if not patterns:
+        return True
+    for pattern in patterns:
+        if fnmatch(filename, pattern):
+            return True
 
 
 class Checker(object):
@@ -1508,6 +1544,18 @@ class StandardReport(BasicReport):
         return code
 
 
+class DiffReport(StandardReport):
+
+    def __init__(self, options):
+        super(DiffReport, self).__init__(options)
+        self._selected = options.selected_lines
+
+    def error(self, line_number, offset, text, check):
+        if line_number not in self._selected[self.filename]:
+            return
+        return super(DiffReport, self).error(line_number, offset, text, check)
+
+
 class StyleGuide(object):
     """
     Initialize a PEP-8 instance with few options.
@@ -1584,6 +1632,7 @@ class StyleGuide(object):
             return 0
         counters = self.options.report.counters
         verbose = self.options.verbose
+        filepatterns = self.options.filename
         runner = self.runner
         for root, dirs, files in os.walk(dirname):
             if verbose:
@@ -1595,14 +1644,9 @@ class StyleGuide(object):
                     dirs.remove(subdir)
             files.sort()
             for filename in files:
-                if self.options.filename:
-                    # contain a pattern that matches?
-                    for pattern in self.options.filename:
-                        if fnmatch(filename, pattern):
-                            break
-                    else:
-                        continue
-                if not self.excluded(filename):
+                # contain a pattern that matches?
+                if ((filename_match(filename, filepatterns) and
+                     not self.excluded(filename))):
                     runner(os.path.join(root, filename))
 
     def excluded(self, filename):
@@ -1848,15 +1892,27 @@ def process_options(arglist=None):
     parser.add_option('--doctest', action='store_true',
                       help="run doctest on myself")
     parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
-                      help='config file location (default: %default)')
+                      help="config file location (default: %default)")
     parser.add_option('--format', metavar='format', default='default',
-                      help='set the error format [default|pylint|<custom>]')
+                      help="set the error format [default|pylint|<custom>]")
+    parser.add_option('--diff', action='store_true',
+                      help="report only lines changed according to the "
+                           "unified diff received on STDIN")
 
     options, args = parser.parse_args(arglist)
     options.reporter = None
     if options.show_pep8:
         options.repeat = False
-    if options.testsuite:
+    options.exclude = options.exclude.split(',')
+    if options.filename:
+        options.filename = options.filename.split(',')
+
+    if options.diff:
+        stdin = sys.stdin.read()
+        options.reporter = DiffReport
+        options.selected_lines = parse_udiff(stdin, options.filename)
+        args = list(options.selected_lines.keys())
+    elif options.testsuite:
         args.append(options.testsuite)
     elif not options.doctest:
         if not args and arglist is None:
@@ -1867,10 +1923,6 @@ def process_options(arglist=None):
         options = read_config(options, args, arglist, parser)
         if options.quiet == 1 and arglist is None:
             options.reporter = FileReport
-
-    options.exclude = options.exclude.split(',')
-    if options.filename:
-        options.filename = options.filename.split(',')
 
     if options.select:
         options.select = options.select.split(',')

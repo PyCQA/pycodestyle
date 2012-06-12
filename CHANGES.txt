@@ -33,6 +33,10 @@ Changelog
 
 * New option ``--format`` to customize the error format. (Issue #23)
 
+* New option ``--diff`` to check only modified code.  The unified
+  diff is read from STDIN.  Example: ``hg diff | pep8 --diff``
+  (Issue #39)
+
 * Correctly report the count of failures and set the exit code to 1
   when the ``--doctest`` or the ``--testsuite`` fails.
 

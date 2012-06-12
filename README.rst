@@ -115,6 +115,8 @@ Quick help is available on the command line::
     --doctest            run doctest on myself
     --config=path        config file location (default: /home/user/.config/pep8)
     --format=format      set the error format [default|pylint|<custom>]
+    --diff               report only lines changed according to the unified diff
+                         received on STDIN
 
 Feedback
 --------
