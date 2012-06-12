@@ -145,7 +145,6 @@ KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
 OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 
-
 WHITESPACE = frozenset(' \t')
 BINARY_OPERATORS = frozenset([
     '**=', '*=', '+=', '-=', '!=', '<>',
@@ -1195,7 +1194,6 @@ class Checker(object):
             self.lines = lines
         self.report = report or options.report
         self.report_error = self.report.error
-        self.report.counters['physical lines'] += len(self.lines)
 
     def readline(self):
         """
@@ -1276,7 +1274,7 @@ class Checker(object):
         """
         Build a line from tokens and run all logical checks on it.
         """
-        self.report.counters['logical lines'] += 1
+        self.report.count_logical_line()
         self.build_tokens_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
@@ -1320,7 +1318,7 @@ class Checker(object):
         """
         Run all checks on the input file.
         """
-        self.report_setfile(expected, line_offset)
+        self.report.init_file(self.filename, self.lines, expected, line_offset)
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
@@ -1370,15 +1368,6 @@ class Checker(object):
                     self.tokens = []
         return self.report.file_errors
 
-    def report_setfile(self, expected, line_offset):
-        report = self.report
-        report.filename = self.filename
-        report.lines = self.lines
-        report.file_errors = 0
-        report.expected = expected or ()
-        report.line_offset = line_offset
-        report.counters['files'] += 1
-
 
 class BasicReport(object):
     print_filename = False
@@ -1403,6 +1392,18 @@ class BasicReport(object):
             if key not in self._benchmark_keys:
                 del self.counters[key]
         self.messages = {}
+
+    def init_file(self, filename, lines, expected, line_offset):
+        self.filename = filename
+        self.lines = lines
+        self.expected = expected or ()
+        self.line_offset = line_offset
+        self.file_errors = 0
+        self.counters['files'] += 1
+        self.counters['physical lines'] += len(lines)
+
+    def count_logical_line(self):
+        self.counters['logical lines'] += 1
 
     def error(self, line_number, offset, text, check):
         """
