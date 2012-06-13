@@ -1196,13 +1196,13 @@ def find_checks(argument_name):
             yield name, codes, function, args
 
 
-def filename_match(filename, patterns):
+def filename_match(filename, patterns, default=True):
     """
     Check if patterns contains a pattern that matches filename.
     If patterns is unspecified, this always returns True.
     """
     if not patterns:
-        return True
+        return default
     for pattern in patterns:
         if fnmatch(filename, pattern):
             return True
@@ -1658,10 +1658,7 @@ class StyleGuide(object):
         Check if options.exclude contains a pattern that matches filename.
         """
         basename = os.path.basename(filename)
-        for pattern in self.options.exclude:
-            if fnmatch(basename, pattern):
-                # print basename, 'excluded because it matches', pattern
-                return True
+        return filename_match(basename, self.options.exclude, default=False)
 
     def ignore_code(self, code):
         """
