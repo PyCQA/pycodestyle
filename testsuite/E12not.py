@@ -393,8 +393,32 @@ help = ("print total number of errors " +
 help = "print total number of errors " \
        "to standard error"
 
+help = u"print total number of errors " \
+       u"to standard error"
+
+help = ur"print total number of errors " \
+       ur"to standard error"
+
+help = b"print total number of errors " \
+       b"to standard error"
+
+help = br"print total number of errors " \
+       br"to standard error"
+
 d = dict('foo', help="exclude files or directories which match these "
                      "comma separated patterns (default: %s)" %
+                     DEFAULT_EXCLUDE)
+
+d = dict('foo', help=u"exclude files or directories which match these "
+                     u"comma separated patterns (default: %s)" %
+                     DEFAULT_EXCLUDE)
+
+d = dict('foo', help=b"exclude files or directories which match these "
+                     b"comma separated patterns (default: %s)" %
+                     DEFAULT_EXCLUDE)
+
+d = dict('foo', help=br"exclude files or directories which match these "
+                     br"comma separated patterns (default: %s)" %
                      DEFAULT_EXCLUDE)
 
 d = dict('foo',

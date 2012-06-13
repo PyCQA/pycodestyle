@@ -593,7 +593,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
         if indent_string:
             if token_type == tokenize.OP and text != '%':
                 indent_string = None
-        elif token_type == tokenize.STRING:
+        elif token_type == tokenize.STRING or text in ('u', 'ur', 'b', 'br'):
             indent_string = start[1]
 
         # let people line up tokens, if they truly must.
