@@ -1903,9 +1903,9 @@ def process_options(arglist=None, parse_argv=False):
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
         options.repeat = False
+    options.reporter = None
 
     if options.testsuite:
-        options.reporter = None
         args.append(options.testsuite)
     elif not options.doctest:
         if parse_argv and not args:
@@ -1930,8 +1930,8 @@ def process_options(arglist=None, parse_argv=False):
         options.ignore = DEFAULT_IGNORE.split(',')
 
     if options.diff:
-        stdin = sys.stdin.read()
         options.reporter = DiffReport
+        stdin = sys.stdin.read()
         options.selected_lines = parse_udiff(stdin, options.filename)
         args = list(options.selected_lines.keys())
 
