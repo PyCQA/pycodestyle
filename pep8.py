@@ -1077,6 +1077,8 @@ if '' == ''.encode():
 
     def isidentifier(s):
         return re.match(r'[a-zA-Z_]\w*', s)
+
+    stdin_get_value = sys.stdin.read
 else:
     # Python 3
     def readlines(filename):
@@ -1095,6 +1097,9 @@ else:
 
     def isidentifier(s):
         return s.isidentifier()
+
+    def stdin_get_value():
+        return sys.stdin.buffer.read().decode('utf-8', 'replace')
 
 
 def expand_indent(line):
@@ -1151,7 +1156,7 @@ def mute_string(text):
     return text[:start] + 'x' * (end - start) + text[end:]
 
 
-def parse_udiff(diff, patterns=None):
+def parse_udiff(diff, patterns=None, parent='.'):
     rv = {}
     lastrow = path = None
     for line in diff.splitlines():
@@ -1170,7 +1175,8 @@ def parse_udiff(diff, patterns=None):
         elif line[:3] == '@@ ':
             row, nrows = [int(g) for g in HUNK_REGEX.match(line).groups()]
             lastrow = nrows and (row + nrows - 1) or None
-    return dict([(path, rows) for (path, rows) in rv.items()
+    return dict([(os.path.join(parent, path), rows)
+                 for (path, rows) in rv.items()
                  if rows and filename_match(path, patterns)])
 
 
@@ -1908,8 +1914,8 @@ def process_options(arglist=None, parse_argv=False):
     if options.testsuite:
         args.append(options.testsuite)
     elif not options.doctest:
-        if parse_argv and not args and not options.diff:
-            if os.path.exists('.pep8'):
+        if parse_argv and not args:
+            if os.path.exists('.pep8') or options.diff:
                 args = ['.']
             else:
                 parser.error('input not specified')
@@ -1931,9 +1937,9 @@ def process_options(arglist=None, parse_argv=False):
 
     if options.diff:
         options.reporter = DiffReport
-        stdin = sys.stdin.read()
-        options.selected_lines = parse_udiff(stdin, options.filename)
-        args = list(options.selected_lines.keys())
+        stdin = stdin_get_value()
+        options.selected_lines = parse_udiff(stdin, options.filename, args[0])
+        args = sorted(options.selected_lines.keys())
 
     return options, args
 
