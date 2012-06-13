@@ -1158,23 +1158,20 @@ def mute_string(text):
 
 def parse_udiff(diff, patterns=None, parent='.'):
     rv = {}
-    lastrow = path = None
+    path = nrows = None
     for line in diff.splitlines():
-        if lastrow:
-            if line[:1] == '+':
-                rv[path].add(row)
-            if row == lastrow:
-                lastrow = None
-            elif line[:1] != '-':
-                row += 1
+        if nrows:
+            if line[:1] != '-':
+                nrows -= 1
+            continue
+        if line[:3] == '@@ ':
+            row, nrows = [int(g) for g in HUNK_REGEX.match(line).groups()]
+            rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
             if path[:2] == 'b/':
                 path = path[2:]
             rv[path] = set()
-        elif line[:3] == '@@ ':
-            row, nrows = [int(g) for g in HUNK_REGEX.match(line).groups()]
-            lastrow = nrows and (row + nrows - 1) or None
     return dict([(os.path.join(parent, path), rows)
                  for (path, rows) in rv.items()
                  if rows and filename_match(path, patterns)])
