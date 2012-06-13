@@ -1736,6 +1736,7 @@ class StyleGuide(object):
                 for code in codes:
                     if not report.counters.get(code):
                         errors += 1
+                        report.total_errors += 1
                         print('%s: error %s not found' % (label, code))
                 if self.options.verbose and not errors:
                     print('%s: passed (%s)' %
