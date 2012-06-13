@@ -29,13 +29,9 @@ Installation
 
 You can install, upgrade, uninstall pep8.py with these commands::
 
-  $ sudo pip install pep8
-  $ sudo pip install --upgrade pep8
-  $ sudo pip uninstall pep8
-
-Or if you don't have `pip`::
-
-  $ sudo easy_install pep8
+  $ pip install pep8
+  $ pip install --upgrade pep8
+  $ pip uninstall pep8
 
 There's also a package for Debian/Ubuntu, but it's not always the
 latest version::
@@ -89,7 +85,7 @@ Or you can display how often each error was found::
 Quick help is available on the command line::
 
   $ pep8 -h
-  Usage: pep8.py [options] input ...
+  Usage: pep8 [options] input ...
 
   Options:
     --version            show program's version number and exit
