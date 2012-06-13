@@ -471,7 +471,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     indent_next = logical_line.endswith(':')
 
     indent_string = None
-    indent_any = []
+    indent_any = set()
     row = depth = 0
     # remember how many brackets were opened on each line
     parens = [0] * nrows
@@ -541,12 +541,12 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 # token lined up with matching one from a previous line, OK
                 pass
             elif is_visual:
-                # Visual indent is verified
+                # visual indent is verified
                 for d1 in range(d, depth + 1):
                     indent[d1] = start[1]
                 indent[depth] = start[1]
             elif indent[depth]:
-                # Visual indent is broken
+                # visual indent is broken
                 if hasattr(indent[depth], 'add'):
                     indent[depth] = min(indent[depth])
                 if start[1] < indent[depth]:
@@ -573,7 +573,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 for d1 in range(d + 1, depth):
                     indent[d1] = set([i for i in indent[d1] if i <= start[1]])
 
-            indent_any = []
+            indent_any = set()
 
         # look for visual indenting
         if ((parens[row] and token_type != tokenize.NL and
@@ -593,7 +593,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
 
         # let people line up tokens, if they truly must.
         if token_type == tokenize.OP:
-            indent_any.append((start[1], text))
+            indent_any.add((start[1], text))
 
         # keep track of bracket depth
         if token_type == tokenize.OP:
@@ -1070,9 +1070,7 @@ if '' == ''.encode():
         finally:
             f.close()
 
-    def isidentifier(s):
-        return re.match(r'[a-zA-Z_]\w*', s)
-
+    isidentifier = re.compile(r'[a-zA-Z_]\w*').match
     stdin_get_value = sys.stdin.read
 else:
     # Python 3
@@ -1090,11 +1088,8 @@ else:
         finally:
             f.close()
 
-    def isidentifier(s):
-        return s.isidentifier()
-
-    def stdin_get_value():
-        return sys.stdin.buffer.read().decode('utf-8', 'replace')
+    isidentifier = str.isidentifier
+    stdin_get_value = TextIOWrapper(sys.stdin.buffer, errors='ignore').read
 
 
 def expand_indent(line):
