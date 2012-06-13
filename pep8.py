@@ -1901,19 +1901,11 @@ def process_options(arglist=None, parse_argv=False):
                            "unified diff received on STDIN")
 
     options, args = parser.parse_args(arglist)
-    options.reporter = None
     if options.show_pep8:
         options.repeat = False
-    options.exclude = options.exclude.split(',')
-    if options.filename:
-        options.filename = options.filename.split(',')
 
-    if options.diff:
-        stdin = sys.stdin.read()
-        options.reporter = DiffReport
-        options.selected_lines = parse_udiff(stdin, options.filename)
-        args = list(options.selected_lines.keys())
-    elif options.testsuite:
+    if options.testsuite:
+        options.reporter = None
         args.append(options.testsuite)
     elif not options.doctest:
         if parse_argv and not args:
@@ -1922,9 +1914,11 @@ def process_options(arglist=None, parse_argv=False):
             else:
                 parser.error('input not specified')
         options = read_config(options, args, arglist, parser)
-        if options.quiet == 1 and parse_argv:
-            options.reporter = FileReport
+        options.reporter = parse_argv and options.quiet == 1 and FileReport
 
+    if options.filename:
+        options.filename = options.filename.split(',')
+    options.exclude = options.exclude.split(',')
     if options.select:
         options.select = options.select.split(',')
     if options.ignore:
@@ -1934,6 +1928,12 @@ def process_options(arglist=None, parse_argv=False):
         # The default choice: ignore controversial checks
         # (for doctest and testsuite, all checks are required)
         options.ignore = DEFAULT_IGNORE.split(',')
+
+    if options.diff:
+        stdin = sys.stdin.read()
+        options.reporter = DiffReport
+        options.selected_lines = parse_udiff(stdin, options.filename)
+        args = list(options.selected_lines.keys())
 
     return options, args
 
