@@ -452,7 +452,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     Okay: a = (\n    42)
     E121: a = (\n   42)
     E122: a = (\n42)
-    E123: a = (42\n    )
+    E123: a = (\n    42\n    )
     E124: a = (24,\n     42\n)
     E125: if (a or\n    b):\n    pass
     E126: a = (\n        42)
@@ -528,13 +528,13 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 pass
             elif token_type == tokenize.OP and text in ']})':
                 # This line starts with a closing bracket
-                if hang == 0:
+                if indent[depth]:
                     if hasattr(indent[depth], 'add'):
                         indent[depth] = min(indent[depth] or [0])
-                    if start[1] < indent[depth] - 4:
+                    if start[1] != indent[depth]:
                         yield (start, 'E124 closing bracket '
-                               'missing visual indentation')
-                elif hang == 4 or not is_visual:
+                               'does not match visual indentation')
+                elif hang:
                     yield (start, 'E123 closing bracket does not match '
                            'indentation of opening bracket\'s line')
             elif token_type == tokenize.OP and (start[1], text) in indent_any:
@@ -552,7 +552,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 if start[1] < indent[depth]:
                     yield (start, 'E128 continuation line '
                            'under-indented for visual indent')
-
                 elif is_not_hanging:
                     yield (start, 'E127 continuation line over-'
                            'indented for visual indent')
@@ -560,7 +559,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 # hanging indent.
                 if hasattr(indent[depth], 'add'):
                     indent[depth] = None
-
                 if hang <= 0:
                     yield (start, 'E122 continuation line '
                            'missing indentation or outdented')
@@ -572,11 +570,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                            'for hanging indent')
 
                 # parent indents should not be more than this one
-                indent[depth] = start[1]
-                d = depth - 1
-                while d >= 0 and hasattr(indent[d], 'add'):
-                    indent[d] = set([i for i in indent[d] if i <= start[1]])
-                    d -= 1
+                for d1 in range(d + 1, depth):
+                    indent[d1] = set([i for i in indent[d1] if i <= start[1]])
 
             indent_any = []
 

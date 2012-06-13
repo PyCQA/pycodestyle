@@ -114,6 +114,9 @@ a = 3 + \
     4 + \
     5 + 6
 
+foo(1, 2, 3,
+    4, 5, 6)
+
 
 def long_function_name(
         var_one, var_two, var_three,
@@ -457,10 +460,16 @@ troublefree_hash = {
     ("long key that tends to happen more "
      "when you're indented"): "stringwithalongtoken you don't want to break",
 }
+# confusing but accepted... don't do that
+troublesome_hash = {
+    "hash": "value",
+    "long": "the quick brown fox jumps over the lazy dog before doing a "
+    "somersault",
+    "long key that tends to happen more "
+    "when you're indented": "stringwithalongtoken you don't want to break",
+}
 
-foo(1, 2, 3,
-    4, 5, 6)
-#: Okay
+#
 d = dict('foo',
          help="exclude files or directories which match these "
               "comma separated patterns (default: %s)" %
@@ -472,3 +481,4 @@ d = dict('foo',
          foobar="this clearly should work, because it is at "
                 "the right indent level",
          )
+#

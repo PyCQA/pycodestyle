@@ -4,8 +4,8 @@ print "E121", (
 #: E122
 print "E122", (
 "dent")
-#: E123
-print "E123", ("visual",
+#: E124
+print "E124", ("visual",
                "indent_two"
               )
 #: E124
@@ -101,18 +101,18 @@ rv.update(dict.fromkeys((
             'reasonComment_de', 'reasonComment_it'),
         '?'),
     "foo")
-#: E126 E124
+#: E126
 eat_a_dict_a_day({
         "foo": "bar",
 })
-#: E126 E124
+#: E126
 if (
     x == (
             3
     ) or
         y == 4):
     pass
-#: E126 E124
+#: E126
 if (
     x == (
         3
@@ -142,19 +142,19 @@ def qualify_by_address(self, cr, uid, ids, context=None,
 #:
 
 
-#: E127
+#: E121
 print "hello", (
 
     "there",
      # "john",
     "dude")
-#: E127
+#: E126
 troublesome_hash = {
     "hash": "value",
     "long": "the quick brown fox jumps over the lazy dog before doing a "
         "somersault",
 }
-#: E127
+#: E126
 # probably not easily fixed, without using 'ast'
 troublesome_hash_ii = {
     "long key that tends to happen more when you're indented":
@@ -199,8 +199,27 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
-#: E123
+#: E124
 d = dict('foo',
          help="exclude files or directories which match these "
               "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
               )
+#: E124 E128
+if line_removed:
+    self.event(cr, uid,
+        name="Removing the option for contract",
+        description="contract line has been removed",
+        )
+#: E128
+if line_removed:
+    self.event(cr, uid,
+              name="Removing the option for contract",
+              description="contract line has been removed",
+               )
+#: E124 E127
+if line_removed:
+    self.event(cr, uid,
+                name="Removing the option for contract",
+                description="contract line has been removed",
+                )
+#:
