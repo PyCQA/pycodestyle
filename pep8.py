@@ -105,10 +105,6 @@ import tokenize
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
-    frozenset
-except NameError:
-    from sets import Set as set, ImmutableSet as frozenset
-try:
     from configparser import RawConfigParser
     from io import TextIOWrapper
 except ImportError:
@@ -310,9 +306,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             yield 0, "E304 blank lines found after function decorator"
     elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
         yield 0, "E303 too many blank lines (%d)" % max_blank_lines
-    elif (logical_line.startswith('def ') or
-          logical_line.startswith('class ') or
-          logical_line.startswith('@')):
+    elif logical_line.startswith(('def ', 'class ', '@')):
         if indent_level:
             if not (max_blank_lines or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
@@ -553,8 +547,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                     yield (start, 'E128 continuation line '
                            'under-indented for visual indent')
                 elif is_not_hanging:
-                    yield (start, 'E127 continuation line over-'
-                           'indented for visual indent')
+                    yield (start, 'E127 continuation line '
+                           'over-indented for visual indent')
             else:
                 # hanging indent.
                 if hasattr(indent[depth], 'add'):
@@ -1132,15 +1126,11 @@ def mute_string(text):
     >>> mute_string("r'abc'")
     "r'xxx'"
     """
-    start = 1
-    end = len(text) - 1
     # String modifiers (e.g. u or r)
-    if text.endswith('"'):
-        start += text.index('"')
-    elif text.endswith("'"):
-        start += text.index("'")
+    start = text.index(text[-1]) + 1
+    end = len(text) - 1
     # Triple quotes
-    if text.endswith('"""') or text.endswith("'''"):
+    if text[-3:] in ('"""', "'''"):
         start += 2
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
@@ -1167,6 +1157,16 @@ def parse_udiff(diff, patterns=None, parent='.'):
                  if rows and filename_match(path, patterns)])
 
 
+def filename_match(filename, patterns, default=True):
+    """
+    Check if patterns contains a pattern that matches filename.
+    If patterns is unspecified, this always returns True.
+    """
+    if not patterns:
+        return default
+    return any(fnmatch(filename, pattern) for pattern in patterns)
+
+
 ##############################################################################
 # Framework to run all checks
 ##############################################################################
@@ -1184,18 +1184,6 @@ def find_checks(argument_name):
         if args and args[0].startswith(argument_name):
             codes = ERRORCODE_REGEX.findall(function.__doc__ or '')
             yield name, codes, function, args
-
-
-def filename_match(filename, patterns, default=True):
-    """
-    Check if patterns contains a pattern that matches filename.
-    If patterns is unspecified, this always returns True.
-    """
-    if not patterns:
-        return default
-    for pattern in patterns:
-        if fnmatch(filename, pattern):
-            return True
 
 
 class Checker(object):
@@ -1303,8 +1291,8 @@ class Checker(object):
         """
         Build a line from tokens and run all logical checks on it.
         """
-        self.report.increment_logical_line()
         self.build_tokens_line()
+        self.report.increment_logical_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
         self.previous_indent_level = self.indent_level
@@ -1417,9 +1405,8 @@ class BaseReport(object):
         self.elapsed = time.time() - self._start_time
 
     def reset_counters(self):
-        for key in list(self.counters.keys()):
-            if key not in self._benchmark_keys:
-                del self.counters[key]
+        for key in set(self.counters) - set(self._benchmark_keys):
+            del self.counters[key]
         self.messages = {}
 
     def init_file(self, filename, lines, expected, line_offset):
@@ -1457,12 +1444,8 @@ class BaseReport(object):
 
     def get_count(self, prefix=''):
         """Return the total count of errors and warnings."""
-        keys = list(self.messages.keys())
-        count = 0
-        for key in keys:
-            if key.startswith(prefix):
-                count += self.counters[key]
-        return count
+        return sum([self.counters[key]
+                    for key in self.messages if key.startswith(prefix)])
 
     def get_statistics(self, prefix=''):
         """
@@ -1473,14 +1456,8 @@ class BaseReport(object):
         prefix='W' matches all warnings
         prefix='E4' matches all errors that have to do with imports
         """
-        stats = []
-        keys = list(self.messages.keys())
-        keys.sort()
-        for key in keys:
-            if key.startswith(prefix):
-                stats.append('%-7s %s %s' %
-                             (self.counters[key], key, self.messages[key]))
-        return stats
+        return ['%-7s %s %s' % (self.counters[key], key, self.messages[key])
+                for key in sorted(self.messages) if key.startswith(prefix)]
 
     def print_statistics(self, prefix=''):
         """Print overall statistics (number of errors and warnings)."""
@@ -1494,9 +1471,9 @@ class BaseReport(object):
         print('%-7.2f %s' % (self.elapsed, 'seconds elapsed'))
         if self.elapsed:
             for key in self._benchmark_keys:
-                print('%-7d %s per second (%d total)' % (
-                      self.counters[key] / self.elapsed, key,
-                      self.counters[key]))
+                print('%-7d %s per second (%d total)' %
+                      (self.counters[key] / self.elapsed, key,
+                       self.counters[key]))
 
 
 class FileReport(BaseReport):
@@ -1581,6 +1558,8 @@ class StyleGuide(object):
                 options.ignore = ['']
             else:
                 options.ignore = []
+        options.select = tuple(options.select)
+        options.ignore = tuple(options.ignore)
 
         options.benchmark_keys = BENCHMARK_KEYS[:]
         if options.testsuite:
@@ -1632,12 +1611,10 @@ class StyleGuide(object):
             if verbose:
                 print('directory ' + root)
             counters['directories'] += 1
-            dirs.sort()
-            for subdir in dirs[:]:
+            for subdir in sorted(dirs):
                 if self.excluded(subdir):
                     dirs.remove(subdir)
-            files.sort()
-            for filename in files:
+            for filename in sorted(files):
                 # contain a pattern that matches?
                 if ((filename_match(filename, filepatterns) and
                      not self.excluded(filename))):
@@ -1656,14 +1633,10 @@ class StyleGuide(object):
 
         If 'options.select' contains a prefix of the error code,
         return False.  Else, if 'options.ignore' contains a prefix of
-        the error code, return True.  If nothing match, return None.
+        the error code, return True.
         """
-        for select in self.options.select:
-            if code.startswith(select):
-                return False
-        for ignore in self.options.ignore:
-            if code.startswith(ignore):
-                return True
+        return (code.startswith(self.options.ignore) and
+                not code.startswith(self.options.select))
 
     def get_checks(self, argument_name):
         """
@@ -1672,12 +1645,9 @@ class StyleGuide(object):
         """
         checks = []
         for name, codes, function, args in find_checks(argument_name):
-            for code in codes:
-                if not code or not self.ignore_code(code):
-                    checks.append((name, function, args))
-                    break
-        checks.sort()
-        return checks
+            if any(not (code and self.ignore_code(code)) for code in codes):
+                checks.append((name, function, args))
+        return sorted(checks)
 
     def run_tests(self, filename):
         """
@@ -1743,8 +1713,7 @@ class StyleGuide(object):
         """
         Test all check functions with test cases in docstrings.
         """
-        count_all = 0
-        count_failed = 0
+        count_failed = count_all = 0
         options = self.options
         report = BaseReport(options)
         counters = report.counters
@@ -1765,7 +1734,7 @@ class StyleGuide(object):
                 error = None
                 if code == 'Okay':
                     if len(counters) > len(options.benchmark_keys):
-                        codes = [key for key in counters.keys()
+                        codes = [key for key in counters
                                  if key not in options.benchmark_keys]
                         error = "incorrectly found %s" % ', '.join(codes)
                 elif not counters.get(code):
@@ -1924,7 +1893,7 @@ def process_options(arglist=None, parse_argv=False):
         options.reporter = DiffReport
         stdin = stdin_get_value()
         options.selected_lines = parse_udiff(stdin, options.filename, args[0])
-        args = sorted(options.selected_lines.keys())
+        args = sorted(options.selected_lines)
 
     return options, args
 
