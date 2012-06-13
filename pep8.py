@@ -1908,7 +1908,7 @@ def process_options(arglist=None, parse_argv=False):
     if options.testsuite:
         args.append(options.testsuite)
     elif not options.doctest:
-        if parse_argv and not args:
+        if parse_argv and not args and not options.diff:
             if os.path.exists('.pep8'):
                 args = ['.']
             else:
