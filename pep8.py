@@ -1310,7 +1310,7 @@ class Checker(object):
         """
         Build a line from tokens and run all logical checks on it.
         """
-        self.report.count_logical_line()
+        self.report.increment_logical_line()
         self.build_tokens_line()
         first_line = self.lines[self.mapping[0][1][2][0] - 1]
         indent = first_line[:self.mapping[0][1][2][1]]
@@ -1438,7 +1438,7 @@ class BaseReport(object):
         self.counters['files'] += 1
         self.counters['physical lines'] += len(lines)
 
-    def count_logical_line(self):
+    def increment_logical_line(self):
         self.counters['logical lines'] += 1
 
     def error(self, line_number, offset, text, check):
