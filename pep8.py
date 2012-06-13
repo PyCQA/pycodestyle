@@ -1563,7 +1563,8 @@ class StyleGuide(object):
 
     def __init__(self, *args, **kwargs):
         # build options from the command line
-        options, self.paths = process_options()
+        parse_argv = kwargs.pop('parse_argv', False)
+        options, self.paths = process_options(parse_argv=parse_argv)
         if args or kwargs:
             # build options from dict
             options_dict = dict(*args, **kwargs)
@@ -1842,12 +1843,12 @@ def read_config(options, args, arglist, parser):
     return options
 
 
-def process_options(arglist=None):
+def process_options(arglist=None, parse_argv=False):
     """
     Process options passed either via arglist or via command line args.
     """
-    if arglist is None and __name__ != '__main__':
-        # Don't read the command line if the module is used as a library.
+    # Don't read the command line if the module is used as a library.
+    if not arglist and not parse_argv:
         arglist = []
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
@@ -1915,13 +1916,13 @@ def process_options(arglist=None):
     elif options.testsuite:
         args.append(options.testsuite)
     elif not options.doctest:
-        if not args and arglist is None:
+        if parse_argv and not args:
             if os.path.exists('.pep8'):
                 args = ['.']
             else:
                 parser.error('input not specified')
         options = read_config(options, args, arglist, parser)
-        if options.quiet == 1 and arglist is None:
+        if options.quiet == 1 and parse_argv:
             options.reporter = FileReport
 
     if options.select:
@@ -1941,7 +1942,7 @@ def _main():
     """
     Parse options and run checks on Python source.
     """
-    pep8style = StyleGuide()
+    pep8style = StyleGuide(parse_argv=True)
     options = pep8style.options
     if options.doctest:
         import doctest
