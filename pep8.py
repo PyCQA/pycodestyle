@@ -1405,7 +1405,7 @@ class Checker(object):
         return self.report.file_errors
 
 
-class BasicReport(object):
+class BaseReport(object):
     print_filename = False
 
     def __init__(self, options):
@@ -1506,11 +1506,11 @@ class BasicReport(object):
                       self.counters[key]))
 
 
-class FileReport(BasicReport):
+class FileReport(BaseReport):
     print_filename = True
 
 
-class StandardReport(BasicReport):
+class StandardReport(BaseReport):
 
     def __init__(self, options):
         super(StandardReport, self).__init__(options)
@@ -1574,7 +1574,7 @@ class StyleGuide(object):
 
         if not options.reporter:
             if options.quiet:
-                options.reporter = BasicReport
+                options.reporter = BaseReport
             else:
                 options.reporter = StandardReport
 
@@ -1755,7 +1755,7 @@ class StyleGuide(object):
         count_all = 0
         count_failed = 0
         options = self.options
-        report = BasicReport(options)
+        report = BaseReport(options)
         counters = report.counters
         checks = options.physical_checks + options.logical_checks
         for name, check, argument_names in checks:
