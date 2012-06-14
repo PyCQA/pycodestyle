@@ -481,4 +481,10 @@ d = dict('foo',
          foobar="this clearly should work, because it is at "
                 "the right indent level",
          )
+
+rv.update(dict.fromkeys(
+          ('qualif_nr', 'reasonComment_en', 'reasonComment_fr',
+           'reasonComment_de', 'reasonComment_it'),
+          '?'), "foo",
+          context={'alpha': 4, 'beta': 53242234, 'gamma': 17})
 #

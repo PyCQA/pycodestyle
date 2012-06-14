@@ -8,7 +8,7 @@ while True:
 	    pass
 	except:
 		print 'Whoops'
-#: E127 E128 E225 E251 E701
+#: E128 E225 E251 E701
 
 # Do not crash if code is invalid
 if msg:

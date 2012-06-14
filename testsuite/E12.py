@@ -222,4 +222,16 @@ if line_removed:
                 name="Removing the option for contract",
                 description="contract line has been removed",
                 )
+#: E127
+rv.update(d=('a', 'b', 'c'),
+             e=42)
+#
+#: E127
+rv.update(d=('a' + 'b', 'c'),
+          e=42, f=42
+                 + 42)
+#: E128
+rv.update(d=('a' + 'b', 'c'),
+          e=42, f=(42
+                 + 42))
 #:
