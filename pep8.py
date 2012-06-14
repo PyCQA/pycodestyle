@@ -153,6 +153,10 @@ SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
+# Work around Python < 2.6 behaviour, which does not generate NL after
+# a comment which is on a line by itself.
+COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
+
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -276,8 +280,7 @@ def maximum_line_length(physical_line, max_line_length):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical, previous_indent_level,
-                blank_lines_before_comment):
+                previous_logical, previous_indent_level):
     r"""
     Separate top-level function and class definitions with two blank lines.
 
@@ -300,19 +303,18 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     """
     if line_number == 1:
         return  # Don't expect blank lines before the first line
-    max_blank_lines = max(blank_lines, blank_lines_before_comment)
     if previous_logical.startswith('@'):
-        if max_blank_lines:
+        if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
-    elif max_blank_lines > 2 or (indent_level and max_blank_lines == 2):
-        yield 0, "E303 too many blank lines (%d)" % max_blank_lines
+    elif blank_lines > 2 or (indent_level and blank_lines == 2):
+        yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif logical_line.startswith(('def ', 'class ', '@')):
         if indent_level:
-            if not (max_blank_lines or previous_indent_level < indent_level or
+            if not (blank_lines or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
                 yield 0, "E301 expected 1 blank line, found 0"
-        elif max_blank_lines != 2:
-            yield 0, "E302 expected 2 blank lines, found %d" % max_blank_lines
+        elif blank_lines != 2:
+            yield 0, "E302 expected 2 blank lines, found %d" % blank_lines
 
 
 def extraneous_whitespace(logical_line):
@@ -1340,49 +1342,43 @@ class Checker(object):
         self.indent_char = None
         self.indent_level = 0
         self.previous_logical = ''
-        self.blank_lines = 0
-        self.blank_lines_before_comment = 0
         self.tokens = []
+        self.blank_lines = blank_lines_before_comment = 0
         parens = 0
         for token in self.generate_tokens():
+            self.tokens.append(token)
+            token_type, text = token[0:2]
             if self.verbose >= 3:
                 if token[2][0] == token[3][0]:
                     pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
                 else:
                     pos = 'l.%s' % token[3][0]
-                print(
-                    'l.%s\t%s\t%s\t%r' %
-                    (token[2][0], pos, tokenize.tok_name[token[0]], token[1]))
-            self.tokens.append(token)
-            token_type, text = token[0:2]
+                print('l.%s\t%s\t%s\t%r' %
+                      (token[2][0], pos, tokenize.tok_name[token[0]], text))
             if token_type == tokenize.OP:
                 if text in '([{':
                     parens += 1
                 elif text in '}])':
                     parens -= 1
-            elif token_type == tokenize.NEWLINE and not parens:
-                self.check_logical()
-                self.blank_lines = 0
-                self.blank_lines_before_comment = 0
-                self.tokens = []
-            elif token_type == tokenize.NL and not parens:
-                if len(self.tokens) <= 1:
-                    # The physical line contains only this token.
-                    self.blank_lines += 1
-                self.tokens = []
-            elif token_type == tokenize.COMMENT:
-                source_line = token[4]
-                token_start = token[2][1]
-                if source_line[:token_start].strip() == '':
-                    self.blank_lines_before_comment = max(
-                        self.blank_lines,
-                        self.blank_lines_before_comment)
-                    self.blank_lines = 0
-                if text.endswith('\n') and not parens:
-                    # The comment also ends a physical line.  This works around
-                    # Python < 2.6 behaviour, which does not generate NL after
-                    # a comment which is on a line by itself.
+            elif not parens:
+                if token_type == tokenize.NEWLINE:
+                    if self.blank_lines < blank_lines_before_comment:
+                        self.blank_lines = blank_lines_before_comment
+                    self.check_logical()
                     self.tokens = []
+                    self.blank_lines = blank_lines_before_comment = 0
+                elif token_type == tokenize.NL:
+                    if len(self.tokens) == 1:
+                        # The physical line contains only this token.
+                        self.blank_lines += 1
+                    self.tokens = []
+                elif token_type == tokenize.COMMENT and len(self.tokens) == 1:
+                    if blank_lines_before_comment < self.blank_lines:
+                        blank_lines_before_comment = self.blank_lines
+                    self.blank_lines = 0
+                    if COMMENT_WITH_NL:
+                        # The comment also ends a physical line
+                        self.tokens = []
         return self.report.file_errors
 
 
