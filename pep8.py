@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.3a1'
+__version__ = '1.3a2'
 
 import os
 import sys
@@ -1379,7 +1379,7 @@ class Checker(object):
                     if COMMENT_WITH_NL:
                         # The comment also ends a physical line
                         self.tokens = []
-        return self.report.file_errors
+        return self.report.result
 
 
 class BaseReport(object):
@@ -1437,6 +1437,10 @@ class BaseReport(object):
         self.file_errors += 1
         self.total_errors += 1
         return code
+
+    @property
+    def result(self):
+        return self.file_errors
 
     def get_count(self, prefix=''):
         """Return the total count of errors and warnings."""
