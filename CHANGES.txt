@@ -42,6 +42,8 @@ Changelog
 
 * Correctly detect the encoding in Python 3. (Issue #69)
 
+* Drop support for Python 2.3, 2.4 and 3.0. (Issue #78)
+
 
 1.2 (2012-06-01)
 ----------------
