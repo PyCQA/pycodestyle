@@ -346,11 +346,8 @@ def extraneous_whitespace(logical_line):
             # assert char in '([{'
             yield found + 1, "E201 whitespace after '%s'" % char
         elif line[found - 1] != ',':
-            if char in '}])':
-                yield found, "E202 whitespace before '%s'" % char
-            else:
-                # assert char in ',;:'
-                yield found, "E203 whitespace before '%s'" % char
+            code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
+            yield found, "%s whitespace before '%s'" % (code, char)
 
 
 def whitespace_around_keywords(logical_line):
@@ -475,7 +472,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     rel_indent = [0] * nrows
     # visual indent columns by indent depth
     indent = [indent_level]
-    first_visual = [indent_level]
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -573,10 +569,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
 
         # look for visual indenting
         if ((parens[row] and token_type != tokenize.NL and
-             hasattr(indent[depth], 'add')) and
-                first_visual[depth] is None):
+             hasattr(indent[depth], 'add')) and not indent[depth]):
             indent[depth].add(start[1])
-            first_visual[depth] = start[1]
             if verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
 
@@ -595,7 +589,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
         if token_type == tokenize.OP:
             if text in '([{':
                 indent.append(set())
-                first_visual.append(None)
                 depth += 1
                 parens[row] += 1
                 if verbose >= 4:
@@ -603,7 +596,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
                 indent.pop()
-                first_visual.pop()
                 depth -= 1
                 for idx in range(row, -1, -1):
                     if parens[idx]:
@@ -833,8 +825,6 @@ def whitespace_before_inline_comment(logical_line, tokens):
     """
     prev_end = (0, 0)
     for token_type, text, start, end, line in tokens:
-        if token_type == tokenize.NL:
-            continue
         if token_type == tokenize.COMMENT:
             if not line[:start[1]].strip():
                 continue
@@ -843,7 +833,7 @@ def whitespace_before_inline_comment(logical_line, tokens):
                        "E261 at least two spaces before inline comment")
             if text.startswith('#  ') or not text.startswith('# '):
                 yield start, "E262 inline comment should start with '# '"
-        else:
+        elif token_type != tokenize.NL:
             prev_end = end
 
 
@@ -959,14 +949,14 @@ def comparison_to_singleton(logical_line):
     if match:
         same = (match.group(1) == '==')
         singleton = match.group(2)
-        msg = "'if cond %s %s:'" % (same and 'is' or 'is not', singleton)
+        msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
         if singleton in ('None',):
             code = 'E711'
         else:
             code = 'E712'
             nonzero = ((singleton == 'True' and same) or
                        (singleton == 'False' and not same))
-            msg += " or 'if%scond:'" % (nonzero and ' ' or ' not ')
+            msg += " or 'if %scond:'" % ('' if nonzero else 'not ')
         yield match.start(1), ("%s comparison to %s should be %s" %
                                (code, singleton, msg))
 
@@ -1543,21 +1533,15 @@ class StyleGuide(object):
                 self.paths = options_dict['paths']
 
         if not options.reporter:
-            if options.quiet:
-                options.reporter = BaseReport
-            else:
-                options.reporter = StandardReport
+            options.reporter = BaseReport if options.quiet else StandardReport
 
         for index, value in enumerate(options.exclude):
             options.exclude[index] = value.rstrip('/')
         if not options.select:
             options.select = []
         if not options.ignore:
-            if options.select:
-                # Ignore all checks which are not explicitly selected
-                options.ignore = ['']
-            else:
-                options.ignore = []
+            # Ignore all checks which are not explicitly selected
+            options.ignore = [''] if options.select else []
         options.select = tuple(options.select)
         options.ignore = tuple(options.ignore)
 
@@ -1912,10 +1896,7 @@ def _main():
         if not options.quiet:
             count_passed = done_d + done_s - count_failed
             print("%d passed and %d failed." % (count_passed, count_failed))
-            if count_failed:
-                print("Test failed.")
-            else:
-                print("Test passed.")
+            print("Test failed." if count_failed else "Test passed.")
         if count_failed:
             sys.exit(1)
     report = pep8style.check_files()
