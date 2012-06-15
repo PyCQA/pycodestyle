@@ -1898,7 +1898,7 @@ def _main():
     if options.benchmark:
         report.print_benchmark()
     if options.testsuite:
-        report.print_results(quiet=quiet)
+        report.print_results(quiet=options.quiet)
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
