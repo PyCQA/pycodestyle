@@ -513,9 +513,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                            'indentation of opening bracket\'s line')
             elif visual_indent is True:
                 # visual indent is verified
-                if len(indent_chances) > 1:
+                if not indent[depth]:
                     indent[depth] = start[1]
-                    indent_chances = {start[1]: True}
             elif visual_indent in (text, str):
                 # ignore token lined up with matching one from a previous line
                 pass
@@ -544,9 +543,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
             indent_chances[start[1]] = True
             if verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
-
         # deal with implicit string concatenation
-        if token_type == tokenize.STRING or text in ('u', 'ur', 'b', 'br'):
+        elif token_type == tokenize.STRING or text in ('u', 'ur', 'b', 'br'):
             indent_chances[start[1]] = str
 
         # keep track of bracket depth
@@ -564,8 +562,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 for d in range(depth):
                     if indent[d] > prev_indent:
                         indent[d] = 0
-                if prev_indent in indent_chances:
-                    del indent_chances[prev_indent]
+                for ind in list(indent_chances):
+                    if ind >= prev_indent:
+                        del indent_chances[ind]
                 depth -= 1
                 if depth:
                     indent_chances[indent[depth]] = True
@@ -574,8 +573,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                         parens[idx] -= 1
                         break
             assert len(indent) == depth + 1
-            # allow to line up tokens
-            indent_chances[start[1]] = text
+            if start[1] not in indent_chances:
+                # allow to line up tokens
+                indent_chances[start[1]] = text
 
         last_token_multiline = (start[0] != end[0])
 

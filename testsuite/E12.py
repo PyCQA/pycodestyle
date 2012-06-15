@@ -156,6 +156,10 @@ print "hello", (
     "there",
      # "john",
     "dude")
+#: E121
+part = set_mimetype((
+    a.get('mime_type', 'text')),
+                       'default')
 #: E126
 troublesome_hash = {
     "hash": "value",
@@ -238,6 +242,9 @@ rv.update(d=('a', 'b', 'c'),
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=42
                  + 42)
+#: E127
+input1 = {'a': {'calc': 1 + 2}, 'b': 1
+                          + 42}
 #: E128
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42

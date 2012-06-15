@@ -5,6 +5,8 @@ Changelog
 1.x (UNRELEASED)
 ----------------
 
+* Fix wrong or missing cases for the E12 series.
+
 * Fix cases where E122 was missed. (Issue #81)
 
 
