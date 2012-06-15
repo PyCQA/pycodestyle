@@ -1497,33 +1497,33 @@ class TestReport(StandardReport):
 
     def get_file_results(self):
         # Check if the expected errors were found
-        errors = self.file_errors
         label = '%s:%s:1' % (self.filename, self.line_offset)
-        for code in self.expected:
+        codes = sorted(self.expected)
+        for code in codes:
             if not self.counters.get(code):
-                errors += 1
+                self.file_errors += 1
                 self.total_errors += 1
                 print('%s: error %s not found' % (label, code))
-        if self._verbose and not errors:
+        if self._verbose and not self.file_errors:
             print('%s: passed (%s)' %
-                  (label, ' '.join(self.expected) or 'Okay'))
+                  (label, ' '.join(codes) or 'Okay'))
         self.counters['test cases'] += 1
-        if errors:
+        if self.file_errors:
             self.counters['failed tests'] += 1
         # Reset counters
         for key in set(self.counters) - set(self._benchmark_keys):
             del self.counters[key]
         self.messages = {}
-        return errors
+        return self.file_errors
 
-    def print_results(self, quiet=False):
-        if not quiet:
-            print("%(physical lines)d lines tested (%(files)d files, "
-                  "%(test cases)d test cases)." % self.counters)
+    def print_results(self):
+        results = ("%(physical lines)d lines tested: %(files)d files, "
+                   "%(test cases)d test cases%%s." % self.counters)
         if self.total_errors:
-            print("%d failed." % self.total_errors)
-        elif not quiet:
-            print("Test passed.")
+            print(results % ", %s failures" % self.total_errors)
+        else:
+            print(results % "")
+        print("Test failed." if self.total_errors else "Test passed.")
 
 
 class StyleGuide(object):
@@ -1562,6 +1562,7 @@ class StyleGuide(object):
         self.init_report()
 
     def init_report(self, reporter=None):
+        """Initialize the report instance."""
         self.options.report = (reporter or self.options.reporter)(self.options)
 
     def check_files(self, paths=None):
@@ -1897,8 +1898,8 @@ def _main():
         report.print_statistics()
     if options.benchmark:
         report.print_benchmark()
-    if options.testsuite:
-        report.print_results(quiet=options.quiet)
+    if options.testsuite and not options.quiet:
+        report.print_results()
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
