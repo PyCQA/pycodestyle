@@ -1507,13 +1507,23 @@ class TestReport(StandardReport):
         if self._verbose and not errors:
             print('%s: passed (%s)' %
                   (label, ' '.join(self.expected) or 'Okay'))
+        self.counters['test cases'] += 1
+        if errors:
+            self.counters['failed tests'] += 1
         # Reset counters
         for key in set(self.counters) - set(self._benchmark_keys):
             del self.counters[key]
         self.messages = {}
-        self.counters['test cases'] += 1
-        if errors:
-            self.counters['failed tests'] += 1
+        return errors
+
+    def print_results(self, quiet=False):
+        if not quiet:
+            print("%(physical lines)d lines tested (%(files)d files, "
+                  "%(test cases)d test cases)." % self.counters)
+        if self.total_errors:
+            print("%d failed." % self.total_errors)
+        elif not quiet:
+            print("Test passed.")
 
 
 class StyleGuide(object):
@@ -1577,9 +1587,7 @@ class StyleGuide(object):
         return fchecker.check_all(expected=expected, line_offset=line_offset)
 
     def input_dir(self, dirname):
-        """
-        Check all Python source files in this directory and all subdirectories.
-        """
+        """Check all files in this directory and all subdirectories."""
         dirname = dirname.rstrip('/')
         if self.excluded(dirname):
             return 0
@@ -1890,13 +1898,7 @@ def _main():
     if options.benchmark:
         report.print_benchmark()
     if options.testsuite:
-        if not options.quiet:
-            print("%(physical lines)d lines tested (%(files)d files, "
-                  "%(test cases)d test cases)." % report.counters)
-        if report.total_errors:
-            print("%d failed." % report.total_errors)
-        elif not options.quiet:
-            print("Test passed.")
+        report.print_results(quiet=quiet)
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
