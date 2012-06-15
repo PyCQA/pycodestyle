@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.3'
+__version__ = '1.3.1a0'
 
 import os
 import sys
@@ -528,10 +528,10 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 pass
             else:
                 # indent is broken
-                if indent[depth]:
-                    error = 'E127', 'over-indented for visual indent'
-                elif hang <= 0:
+                if hang <= 0:
                     error = 'E122', 'missing indentation or outdented'
+                elif indent[depth]:
+                    error = 'E127', 'over-indented for visual indent'
                 elif hang % 4:
                     error = 'E121', 'indentation is not a multiple of four'
                 else:
@@ -567,7 +567,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 if prev_indent in indent_chances:
                     del indent_chances[prev_indent]
                 depth -= 1
-                indent_chances[indent[depth]] = True
+                if depth:
+                    indent_chances[indent[depth]] = True
                 for idx in range(row, -1, -1):
                     if parens[idx]:
                         parens[idx] -= 1

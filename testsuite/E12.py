@@ -242,4 +242,22 @@ rv.update(d=('a' + 'b', 'c'),
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))
+#: E122
+if some_very_very_very_long_variable_name or var \
+or another_very_long_variable_name:
+    raise Exception()
+#: E122
+if some_very_very_very_long_variable_name or var[0] \
+or another_very_long_variable_name:
+    raise Exception()
+#: E122
+if True:
+    if some_very_very_very_long_variable_name or var \
+    or another_very_long_variable_name:
+        raise Exception()
+#: E122
+if True:
+    if some_very_very_very_long_variable_name or var[0] \
+    or another_very_long_variable_name:
+        raise Exception()
 #:
