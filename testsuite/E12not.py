@@ -86,9 +86,9 @@ foo = long_function_name(
     var_three, var_four)
 
 
-a = 'AAA'    \
-    'BBB'    \
-    'CCC'
+arm = 'AAA'    \
+      'BBB'    \
+      'CCC'
 
 bbb = 'AAA'    \
       'BBB'    \
@@ -105,17 +105,26 @@ cc = {'text': 'AAA'
 cc = dict(text='AAA'
                'BBB')
 
-a = 'AAA'    \
-    'BBB'    \
-    'iii'    \
-    'CCC'
+sat = 'AAA'    \
+      'BBB'    \
+      'iii'    \
+      'CCC'
 
-a = 3 + \
+abricot = (3 +
+           4 +
+           5 + 6)
+
+abricot = 3 + \
     4 + \
     5 + 6
 
-foo(1, 2, 3,
-    4, 5, 6)
+fnct(1, 2, 3,
+     4, 5, 6)
+
+fnct(1, 2, 3
+     4, 5, 6,
+     7, 8, 9,
+     10, 11)
 
 
 def long_function_name(

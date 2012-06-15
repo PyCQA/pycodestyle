@@ -61,6 +61,14 @@ rv.update(dict.fromkeys((
     'reasonComment_de', 'reasonComment_it'),
           '?'),
           "foo")
+#: E121
+abricot = 3 + \
+          4 + \
+          5 + 6
+#: E126
+abris = 3 + \
+        4 + \
+        5 + 6
 #:
 
 
