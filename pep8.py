@@ -1342,7 +1342,7 @@ class Checker(object):
                     if COMMENT_WITH_NL:
                         # The comment also ends a physical line
                         self.tokens = []
-        return self.report.result
+        return self.report.get_result()
 
 
 class BaseReport(object):
@@ -1401,8 +1401,7 @@ class BaseReport(object):
         self.total_errors += 1
         return code
 
-    @property
-    def result(self):
+    def get_result(self):
         return self.file_errors
 
     def get_count(self, prefix=''):
