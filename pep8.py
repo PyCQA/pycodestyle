@@ -1742,6 +1742,7 @@ def read_config(options, args, arglist, parser):
 
         # Second, parse the configuration
         for opt in config.options('pep8'):
+            # Use same normalization rules used by optparse.
             normalized_opt = opt.lstrip('-').replace('-', '_')
             opt_type = option_list.get(normalized_opt)
             if not opt_type:
