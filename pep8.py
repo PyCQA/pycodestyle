@@ -1737,7 +1737,7 @@ def read_config(options, args, arglist, parser):
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list if o.dest])
 
-        # First, read the defaut values
+        # First, read the default values
         options, _ = parser.parse_args([])
 
         # Second, parse the configuration
