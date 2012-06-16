@@ -1742,7 +1742,7 @@ def read_config(options, args, arglist, parser):
 
         # Second, parse the configuration
         for opt in config.options('pep8'):
-            normalized_opt = opt.replace('-', '_')
+            normalized_opt = opt.lstrip('-').replace('-', '_')
             opt_type = option_list.get(normalized_opt)
             if not opt_type:
                 print('Unknown option: %s' % opt)
