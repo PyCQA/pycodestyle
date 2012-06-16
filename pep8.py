@@ -1755,8 +1755,7 @@ def read_config(options, args, arglist, parser):
 
     if config.has_section('pep8'):
         option_list = dict([(o.dest, o.type or o.action)
-                            for o in parser.option_list if o.dest not in
-                            (None, 'config', 'diff', 'doctest', 'testsuite')])
+                            for o in parser.option_list])
 
         # First, read the defaut values
         new_options, _ = parser.parse_args([])
@@ -1765,11 +1764,11 @@ def read_config(options, args, arglist, parser):
         for opt in config.options('pep8'):
             if options.verbose > 1:
                 print('  %s = %s' % (opt, config.get('pep8', opt)))
-            opt_type = option_list.get(opt)
-            if not opt_type:
+            if opt not in parser.config_options:
                 print('Unknown option: \'%s\'\n  not in [%s]' %
-                      (opt, ' '.join(sorted(option_list))))
+                      (opt, ' '.join(parser.config_options)))
                 sys.exit(1)
+            opt_type = option_list[opt]
             if opt_type in ('int', 'count'):
                 value = config.getint('pep8', opt)
             elif opt_type == 'string':
@@ -1792,6 +1791,9 @@ def process_options(arglist=None, parse_argv=False):
         arglist = []
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
+    parser.config_options = [
+        'exclude', 'filename', 'select', 'ignore', 'max_line_length',
+        'count', 'format', 'quiet', 'show_pep8', 'show_source', 'statistics']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
@@ -1822,23 +1824,27 @@ def process_options(arglist=None, parse_argv=False):
                       help="print total number of errors and warnings "
                            "to standard error and set exit code to 1 if "
                            "total is not null")
-    parser.add_option('--benchmark', action='store_true',
-                      help="measure processing speed")
-    parser.add_option('--testsuite', metavar='dir',
-                      help="run regression tests from dir")
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
                       help="set maximum allowed line length "
                            "(default: %default)")
-    parser.add_option('--doctest', action='store_true',
-                      help="run doctest on myself")
-    parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
-                      help="config file location (default: %default)")
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
+    group = parser.add_option_group("Testing Options")
+    group.add_option('--testsuite', metavar='dir',
+                     help="run regression tests from dir")
+    group.add_option('--doctest', action='store_true',
+                     help="run doctest on myself")
+    group.add_option('--benchmark', action='store_true',
+                     help="measure processing speed")
+    group = parser.add_option_group("Configuration", description=(
+        "The configuration options are read from the [pep8] section.  "
+        "Allowed options are: %s." % ', '.join(parser.config_options)))
+    group.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
+                     help="config file location (default: %default)")
 
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
