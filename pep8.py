@@ -1757,18 +1757,19 @@ def read_config(options, args, arglist, parser):
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list])
 
-        # First, read the defaut values
+        # First, read the default values
         new_options, _ = parser.parse_args([])
 
         # Second, parse the configuration
         for opt in config.options('pep8'):
             if options.verbose > 1:
                 print('  %s = %s' % (opt, config.get('pep8', opt)))
-            if opt not in parser.config_options:
+            if opt.replace('_', '-') not in parser.config_options:
                 print('Unknown option: \'%s\'\n  not in [%s]' %
                       (opt, ' '.join(parser.config_options)))
                 sys.exit(1)
-            opt_type = option_list[opt]
+            normalized_opt = opt.replace('-', '_')
+            opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):
                 value = config.getint('pep8', opt)
             elif opt_type == 'string':
@@ -1776,7 +1777,7 @@ def read_config(options, args, arglist, parser):
             else:
                 assert opt_type in ('store_true', 'store_false')
                 value = config.getboolean('pep8', opt)
-            setattr(new_options, opt, value)
+            setattr(new_options, normalized_opt, value)
 
         # Third, overwrite with the command-line options
         options, _ = parser.parse_args(arglist, values=new_options)
@@ -1792,8 +1793,8 @@ def process_options(arglist=None, parse_argv=False):
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.config_options = [
-        'exclude', 'filename', 'select', 'ignore', 'max_line_length',
-        'count', 'format', 'quiet', 'show_pep8', 'show_source', 'statistics']
+        'exclude', 'filename', 'select', 'ignore', 'max-line-length',
+        'count', 'format', 'quiet', 'show-pep8', 'show-source', 'statistics']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
