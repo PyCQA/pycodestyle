@@ -1759,26 +1759,28 @@ def read_config(options, args, arglist, parser):
                             (None, 'config', 'diff', 'doctest', 'testsuite')])
 
         # First, read the defaut values
-        options, _ = parser.parse_args([])
+        new_options, _ = parser.parse_args([])
 
         # Second, parse the configuration
         for opt in config.options('pep8'):
+            if options.verbose > 1:
+                print('  %s = %s' % (opt, config.get('pep8', opt)))
             opt_type = option_list.get(opt)
             if not opt_type:
                 print('Unknown option: \'%s\'\n  not in [%s]' %
                       (opt, ' '.join(sorted(option_list))))
                 sys.exit(1)
-            elif opt_type in ('int', 'count'):
+            if opt_type in ('int', 'count'):
                 value = config.getint('pep8', opt)
             elif opt_type == 'string':
                 value = config.get('pep8', opt)
             else:
                 assert opt_type in ('store_true', 'store_false')
                 value = config.getboolean('pep8', opt)
-            setattr(options, opt, value)
+            setattr(new_options, opt, value)
 
         # Third, overwrite with the command-line options
-        options, _ = parser.parse_args(arglist, values=options)
+        options, _ = parser.parse_args(arglist, values=new_options)
 
     return options
 
