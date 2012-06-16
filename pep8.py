@@ -1792,52 +1792,70 @@ def process_options(arglist=None, parse_argv=False):
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help="print status messages, or debug with -vv")
+                      help="print status messages, or debug with -vv",
+                      dest='verbose')
     parser.add_option('-q', '--quiet', default=0, action='count',
-                      help="report only file names, or nothing with -qq")
+                      help="report only file names, or nothing with -qq",
+                      dest='quiet')
     parser.add_option('-r', '--repeat', default=True, action='store_true',
-                      help="(obsolete) show all occurrences of the same error")
+                      help="(obsolete) show all occurrences of the same error",
+                      dest='repeat')
     parser.add_option('--first', action='store_false', dest='repeat',
                       help="show first occurrence of each error")
     parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
                       help="exclude files or directories which match these "
-                           "comma separated patterns (default: %default)")
+                           "comma separated patterns (default: %default)",
+                      dest='exclude')
     parser.add_option('--filename', metavar='patterns', default='*.py',
                       help="when parsing directories, only check filenames "
                            "matching these comma separated patterns "
-                           "(default: %default)")
+                           "(default: %default)",
+                      dest='filename')
     parser.add_option('--select', metavar='errors', default='',
-                      help="select errors and warnings (e.g. E,W6)")
+                      help="select errors and warnings (e.g. E,W6)",
+                      dest='select')
     parser.add_option('--ignore', metavar='errors', default='',
-                      help="skip errors and warnings (e.g. E4,W)")
+                      help="skip errors and warnings (e.g. E4,W)",
+                      dest='ignore')
     parser.add_option('--show-source', action='store_true',
-                      help="show source code for each error")
+                      help="show source code for each error",
+                      dest='show_source')
     parser.add_option('--show-pep8', action='store_true',
                       help="show text of PEP 8 for each error "
-                           "(implies --first)")
+                           "(implies --first)",
+                      dest='show_pep8')
     parser.add_option('--statistics', action='store_true',
-                      help="count errors and warnings")
+                      help="count errors and warnings",
+                      dest='statistics')
     parser.add_option('--count', action='store_true',
                       help="print total number of errors and warnings "
                            "to standard error and set exit code to 1 if "
-                           "total is not null")
+                           "total is not null",
+                      dest='count')
     parser.add_option('--benchmark', action='store_true',
-                      help="measure processing speed")
+                      help="measure processing speed",
+                      dest='benchmark')
     parser.add_option('--testsuite', metavar='dir',
-                      help="run regression tests from dir")
+                      help="run regression tests from dir",
+                      dest='testsuite')
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
                       help="set maximum allowed line length "
-                           "(default: %default)")
+                           "(default: %default)",
+                      dest='max_line_length')
     parser.add_option('--doctest', action='store_true',
-                      help="run doctest on myself")
+                      help="run doctest on myself",
+                      dest='doctest')
     parser.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
-                      help="config file location (default: %default)")
+                      help="config file location (default: %default)",
+                      dest='config')
     parser.add_option('--format', metavar='format', default='default',
-                      help="set the error format [default|pylint|<custom>]")
+                      help="set the error format [default|pylint|<custom>]",
+                      dest='format')
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
-                           "unified diff received on STDIN")
+                           "unified diff received on STDIN",
+                      dest='diff')
 
     options, args = parser.parse_args(arglist)
     if options.show_pep8:
