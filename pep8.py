@@ -124,6 +124,16 @@ REPORT_FORMAT = {
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
+BINARY_OPERATORS = frozenset([
+    '**=', '*=', '+=', '-=', '!=', '<>',
+    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
+    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
+OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
+WHITESPACE = frozenset(' \t')
+SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
+                         tokenize.INDENT, tokenize.DEDENT])
+BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
@@ -141,17 +151,6 @@ KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
 OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+,\d+ \+(\d+),(\d+) @@.*$')
-
-WHITESPACE = frozenset(' \t')
-BINARY_OPERATORS = frozenset([
-    '**=', '*=', '+=', '-=', '!=', '<>',
-    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
-UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
-OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
-SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
-                         tokenize.INDENT, tokenize.DEDENT])
-BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
