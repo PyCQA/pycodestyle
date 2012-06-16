@@ -1755,7 +1755,8 @@ def read_config(options, args, arglist, parser):
 
     if config.has_section('pep8'):
         option_list = dict([(o.dest, o.type or o.action)
-                            for o in parser.option_list if o.dest])
+                            for o in parser.option_list if o.dest not in
+                            (None, 'config', 'diff', 'doctest', 'testsuite')])
 
         # First, read the defaut values
         options, _ = parser.parse_args([])
@@ -1764,7 +1765,9 @@ def read_config(options, args, arglist, parser):
         for opt in config.options('pep8'):
             opt_type = option_list.get(opt)
             if not opt_type:
-                print('Unknown option: %s' % opt)
+                print('Unknown option: \'%s\'\n  not in [%s]' %
+                      (opt, ' '.join(sorted(option_list))))
+                sys.exit(1)
             elif opt_type in ('int', 'count'):
                 value = config.getint('pep8', opt)
             elif opt_type == 'string':
