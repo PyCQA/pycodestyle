@@ -1761,12 +1761,14 @@ def read_config(options, args, arglist, parser):
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list if o.dest])
 
-        # First, read the defaut values
+        # First, read the default values
         options, _ = parser.parse_args([])
 
         # Second, parse the configuration
         for opt in config.options('pep8'):
-            opt_type = option_list.get(opt)
+            # Use same normalization rules used by optparse.
+            normalized_opt = opt.lstrip('-').replace('-', '_')
+            opt_type = option_list.get(normalized_opt)
             if not opt_type:
                 print('Unknown option: %s' % opt)
             elif opt_type in ('int', 'count'):
@@ -1776,7 +1778,7 @@ def read_config(options, args, arglist, parser):
             else:
                 assert opt_type in ('store_true', 'store_false')
                 value = config.getboolean('pep8', opt)
-            setattr(options, opt, value)
+            setattr(options, normalized_opt, value)
 
         # Third, overwrite with the command-line options
         options, _ = parser.parse_args(arglist, values=options)
