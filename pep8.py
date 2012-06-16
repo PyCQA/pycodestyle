@@ -1549,13 +1549,9 @@ class StyleGuide(object):
 
         for index, value in enumerate(options.exclude):
             options.exclude[index] = value.rstrip('/')
-        if not options.select:
-            options.select = []
-        if not options.ignore:
-            # Ignore all checks which are not explicitly selected
-            options.ignore = [''] if options.select else []
-        options.select = tuple(options.select)
-        options.ignore = tuple(options.ignore)
+        # Ignore all checks which are not explicitly selected
+        options.select = tuple(options.select or ())
+        options.ignore = tuple(options.ignore or options.select and ('',))
         options.benchmark_keys = BENCHMARK_KEYS[:]
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')
@@ -1862,8 +1858,8 @@ def process_options(arglist=None, parse_argv=False):
         options.select = options.select.split(',')
     if options.ignore:
         options.ignore = options.ignore.split(',')
-    elif (not options.select and DEFAULT_IGNORE and
-          not options.testsuite and not options.doctest):
+    elif not (options.select or
+              options.testsuite or options.doctest) and DEFAULT_IGNORE:
         # The default choice: ignore controversial checks
         # (for doctest and testsuite, all checks are required)
         options.ignore = DEFAULT_IGNORE.split(',')
