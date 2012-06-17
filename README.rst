@@ -105,14 +105,22 @@ Quick help is available on the command line::
     --statistics         count errors and warnings
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
-    --benchmark          measure processing speed
-    --testsuite=dir      run regression tests from dir
     --max-line-length=n  set maximum allowed line length (default: 79)
-    --doctest            run doctest on myself
-    --config=path        config file location (default: /home/user/.config/pep8)
     --format=format      set the error format [default|pylint|<custom>]
     --diff               report only lines changed according to the unified diff
                          received on STDIN
+
+    Testing Options:
+      --testsuite=dir    run regression tests from dir
+      --doctest          run doctest on myself
+      --benchmark        measure processing speed
+
+    Configuration:
+      The configuration options are read from the [pep8] section.  Allowed
+      options are: exclude, filename, select, ignore, max-line-length,
+      count, format, quiet, show-pep8, show-source, statistics.
+
+      --config=path      config file location (default: /home/user/.config/pep8)
 
 Feedback
 --------

@@ -110,7 +110,6 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
 DEFAULT_CONFIG = os.path.join(
@@ -121,6 +120,7 @@ REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
 }
+
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS

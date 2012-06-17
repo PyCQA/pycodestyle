@@ -5,7 +5,8 @@ Changelog
 1.x (UNRELEASED)
 ----------------
 
-* Explain which configuration options are expected. (Issue #82)
+* Explain which configuration options are expected.  Accept and recommend
+  the options names with hyphen instead of underscore. (Issue #82)
 
 * Fix wrong or missing cases for the E12 series.
 
