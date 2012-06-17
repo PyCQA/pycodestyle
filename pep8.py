@@ -1532,7 +1532,9 @@ class StyleGuide(object):
     def __init__(self, *args, **kwargs):
         # build options from the command line
         parse_argv = kwargs.pop('parse_argv', False)
-        options, self.paths = process_options(parse_argv=parse_argv)
+        config_file = kwargs.pop('config_file', None)
+        options, self.paths = process_options(parse_argv=parse_argv,
+                                              config_file=config_file)
         if args or kwargs:
             # build options from dict
             options_dict = dict(*args, **kwargs)
@@ -1560,6 +1562,7 @@ class StyleGuide(object):
     def init_report(self, reporter=None):
         """Initialize the report instance."""
         self.options.report = (reporter or self.options.reporter)(self.options)
+        return self.options.report
 
     def check_files(self, paths=None):
         """Run all checks on the paths."""
@@ -1653,8 +1656,7 @@ def init_tests(pep8style):
      * Following example is conform:            #: Okay
      * Don't check these lines:                 #:
     """
-    pep8style.init_report(TestReport)
-    report = pep8style.options.report
+    report = pep8style.init_report(TestReport)
     runner = pep8style.input_file
 
     def run_tests(filename):
@@ -1784,11 +1786,13 @@ def read_config(options, args, arglist, parser):
     return options
 
 
-def process_options(arglist=None, parse_argv=False):
+def process_options(arglist=None, parse_argv=False, config_file=None):
     """Process options passed either via arglist or via command line args."""
     if not arglist and not parse_argv:
         # Don't read the command line if the module is used as a library.
         arglist = []
+    if config_file is True:
+        config_file = DEFAULT_CONFIG
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.config_options = [
@@ -1843,7 +1847,7 @@ def process_options(arglist=None, parse_argv=False):
     group = parser.add_option_group("Configuration", description=(
         "The configuration options are read from the [pep8] section.  "
         "Allowed options are: %s." % ', '.join(parser.config_options)))
-    group.add_option('--config', metavar='path', default=DEFAULT_CONFIG,
+    group.add_option('--config', metavar='path', default=config_file,
                      help="config file location (default: %default)")
 
     options, args = parser.parse_args(arglist)
@@ -1886,7 +1890,7 @@ def process_options(arglist=None, parse_argv=False):
 
 def _main():
     """Parse options and run checks on Python source."""
-    pep8style = StyleGuide(parse_argv=True)
+    pep8style = StyleGuide(parse_argv=True, config_file=True)
     options = pep8style.options
     if options.doctest:
         import doctest

@@ -8,6 +8,9 @@ Changelog
 * Explain which configuration options are expected.  Accept and recommend
   the options names with hyphen instead of underscore. (Issue #82)
 
+* Do not read the user configuration when used as a module
+  (except if ``config_file=True`` is passed to the ``StyleGuide`` constructor).
+
 * Fix wrong or missing cases for the E12 series.
 
 * Fix cases where E122 was missed. (Issue #81)
