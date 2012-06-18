@@ -1581,6 +1581,9 @@ class StyleGuide(object):
 
     def input_file(self, filename, lines=None, expected=None, line_offset=0):
         """Run all checks on a Python source file."""
+        if not os.path.exists(filename):
+            print('No such file found: %s' % filename)
+            return
         if self.options.verbose:
             print('checking %s' % filename)
         fchecker = Checker(filename, lines=lines, options=self.options)
