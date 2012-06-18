@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (UNRELEASED)
-----------------
+1.3.1 (2012-06-18)
+------------------
 
 * Explain which configuration options are expected.  Accept and recommend
   the options names with hyphen instead of underscore. (Issue #82)
