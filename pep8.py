@@ -270,7 +270,8 @@ def maximum_line_length(physical_line, max_line_length):
                 pass
         if length > max_line_length:
             return max_line_length, \
-                "E501 line too long (%d characters)" % length
+                "E501 line too long (%d characters > max %d)" % \
+                (length, max_line_length)
 
 
 ##############################################################################
