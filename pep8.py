@@ -1845,7 +1845,9 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     group = parser.add_option_group("Configuration", description=(
-        "The configuration options are read from the [pep8] section.  "
+        "The configuration options are read from the [pep8] section written "
+        "in .ini style config file. Config can be located in any parent "
+        "folder of file being processed. "
         "Allowed options are: %s." % ', '.join(parser.config_options)))
     group.add_option('--config', metavar='path', default=config_file,
                      help="config file location (default: %default)")
