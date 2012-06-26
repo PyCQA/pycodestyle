@@ -5,6 +5,9 @@ Changelog
 1.x (UNRELEASED)
 ----------------
 
+* Revert to the previous behaviour for ``--show-pep8``:
+  do not imply ``--first``. (Issue #89)
+
 * Fix false positive for E121, and missed E124. (Issue #92)
 
 * Set a sensible default path for config file on Windows. (Issue #95)

@@ -1853,8 +1853,6 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
                      help="config file location (default: %default)")
 
     options, args = parser.parse_args(arglist)
-    if options.show_pep8:
-        options.repeat = False
     options.reporter = None
 
     if options.testsuite:
