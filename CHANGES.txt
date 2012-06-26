@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (UNRELEASED)
-----------------
+1.3.2 (2012-06-26)
+------------------
 
 * Revert to the previous behaviour for ``--show-pep8``:
   do not imply ``--first``. (Issue #89)
