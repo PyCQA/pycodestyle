@@ -112,9 +112,11 @@ except ImportError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
-DEFAULT_CONFIG = os.path.join(
-    os.getenv("XDG_CONFIG_HOME") or
-    os.path.join(os.getenv("HOME"), ".config"), "pep8")
+if sys.platform == 'win32':
+    DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
+else:
+    DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
+                                  os.path.expanduser('~/.config'), 'pep8')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
