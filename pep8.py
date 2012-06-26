@@ -1799,7 +1799,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
-        'format', 'quiet', 'verbose', 'show-pep8', 'show-source', 'statistics']
+        'format', 'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
@@ -1847,9 +1847,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     group = parser.add_option_group("Configuration", description=(
-        "The configuration options are read from the [pep8] section written "
-        "in .ini style config file. Config can be located in any parent "
-        "folder of file being processed. "
+        "The options are read from the [pep8] section of the .pep8 file "
+        "located in any parent folder of the path(s) being processed. "
         "Allowed options are: %s." % ', '.join(parser.config_options)))
     group.add_option('--config', metavar='path', default=config_file,
                      help="config file location (default: %default)")
