@@ -559,7 +559,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
                 # parent indents should not be more than this one
-                prev_indent = indent.pop()
+                prev_indent = indent.pop() or last_indent[1]
                 for d in range(depth):
                     if indent[d] > prev_indent:
                         indent[d] = 0

@@ -160,6 +160,21 @@ print "hello", (
 part = set_mimetype((
     a.get('mime_type', 'text')),
                        'default')
+#: E124
+fooff(aaaa,
+      cca(
+          vvv,
+          dadd
+      ), fff,
+)
+#: E124
+fooff(aaaa,
+      ccaaa(
+          vvv,
+          dadd
+      ),
+      fff,
+)
 #: E126
 troublesome_hash = {
     "hash": "value",

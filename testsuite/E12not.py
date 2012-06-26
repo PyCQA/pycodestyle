@@ -157,7 +157,25 @@ foo = my.func({
     "foo": "bar",
 }, "baz")
 
+
 #
+
+fooff(aaaa,
+      cca(
+          vvv,
+          dadd
+      ), fff,
+      ggg)
+
+fooff(aaaa,
+      abbb,
+      cca(
+          vvv,
+          aaa,
+          dadd),
+      "visual indentation is not a multiple of four",)
+#
+
 if bar:
     return(
         start, 'E121 lines starting with a '
