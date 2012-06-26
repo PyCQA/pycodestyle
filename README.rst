@@ -116,9 +116,10 @@ Quick help is available on the command line::
       --benchmark        measure processing speed
 
     Configuration:
-      The configuration options are read from the [pep8] section.  Allowed
+      The project options are read from the [pep8] section of the .pep8 file
+      located in any parent folder of the path(s) being processed. Allowed
       options are: exclude, filename, select, ignore, max-line-length,
-      count, format, quiet, show-pep8, show-source, statistics.
+      count, format, quiet, show-pep8, show-source, statistics, verbose.
 
       --config=path      config file location (default: /home/user/.config/pep8)
 
