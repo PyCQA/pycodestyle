@@ -271,9 +271,8 @@ def maximum_line_length(physical_line, max_line_length):
             except UnicodeError:
                 pass
         if length > max_line_length:
-            return max_line_length, \
-                "E501 line too long (%d characters > max %d)" % \
-                (length, max_line_length)
+            return (max_line_length, "E501 line too long "
+                    "(%d > %d characters)" % (length, max_line_length))
 
 
 ##############################################################################
@@ -1799,9 +1798,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     parser = OptionParser(version=__version__,
                           usage="%prog [options] input ...")
     parser.config_options = [
-        'exclude', 'filename', 'select', 'ignore', 'max-line-length',
-        'count', 'format', 'quiet', 'show-pep8', 'show-source', 'statistics',
-        'verbose']
+        'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
+        'format', 'quiet', 'verbose', 'show-pep8', 'show-source', 'statistics']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
