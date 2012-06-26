@@ -8,6 +8,8 @@ Changelog
 * Revert to the previous behaviour for ``--show-pep8``:
   do not imply ``--first``. (Issue #89)
 
+* Add E902 for IO errors. (Issue #87)
+
 * Fix false positive for E121, and missed E124. (Issue #92)
 
 * Set a sensible default path for config file on Windows. (Issue #95)

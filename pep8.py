@@ -1051,6 +1051,7 @@ else:
 
     isidentifier = str.isidentifier
     stdin_get_value = TextIOWrapper(sys.stdin.buffer, errors='ignore').read
+readlines.__doc__ = "    Read the source code."
 
 
 def expand_indent(line):
@@ -1164,6 +1165,7 @@ class Checker(object):
             options = StyleGuide(kwargs).options
         else:
             assert not kwargs
+        self._io_error = None
         self._physical_checks = options.physical_checks
         self._logical_checks = options.logical_checks
         self.max_line_length = options.max_line_length
@@ -1173,7 +1175,12 @@ class Checker(object):
             self.filename = 'stdin'
             self.lines = lines or []
         elif lines is None:
-            self.lines = readlines(filename)
+            try:
+                self.lines = readlines(filename)
+            except IOError:
+                exc_type, exc = sys.exc_info()[:2]
+                self._io_error = '%s: %s' % (exc_type.__name__, exc)
+                self.lines = []
         else:
             self.lines = lines
         self.report = report or options.report
@@ -1282,9 +1289,8 @@ class Checker(object):
         self.previous_logical = self.logical_line
 
     def generate_tokens(self):
-        """
-        Check if the syntax is valid.
-        """
+        if self._io_error:
+            self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
         tokengen = tokenize.generate_tokens(self.readline_check_physical)
         try:
             for token in tokengen:
@@ -1297,6 +1303,7 @@ class Checker(object):
             self.report_error(offset[0], offset[1],
                               'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
                               self.generate_tokens)
+    generate_tokens.__doc__ = "    Check if the syntax is valid."
 
     def check_all(self, expected=None, line_offset=0):
         """
