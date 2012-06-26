@@ -1799,7 +1799,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
-        'count', 'format', 'quiet', 'show-pep8', 'show-source', 'statistics']
+        'count', 'format', 'quiet', 'show-pep8', 'show-source', 'statistics',
+        'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
