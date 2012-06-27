@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+1.3.3 (2012-06-27)
+------------------
+
+* Fix regression with continuation line checker. (Issue #98)
+
+
 1.3.2 (2012-06-26)
 ------------------
 

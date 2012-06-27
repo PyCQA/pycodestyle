@@ -93,7 +93,7 @@ for space.
 
 """
 
-__version__ = '1.3.2'
+__version__ = '1.3.3'
 
 import os
 import sys
@@ -472,6 +472,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     # visual indents
     indent = [indent_level]
     indent_chances = {}
+    last_indent = (0, 0)
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 

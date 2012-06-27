@@ -521,4 +521,13 @@ rv.update(dict.fromkeys(
            'reasonComment_de', 'reasonComment_it'),
           '?'), "foo",
           context={'alpha': 4, 'beta': 53242234, 'gamma': 17})
+
+
+def f():
+    try:
+        if not Debug:
+            print('''
+If you would like to see debugging output,
+try: %s -d5
+''' % sys.argv[0])
 #
