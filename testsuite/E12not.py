@@ -530,4 +530,9 @@ def f():
 If you would like to see debugging output,
 try: %s -d5
 ''' % sys.argv[0])
+
+
+d = {  # comment
+    1: 2
+}
 #
