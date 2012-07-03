@@ -1051,7 +1051,9 @@ else:
             f.close()
 
     isidentifier = str.isidentifier
-    stdin_get_value = TextIOWrapper(sys.stdin.buffer, errors='ignore').read
+
+    def stdin_get_value():
+        return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 readlines.__doc__ = "    Read the source code."
 
 
