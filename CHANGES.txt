@@ -5,6 +5,8 @@ Changelog
 1.x (UNRELEASED)
 ----------------
 
+* Fix false positive E124 and E128 with comments. (Issue #100)
+
 * Fix error on stdin when running with bpython. (Issue #101)
 
 

@@ -540,7 +540,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
-        if parens[row] and token_type != tokenize.NL and not indent[depth]:
+        if (parens[row] and token_type not in (tokenize.NL, tokenize.COMMENT)
+                and not indent[depth]):
             indent[depth] = start[1]
             indent_chances[start[1]] = True
             if verbose >= 4:
