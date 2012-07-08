@@ -95,6 +95,7 @@ for space.
 
 __version__ = '1.3.4a0'
 
+import ast
 import os
 import sys
 import re
@@ -1020,6 +1021,43 @@ def python_3000_backticks(logical_line):
 
 
 ##############################################################################
+# Checkers on AST
+##############################################################################
+class BaseAstCheck(object):
+    """Base class all ASTChecker should derive"""
+
+    def __init__(self, checker):
+        self.checker = checker
+        self.report_error = checker.report_error
+
+    def default_visit(self, node):
+        """Function which is called if not appropiate vist_ method is found"""
+        pass
+
+    def error_at_node(self, node, text):
+        self.report_error(node.lineno, node.col_offset, text, self)
+
+
+class VisitorsRunner(object):
+    def __init__(self, visitors):
+        self.visitors = visitors
+
+    def run(self, node):
+        self.visit_node(node)
+        for child in ast.iter_child_nodes(node):
+            self.run(child)
+
+    def visit_node(self, node):
+        method = 'visit_' + node.__class__.__name__
+        # Dont break pep8 in a tool to check pep8
+        method = method.lower()
+        for visitor in self.visitors:
+            meth = getattr(visitor, method, visitor.default_visit)
+            meth(node)
+
+
+
+##############################################################################
 # Helper functions
 ##############################################################################
 
@@ -1172,6 +1210,7 @@ class Checker(object):
         self._io_error = None
         self._physical_checks = options.physical_checks
         self._logical_checks = options.logical_checks
+        self._ast_checks = options.ast_checks
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
@@ -1309,11 +1348,24 @@ class Checker(object):
                               self.generate_tokens)
     generate_tokens.__doc__ = "    Check if the syntax is valid."
 
+    def run_ast_checks(self):
+        try:
+            tree = ast.parse(''.join(self.lines))
+        except Exception as error:
+            if self.verbose > 0:
+                msg = "Syntax error (%s) in file %s"
+                print(msg % (error, self.filename))
+        else:
+            visitors = [cls(self) for cls in self._ast_checks]
+            runner = VisitorsRunner(visitors)
+            runner.run(tree)
+
     def check_all(self, expected=None, line_offset=0):
         """
         Run all checks on the input file.
         """
         self.report.init_file(self.filename, self.lines, expected, line_offset)
+        self.run_ast_checks()
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
@@ -1570,6 +1622,7 @@ class StyleGuide(object):
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')
         options.logical_checks = self.get_checks('logical_line')
+        options.ast_checks = self.get_classes("ASTCheck")
         self.init_report()
 
     def init_report(self, reporter=None):
@@ -1649,6 +1702,14 @@ class StyleGuide(object):
             if any(not (code and self.ignore_code(code)) for code in codes):
                 checks.append((name, function, args))
         return sorted(checks)
+
+    def get_classes(self, postfix):
+        classes = []
+        for name, obj in globals().items():
+            if inspect.isclass(obj):
+                if name.endswith(postfix):
+                    classes.append(obj)
+        return classes
 
 
 def init_tests(pep8style):
