@@ -1056,6 +1056,18 @@ class VisitorsRunner(object):
             meth(node)
 
 
+class ClassNameASTCheck(BaseAstCheck):
+    """
+    Almost without exception, class names use the CapWords convention.
+
+    Classes for internal use have a leading underscore in addition.
+    """
+    CLASS_NAME_RGX = re.compile('[_A-Z][a-zA-Z0-9]*$')
+    text = "E800 class names should use CapWords convention"
+
+    def visit_classdef(self, node):
+        if not self.CLASS_NAME_RGX.match(node.name):
+            self.error_at_node(node, self.text)
 
 ##############################################################################
 # Helper functions
