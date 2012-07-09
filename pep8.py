@@ -1048,12 +1048,58 @@ class VisitorsRunner(object):
             self.run(child)
 
     def visit_node(self, node):
+        if isinstance(node, ast.ClassDef):
+            self.tag_class_functions(node)
+
         method = 'visit_' + node.__class__.__name__
         # Dont break pep8 in a tool to check pep8
         method = method.lower()
         for visitor in self.visitors:
             meth = getattr(visitor, method, visitor.default_visit)
             meth(node)
+
+    def tag_class_functions(self, cls_node):
+        """Tag functions if they are methods, classmethods, staticmethods"""
+
+        # tries to find all 'old style decorators' like
+        # m = staticmethod(m)
+        late_decoration = {}
+        for node in ast.iter_child_nodes(cls_node):
+            if not isinstance(node, ast.Assign):
+                continue
+
+            if not isinstance(node.value, ast.Call):
+                continue
+
+            if not isinstance(node.value.func, ast.Name):
+                continue
+
+            func_name = node.value.func.id
+            if func_name in ('classmethod', 'staticmethod'):
+                if len(node.value.args) == 1:
+                    late_decoration[node.value.args[0].id] = func_name
+
+        # iterate over all functions and tag them
+        for node in ast.iter_child_nodes(cls_node):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+
+            if node.name in late_decoration:
+                node.function_type = late_decoration[node.name]
+
+            elif node.decorator_list:
+                decos = node.decorator_list
+                decos = [d.id for d in decos if isinstance(d, ast.Name)]
+
+                if 'classmethod' in decos:
+                    node.function_type = 'classmethod'
+                elif 'staticmethod' in decos:
+                    node.function_type = 'staticmethod'
+                else:
+                    node.function_type = 'method'
+
+            else:
+                node.function_type = 'method'
 
 
 class ClassNameASTCheck(BaseAstCheck):
