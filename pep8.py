@@ -1115,6 +1115,30 @@ class ClassNameASTCheck(BaseAstCheck):
         if not self.CLASS_NAME_RGX.match(node.name):
             self.error_at_node(node, self.text)
 
+
+class FunctionNameASTCheck(BaseAstCheck):
+    """
+    Function names should be lowercase, with words separated by underscores
+    as necessary to improve readability.
+    Functions *not* beeing methods '__' in front and back are not allowed.
+
+    mixedCase is allowed only in contexts where that's already the
+    prevailing style (e.g. threading.py), to retain backwards compatibility.
+    """
+    GOOD_FUNCTION_NAME = re.compile(r"^[_a-z0-9][_a-z0-9]*$")
+    text = "E801 function name does not follow PEP8 guidelines"
+
+    def visit_functiondef(self, node):
+        function_type = getattr(node, 'function_type', 'function')
+        if function_type == 'function':
+            if node.name.startswith('__') or node.name.endswith('__'):
+                self.error_at_node(node, self.text)
+            elif not self.GOOD_FUNCTION_NAME.match(node.name):
+                self.error_at_node(node, self.text)
+        elif not self.GOOD_FUNCTION_NAME.match(node.name):
+            self.error_at_node(node, self.text)
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
