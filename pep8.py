@@ -1142,6 +1142,60 @@ class FunctionNameASTCheck(BaseAstCheck):
             self.error_at_node(node, self.text)
 
 
+class FunctionArgNamesASTCheck(BaseAstCheck):
+    """
+    The argument names of a function should be lowercase, with words separated
+    by underscores.
+
+    A classmethod should have 'cls' as first argument.
+    A method should have 'self' as first argument.
+    """
+
+    GOOD_ARG_NAME = re.compile('[a-z_][a-z0-9_]{0,30}$').match
+    E802 = "E802 argument names do not follow PEP8 guidelines"
+    E803 = "E803 first argument of a classmethod should named 'cls'"
+    E804 = "E804 first argument of a method should named 'self'"
+
+    def visit_functiondef(self, node):
+        if node.args.kwarg is not None:
+            if not self.GOOD_ARG_NAME(node.args.kwarg):
+                self.error_at_node(node, self.E802)
+                return
+
+        if node.args.vararg is not None:
+            if not self.GOOD_ARG_NAME(node.args.vararg):
+                self.error_at_node(node, self.E802)
+                return
+
+        if IS_PY3:
+            arg_names = self._get_arg_names_py3(node)
+        else:
+            arg_names = self._get_arg_names_py2(node)
+
+        function_type = getattr(node, 'function_type', 'function')
+
+        if len(arg_names) > 0:
+            if function_type == 'method':
+                if arg_names[0] != 'self':
+                    self.error_at_node(node, self.E804)
+            elif function_type == 'classmethod':
+                if arg_names[0] != 'cls':
+                    self.error_at_node(node, self.E803)
+
+        for arg in arg_names:
+            if not self.GOOD_ARG_NAME(arg):
+                self.error_at_node(node, self.E802)
+                return
+
+    def _get_arg_names_py2(self, node):
+        return [arg.id for arg in node.args.args]
+
+    def _get_arg_names_py3(self, node):
+        pos_args = [arg.arg for arg in node.args.args]
+        kw_only = [arg.arg for arg in node.args.kwonlyargs]
+        return pos_args + kw_only
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
