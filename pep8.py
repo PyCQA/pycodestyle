@@ -113,6 +113,7 @@ except ImportError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
+IS_PY3 = sys.version_info[0] == 3
 if sys.platform == 'win32':
     DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
 else:
@@ -159,6 +160,8 @@ HUNK_REGEX = re.compile(r'^@@ -\d+,\d+ \+(\d+),(\d+) @@.*$')
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
+IS_PY3_TEST = re.compile("^#\s*python3\s*only")
+IS_PY2_TEST = re.compile("^#\s*python2\s*only")
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -1818,6 +1821,15 @@ def init_tests(pep8style):
     def run_tests(filename):
         """Run all the tests from a file."""
         lines = readlines(filename) + ['#:\n']
+
+        # Filter out tests which cannot run in the current python version
+        # Mainly for the AST tests. Some syntax is not supported in python2
+        if IS_PY3 and any(IS_PY2_TEST.search(line) for line in lines[:3]):
+            return
+
+        if not IS_PY3 and any(IS_PY3_TEST.search(line) for line in lines[:3]):
+            return
+
         line_offset = 0
         codes = ['Okay']
         testcase = []
