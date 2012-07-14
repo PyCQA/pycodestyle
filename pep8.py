@@ -830,7 +830,7 @@ def imports_on_separate_lines(logical_line):
     line = logical_line
     if line.startswith('import '):
         found = line.find(',')
-        if -1 < found:
+        if -1 < found and ';' not in line[:found]:
             yield found, "E401 multiple imports on one line"
 
 

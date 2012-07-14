@@ -9,6 +9,8 @@ Changelog
 
 * Fix error on stdin when running with bpython. (Issue #101)
 
+* Fix false positive E401. (Issue #104)
+
 
 1.3.3 (2012-06-27)
 ------------------
