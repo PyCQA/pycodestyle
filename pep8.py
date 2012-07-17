@@ -1196,6 +1196,33 @@ class FunctionArgNamesASTCheck(BaseAstCheck):
         return pos_args + kw_only
 
 
+class ImportAsASTCheck(BaseAstCheck):
+    """
+    Dont change the nameing convention via an import
+    """
+    GLOBAL_NAME = re.compile('[A-Z_][A-Z0-9_]*$').match
+    LOWER_CASE = re.compile('[a-z_][a-z0-9_]*$').match
+    W800 = "W800 Constant imported as non constant"
+    W801 = "W801 Lowercase imported as non lowercase"
+    W802 = "W802 Camelcase imported as lowercase"
+    W803 = "W803 Camelcase imported as constant"
+
+    def visit_importfrom(self, node):
+        for name in node.names:
+            if not name.asname:
+                continue
+            if self.GLOBAL_NAME(name.name):
+                if not self.GLOBAL_NAME(name.asname):
+                    self.error_at_node(node, self.W800)
+            elif self.LOWER_CASE(name.name):
+                if not self.LOWER_CASE(name.asname):
+                    self.error_at_node(node, self.W801)
+            elif self.LOWER_CASE(name.asname):
+                self.error_at_node(node, self.W802)
+            elif self.GLOBAL_NAME(name.asname):
+                self.error_at_node(node, self.W803)
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
