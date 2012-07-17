@@ -105,6 +105,7 @@ import keyword
 import tokenize
 from optparse import OptionParser
 from fnmatch import fnmatch
+from collections import deque
 try:
     from configparser import RawConfigParser
     from io import TextIOWrapper
@@ -1033,22 +1034,33 @@ class BaseAstCheck(object):
         self.checker = checker
         self.report_error = checker.report_error
 
-    def default_visit(self, node):
+    def default_visit(self, node, parents):
         """Function which is called if not appropiate vist_ method is found"""
         pass
 
     def error_at_node(self, node, text):
         self.report_error(node.lineno, node.col_offset, text, self)
 
+    def get_parent_function(self, parents):
+        for parent in reversed(parents):
+            if isinstance(parent, ast.FunctionDef):
+                return parent
+            if isinstance(parent, ast.ClassDef):
+                return None
+        return None
+
 
 class VisitorsRunner(object):
     def __init__(self, visitors):
         self.visitors = visitors
+        self.parents = deque()
 
     def run(self, node):
         self.visit_node(node)
+        self.parents.append(node)
         for child in ast.iter_child_nodes(node):
             self.run(child)
+        self.parents.pop()
 
     def visit_node(self, node):
         if isinstance(node, ast.ClassDef):
@@ -1059,7 +1071,7 @@ class VisitorsRunner(object):
         method = method.lower()
         for visitor in self.visitors:
             meth = getattr(visitor, method, visitor.default_visit)
-            meth(node)
+            meth(node, self.parents)
 
     def tag_class_functions(self, cls_node):
         """Tag functions if they are methods, classmethods, staticmethods"""
@@ -1114,7 +1126,7 @@ class ClassNameASTCheck(BaseAstCheck):
     CLASS_NAME_RGX = re.compile('[_A-Z][a-zA-Z0-9]*$')
     text = "E800 class names should use CapWords convention"
 
-    def visit_classdef(self, node):
+    def visit_classdef(self, node, parents):
         if not self.CLASS_NAME_RGX.match(node.name):
             self.error_at_node(node, self.text)
 
@@ -1131,7 +1143,7 @@ class FunctionNameASTCheck(BaseAstCheck):
     GOOD_FUNCTION_NAME = re.compile(r"^[_a-z0-9][_a-z0-9]*$")
     text = "E801 function name does not follow PEP8 guidelines"
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node, parents):
         function_type = getattr(node, 'function_type', 'function')
         if function_type == 'function':
             if node.name.startswith('__') or node.name.endswith('__'):
@@ -1156,7 +1168,7 @@ class FunctionArgNamesASTCheck(BaseAstCheck):
     E803 = "E803 first argument of a classmethod should named 'cls'"
     E804 = "E804 first argument of a method should named 'self'"
 
-    def visit_functiondef(self, node):
+    def visit_functiondef(self, node, parents):
         if node.args.kwarg is not None:
             if not self.GOOD_ARG_NAME(node.args.kwarg):
                 self.error_at_node(node, self.E802)
@@ -1207,7 +1219,7 @@ class ImportAsASTCheck(BaseAstCheck):
     W802 = "W802 Camelcase imported as lowercase"
     W803 = "W803 Camelcase imported as constant"
 
-    def visit_importfrom(self, node):
+    def visit_importfrom(self, node, parents):
         for name in node.names:
             if not name.asname:
                 continue
