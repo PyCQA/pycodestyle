@@ -1251,6 +1251,32 @@ class ImportAsASTCheck(BaseAstCheck):
                 self.error_at_node(node, self.W803)
 
 
+class VariablesInFunctionsASTCheck(BaseAstCheck):
+    """
+    Local variables in functions should be in lowercase
+    """
+    LOWER_CASE = re.compile('[a-z][a-z0-9_]*$').match
+    E805 = "E805 Variables in functions should be lowercase"
+
+    def visit_assign(self, node, parents):
+        parent_func = self.get_parent_function(parents)
+        if parent_func is None:
+            return
+
+        for name in self._get_target_names(node):
+            if name in parent_func.global_names:
+                return
+            if not self.LOWER_CASE(name):
+                self.error_at_node(node, self.E805)
+
+    def _get_target_names(self, node):
+        targets = set()
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                targets.add(target.id)
+        return targets
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
