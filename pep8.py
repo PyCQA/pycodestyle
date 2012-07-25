@@ -1215,11 +1215,13 @@ class Checker(object):
             #:PEP8 +E101 -W603
             """
             return set(map(lambda s: s[1:].strip(),
-                filter(lambda s: s.startswith(sign), line.split(" ")[1:])))
+                           filter(lambda s: s.startswith(sign),
+                                  line.split(" ")[1:])))
 
         if line.lstrip().startswith('#:PEP8'):
-            self.expected = (self.expected | parse_inline_flags('-')) \
-                    - parse_inline_flags('+')
+            self.report.expected = \
+                (self.report.expected | parse_inline_flags('-')) \
+                - parse_inline_flags('+')
         if line:
             self.check_physical(line)
         return line
@@ -1328,7 +1330,6 @@ class Checker(object):
         """
         Run all checks on the input file.
         """
-        self.expected = set(expected or ())
         self.line_offset = line_offset
         self.report.init_file(self.filename, self.lines, expected, line_offset)
         self.line_number = 0
@@ -1400,7 +1401,7 @@ class BaseReport(object):
         """Signal a new file."""
         self.filename = filename
         self.lines = lines
-        self.expected = expected or ()
+        self.expected = set(expected or ())
         self.line_offset = line_offset
         self.file_errors = 0
         self.counters['files'] += 1
