@@ -2,6 +2,175 @@ Changelog
 =========
 
 
+1.x (UNRELEASED)
+----------------
+
+* Fix false positive E124 and E128 with comments. (Issue #100)
+
+* Fix error on stdin when running with bpython. (Issue #101)
+
+* Fix false positive E401. (Issue #104)
+
+
+1.3.3 (2012-06-27)
+------------------
+
+* Fix regression with continuation line checker. (Issue #98)
+
+
+1.3.2 (2012-06-26)
+------------------
+
+* Revert to the previous behaviour for ``--show-pep8``:
+  do not imply ``--first``. (Issue #89)
+
+* Add E902 for IO errors. (Issue #87)
+
+* Fix false positive for E121, and missed E124. (Issue #92)
+
+* Set a sensible default path for config file on Windows. (Issue #95)
+
+* Allow ``verbose`` in the configuration file. (Issue #91)
+
+* Show the enforced ``max-line-length`` in the error message. (Issue #86)
+
+
+1.3.1 (2012-06-18)
+------------------
+
+* Explain which configuration options are expected.  Accept and recommend
+  the options names with hyphen instead of underscore. (Issue #82)
+
+* Do not read the user configuration when used as a module
+  (except if ``config_file=True`` is passed to the ``StyleGuide`` constructor).
+
+* Fix wrong or missing cases for the E12 series.
+
+* Fix cases where E122 was missed. (Issue #81)
+
+
+1.3 (2012-06-15)
+----------------
+
+.. warning::
+   The internal API is backwards incompatible.
+
+* Remove global configuration and refactor the library around
+  a ``StyleGuide`` class; add the ability to configure various
+  reporters. (Issue #35 and #66)
+
+* Read user configuration from ``~/.config/pep8``
+  and local configuration from ``./.pep8``. (Issue #22)
+
+* Fix E502 for backslash embedded in multi-line string. (Issue #68)
+
+* Fix E225 for Python 3 iterable unpacking (PEP 3132). (Issue #72)
+
+* Enable the new checkers from the E12 series in the default
+  configuration.
+
+* Suggest less error-prone alternatives for E712 errors.
+
+* Rewrite checkers to run faster (E22, E251, E27).
+
+* Fixed a crash when parsed code is invalid (too many
+  closing brackets).
+
+* Fix E127 and E128 for continuation line indentation. (Issue #74)
+
+* New option ``--format`` to customize the error format. (Issue #23)
+
+* New option ``--diff`` to check only modified code.  The unified
+  diff is read from STDIN.  Example: ``hg diff | pep8 --diff``
+  (Issue #39)
+
+* Correctly report the count of failures and set the exit code to 1
+  when the ``--doctest`` or the ``--testsuite`` fails.
+
+* Correctly detect the encoding in Python 3. (Issue #69)
+
+* Drop support for Python 2.3, 2.4 and 3.0. (Issue #78)
+
+
+1.2 (2012-06-01)
+----------------
+
+* Add E121 through E128 for continuation line indentation.  These
+  checks are disabled by default.  If you want to force all checks,
+  use switch ``--select=E,W``.  Patch by Sam Vilain. (Issue #64)
+
+* Add E721 for direct type comparisons. (Issue #47)
+
+* Add E711 and E712 for comparisons to singletons. (Issue #46)
+
+* Fix spurious E225 and E701 for function annotations. (Issue #29)
+
+* Add E502 for explicit line join between brackets.
+
+* Fix E901 when printing source with ``--show-source``.
+
+* Report all errors for each checker, instead of reporting only the
+  first occurence for each line.
+
+* Option ``--show-pep8`` implies ``--first``.
+
+
+1.1 (2012-05-24)
+----------------
+
+* Add E901 for syntax errors. (Issues #63 and #30)
+
+* Add E271, E272, E273 and E274 for extraneous whitespace around
+  keywords. (Issue #57)
+
+* Add ``tox.ini`` configuration file for tests. (Issue #61)
+
+* Add ``.travis.yml`` configuration file for continuous integration.
+  (Issue #62)
+
+
+1.0.1 (2012-04-06)
+------------------
+
+* Fix inconsistent version numbers.
+
+
+1.0 (2012-04-04)
+----------------
+
+* Fix W602 ``raise`` to handle multi-char names. (Issue #53)
+
+
+0.7.0 (2012-03-26)
+------------------
+
+* Now ``--first`` prints only the first occurence of each error.
+  The ``--repeat`` flag becomes obsolete because it is the default
+  behaviour. (Issue #6)
+
+* Allow to specify ``--max-line-length``. (Issue #36)
+
+* Make the shebang more flexible. (Issue #26)
+
+* Add testsuite to the bundle. (Issue #25)
+
+* Fixes for Jython. (Issue #49)
+
+* Add PyPI classifiers. (Issue #43)
+
+* Fix the ``--exclude`` option. (Issue #48)
+
+* Fix W602, accept ``raise`` with 3 arguments. (Issue #34)
+
+* Correctly select all tests if ``DEFAULT_IGNORE == ''``.
+
+
+0.6.1 (2010-10-03)
+------------------
+
+* Fix inconsistent version numbers. (Issue #21)
+
+
 0.6.0 (2010-09-19)
 ------------------
 

@@ -29,13 +29,9 @@ Installation
 
 You can install, upgrade, uninstall pep8.py with these commands::
 
-  $ sudo pip install pep8
-  $ sudo pip install --upgrade pep8
-  $ sudo pip uninstall pep8
-
-Or if you don't have `pip`::
-
-  $ sudo easy_install pep8
+  $ pip install pep8
+  $ pip install --upgrade pep8
+  $ pip uninstall pep8
 
 There's also a package for Debian/Ubuntu, but it's not always the
 latest version::
@@ -47,7 +43,7 @@ Example usage and output
 
 ::
 
-  $ pep8 optparse.py
+  $ pep8 --first optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -60,18 +56,19 @@ Example usage and output
 You can also make pep8.py show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8 --show-source --show-pep8 testsuite/E111.py
-  testsuite/E111.py:2:3: E111 indentation is not a multiple of four
-    print x
-    ^
-      Use 4 spaces per indentation level.
+  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  testsuite/E40.py:2:10: E401 multiple imports on one line
+  import os, sys
+           ^
+      Imports should usually be on separate lines.
 
-      For really old code that you don't want to mess up, you can
-      continue to use 8-space tabs.
+      Okay: import os\nimport sys
+      E401: import sys, os
+
 
 Or you can display how often each error was found::
 
-  $ pep8 --statistics -qq --filename=*.py Python-2.5/Lib
+  $ pep8 --statistics -qq Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -88,14 +85,15 @@ Or you can display how often each error was found::
 Quick help is available on the command line::
 
   $ pep8 -h
-  Usage: pep8.py [options] input ...
+  Usage: pep8 [options] input ...
 
   Options:
     --version            show program's version number and exit
     -h, --help           show this help message and exit
     -v, --verbose        print status messages, or debug with -vv
     -q, --quiet          report only file names, or nothing with -qq
-    -r, --repeat         show all occurrences of the same error
+    -r, --repeat         (obsolete) show all occurrences of the same error
+    --first              show first occurrence of each error
     --exclude=patterns   exclude files or directories which match these comma
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
@@ -103,13 +101,27 @@ Quick help is available on the command line::
     --select=errors      select errors and warnings (e.g. E,W6)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
     --show-source        show source code for each error
-    --show-pep8          show text of PEP 8 for each error
+    --show-pep8          show text of PEP 8 for each error (implies --first)
     --statistics         count errors and warnings
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
-    --benchmark          measure processing speed
-    --testsuite=dir      run regression tests from dir
-    --doctest            run doctest on myself
+    --max-line-length=n  set maximum allowed line length (default: 79)
+    --format=format      set the error format [default|pylint|<custom>]
+    --diff               report only lines changed according to the unified diff
+                         received on STDIN
+
+    Testing Options:
+      --testsuite=dir    run regression tests from dir
+      --doctest          run doctest on myself
+      --benchmark        measure processing speed
+
+    Configuration:
+      The project options are read from the [pep8] section of the .pep8 file
+      located in any parent folder of the path(s) being processed. Allowed
+      options are: exclude, filename, select, ignore, max-line-length,
+      count, format, quiet, show-pep8, show-source, statistics, verbose.
+
+      --config=path      config file location (default: /home/user/.config/pep8)
 
 Feedback
 --------
@@ -121,6 +133,10 @@ http://github.com/jcrocholl/pep8/issues
 
 Source download
 ---------------
+
+.. image:: https://secure.travis-ci.org/jcrocholl/pep8.png?branch=master
+   :target: https://secure.travis-ci.org/jcrocholl/pep8
+   :alt: Build status
 
 The source code is currently available on github. Fork away!
 
