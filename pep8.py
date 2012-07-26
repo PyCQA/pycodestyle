@@ -1625,11 +1625,11 @@ class StyleGuide(object):
         """
         Check if options.exclude contains a pattern that matches filename.
         """
-        basename = os.basename(filename)
-        return any(filename_match(filename, self.options.exclude,
-                                  default=False),
-                   filename_match(basename, self.options.exclude,
-                                  default=False))
+        basename = os.path.basename(filename)
+        return any((filename_match(filename, self.options.exclude,
+                                   default=False),
+                    filename_match(basename, self.options.exclude,
+                                   default=False)))
 
     def ignore_code(self, code):
         """
