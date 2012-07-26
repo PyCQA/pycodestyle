@@ -1613,7 +1613,7 @@ class StyleGuide(object):
                 print('directory ' + root)
             counters['directories'] += 1
             for subdir in sorted(dirs):
-                if self.excluded(subdir):
+                if self.excluded(os.path.join(root, subdir)):
                     dirs.remove(subdir)
             for filename in sorted(files):
                 # contain a pattern that matches?
@@ -1625,8 +1625,7 @@ class StyleGuide(object):
         """
         Check if options.exclude contains a pattern that matches filename.
         """
-        basename = os.path.basename(filename)
-        return filename_match(basename, self.options.exclude, default=False)
+        return filename_match(filename, self.options.exclude, default=False)
 
     def ignore_code(self, code):
         """
