@@ -847,6 +847,7 @@ def compound_statements(logical_line):
     Okay: do_one()
     Okay: do_two()
     Okay: do_three()
+    Okay: do_four();
 
     E701: if foo == 'blah': do_blah_thing()
     E701: for x in lst: total += x
