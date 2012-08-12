@@ -1066,6 +1066,9 @@ class VisitorsRunner(object):
         if isinstance(node, ast.ClassDef):
             self.tag_class_functions(node)
 
+        if isinstance(node, ast.FunctionDef):
+            self.find_global_defs(node)
+
         method = 'visit_' + node.__class__.__name__
         # Dont break pep8 in a tool to check pep8
         method = method.lower()
@@ -1115,6 +1118,19 @@ class VisitorsRunner(object):
 
             else:
                 node.function_type = 'method'
+
+
+    def find_global_defs(self, func_def_node):
+        global_names = set()
+        nodes_to_check = deque(ast.iter_child_nodes(func_def_node))
+        while nodes_to_check:
+            node = nodes_to_check.pop()
+            if isinstance(node, ast.Global):
+                global_names.update(node.names)
+
+            if not isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                nodes_to_check.extend(ast.iter_child_nodes(node))
+        func_def_node.global_names = global_names
 
 
 class ClassNameASTCheck(BaseAstCheck):
