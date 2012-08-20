@@ -126,7 +126,7 @@ REPORT_FORMAT = {
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
-WS_BINARY_OPERATORS = frozenset([
+WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
     '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
@@ -675,12 +675,15 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: z = 2**30
     Okay: z = 2 ** 30
     Okay: x = x*2 - 1
+    Okay: x = x / 2 - 1
+    Okay: x = x/2 - 1
     Okay: hypot2 = x*x + y*y
 
     E225: i=i+1
     E225: submitted +=1
     E225: c = (a+b) * (a-b)
     E225: c = alpha -4
+    E225: x = x /2 - 1
     E225: z = x **y
     """
     parens = 0
@@ -711,7 +714,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
-            elif text in WS_BINARY_OPERATORS:
+            elif text in WS_NEEDED_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
                 # Check if the operator is being used in as a binary operator
@@ -728,15 +731,16 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     binary_usage = True
 
                 if binary_usage:
-                    #print "BINARY", prev_text, text
                     if text in WS_OPTIONAL_OPERATORS:
                         # Surrounding space is optional
                         # Ensure trailing space matches opening space
-                        #print "OPTIONAL", text
                         need_space = start != prev_end
-                        #print "Need space?", need_space
                     else:
                         need_space = True
+            elif text in WS_OPTIONAL_OPERATORS:
+                # Surrounding space is optional
+                # Ensure trailing space matches opening space
+                need_space = start != prev_end
 
             if need_space and start == prev_end:
                 # A needed opening space was not found
