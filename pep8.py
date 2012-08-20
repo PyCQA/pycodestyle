@@ -126,12 +126,13 @@ REPORT_FORMAT = {
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
-BINARY_OPERATORS = frozenset([
+WS_BINARY_OPERATORS = frozenset([
     '**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+    '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
+WS_OPTIONAL_OPERATORS = frozenset([
+    '**', '*', '/', '//'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
-OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 WHITESPACE = frozenset(' \t')
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
@@ -671,11 +672,13 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: alpha[:-i]
     Okay: if not -5 < x < +5:\n    pass
     Okay: lambda *args, **kw: (args, kw)
+    Okay: z = 2**30
+    Okay: z = 2 ** 30
+    Okay: x = x*2 - 1
+    Okay: hypot2 = x*x + y*y
 
     E225: i=i+1
     E225: submitted +=1
-    E225: x = x*2 - 1
-    E225: hypot2 = x*x + y*y
     E225: c = (a+b) * (a-b)
     E225: c = alpha -4
     E225: z = x **y
@@ -694,32 +697,49 @@ def missing_whitespace_around_operator(logical_line, tokens):
             parens -= 1
         if need_space:
             if start != prev_end:
+                # Found a needed space
                 need_space = False
             elif text == '>' and prev_text in ('<', '-'):
                 # Tolerate the "<>" operator, even if running Python 3
                 # Deal with Python 3's annotated return value "->"
                 pass
             else:
+                # A needed trailing space was not found
                 yield prev_end, "E225 missing whitespace around operator"
                 need_space = False
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
-            elif text in BINARY_OPERATORS:
+            elif text in WS_BINARY_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
+                # Check if the operator is being used in as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
+                binary_usage = False
                 if prev_type == tokenize.OP:
                     if prev_text in '}])':
-                        need_space = True
+                        binary_usage = True
                 elif prev_type == tokenize.NAME:
                     if prev_text not in KEYWORDS:
-                        need_space = True
+                        binary_usage = True
                 elif prev_type not in SKIP_TOKENS:
-                    need_space = True
+                    binary_usage = True
+
+                if binary_usage:
+                    #print "BINARY", prev_text, text
+                    if text in WS_OPTIONAL_OPERATORS:
+                        # Surrounding space is optional
+                        # Ensure trailing space matches opening space
+                        #print "OPTIONAL", text
+                        need_space = start != prev_end
+                        #print "Need space?", need_space
+                    else:
+                        need_space = True
+
             if need_space and start == prev_end:
+                # A needed opening space was not found
                 yield prev_end, "E225 missing whitespace around operator"
                 need_space = False
         prev_type = token_type
