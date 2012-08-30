@@ -1860,6 +1860,11 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
+    parser.add_option('--skip-first-lines', type='int', metavar='n',
+                      default=0,
+                      help="specify the number of lines at the beginning "
+                           "of the file to skip before processing (default: "
+                           "%default)")
     group = parser.add_option_group("Testing Options")
     group.add_option('--testsuite', metavar='dir',
                      help="run regression tests from dir")
