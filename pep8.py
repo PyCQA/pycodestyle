@@ -1216,7 +1216,15 @@ class FunctionArgNamesASTCheck(BaseAstCheck):
                 return
 
     def _get_arg_names_py2(self, node):
-        return [arg.id for arg in node.args.args]
+        ret = []
+        for arg in node.args.args:
+            if isinstance(arg, ast.Tuple):
+                for t_arg in arg.elts:
+                    ret.append(t_arg.id)
+            else:
+                ret.append(arg.id)
+        return ret
+
 
     def _get_arg_names_py3(self, node):
         pos_args = [arg.arg for arg in node.args.args]
