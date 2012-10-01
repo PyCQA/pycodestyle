@@ -152,7 +152,7 @@ KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
                            r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
-HUNK_REGEX = re.compile(r'^@@ -\d+,\d+ \+(\d+),(\d+) @@.*$')
+HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -1117,7 +1117,12 @@ def parse_udiff(diff, patterns=None, parent='.'):
                 nrows -= 1
             continue
         if line[:3] == '@@ ':
-            row, nrows = [int(g) for g in HUNK_REGEX.match(line).groups()]
+            row, nrows = HUNK_REGEX.match(line).groups()
+            row = int(row)
+            if nrows is None:
+                nrows = 1
+            else:
+                nrows = int(nrows)
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
