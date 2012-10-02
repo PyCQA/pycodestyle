@@ -1178,6 +1178,9 @@ class Checker(object):
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
+        elif filename == '-':
+            self.filename = 'stdin'
+            self.lines = stdin_get_value().splitlines(True)
         elif lines is None:
             try:
                 self.lines = readlines(filename)
