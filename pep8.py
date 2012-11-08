@@ -1198,9 +1198,7 @@ class Checker(object):
         if self.line_number > len(self.lines):
             return ''
         line = self.lines[self.line_number - 1]
-        if line.lower().strip().endswith('# nopep8'):
-            return ''
-        return line
+        return '' if line.lower().strip().endswith('# nopep8') else line
 
     def readline_check_physical(self):
         """
