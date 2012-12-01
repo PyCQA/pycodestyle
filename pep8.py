@@ -264,6 +264,8 @@ def maximum_line_length(physical_line, max_line_length):
     line = physical_line.rstrip()
     length = len(line)
     if length > max_line_length:
+        if line.strip().lower().endswith('# nopep8'):
+            return
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
