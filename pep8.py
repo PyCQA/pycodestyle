@@ -129,7 +129,7 @@ KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 BINARY_OPERATORS = frozenset([
     '**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+    '%', '^', '&', '|', '=', '/', '//', '<', '>', '<<'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 WHITESPACE = frozenset(' \t')
