@@ -1119,7 +1119,8 @@ def parse_udiff(diff, patterns=None, parent='.'):
                 nrows -= 1
             continue
         if line[:3] == '@@ ':
-            row, nrows = [int(g or '1') for g in HUNK_REGEX.match(line).groups()]
+            hunk_match = HUNK_REGEX.match(line)
+            row, nrows = [int(g or '1') for g in hunk_match.groups()]
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
