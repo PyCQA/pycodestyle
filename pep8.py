@@ -95,6 +95,7 @@ for space.
 
 __version__ = '1.3.4a0'
 
+import ast
 import os
 import sys
 import re
@@ -104,6 +105,7 @@ import keyword
 import tokenize
 from optparse import OptionParser
 from fnmatch import fnmatch
+from collections import deque
 try:
     from configparser import RawConfigParser
     from io import TextIOWrapper
@@ -112,6 +114,7 @@ except ImportError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
 DEFAULT_IGNORE = 'E24'
+IS_PY3 = sys.version_info[0] == 3
 if sys.platform == 'win32':
     DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
 else:
@@ -158,6 +161,8 @@ HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
+IS_PY3_TEST = re.compile("^#\s*python3\s*only")
+IS_PY2_TEST = re.compile("^#\s*python2\s*only")
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -1022,6 +1027,267 @@ def python_3000_backticks(logical_line):
 
 
 ##############################################################################
+# Checkers on AST
+##############################################################################
+class BaseAstCheck(object):
+    """Base class all ASTChecker should derive"""
+
+    def __init__(self, checker):
+        self.checker = checker
+        self.report_error = checker.report_error
+
+    def default_visit(self, node, parents):
+        """Function which is called if not appropiate vist_ method is found"""
+        pass
+
+    def error_at_node(self, node, text):
+        self.report_error(node.lineno, node.col_offset, text, self)
+
+    def get_parent_function(self, parents):
+        for parent in reversed(parents):
+            if isinstance(parent, ast.FunctionDef):
+                return parent
+            if isinstance(parent, ast.ClassDef):
+                return None
+        return None
+
+
+class VisitorsRunner(object):
+    def __init__(self, visitors):
+        self.visitors = visitors
+        self.parents = deque()
+
+    def run(self, node):
+        self.visit_node(node)
+        self.parents.append(node)
+        for child in ast.iter_child_nodes(node):
+            self.run(child)
+        self.parents.pop()
+
+    def visit_node(self, node):
+        if isinstance(node, ast.ClassDef):
+            self.tag_class_functions(node)
+
+        if isinstance(node, ast.FunctionDef):
+            self.find_global_defs(node)
+
+        method = 'visit_' + node.__class__.__name__
+        # Dont break pep8 in a tool to check pep8
+        method = method.lower()
+        for visitor in self.visitors:
+            meth = getattr(visitor, method, visitor.default_visit)
+            meth(node, self.parents)
+
+    def tag_class_functions(self, cls_node):
+        """Tag functions if they are methods, classmethods, staticmethods"""
+
+        # tries to find all 'old style decorators' like
+        # m = staticmethod(m)
+        late_decoration = {}
+        for node in ast.iter_child_nodes(cls_node):
+            if not isinstance(node, ast.Assign):
+                continue
+
+            if not isinstance(node.value, ast.Call):
+                continue
+
+            if not isinstance(node.value.func, ast.Name):
+                continue
+
+            func_name = node.value.func.id
+            if func_name in ('classmethod', 'staticmethod'):
+                if len(node.value.args) == 1:
+                    late_decoration[node.value.args[0].id] = func_name
+
+        # iterate over all functions and tag them
+        for node in ast.iter_child_nodes(cls_node):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+
+            if node.name in late_decoration:
+                node.function_type = late_decoration[node.name]
+
+            elif node.decorator_list:
+                decos = node.decorator_list
+                decos = [d.id for d in decos if isinstance(d, ast.Name)]
+
+                if 'classmethod' in decos:
+                    node.function_type = 'classmethod'
+                elif 'staticmethod' in decos:
+                    node.function_type = 'staticmethod'
+                else:
+                    node.function_type = 'method'
+
+            else:
+                node.function_type = 'method'
+
+
+    def find_global_defs(self, func_def_node):
+        global_names = set()
+        nodes_to_check = deque(ast.iter_child_nodes(func_def_node))
+        while nodes_to_check:
+            node = nodes_to_check.pop()
+            if isinstance(node, ast.Global):
+                global_names.update(node.names)
+
+            if not isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                nodes_to_check.extend(ast.iter_child_nodes(node))
+        func_def_node.global_names = global_names
+
+
+class ClassNameASTCheck(BaseAstCheck):
+    """
+    Almost without exception, class names use the CapWords convention.
+
+    Classes for internal use have a leading underscore in addition.
+    """
+    CLASS_NAME_RGX = re.compile('[_A-Z][a-zA-Z0-9]*$')
+    text = "E800 class names should use CapWords convention"
+
+    def visit_classdef(self, node, parents):
+        if not self.CLASS_NAME_RGX.match(node.name):
+            self.error_at_node(node, self.text)
+
+
+class FunctionNameASTCheck(BaseAstCheck):
+    """
+    Function names should be lowercase, with words separated by underscores
+    as necessary to improve readability.
+    Functions *not* beeing methods '__' in front and back are not allowed.
+
+    mixedCase is allowed only in contexts where that's already the
+    prevailing style (e.g. threading.py), to retain backwards compatibility.
+    """
+    GOOD_FUNCTION_NAME = re.compile(r"^[_a-z0-9][_a-z0-9]*$")
+    text = "E801 function name does not follow PEP8 guidelines"
+
+    def visit_functiondef(self, node, parents):
+        function_type = getattr(node, 'function_type', 'function')
+        if function_type == 'function':
+            if node.name.startswith('__') or node.name.endswith('__'):
+                self.error_at_node(node, self.text)
+            elif not self.GOOD_FUNCTION_NAME.match(node.name):
+                self.error_at_node(node, self.text)
+        elif not self.GOOD_FUNCTION_NAME.match(node.name):
+            self.error_at_node(node, self.text)
+
+
+class FunctionArgNamesASTCheck(BaseAstCheck):
+    """
+    The argument names of a function should be lowercase, with words separated
+    by underscores.
+
+    A classmethod should have 'cls' as first argument.
+    A method should have 'self' as first argument.
+    """
+
+    GOOD_ARG_NAME = re.compile('[a-z_][a-z0-9_]{0,30}$').match
+    E802 = "E802 argument names do not follow PEP8 guidelines"
+    E803 = "E803 first argument of a classmethod should named 'cls'"
+    E804 = "E804 first argument of a method should named 'self'"
+
+    def visit_functiondef(self, node, parents):
+        if node.args.kwarg is not None:
+            if not self.GOOD_ARG_NAME(node.args.kwarg):
+                self.error_at_node(node, self.E802)
+                return
+
+        if node.args.vararg is not None:
+            if not self.GOOD_ARG_NAME(node.args.vararg):
+                self.error_at_node(node, self.E802)
+                return
+
+        if IS_PY3:
+            arg_names = self._get_arg_names_py3(node)
+        else:
+            arg_names = self._get_arg_names_py2(node)
+
+        function_type = getattr(node, 'function_type', 'function')
+
+        if len(arg_names) > 0:
+            if function_type == 'method':
+                if arg_names[0] != 'self':
+                    self.error_at_node(node, self.E804)
+            elif function_type == 'classmethod':
+                if arg_names[0] != 'cls':
+                    self.error_at_node(node, self.E803)
+
+        for arg in arg_names:
+            if not self.GOOD_ARG_NAME(arg):
+                self.error_at_node(node, self.E802)
+                return
+
+    def _get_arg_names_py2(self, node):
+        ret = []
+        for arg in node.args.args:
+            if isinstance(arg, ast.Tuple):
+                for t_arg in arg.elts:
+                    ret.append(t_arg.id)
+            else:
+                ret.append(arg.id)
+        return ret
+
+
+    def _get_arg_names_py3(self, node):
+        pos_args = [arg.arg for arg in node.args.args]
+        kw_only = [arg.arg for arg in node.args.kwonlyargs]
+        return pos_args + kw_only
+
+
+class ImportAsASTCheck(BaseAstCheck):
+    """
+    Dont change the nameing convention via an import
+    """
+    GLOBAL_NAME = re.compile('[A-Z_][A-Z0-9_]*$').match
+    LOWER_CASE = re.compile('[a-z_][a-z0-9_]*$').match
+    W800 = "W800 Constant imported as non constant"
+    W801 = "W801 Lowercase imported as non lowercase"
+    W802 = "W802 Camelcase imported as lowercase"
+    W803 = "W803 Camelcase imported as constant"
+
+    def visit_importfrom(self, node, parents):
+        for name in node.names:
+            if not name.asname:
+                continue
+            if self.GLOBAL_NAME(name.name):
+                if not self.GLOBAL_NAME(name.asname):
+                    self.error_at_node(node, self.W800)
+            elif self.LOWER_CASE(name.name):
+                if not self.LOWER_CASE(name.asname):
+                    self.error_at_node(node, self.W801)
+            elif self.LOWER_CASE(name.asname):
+                self.error_at_node(node, self.W802)
+            elif self.GLOBAL_NAME(name.asname):
+                self.error_at_node(node, self.W803)
+
+
+class VariablesInFunctionsASTCheck(BaseAstCheck):
+    """
+    Local variables in functions should be in lowercase
+    """
+    LOWER_CASE = re.compile('[a-z][a-z0-9_]*$').match
+    E805 = "E805 Variables in functions should be lowercase"
+
+    def visit_assign(self, node, parents):
+        parent_func = self.get_parent_function(parents)
+        if parent_func is None:
+            return
+
+        for name in self._get_target_names(node):
+            if name in parent_func.global_names:
+                return
+            if not self.LOWER_CASE(name):
+                self.error_at_node(node, self.E805)
+
+    def _get_target_names(self, node):
+        targets = set()
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                targets.add(target.id)
+        return targets
+
+
+##############################################################################
 # Helper functions
 ##############################################################################
 
@@ -1175,6 +1441,7 @@ class Checker(object):
         self._io_error = None
         self._physical_checks = options.physical_checks
         self._logical_checks = options.logical_checks
+        self._ast_checks = options.ast_checks
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
@@ -1312,11 +1579,24 @@ class Checker(object):
                               self.generate_tokens)
     generate_tokens.__doc__ = "    Check if the syntax is valid."
 
+    def run_ast_checks(self):
+        try:
+            tree = ast.parse(''.join(self.lines))
+        except Exception as error:
+            if self.verbose > 0:
+                msg = "Syntax error (%s) in file %s"
+                print(msg % (error, self.filename))
+        else:
+            visitors = [cls(self) for cls in self._ast_checks]
+            runner = VisitorsRunner(visitors)
+            runner.run(tree)
+
     def check_all(self, expected=None, line_offset=0):
         """
         Run all checks on the input file.
         """
         self.report.init_file(self.filename, self.lines, expected, line_offset)
+        self.run_ast_checks()
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
@@ -1573,6 +1853,7 @@ class StyleGuide(object):
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')
         options.logical_checks = self.get_checks('logical_line')
+        options.ast_checks = self.get_classes("ASTCheck")
         self.init_report()
 
     def init_report(self, reporter=None):
@@ -1656,6 +1937,14 @@ class StyleGuide(object):
                 checks.append((name, function, args))
         return sorted(checks)
 
+    def get_classes(self, postfix):
+        classes = []
+        for name, obj in globals().items():
+            if inspect.isclass(obj):
+                if name.endswith(postfix):
+                    classes.append(obj)
+        return classes
+
 
 def init_tests(pep8style):
     """
@@ -1681,6 +1970,15 @@ def init_tests(pep8style):
     def run_tests(filename):
         """Run all the tests from a file."""
         lines = readlines(filename) + ['#:\n']
+
+        # Filter out tests which cannot run in the current python version
+        # Mainly for the AST tests. Some syntax is not supported in python2
+        if IS_PY3 and any(IS_PY2_TEST.search(line) for line in lines[:3]):
+            return
+
+        if not IS_PY3 and any(IS_PY3_TEST.search(line) for line in lines[:3]):
+            return
+
         line_offset = 0
         codes = ['Okay']
         testcase = []
