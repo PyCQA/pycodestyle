@@ -549,7 +549,8 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
             if verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
         # deal with implicit string concatenation
-        elif token_type == tokenize.STRING or text in ('u', 'ur', 'b', 'br'):
+        elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
+              text in ('u', 'ur', 'b', 'br')):
             indent_chances[start[1]] = str
 
         # keep track of bracket depth

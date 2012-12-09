@@ -13,7 +13,9 @@ Changelog
 
 * Report E231 for nested dictionary in list. (Issue #142)
 
-* Catch ``E271`` at the beginning of the line. (Issue #133)
+* Catch E271 at the beginning of the line. (Issue #133)
+
+* Fix false positive E126. (Issue #138)
 
 * Fix ``--diff`` failing on one-line hunk. (Issue #137)
 

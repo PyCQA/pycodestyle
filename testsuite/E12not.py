@@ -535,4 +535,10 @@ try: %s -d5
 d = {  # comment
     1: 2
 }
+
+# issue #138
+[
+    12,  # this is a multi-line inline
+         # comment
+]
 #
