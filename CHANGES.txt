@@ -23,6 +23,8 @@ Changelog
 
 * Fix the ``-exclude`` switch for directory paths. (Issue #111)
 
+* Use ``-`` filename to read from standard input. (Issue #128)
+
 
 1.3.3 (2012-06-27)
 ------------------
