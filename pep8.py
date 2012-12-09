@@ -148,7 +148,7 @@ WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
 COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
                                 r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
-KEYWORD_REGEX = re.compile(r'(?:[^\s])(\s*)\b(?:%s)\b(\s*)' %
+KEYWORD_REGEX = re.compile(r'(?:[^\s]|\b)(\s*)\b(?:%s)\b(\s*)' %
                            r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
