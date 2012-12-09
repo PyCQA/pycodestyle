@@ -11,6 +11,14 @@ Changelog
 
 * Fix false positive E401. (Issue #104)
 
+* Report E231 for nested dictionary in list. (Issue #142)
+
+* Catch ``E271`` at the beginning of the line. (Issue #133)
+
+* Fix ``--diff`` failing on one-line hunk. (Issue #137)
+
+* Fix the ``-exclude`` switch for directory paths. (Issue #111)
+
 
 1.3.3 (2012-06-27)
 ------------------
