@@ -395,7 +395,7 @@ def missing_whitespace(logical_line):
         if char in ',;:' and line[index + 1] not in WHITESPACE:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']') and \
-                    before.count('{') == before.count('}'):
+                    before.rfind('{') < before.rfind('['):
                 continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
                 continue  # Allow tuple with only one element: (3,)

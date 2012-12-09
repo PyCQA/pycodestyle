@@ -4,7 +4,7 @@ True and False
 True and  False
 #: E272
 True  and False
-#: E272
+#: E271
 if   1:
 #: E273
 True and		False

@@ -7,6 +7,7 @@ a = [{'a':''}]
 #: Okay
 a = (4,)
 b = (5, )
+c = {'text': text[5:]}
 
 result = {
     'key1': 'value',
