@@ -15,7 +15,9 @@ Changelog
 
 * Catch E271 at the beginning of the line. (Issue #133)
 
-* Fix false positive E126. (Issue #138)
+* Fix false positive E126 for multi-line comments. (Issue #138)
+
+* Fix false positive E221 when operator is preceded by a comma. (Issue #135)
 
 * Fix ``--diff`` failing on one-line hunk. (Issue #137)
 

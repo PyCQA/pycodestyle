@@ -150,7 +150,7 @@ COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
                                 r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(?:[^\s]|\b)(\s*)\b(?:%s)\b(\s*)' %
                            r'|'.join(KEYWORDS))
-OPERATOR_REGEX = re.compile(r'(?:[^\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
+OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 
