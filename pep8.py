@@ -1633,7 +1633,8 @@ class StyleGuide(object):
                 # contain a pattern that matches?
                 if ((filename_match(filename, filepatterns) and
                      not self.excluded(filename))):
-                    runner(os.path.join(root, filename))
+                    runner(os.path.join(root, filename),
+                           line_offset=self.options.skip_first_lines)
 
     def excluded(self, filename):
         """
