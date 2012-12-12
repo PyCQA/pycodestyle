@@ -1179,6 +1179,7 @@ class Checker(object):
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
+        self.skip_first_lines = options.skip_first_lines
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1194,6 +1195,7 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
+        self.lines = self.lines[self.skip_first_lines:]
         self.report = report or options.report
         self.report_error = self.report.error
 
@@ -1595,7 +1597,7 @@ class StyleGuide(object):
             if os.path.isdir(path):
                 self.input_dir(path)
             elif not self.excluded(path):
-                runner(path)
+                runner(path, line_offset=self.options.skip_first_lines)
         report.stop()
         return report
 
