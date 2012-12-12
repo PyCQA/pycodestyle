@@ -1180,6 +1180,7 @@ class Checker(object):
         self.verbose = options.verbose
         self.filename = filename
         self.skip_first_lines = options.skip_first_lines
+        self.skip_last_lines = options.skip_last_lines
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1195,7 +1196,11 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
-        self.lines = self.lines[self.skip_first_lines:]
+        if self.skip_last_lines > 0:
+            self.lines = self.lines[self.skip_first_lines:
+                                    -self.skip_last_lines]
+        else:
+            self.lines = self.lines[self.skip_first_lines:]
         self.report = report or options.report
         self.report_error = self.report.error
 
@@ -1866,6 +1871,11 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
                       default=0,
                       help="specify the number of lines at the beginning "
                            "of the file to skip before processing (default: "
+                           "%default)")
+    parser.add_option('--skip-last-lines', type='int', metavar='n',
+                      default=0,
+                      help="specify the number of lines at the end of the "
+                           "file to skip before processing (default: "
                            "%default)")
     group = parser.add_option_group("Testing Options")
     group.add_option('--testsuite', metavar='dir',
