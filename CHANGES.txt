@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (UNRELEASED)
-----------------
+1.3.4 (2012-12-18)
+------------------
 
 * Fix false positive E124 and E128 with comments. (Issue #100)
 
