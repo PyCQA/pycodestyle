@@ -165,8 +165,8 @@ http://github.com/jcrocholl/pep8/issues
 Source download
 ---------------
 
-.. image:: https://secure.travis-ci.org/jcrocholl/pep8.png?branch=master
-   :target: https://secure.travis-ci.org/jcrocholl/pep8
+.. image:: https://api.travis-ci.org/jcrocholl/pep8.png?branch=master
+   :target: https://travis-ci.org/jcrocholl/pep8
    :alt: Build status
 
 The source code is currently available on github. Fork away!
