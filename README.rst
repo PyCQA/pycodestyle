@@ -123,6 +123,36 @@ Quick help is available on the command line::
 
       --config=path      config file location (default: /home/user/.config/pep8)
 
+Calling `pep8` from Python
+--------------------------
+
+You can also execute `pep8` tests from Python code. For example, this
+can be highly useful for automated testing of code format in your
+projects::
+
+  import unittest
+  import pep
+
+  class TestCodeFormat(unittest.TestCase):
+      def test_pep8_conformance(self):
+          """Test that we conform to PEP8."""
+          pep8style = pep8.StyleGuide(quiet=True)
+          result = pep8style.check_files(['file1.py', 'file2.py'])
+          self.assertEqual(result.total_errors, 0,
+                           "Found code syntax errors (and warnings).")
+
+If you are using `nosetests` for running tests, remove `quiet=True`
+since Nose suppresses stdout.
+
+There's also a shortcut for checking a single file::
+
+  import pep8
+
+  fchecker = pep8.Checker('testsuite/E27.py', show_source=True)
+  file_errors = fchecker.check_all()
+
+  print("Found %s errors (and warnings)" % file_errors)
+
 Feedback
 --------
 
