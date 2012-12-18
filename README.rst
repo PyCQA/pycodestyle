@@ -155,12 +155,10 @@ There's also a shortcut for checking a single file::
 
   print("Found %s errors (and warnings)" % file_errors)
 
-
 Feedback
 --------
 
-Your feedback is more than welcome. Write email to
-johann@rocholl.net or post bugs and feature requests on github:
+Your feedback is more than welcome.  Post bugs and feature requests on github:
 
 http://github.com/jcrocholl/pep8/issues
 
@@ -174,3 +172,9 @@ Source download
 The source code is currently available on github. Fork away!
 
 http://github.com/jcrocholl/pep8/
+
+Then be sure to pass the tests::
+
+  $ python pep8.py --testsuite testsuite
+  $ python pep8.py --doctest
+  $ python pep8.py --verbose pep8.py
