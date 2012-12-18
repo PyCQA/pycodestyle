@@ -27,7 +27,7 @@ Changelog
 
 * Fix ``--diff`` failing on one-line hunk. (Issue #137)
 
-* Fix the ``-exclude`` switch for directory paths. (Issue #111)
+* Fix the ``--exclude`` switch for directory paths. (Issue #111)
 
 * Use ``-`` filename to read from standard input. (Issue #128)
 
