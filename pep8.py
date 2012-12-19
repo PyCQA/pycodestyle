@@ -721,7 +721,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
             elif text in WS_NEEDED_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
-                # Check if the operator is being used in as a binary operator
+                # Check if the operator is being used as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
                 binary_usage = False

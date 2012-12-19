@@ -88,4 +88,8 @@ print >> sys.stdout, "x is an integer."
 
 if True:
     *a, b = (1, 2, 3)
+
+
+def squares(n):
+    return (i**2 for i in range(n))
 #:
