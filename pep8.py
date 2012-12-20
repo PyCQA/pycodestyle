@@ -701,7 +701,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     prev_text = prev_end = None
     for token_type, text, start, end, line in tokens:
         if token_type in (tokenize.NL, tokenize.NEWLINE, tokenize.ERRORTOKEN):
-            # ERRORTOKEN is triggered by backticks in Python 3000
+            # ERRORTOKEN is triggered by backticks in Python 3
             continue
         if text in ('(', 'lambda'):
             parens += 1
@@ -762,7 +762,6 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # A needed opening space was not found
                 yield prev_end, "E225 missing whitespace around operator"
                 need_space = False
-
         prev_type = token_type
         prev_text = text
         prev_end = end
@@ -1004,8 +1003,8 @@ def comparison_type(logical_line):
 
 def python_3000_has_key(logical_line):
     r"""
-    The {}.has_key() method will be removed in the future version of
-    Python. Use the 'in' operation instead.
+    The {}.has_key() method is removed in the Python 3.
+    Use the 'in' operation instead.
 
     Okay: if "alph" in d:\n    print d["alph"]
     W601: assert d.has_key('alph')
@@ -1023,7 +1022,7 @@ def python_3000_raise_comma(logical_line):
     The paren-using form is preferred because when the exception arguments
     are long or include string formatting, you don't need to use line
     continuation characters thanks to the containing parentheses.  The older
-    form will be removed in Python 3000.
+    form is removed in Python 3.
 
     Okay: raise DummyError("Message")
     W602: raise DummyError, "Message"
@@ -1037,7 +1036,7 @@ def python_3000_not_equal(logical_line):
     """
     != can also be written <>, but this is an obsolete usage kept for
     backwards compatibility only. New code should always use !=.
-    The older syntax is removed in Python 3000.
+    The older syntax is removed in Python 3.
 
     Okay: if a != 'no':
     W603: if a <> 'no':
@@ -1049,7 +1048,7 @@ def python_3000_not_equal(logical_line):
 
 def python_3000_backticks(logical_line):
     """
-    Backticks are removed in Python 3000.
+    Backticks are removed in Python 3.
     Use repr() instead.
 
     Okay: val = repr(1 + 2)
