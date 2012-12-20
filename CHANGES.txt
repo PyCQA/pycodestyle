@@ -5,10 +5,13 @@ Changelog
 1.x (UNRELEASED)
 ----------------
 
-* Relax E225 for high priority operators (``*``, ``**``, ``/``). (Issue #96)
+* Report E226 instead of E225 for optional white space around common
+  operators (``*``, ``**``, ``/``, ``+`` and ``-``).  This new error code
+  is ignored in the default configuration because PEP 8 recommends to
+  "use your own judgement". (Issue #96)
 
 * Lines with a ``# nopep8`` at the end will not issue errors on line length
-  ``E501`` or continuation line indentation ``E12*``. (Issue #27)
+  E501 or continuation line indentation E12*. (Issue #27)
 
 
 1.3.4 (2012-12-18)

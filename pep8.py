@@ -112,7 +112,7 @@ except ImportError:
     from ConfigParser import RawConfigParser
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
-DEFAULT_IGNORE = 'E24'
+DEFAULT_IGNORE = 'E226,E24'
 if sys.platform == 'win32':
     DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
 else:
@@ -132,7 +132,7 @@ WS_NEEDED_OPERATORS = frozenset([
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
     '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
 WS_OPTIONAL_OPERATORS = frozenset([
-    '**', '*', '/', '//'])
+    '**', '*', '/', '//', '+', '-'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 WHITESPACE = frozenset(' \t')
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
@@ -681,19 +681,19 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: alpha[:-i]
     Okay: if not -5 < x < +5:\n    pass
     Okay: lambda *args, **kw: (args, kw)
-    Okay: z = 2**30
     Okay: z = 2 ** 30
-    Okay: x = x*2 - 1
     Okay: x = x / 2 - 1
-    Okay: x = x/2 - 1
-    Okay: hypot2 = x*x + y*y
 
     E225: i=i+1
     E225: submitted +=1
-    E225: c = (a+b) * (a-b)
     E225: c = alpha -4
     E225: x = x /2 - 1
     E225: z = x **y
+    E226: c = (a+b) * (a-b)
+    E226: z = 2**30
+    E226: x = x*2 - 1
+    E226: x = x/2 - 1
+    E226: hypot2 = x*x + y*y
     """
     parens = 0
     need_space = False
@@ -709,15 +709,22 @@ def missing_whitespace_around_operator(logical_line, tokens):
             parens -= 1
         if need_space:
             if start != prev_end:
-                # Found a needed space
+                # Found a (probably) needed space
+                if need_space is not True and not need_space[1]:
+                    yield (need_space[0],
+                           "E225 missing whitespace around operator")
                 need_space = False
             elif text == '>' and prev_text in ('<', '-'):
                 # Tolerate the "<>" operator, even if running Python 3
                 # Deal with Python 3's annotated return value "->"
                 pass
             else:
-                # A needed trailing space was not found
-                yield prev_end, "E225 missing whitespace around operator"
+                if need_space is True or need_space[1]:
+                    # A needed trailing space was not found
+                    yield prev_end, "E225 missing whitespace around operator"
+                else:
+                    yield (need_space[0],
+                           "E226 missing optional whitespace around operator")
                 need_space = False
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
@@ -741,20 +748,21 @@ def missing_whitespace_around_operator(logical_line, tokens):
 
                 if binary_usage:
                     if text in WS_OPTIONAL_OPERATORS:
-                        # Surrounding space is optional
-                        # Ensure trailing space matches opening space
-                        need_space = start != prev_end
+                        need_space = 'option'
                     else:
                         need_space = True
             elif text in WS_OPTIONAL_OPERATORS:
-                # Surrounding space is optional
-                # Ensure trailing space matches opening space
-                need_space = start != prev_end
+                need_space = 'option'
 
-            if need_space and start == prev_end:
+            if need_space == 'option':
+                # Surrounding space is optional, but ensure that
+                # trailing space matches opening space
+                need_space = (prev_end, start != prev_end)
+            elif need_space and start == prev_end:
                 # A needed opening space was not found
                 yield prev_end, "E225 missing whitespace around operator"
                 need_space = False
+
         prev_type = token_type
         prev_text = text
         prev_end = end

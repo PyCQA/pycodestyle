@@ -47,33 +47,58 @@ b += 1000
 
 
 #: E225
-i=i+1
-#: E225
 submitted +=1
 #: E225
-c = (a+b) * (a-b)
-#: E225
-c = (a +b)*(a - b)
+submitted+= 1
 #: E225
 c =-1
 #: E225
 c = alpha -4
 #: E225
+c = alpha- 4
+#: E225
 z = (x + 1) **y
 #: E225
-norman = True+False
+z = (x + 1)** y
 #: E225
 _1kB = _1MB >>10
+#: E225
+_1kB = _1MB>> 10
+#: E225
+i=i+ 1
+#: E225
+i=i +1
+#: E225 E226
+i=i+1
+#: E225 E226
+i =i+1
+#: E225 E226
+i= i+1
+#: E225 E226
+c = (a +b)*(a - b)
+#: E225 E226
+c = (a+ b)*(a - b)
+#:
+#: E226
+c = (a+b) * (a-b)
+#: E226
+norman = True+False
+#: E226
+x = x*2 - 1
+#: E226
+hypot2 = x*x + y*y
+#: E226
+c = (a + b)*(a - b)
+#: E226
+def squares(n):
+    return (i**2 for i in range(n))
 #:
 #: Okay
 i = i + 1
 submitted += 1
 x = x * 2 - 1
-x = x*2 - 1
 hypot2 = x * x + y * y
-hypot2 = x*x + y*y
 c = (a + b) * (a - b)
-c = (a + b)*(a - b)
 _1MB = 2 ** 20
 foo(bar, key='word', *args, **kwargs)
 baz(**kwargs)
@@ -91,5 +116,5 @@ if True:
 
 
 def squares(n):
-    return (i**2 for i in range(n))
+    return (i ** 2 for i in range(n))
 #:
