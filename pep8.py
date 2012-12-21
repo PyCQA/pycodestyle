@@ -1142,6 +1142,9 @@ def mute_string(text):
 
 
 def parse_udiff(diff, patterns=None, parent='.'):
+    """Return a dictionary of matching lines."""
+    # For each file of the diff, the entry key is the filename,
+    # and the value is a set of row numbers to consider.
     rv = {}
     path = nrows = None
     for line in diff.splitlines():
@@ -1486,6 +1489,7 @@ class BaseReport(object):
 
 
 class FileReport(BaseReport):
+    """Collect the results of the checks and print only the filenames."""
     print_filename = True
 
 
