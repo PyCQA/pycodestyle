@@ -127,21 +127,19 @@ REPORT_FORMAT = {
 
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
-WS_NEEDED_OPERATORS = frozenset([
-    '**=', '*=', '+=', '-=', '!=', '<>',
-    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
-WS_OPTIONAL_OPERATORS = frozenset([
-    '**', '*', '/', '//', '+', '-'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
+WS_OPTIONAL_OPERATORS = frozenset(['**', '*', '/', '//', '+', '-'])
+WS_NEEDED_OPERATORS = frozenset([
+    '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>',
+    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=',
+    '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
 WHITESPACE = frozenset(' \t')
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
-RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
-RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
+RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,(.*)')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
@@ -736,25 +734,22 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Check if the operator is being used as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
-                binary_usage = False
                 if prev_type == tokenize.OP:
-                    if prev_text in '}])':
-                        binary_usage = True
+                    binary_usage = (prev_text in '}])')
                 elif prev_type == tokenize.NAME:
-                    if prev_text not in KEYWORDS:
-                        binary_usage = True
-                elif prev_type not in SKIP_TOKENS:
-                    binary_usage = True
+                    binary_usage = (prev_text not in KEYWORDS)
+                else:
+                    binary_usage = (prev_type not in SKIP_TOKENS)
 
                 if binary_usage:
                     if text in WS_OPTIONAL_OPERATORS:
-                        need_space = 'option'
+                        need_space = None
                     else:
                         need_space = True
             elif text in WS_OPTIONAL_OPERATORS:
-                need_space = 'option'
+                need_space = None
 
-            if need_space == 'option':
+            if need_space is None:
                 # Surrounding space is optional, but ensure that
                 # trailing space matches opening space
                 need_space = (prev_end, start != prev_end)
@@ -1028,8 +1023,8 @@ def python_3000_raise_comma(logical_line):
     W602: raise DummyError, "Message"
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
-    if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        yield match.start(1), "W602 deprecated form of raising exception"
+    if match and ',' not in match.group(1):
+        yield match.start(1) - 1, "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
