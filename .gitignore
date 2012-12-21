@@ -1,3 +1,6 @@
-pep8.egg-info
+*.egg
+*.egg-info
 *.pyc
 .tox
+dist
+docs/_build

@@ -1,4 +1,9 @@
-recursive-include testsuite *
-include pep8.py
 include *.txt
 include *.rst
+recursive-include docs *
+recursive-include testsuite *
+recursive-exclude docs *.pyc
+recursive-exclude docs *.pyo
+recursive-exclude testsuite *.pyc
+recursive-exclude testsuite *.pyo
+prune docs/_build
