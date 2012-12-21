@@ -18,7 +18,7 @@ Features
 
 * Parseable output: Jump to error location in your editor.
 
-* Small: Just one Python file, requires only stdlib. You can use just
+* Small: Just one Python file, requires only stdlib.  You can use just
   the pep8.py file for this purpose.
 
 * Comes with a comprehensive test suite.
