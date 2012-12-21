@@ -1,23 +1,13 @@
-pep8 - Python style guide checker
-=================================
+.. currentmodule:: pep8
+
+Introduction
+============
 
 pep8 is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
-
-Features
---------
-
-* Plugin architecture: Adding new checks is easy.
-
-* Parseable output: Jump to error location in your editor.
-
-* Small: Just one Python file, requires only stdlib. You can use just
-  the pep8.py file for this purpose.
-
-* Comes with a comprehensive test suite.
 
 Installation
 ------------
@@ -117,27 +107,3 @@ Quick help is available on the command line::
       count, format, quiet, show-pep8, show-source, statistics, verbose.
 
       --config=path      config file location (default: /home/user/.config/pep8)
-
-Feedback
---------
-
-Your feedback is more than welcome.  Post bugs and feature requests on github:
-
-http://github.com/jcrocholl/pep8/issues
-
-Source download
----------------
-
-.. image:: https://api.travis-ci.org/jcrocholl/pep8.png?branch=master
-   :target: https://travis-ci.org/jcrocholl/pep8
-   :alt: Build status
-
-The source code is currently available on github. Fork away!
-
-http://github.com/jcrocholl/pep8/
-
-Then be sure to pass the tests::
-
-  $ python pep8.py --testsuite testsuite
-  $ python pep8.py --doctest
-  $ python pep8.py --verbose pep8.py
