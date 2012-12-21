@@ -89,9 +89,7 @@ These examples are verified automatically when pep8.py is run with the
 --doctest option. You can add examples for your own check functions.
 The format is simple: "Okay" or error/warning code followed by colon
 and space, the rest of the line is example source code. If you put 'r'
-before the docstring, you can use \n for newline, \t for tab and \s
-for space.
-
+before the docstring, you can use \n for newline and \t for tab.
 """
 
 __version__ = '1.3.5a'
@@ -212,8 +210,8 @@ def trailing_whitespace(physical_line):
     The warning returned varies on whether the line itself is blank, for easier
     filtering for those who want to indent their blank lines.
 
-    Okay: spam(1)
-    W291: spam(1)\s
+    Okay: spam(1)\n#
+    W291: spam(1) \n#
     W293: class Foo(object):\n    \n    bang = 12
     """
     physical_line = physical_line.rstrip('\n')    # chr(10), newline
@@ -1199,7 +1197,7 @@ class Checker(object):
     Load a Python source file, tokenize it, check coding style.
     """
 
-    def __init__(self, filename, lines=None,
+    def __init__(self, filename=None, lines=None,
                  options=None, report=None, **kwargs):
         if options is None:
             options = StyleGuide(kwargs).options
@@ -1759,11 +1757,9 @@ def selftest(options):
             if match is None:
                 continue
             code, source = match.groups()
-            checker = Checker(None, options=options, report=report)
-            for part in source.split(r'\n'):
-                part = part.replace(r'\t', '\t')
-                part = part.replace(r'\s', ' ')
-                checker.lines.append(part + '\n')
+            lines = [part.replace(r'\t', '\t') + '\n'
+                     for part in source.split(r'\n')]
+            checker = Checker(lines=lines, options=options, report=report)
             checker.check_all()
             error = None
             if code == 'Okay':
@@ -1970,7 +1966,6 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
-
 
 if __name__ == '__main__':
     _main()
