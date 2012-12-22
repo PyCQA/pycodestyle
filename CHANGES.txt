@@ -13,6 +13,9 @@ Changelog
 * Lines with a ``# nopep8`` at the end will not issue errors on line length
   E501 or continuation line indentation E12*. (Issue #27)
 
+* Add the Sphinx-based documentation, and publish it
+  on http://pep8.readthedocs.org/. (Issue #105)
+
 
 1.3.4 (2012-12-18)
 ------------------

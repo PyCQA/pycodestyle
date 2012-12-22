@@ -36,6 +36,8 @@ latest version::
 Example usage and output
 ------------------------
 
+Read the documentation: http://pep8.readthedocs.org/
+
 ::
 
   $ pep8 --first optparse.py
