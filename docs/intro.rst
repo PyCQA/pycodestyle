@@ -169,7 +169,8 @@ Example::
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project's level, a ``.pep8`` file is read if present.
+At the project level, a ``.pep8`` file or a ``setup.cfg`` file is read
+if present.
 
 If the ``ignore`` option is not in the configuration and not in the arguments,
 only the error codes ``E226`` and ``E241/E242`` are ignored (see below).

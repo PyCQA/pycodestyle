@@ -1757,7 +1757,11 @@ def read_config(options, args, arglist, parser):
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
         local_conf = os.path.join(parent, '.pep8')
-        if os.path.isfile(local_conf):
+        if not os.path.isfile(local_conf):
+            local_conf = os.path.join(parent, 'setup.cfg')
+            if not os.path.isfile(local_conf):
+                local_conf = None
+        if local_conf:
             if options.verbose:
                 print('local configuration: %s' % local_conf)
             config.read(local_conf)
@@ -1856,8 +1860,9 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
                      help="measure processing speed")
     group = parser.add_option_group("Configuration", description=(
         "The project options are read from the [pep8] section of the .pep8 "
-        "file located in any parent folder of the path(s) being processed. "
-        "Allowed options are: %s." % ', '.join(parser.config_options)))
+        "file or the setup.cfg file located in any parent folder of the "
+        "path(s) being processed.  Allowed options are: %s." %
+        ', '.join(parser.config_options)))
     group.add_option('--config', metavar='path', default=config_file,
                      help="config file location (default: %default)")
 
@@ -1868,7 +1873,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
         args.append(options.testsuite)
     elif not options.doctest:
         if parse_argv and not args:
-            if os.path.exists('.pep8') or options.diff:
+            if options.diff or (os.path.exists('.pep8') or
+                                os.path.exists('setup.cfg')):
                 args = ['.']
             else:
                 parser.error('input not specified')
