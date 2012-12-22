@@ -6,12 +6,15 @@ Changelog
 ----------------
 
 * Report E226 instead of E225 for optional white space around common
-  operators (``*``, ``**``, ``/``, ``+`` and ``-``).  This new error code
-  is ignored in the default configuration because PEP 8 recommends to
-  "use your own judgement". (Issue #96)
+  operators (``*``, ``**``, ``/``, ``+`` and ``-``).  This new error
+  code is ignored in the default configuration because PEP 8 recommends
+  to "use your own judgement". (Issue #96)
 
-* Lines with a ``# nopep8`` at the end will not issue errors on line length
-  E501 or continuation line indentation E12*. (Issue #27)
+* Lines with a ``# nopep8`` at the end will not issue errors on line
+  length E501 or continuation line indentation E12*. (Issue #27)
+
+* Fix AssertionError when the source file contains an invalid line
+  ending ``"\r\r\n"``. (Issue #119)
 
 * Add the Sphinx-based documentation, and publish it
   on http://pep8.readthedocs.org/. (Issue #105)

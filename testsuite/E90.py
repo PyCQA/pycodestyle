@@ -16,4 +16,11 @@ if msg:
 
 def lasting(self, duration=300):
     progress = self._progress.setdefault('foo', {}
+#: Okay
+
+# Issue #119
+# Do not crash with Python2 if the line endswith '\r\r\n'
+EMPTY_SET = set()
+SET_TYPE = type(EMPTY_SET)
+toto = 0 + 0
 #:

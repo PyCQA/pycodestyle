@@ -1257,7 +1257,8 @@ class Checker(object):
             length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
-        assert self.logical_line.strip() == self.logical_line
+        # With Python 2, if the line ends with '\r\r\n' the assertion fails
+        # assert self.logical_line.strip() == self.logical_line
 
     def check_logical(self):
         """
