@@ -107,3 +107,17 @@ Quick help is available on the command line::
       count, format, quiet, show-pep8, show-source, statistics, verbose.
 
       --config=path      config file location (default: /home/user/.config/pep8)
+
+
+Error codes
+-----------
+
+The current `list of error codes
+<https://github.com/jcrocholl/pep8/wiki/ErrorCodes>`_ is in the Wiki.
+
+
+Related tools
+-------------
+
+Some tools which use ``pep8`` are referenced in the Wiki: `list of related tools
+<https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
