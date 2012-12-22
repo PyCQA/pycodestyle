@@ -18,10 +18,10 @@ Checker Classes
 The :class:`StyleGuide` class is used to configure a style guide checker
 instance to check multiple files.
 
-The :class:`Checker` class can be used to check is a single file.
+The :class:`Checker` class can be used to check a single file.
 
 
-.. autoclass:: StyleGuide(*args, **kwargs)
+.. autoclass:: StyleGuide(parse_argv=False, config_file=None, paths=None, report=None, **kwargs)
 
    .. automethod:: init_report(reporter=None)
    .. automethod:: check_files(paths=None)
@@ -31,7 +31,7 @@ The :class:`Checker` class can be used to check is a single file.
    .. automethod:: ignore_code(code)
    .. automethod:: get_checks(argument_name)
 
-.. autoclass:: Checker(filename=None, lines=None, options=None, report=None, **kwargs)
+.. autoclass:: Checker(filename=None, lines=None, report=None, **kwargs)
 
    .. automethod:: readline
    .. automethod:: readline_check_physical
@@ -40,7 +40,7 @@ The :class:`Checker` class can be used to check is a single file.
    .. automethod:: build_tokens_line
    .. automethod:: check_logical
    .. automethod:: generate_tokens
-   .. automethod:: check_all(expected=None, line_offset=1)
+   .. automethod:: check_all(expected=None, line_offset=0)
 
 
 .. _report_classes:
