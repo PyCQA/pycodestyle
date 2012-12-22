@@ -70,7 +70,7 @@ through a custom wrapper for the PEP 8 library::
           raise SystemExit(1)
 
 This module declares a lines' window which skips 14 lines at the beginning
-and 20 lines at the end.  If there's no lines to skip at the end, it could be
+and 20 lines at the end.  If there's no line to skip at the end, it could be
 changed with ``LINES_SLICE = slice(14, None)`` for example.
 
 You can save it in a file and use it with the same options as the

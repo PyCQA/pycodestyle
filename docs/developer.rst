@@ -10,6 +10,18 @@ Source code
 
 The source code is currently `available on GitHub`_.  Fork away!
 
+* `Source code <https://github.com/jcrocholl/pep8>`_ and
+  `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
+* `Continuous tests <http://travis-ci.org/jcrocholl/pep8>`_ against Python
+  2.5 through 3.3 and PyPy, on `Travis-CI platform
+  <http://about.travis-ci.org/>`_.
+
+.. _available on GitHub: https://github.com/jcrocholl/pep8
+
+
+Contribute
+~~~~~~~~~~
+
 You can add checks to this program by writing plugins.  Each plugin is
 a simple function that is called for each line of source code, either
 physical or logical.
@@ -66,14 +78,8 @@ Then be sure to pass the tests::
   $ python pep8.py --doctest
   $ python pep8.py --verbose pep8.py
 
-* `Source code <https://github.com/jcrocholl/pep8>`_ and
-  `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
-* `Continuous tests <http://travis-ci.org/jcrocholl/pep8>`_ against Python
-  2.5 through 3.2 and PyPy, on `Travis-CI platform
-  <http://about.travis-ci.org/>`_.
-
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
-.. _available on GitHub: https://github.com/jcrocholl/pep8
+
 
 Changes
 ~~~~~~~
