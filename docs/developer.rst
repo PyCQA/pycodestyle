@@ -8,7 +8,8 @@ Developer's notes
 Source code
 ~~~~~~~~~~~
 
-The source code is currently `available on GitHub`_.  Fork away!
+The source code is currently `available on GitHub`_ under the terms and
+conditions of the :ref:`Expat license <license>`.  Fork away!
 
 * `Source code <https://github.com/jcrocholl/pep8>`_ and
   `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
