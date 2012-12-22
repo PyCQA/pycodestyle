@@ -1166,6 +1166,8 @@ class Checker(object):
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
+        self.skip_first_lines = options.skip_first_lines
+        self.skip_last_lines = options.skip_last_lines
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1181,6 +1183,11 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
+        if self.skip_last_lines > 0:
+            self.lines = self.lines[self.skip_first_lines:
+                                    -self.skip_last_lines]
+        else:
+            self.lines = self.lines[self.skip_first_lines:]
         self.report = report or options.report
         self.report_error = self.report.error
 
@@ -1583,7 +1590,7 @@ class StyleGuide(object):
             if os.path.isdir(path):
                 self.input_dir(path)
             elif not self.excluded(path):
-                runner(path)
+                runner(path, line_offset=self.options.skip_first_lines)
         report.stop()
         return report
 
@@ -1614,7 +1621,8 @@ class StyleGuide(object):
                 # contain a pattern that matches?
                 if ((filename_match(filename, filepatterns) and
                      not self.excluded(filename))):
-                    runner(os.path.join(root, filename))
+                    runner(os.path.join(root, filename),
+                           line_offset=self.options.skip_first_lines)
 
     def excluded(self, filename):
         """
@@ -1846,6 +1854,16 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
+    parser.add_option('--skip-first-lines', type='int', metavar='n',
+                      default=0,
+                      help="specify the number of lines at the beginning "
+                           "of the file to skip before processing (default: "
+                           "%default)")
+    parser.add_option('--skip-last-lines', type='int', metavar='n',
+                      default=0,
+                      help="specify the number of lines at the end of the "
+                           "file to skip before processing (default: "
+                           "%default)")
     group = parser.add_option_group("Testing Options")
     group.add_option('--testsuite', metavar='dir',
                      help="run regression tests from dir")
