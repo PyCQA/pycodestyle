@@ -11,19 +11,6 @@ conventions in `PEP 8`_.
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
 
-Features
---------
-
-* Plugin architecture: Adding new checks is easy.
-
-* Parseable output: Jump to error location in your editor.
-
-* Small: Just one Python file, requires only stdlib.  You can use just
-  the pep8.py file for this purpose.
-
-* Comes with a comprehensive test suite.
-
-
 Contents:
 
 .. toctree::

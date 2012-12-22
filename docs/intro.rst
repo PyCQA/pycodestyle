@@ -6,7 +6,51 @@ Introduction
 pep8 is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
-.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+
+Features
+--------
+
+* Plugin architecture: Adding new checks is easy.
+
+* Parseable output: Jump to error location in your editor.
+
+* Small: Just one Python file, requires only stdlib.  You can use just
+  the pep8.py file for this purpose.
+
+* Comes with a comprehensive test suite.
+
+
+Disclaimer
+----------
+
+This utility does not enforce every single rule of PEP 8.  It helps to
+verify that some coding conventions are applied but it does not intend
+to be exhaustive.  Some rules cannot be expressed with a simple algorithm,
+and other rules are only guidelines which you could circumvent when you
+need to.
+
+Always remember this statement from `PEP 8`_:
+
+  *A style guide is about consistency. Consistency with this style guide is
+  important. Consistency within a project is more important. Consistency
+  within one module or function is most important.*
+
+
+Among other things, these features are currently not in the scope of
+the ``pep8`` library:
+
+* **naming conventions**: there's `a feature request
+  <https://github.com/jcrocholl/pep8/issues/44>`_ with `a patch
+  <https://github.com/jcrocholl/pep8/pull/121>`_, but it might
+  be too disruptive to include it in the library:  currently it's easy to make
+  an existing project clean regarding ``pep8`` checks; it can be done without
+  changing the API or the behaviour of the existing code.  It's not the same
+  for naming conventions: if you change the name of a class or a method, it
+  will break more code which depends on the library.
+* **docstring conventions**: they are not in the scope of this library;
+  see the `pep257 project <https://github.com/GreenSteam/pep257>`_.
+* **automatic fixing**: see the section *PEP8 Fixers* in the
+  :ref:`related tools <related-tools>` page.
 
 
 Installation
@@ -22,6 +66,7 @@ There's also a package for Debian/Ubuntu, but it's not always the
 latest version::
 
   $ sudo apt-get install pep8
+
 
 Example usage and output
 ------------------------
@@ -116,8 +161,12 @@ The current `list of error codes
 <https://github.com/jcrocholl/pep8/wiki/ErrorCodes>`_ is in the Wiki.
 
 
+.. _related-tools:
+
 Related tools
 -------------
 
 Some tools which use ``pep8`` are referenced in the Wiki: `list of related tools
 <https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
+
+.. _PEP 8: http://www.python.org/dev/peps/pep-0008/
