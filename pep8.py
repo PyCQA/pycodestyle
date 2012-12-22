@@ -69,6 +69,7 @@ if sys.platform == 'win32':
 else:
     DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
                                   os.path.expanduser('~/.config'), 'pep8')
+PROJECT_CONFIG = ('.pep8', 'tox.ini', 'setup.cfg')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
@@ -1756,17 +1757,17 @@ def read_config(options, args, arglist, parser):
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
-        local_conf = os.path.join(parent, '.pep8')
-        if not os.path.isfile(local_conf):
-            local_conf = os.path.join(parent, 'setup.cfg')
-            if not os.path.isfile(local_conf):
-                local_conf = None
-        if local_conf:
-            if options.verbose:
-                print('local configuration: %s' % local_conf)
-            config.read(local_conf)
-            break
-        parent, tail = os.path.split(parent)
+        for name in PROJECT_CONFIG:
+            local_conf = os.path.join(parent, name)
+            if os.path.isfile(local_conf):
+                break
+        else:
+            parent, tail = os.path.split(parent)
+            continue
+        if options.verbose:
+            print('local configuration: %s' % local_conf)
+        config.read(local_conf)
+        break
 
     if config.has_section('pep8'):
         option_list = dict([(o.dest, o.type or o.action)
@@ -1859,12 +1860,12 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     group = parser.add_option_group("Configuration", description=(
-        "The project options are read from the [pep8] section of the .pep8 "
+        "The project options are read from the [pep8] section of the tox.ini "
         "file or the setup.cfg file located in any parent folder of the "
         "path(s) being processed.  Allowed options are: %s." %
         ', '.join(parser.config_options)))
     group.add_option('--config', metavar='path', default=config_file,
-                     help="config file location (default: %default)")
+                     help="user config file location (default: %default)")
 
     options, args = parser.parse_args(arglist)
     options.reporter = None
@@ -1873,8 +1874,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None):
         args.append(options.testsuite)
     elif not options.doctest:
         if parse_argv and not args:
-            if options.diff or (os.path.exists('.pep8') or
-                                os.path.exists('setup.cfg')):
+            if options.diff or any(os.path.exists(name)
+                                   for name in PROJECT_CONFIG):
                 args = ['.']
             else:
                 parser.error('input not specified')

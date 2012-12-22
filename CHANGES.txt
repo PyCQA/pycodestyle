@@ -16,7 +16,8 @@ Changelog
 * Fix AssertionError when the source file contains an invalid line
   ending ``"\r\r\n"``. (Issue #119)
 
-* Read the ``[pep8]`` section of ``setup.cfg`` if present. (Issue #93)
+* Read the ``[pep8]`` section of ``tox.ini`` or ``setup.cfg`` if present.
+  (Issue #93 and #141)
 
 * Add the Sphinx-based documentation, and publish it
   on http://pep8.readthedocs.org/. (Issue #105)
