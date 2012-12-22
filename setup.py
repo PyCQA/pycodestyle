@@ -26,7 +26,7 @@ setup(
     keywords='pep8',
     author='Johann C. Rocholl',
     author_email='johann@rocholl.net',
-    url='http://github.com/jcrocholl/pep8',
+    url='http://pep8.readthedocs.org/',
     license='Expat license',
     py_modules=['pep8'],
     namespace_packages=[],
