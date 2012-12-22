@@ -90,7 +90,8 @@ SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
-RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,(.*)')
+RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
+RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 SELFTEST_REGEX = re.compile(r'(Okay|[EW]\d{3}):\s(.*)')
 ERRORCODE_REGEX = re.compile(r'[EW]\d{3}')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
@@ -974,8 +975,8 @@ def python_3000_raise_comma(logical_line):
     W602: raise DummyError, "Message"
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
-    if match and ',' not in match.group(1):
-        yield match.start(1) - 1, "W602 deprecated form of raising exception"
+    if match and not RERAISE_COMMA_REGEX.match(logical_line):
+        yield match.start(1), "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
