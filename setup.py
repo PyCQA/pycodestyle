@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def get_version():
@@ -12,7 +12,7 @@ def get_version():
 
 def get_long_description():
     descr = []
-    for fname in 'README.rst', 'CHANGES.txt':   # , 'TODO.txt'
+    for fname in 'README.rst', 'CHANGES.txt':
         with open(fname) as f:
             descr.append(f.read())
     return '\n\n'.join(descr)
