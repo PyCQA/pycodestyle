@@ -796,7 +796,8 @@ def whitespace_before_inline_comment(logical_line, tokens):
             if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
                 yield (prev_end,
                        "E261 at least two spaces before inline comment")
-            if text.startswith('#  ') or not text.startswith('# '):
+            symbol, sp, comment = text.partition(' ')
+            if symbol not in ('#', '#:') or comment[:1].isspace():
                 yield start, "E262 inline comment should start with '# '"
         elif token_type != tokenize.NL:
             prev_end = end
