@@ -850,8 +850,9 @@ def compound_statements(logical_line):
     E703: do_four();  # useless semicolon
     """
     line = logical_line
+    last_char = len(line) - 1
     found = line.find(':')
-    if -1 < found < len(line) - 1:
+    if -1 < found < last_char:
         before = line[:found]
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
@@ -860,7 +861,7 @@ def compound_statements(logical_line):
             yield found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
-        if line[found + 1:]:
+        if found < last_char:
             yield found, "E702 multiple statements on one line (semicolon)"
         else:
             yield found, "E703 statement ends with a semicolon"
