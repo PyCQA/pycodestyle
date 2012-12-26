@@ -836,6 +836,7 @@ def compound_statements(logical_line):
     Okay: do_one()
     Okay: do_two()
     Okay: do_three()
+    Okay: do_four();
 
     E701: if foo == 'blah': do_blah_thing()
     E701: for x in lst: total += x
@@ -858,6 +859,7 @@ def compound_statements(logical_line):
             before.count('(') <= before.count(')') and  # (Python 3 annotation)
                 not LAMBDA_REGEX.search(before)):       # lambda x: x
             yield found, "E701 multiple statements on one line (colon)"
+    line = line.rstrip(';')
     found = line.find(';')
     if -1 < found:
         if line[found + 1:]:
