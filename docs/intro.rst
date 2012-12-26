@@ -293,6 +293,8 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E702     | multiple statements on one line (semicolon)                          |
 +----------+----------------------------------------------------------------------+
+| E703     | statement ends with a semicolon                                      |
++----------+----------------------------------------------------------------------+
 | E711     | comparison to None should be 'if cond is None:'                      |
 +----------+----------------------------------------------------------------------+
 | E712     | comparison to True should be 'if cond is True:' or 'if cond:'        |
