@@ -7,6 +7,8 @@ Changelog
 
 * Allow sphinx.ext.autodoc syntax for comments. (Issue #110)
 
+* Report E703 instead of E702 for the trailing semicolon. (Issue #117)
+
 
 1.4 (2012-12-22)
 ----------------

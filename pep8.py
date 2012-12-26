@@ -847,6 +847,7 @@ def compound_statements(logical_line):
     E701: if foo == 'blah': one(); two(); three()
 
     E702: do_one(); do_two(); do_three()
+    E703: do_four();  # useless semicolon
     """
     line = logical_line
     found = line.find(':')
@@ -859,7 +860,10 @@ def compound_statements(logical_line):
             yield found, "E701 multiple statements on one line (colon)"
     found = line.find(';')
     if -1 < found:
-        yield found, "E702 multiple statements on one line (semicolon)"
+        if line[found + 1:]:
+            yield found, "E702 multiple statements on one line (semicolon)"
+        else:
+            yield found, "E703 statement ends with a semicolon"
 
 
 def explicit_line_join(logical_line, tokens):
