@@ -217,7 +217,7 @@ def maximum_line_length(physical_line, max_line_length):
     line = physical_line.rstrip()
     length = len(line)
     if length > max_line_length:
-        if line.strip().lower().endswith('# nopep8'):
+        if noqa(line):
             return
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
@@ -434,7 +434,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
         print(">>> " + tokens[0][4].rstrip())
 
     for token_type, text, start, end, line in tokens:
-        if line.strip().lower().endswith('# nopep8'):
+        if noqa(line):
             continue
 
         newline = row < start[0] - first_row
@@ -1100,6 +1100,10 @@ def mute_string(text):
         start += 2
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
+
+
+def noqa(line):
+    return line.strip().lower().endswith(('# noqa', '# nopep8'))
 
 
 def parse_udiff(diff, patterns=None, parent='.'):

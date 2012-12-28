@@ -9,6 +9,8 @@ Changelog
 
 * Report E703 instead of E702 for the trailing semicolon. (Issue #117)
 
+* Honor ``# noqa`` in addition to ``# no pep8``. (Issue #149)
+
 
 1.4 (2012-12-22)
 ----------------
