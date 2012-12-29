@@ -1755,6 +1755,61 @@ def selftest(options):
     return count_failed, count_all
 
 
+def get_parser():
+    parser = OptionParser(version=__version__,
+                          usage="%prog [options] input ...")
+    parser.config_options = [
+        'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
+        'format', 'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']
+    parser.add_option('-v', '--verbose', default=0, action='count',
+                      help="print status messages, or debug with -vv")
+    parser.add_option('-q', '--quiet', default=0, action='count',
+                      help="report only file names, or nothing with -qq")
+    parser.add_option('-r', '--repeat', default=True, action='store_true',
+                      help="(obsolete) show all occurrences of the same error")
+    parser.add_option('--first', action='store_false', dest='repeat',
+                      help="show first occurrence of each error")
+    parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
+                      help="exclude files or directories which match these "
+                           "comma separated patterns (default: %default)")
+    parser.add_option('--filename', metavar='patterns', default='*.py',
+                      help="when parsing directories, only check filenames "
+                           "matching these comma separated patterns "
+                           "(default: %default)")
+    parser.add_option('--select', metavar='errors', default='',
+                      help="select errors and warnings (e.g. E,W6)")
+    parser.add_option('--ignore', metavar='errors', default='',
+                      help="skip errors and warnings (e.g. E4,W)")
+    parser.add_option('--show-source', action='store_true',
+                      help="show source code for each error")
+    parser.add_option('--show-pep8', action='store_true',
+                      help="show text of PEP 8 for each error "
+                           "(implies --first)")
+    parser.add_option('--statistics', action='store_true',
+                      help="count errors and warnings")
+    parser.add_option('--count', action='store_true',
+                      help="print total number of errors and warnings "
+                           "to standard error and set exit code to 1 if "
+                           "total is not null")
+    parser.add_option('--max-line-length', type='int', metavar='n',
+                      default=MAX_LINE_LENGTH,
+                      help="set maximum allowed line length "
+                           "(default: %default)")
+    parser.add_option('--format', metavar='format', default='default',
+                      help="set the error format [default|pylint|<custom>]")
+    parser.add_option('--diff', action='store_true',
+                      help="report only lines changed according to the "
+                           "unified diff received on STDIN")
+    group = parser.add_option_group("Testing Options")
+    group.add_option('--testsuite', metavar='dir',
+                     help="run regression tests from dir")
+    group.add_option('--doctest', action='store_true',
+                     help="run doctest on myself")
+    group.add_option('--benchmark', action='store_true',
+                     help="measure processing speed")
+    return parser
+
+
 def read_config(options, args, arglist, parser):
     """Read both user configuration and local configuration."""
     config = RawConfigParser()
@@ -1811,72 +1866,24 @@ def read_config(options, args, arglist, parser):
     return options
 
 
-def process_options(arglist=None, parse_argv=False, config_file=None):
+def process_options(arglist=None, parse_argv=False, config_file=None,
+                    parser=None):
     """Process options passed either via arglist or via command line args."""
     if not arglist and not parse_argv:
         # Don't read the command line if the module is used as a library.
         arglist = []
-    if config_file is True:
-        config_file = DEFAULT_CONFIG
-    parser = OptionParser(version=__version__,
-                          usage="%prog [options] input ...")
-    parser.config_options = [
-        'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
-        'format', 'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']
-    parser.add_option('-v', '--verbose', default=0, action='count',
-                      help="print status messages, or debug with -vv")
-    parser.add_option('-q', '--quiet', default=0, action='count',
-                      help="report only file names, or nothing with -qq")
-    parser.add_option('-r', '--repeat', default=True, action='store_true',
-                      help="(obsolete) show all occurrences of the same error")
-    parser.add_option('--first', action='store_false', dest='repeat',
-                      help="show first occurrence of each error")
-    parser.add_option('--exclude', metavar='patterns', default=DEFAULT_EXCLUDE,
-                      help="exclude files or directories which match these "
-                           "comma separated patterns (default: %default)")
-    parser.add_option('--filename', metavar='patterns', default='*.py',
-                      help="when parsing directories, only check filenames "
-                           "matching these comma separated patterns "
-                           "(default: %default)")
-    parser.add_option('--select', metavar='errors', default='',
-                      help="select errors and warnings (e.g. E,W6)")
-    parser.add_option('--ignore', metavar='errors', default='',
-                      help="skip errors and warnings (e.g. E4,W)")
-    parser.add_option('--show-source', action='store_true',
-                      help="show source code for each error")
-    parser.add_option('--show-pep8', action='store_true',
-                      help="show text of PEP 8 for each error "
-                           "(implies --first)")
-    parser.add_option('--statistics', action='store_true',
-                      help="count errors and warnings")
-    parser.add_option('--count', action='store_true',
-                      help="print total number of errors and warnings "
-                           "to standard error and set exit code to 1 if "
-                           "total is not null")
-    parser.add_option('--max-line-length', type='int', metavar='n',
-                      default=MAX_LINE_LENGTH,
-                      help="set maximum allowed line length "
-                           "(default: %default)")
-    parser.add_option('--format', metavar='format', default='default',
-                      help="set the error format [default|pylint|<custom>]")
-    parser.add_option('--diff', action='store_true',
-                      help="report only lines changed according to the "
-                           "unified diff received on STDIN")
-    group = parser.add_option_group("Testing Options")
-    group.add_option('--testsuite', metavar='dir',
-                     help="run regression tests from dir")
-    group.add_option('--doctest', action='store_true',
-                     help="run doctest on myself")
-    group.add_option('--benchmark', action='store_true',
-                     help="measure processing speed")
-    group = parser.add_option_group("Configuration", description=(
-        "The project options are read from the [pep8] section of the tox.ini "
-        "file or the setup.cfg file located in any parent folder of the "
-        "path(s) being processed.  Allowed options are: %s." %
-        ', '.join(parser.config_options)))
-    group.add_option('--config', metavar='path', default=config_file,
-                     help="user config file location (default: %default)")
-
+    if not parser:
+        parser = get_parser()
+    if not parser.has_option('--config'):
+        if config_file is True:
+            config_file = DEFAULT_CONFIG
+        group = parser.add_option_group("Configuration", description=(
+            "The project options are read from the [pep8] section of the "
+            "tox.ini file or the setup.cfg file located in any parent folder "
+            "of the path(s) being processed.  Allowed options are: %s." %
+            ', '.join(parser.config_options)))
+        group.add_option('--config', metavar='path', default=config_file,
+                         help="user config file location (default: %default)")
     options, args = parser.parse_args(arglist)
     options.reporter = None
 
