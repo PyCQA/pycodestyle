@@ -1759,7 +1759,7 @@ def read_config(options, args, arglist, parser):
     if user_conf and os.path.isfile(user_conf):
         if options.verbose:
             print('user configuration: %s' % user_conf)
-        config.read(user_conf)
+        config.read([user_conf])
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
@@ -1772,7 +1772,7 @@ def read_config(options, args, arglist, parser):
             continue
         if options.verbose:
             print('local configuration: %s' % local_conf)
-        config.read(local_conf)
+        config.read([local_conf])
         break
 
     if config.has_section('pep8'):
