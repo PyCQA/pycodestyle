@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+1.4.1 (2013-01-18)
+------------------
 
 * Allow sphinx.ext.autodoc syntax for comments. (Issue #110)
 
