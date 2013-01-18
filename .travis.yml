@@ -7,6 +7,7 @@ python:
   - 3.3
   - pypy
 install:
+  - pip install -e .
   - pip freeze
 script:
   - python pep8.py --testsuite testsuite
