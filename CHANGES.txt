@@ -9,7 +9,7 @@ Changelog
 
 * Report E703 instead of E702 for the trailing semicolon. (Issue #117)
 
-* Honor ``# noqa`` in addition to ``# no pep8``. (Issue #149)
+* Honor ``# noqa`` in addition to ``# nopep8``. (Issue #149)
 
 * Expose the ``OptionParser`` factory for better extensibility.
 
