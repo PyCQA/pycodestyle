@@ -77,6 +77,7 @@ Utilities
 .. autofunction:: mute_string(text)
 .. autofunction:: read_config(options, args, arglist, parser)
 .. autofunction:: process_options(arglist=None, parse_argv=False, config_file=None)
+.. autofunction:: register_check(func_or_cls, codes=None)
 
 ..
   These ones are used internally, but they don't need advertising
@@ -85,6 +86,6 @@ Utilities
   .. autofunction:: stdin_get_value()
   .. autofunction:: parse_udiff(diff, patterns=None, parent='.')
   .. autofunction:: filename_match(filename, patterns, default=True)
-  .. autofunction:: find_checks(argument_name)
+  .. autofunction:: init_checks_registry()
   .. autofunction:: init_tests(pep8style)
   .. autofunction:: selftest(options)
