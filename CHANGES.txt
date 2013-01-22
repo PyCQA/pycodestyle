@@ -9,6 +9,8 @@ Changelog
 
 * Register new checkers with ``register_check(func_or_cls, codes)``.
 
+* Allow to construct a ``StyleGuide`` with a custom parser.
+
 
 1.4.1 (2013-01-18)
 ------------------

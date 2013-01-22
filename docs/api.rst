@@ -21,7 +21,7 @@ instance to check multiple files.
 The :class:`Checker` class can be used to check a single file.
 
 
-.. autoclass:: StyleGuide(parse_argv=False, config_file=None, paths=None, report=None, **kwargs)
+.. autoclass:: StyleGuide(parse_argv=False, config_file=None, parser=None, paths=None, report=None, **kwargs)
 
    .. automethod:: init_report(reporter=None)
    .. automethod:: check_files(paths=None)
@@ -39,6 +39,7 @@ The :class:`Checker` class can be used to check a single file.
    .. automethod:: check_physical(line)
    .. automethod:: build_tokens_line
    .. automethod:: check_logical
+   .. automethod:: check_ast
    .. automethod:: generate_tokens
    .. automethod:: check_all(expected=None, line_offset=0)
 

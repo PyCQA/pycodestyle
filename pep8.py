@@ -1586,8 +1586,9 @@ class StyleGuide(object):
         # build options from the command line
         parse_argv = kwargs.pop('parse_argv', False)
         config_file = kwargs.pop('config_file', None)
-        options, self.paths = process_options(parse_argv=parse_argv,
-                                              config_file=config_file)
+        parser = kwargs.pop('parser', None)
+        options, self.paths = process_options(
+            parse_argv=parse_argv, config_file=config_file, parser=parser)
         if args or kwargs:
             # build options from dict
             options_dict = dict(*args, **kwargs)
