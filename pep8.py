@@ -45,7 +45,7 @@ W warnings
 700 statements
 900 syntax error
 """
-__version__ = '1.4.1'
+__version__ = '1.4.2a0'
 
 import os
 import sys
@@ -76,7 +76,7 @@ REPORT_FORMAT = {
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
 }
 
-
+PyCF_ONLY_AST = 1024
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
@@ -1146,18 +1146,33 @@ def filename_match(filename, patterns, default=True):
 ##############################################################################
 
 
-def find_checks(argument_name):
+_checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
+
+
+def register_check(check, codes=None):
     """
-    Find all globally visible functions where the first argument name
-    starts with argument_name.
+    Register a new check object.
     """
-    for name, function in globals().items():
-        if not inspect.isfunction(function):
-            continue
-        args = inspect.getargspec(function)[0]
-        if args and args[0].startswith(argument_name):
-            codes = ERRORCODE_REGEX.findall(function.__doc__ or '')
-            yield name, codes, function, args
+    if inspect.isfunction(check):
+        args = inspect.getargspec(check)[0]
+        if args and args[0] in ('physical_line', 'logical_line'):
+            if codes is None:
+                codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
+            _checks[args[0]][check] = (codes, args)
+    elif inspect.isclass(check):
+        if inspect.getargspec(check.__init__)[0][:2] == ['self', 'tree']:
+            _checks['tree'][check] = (codes, None)
+
+
+def init_checks_registry():
+    """
+    Register all globally visible functions where the first argument name
+    is 'physical_line' or 'logical_line'.
+    """
+    mod = inspect.getmodule(register_check)
+    for (name, function) in inspect.getmembers(mod, inspect.isfunction):
+        register_check(function)
+init_checks_registry()
 
 
 class Checker(object):
@@ -1174,6 +1189,8 @@ class Checker(object):
         self._io_error = None
         self._physical_checks = options.physical_checks
         self._logical_checks = options.logical_checks
+        self._ast_checks = options.ast_checks
+        self._options = options
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
@@ -1194,6 +1211,16 @@ class Checker(object):
             self.lines = lines
         self.report = report or options.report
         self.report_error = self.report.error
+
+    def report_invalid_syntax(self):
+        exc_type, exc = sys.exc_info()[:2]
+        offset = exc.args[1]
+        if len(offset) > 2:
+            offset = offset[1:3]
+        self.report_error(offset[0], offset[1],
+                          'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
+                          self.report_invalid_syntax)
+    report_invalid_syntax.__doc__ = "    Check if the syntax is valid."
 
     def readline(self):
         """
@@ -1298,6 +1325,17 @@ class Checker(object):
                 self.report_error(orig_number, orig_offset, text, check)
         self.previous_logical = self.logical_line
 
+    def check_ast(self):
+        try:
+            tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
+        except SyntaxError:
+            return self.report_invalid_syntax()
+        for name, cls, _ in self._ast_checks:
+            checker = cls(tree, self.filename, self._options)
+            for lineno, offset, text, check in checker.run():
+                if not noqa(self.lines[lineno - 1]):
+                    self.report_error(lineno, offset, text, check)
+
     def generate_tokens(self):
         if self._io_error:
             self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
@@ -1306,20 +1344,15 @@ class Checker(object):
             for token in tokengen:
                 yield token
         except (SyntaxError, tokenize.TokenError):
-            exc_type, exc = sys.exc_info()[:2]
-            offset = exc.args[1]
-            if len(offset) > 2:
-                offset = offset[1:3]
-            self.report_error(offset[0], offset[1],
-                              'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
-                              self.generate_tokens)
-    generate_tokens.__doc__ = "    Check if the syntax is valid."
+            self.report_invalid_syntax()
 
     def check_all(self, expected=None, line_offset=0):
         """
         Run all checks on the input file.
         """
         self.report.init_file(self.filename, self.lines, expected, line_offset)
+        if self._ast_checks:
+            self.check_ast()
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
@@ -1577,6 +1610,7 @@ class StyleGuide(object):
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')
         options.logical_checks = self.get_checks('logical_line')
+        options.ast_checks = self.get_checks('tree')
         self.init_report()
 
     def init_report(self, reporter=None):
@@ -1655,9 +1689,10 @@ class StyleGuide(object):
         starts with argument_name and which contain selected tests.
         """
         checks = []
-        for name, codes, function, args in find_checks(argument_name):
+        for check, attrs in _checks[argument_name].items():
+            (codes, args) = attrs
             if any(not (code and self.ignore_code(code)) for code in codes):
-                checks.append((name, function, args))
+                checks.append((check.__name__, check, args))
         return sorted(checks)
 
 

@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+* Support AST checkers provided by third-party applications.
+
+* Register new checkers with ``register_check(func_or_cls, codes)``.
+
+
 1.4.1 (2013-01-18)
 ------------------
 
