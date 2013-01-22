@@ -1158,10 +1158,10 @@ def register_check(check, codes=None):
         if args and args[0] in ('physical_line', 'logical_line'):
             if codes is None:
                 codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
-            _checks[args[0]][check] = (codes, args)
+            _checks[args[0]][check] = (codes or [''], args)
     elif inspect.isclass(check):
         if inspect.getargspec(check.__init__)[0][:2] == ['self', 'tree']:
-            _checks['tree'][check] = (codes, None)
+            _checks['tree'][check] = (codes or [''], None)
 
 
 def init_checks_registry():
