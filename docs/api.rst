@@ -87,6 +87,7 @@ Utilities
   .. autofunction:: stdin_get_value()
   .. autofunction:: parse_udiff(diff, patterns=None, parent='.')
   .. autofunction:: filename_match(filename, patterns, default=True)
+  .. autofunction:: get_parser(prog='pep8', version=pep8.__version__)
   .. autofunction:: init_checks_registry()
   .. autofunction:: init_tests(pep8style)
   .. autofunction:: selftest(options)

@@ -1791,8 +1791,8 @@ def selftest(options):
     return count_failed, count_all
 
 
-def get_parser():
-    parser = OptionParser(version=__version__,
+def get_parser(prog='pep8', version=__version__):
+    parser = OptionParser(prog=prog, version=version,
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
@@ -1870,7 +1870,8 @@ def read_config(options, args, arglist, parser):
         config.read(local_conf)
         break
 
-    if config.has_section('pep8'):
+    pep8_section = parser.prog
+    if config.has_section(pep8_section):
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list])
 
@@ -1878,9 +1879,9 @@ def read_config(options, args, arglist, parser):
         new_options, _ = parser.parse_args([])
 
         # Second, parse the configuration
-        for opt in config.options('pep8'):
+        for opt in config.options(pep8_section):
             if options.verbose > 1:
-                print('  %s = %s' % (opt, config.get('pep8', opt)))
+                print('  %s = %s' % (opt, config.get(pep8_section, opt)))
             if opt.replace('_', '-') not in parser.config_options:
                 print('Unknown option: \'%s\'\n  not in [%s]' %
                       (opt, ' '.join(parser.config_options)))
@@ -1888,12 +1889,12 @@ def read_config(options, args, arglist, parser):
             normalized_opt = opt.replace('-', '_')
             opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):
-                value = config.getint('pep8', opt)
+                value = config.getint(pep8_section, opt)
             elif opt_type == 'string':
-                value = config.get('pep8', opt)
+                value = config.get(pep8_section, opt)
             else:
                 assert opt_type in ('store_true', 'store_false')
-                value = config.getboolean('pep8', opt)
+                value = config.getboolean(pep8_section, opt)
             setattr(new_options, normalized_opt, value)
 
         # Third, overwrite with the command-line options
@@ -1914,10 +1915,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         if config_file is True:
             config_file = DEFAULT_CONFIG
         group = parser.add_option_group("Configuration", description=(
-            "The project options are read from the [pep8] section of the "
+            "The project options are read from the [%s] section of the "
             "tox.ini file or the setup.cfg file located in any parent folder "
             "of the path(s) being processed.  Allowed options are: %s." %
-            ', '.join(parser.config_options)))
+            (parser.prog, ', '.join(parser.config_options))))
         group.add_option('--config', metavar='path', default=config_file,
                          help="user config file location (default: %default)")
     options, args = parser.parse_args(arglist)
