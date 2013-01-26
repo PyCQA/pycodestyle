@@ -468,11 +468,11 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 # this line starts with a closing bracket
                 if indent[depth]:
                     if start[1] != indent[depth]:
-                        yield (start, 'E124 closing bracket does not match '
-                               'visual indentation')
+                        yield (start, "E124 closing bracket does not match "
+                               "visual indentation")
                 elif hang:
-                    yield (start, 'E123 closing bracket does not match '
-                           'indentation of opening bracket\'s line')
+                    yield (start, "E123 closing bracket does not match "
+                           "indentation of opening bracket's line")
             elif visual_indent is True:
                 # visual indent is verified
                 if not indent[depth]:
@@ -482,21 +482,21 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 pass
             elif indent[depth] and start[1] < indent[depth]:
                 # visual indent is broken
-                yield (start, 'E128 continuation line '
-                       'under-indented for visual indent')
+                yield (start, "E128 continuation line "
+                       "under-indented for visual indent")
             elif hang == 4 or (indent_next and rel_indent[row] == 8):
                 # hanging indent is verified
                 pass
             else:
                 # indent is broken
                 if hang <= 0:
-                    error = 'E122', 'missing indentation or outdented'
+                    error = "E122", "missing indentation or outdented"
                 elif indent[depth]:
-                    error = 'E127', 'over-indented for visual indent'
+                    error = "E127", "over-indented for visual indent"
                 elif hang % 4:
-                    error = 'E121', 'indentation is not a multiple of four'
+                    error = "E121", "indentation is not a multiple of four"
                 else:
-                    error = 'E126', 'over-indented for hanging indent'
+                    error = "E126", "over-indented for hanging indent"
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
@@ -1881,9 +1881,9 @@ def read_config(options, args, arglist, parser):
         # Second, parse the configuration
         for opt in config.options(pep8_section):
             if options.verbose > 1:
-                print('  %s = %s' % (opt, config.get(pep8_section, opt)))
+                print("  %s = %s" % (opt, config.get(pep8_section, opt)))
             if opt.replace('_', '-') not in parser.config_options:
-                print('Unknown option: \'%s\'\n  not in [%s]' %
+                print("Unknown option: '%s'\n  not in [%s]" %
                       (opt, ' '.join(parser.config_options)))
                 sys.exit(1)
             normalized_opt = opt.replace('-', '_')
