@@ -510,6 +510,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
             indent_chances[start[1]] = str
+        # special case for the "if" statement because len("if (") == 4
+        elif not indent_chances and not row and not depth and text == 'if':
+            indent_chances[end[1] + 1] = True
 
         # keep track of bracket depth
         if token_type == tokenize.OP:
