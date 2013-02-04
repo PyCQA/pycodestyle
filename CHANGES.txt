@@ -11,6 +11,9 @@ Changelog
 
 * Allow to construct a ``StyleGuide`` with a custom parser.
 
+* Accept visual indentation without parenthesis after the ``if``
+  statement. (Issue #151)
+
 
 1.4.1 (2013-01-18)
 ------------------
