@@ -1,6 +1,10 @@
 pep8 - Python style guide checker
 =================================
 
+  *This is a forked version, please use the original instead.  The only change
+  here is that, for avoiding E501 errors (line too long), the code considers
+  the visual length of Org links rather than their physical length.*
+
 pep8 is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 

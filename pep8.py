@@ -226,6 +226,9 @@ def maximum_line_length(physical_line, max_line_length):
             except UnicodeError:
                 pass
         if length > max_line_length:
+            line = re.sub(r'\[\[[^]]*\]\[([^]]*)\]\]', r'\1', line)
+            length = len(line)
+        if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
 
