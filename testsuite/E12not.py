@@ -541,4 +541,8 @@ d = {  # comment
     12,  # this is a multi-line inline
          # comment
 ]
+# issue 151
+if a > b and \
+   c > d:
+    moo_like_a_cow()
 #
