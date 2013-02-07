@@ -412,7 +412,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
-    if nrows == 1:
+    if nrows == 1 or noqa(tokens[0][4]):
         return
 
     # indent_next tells us whether the next block is indented; assuming
@@ -434,8 +434,6 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
         print(">>> " + tokens[0][4].rstrip())
 
     for token_type, text, start, end, line in tokens:
-        if noqa(line):
-            continue
 
         newline = row < start[0] - first_row
         if newline:
