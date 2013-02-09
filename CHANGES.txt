@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+1.4.2 (2013-02-10)
+------------------
 
 * Support AST checkers provided by third-party applications.
 

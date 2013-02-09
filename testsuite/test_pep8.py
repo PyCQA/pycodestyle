@@ -137,7 +137,7 @@ def selftest(options):
                     print("%s: %s" % (code, source))
             else:
                 count_failed += 1
-                print("%s: %s:" % (__file__, error))
+                print("%s: %s:" % (pep8.__file__, error))
                 for line in checker.lines:
                     print(line.rstrip())
     return count_failed, count_all
@@ -165,6 +165,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         sys.exit(pep8._main())
     pep8style = StyleGuide(paths=[os.path.dirname(__file__)], ignore=None)
-    report = run_tests(pep8style, True, True)
+    report = run_tests(pep8style, doctest=True, testsuite=True)
     report.print_results()
     sys.exit(1 if report.total_errors else 0)
