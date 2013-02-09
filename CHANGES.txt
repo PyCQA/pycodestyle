@@ -21,6 +21,9 @@ Changelog
 
 * Expand tabs when checking E12 continuation lines. (Issue #155)
 
+* Refactor the testing class ``TestReport`` and the specific test
+  functions into a separate test module.
+
 
 1.4.1 (2013-01-18)
 ------------------
