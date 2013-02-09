@@ -1195,7 +1195,6 @@ class Checker(object):
         self._physical_checks = options.physical_checks
         self._logical_checks = options.logical_checks
         self._ast_checks = options.ast_checks
-        self._options = options
         self.max_line_length = options.max_line_length
         self.verbose = options.verbose
         self.filename = filename
@@ -1336,7 +1335,7 @@ class Checker(object):
         except SyntaxError:
             return self.report_invalid_syntax()
         for name, cls, _ in self._ast_checks:
-            checker = cls(tree, self.filename, self._options)
+            checker = cls(tree, self.filename)
             for lineno, offset, text, check in checker.run():
                 if not noqa(self.lines[lineno - 1]):
                     self.report_error(lineno, offset, text, check)
