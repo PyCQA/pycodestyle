@@ -17,6 +17,8 @@ Changelog
 * Fix UnboundLocalError when using ``# noqa`` with continued lines.
   (Issue #158)
 
+* Re-order the lines for the ``StandardReport``.
+
 
 1.4.1 (2013-01-18)
 ------------------

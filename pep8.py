@@ -1507,15 +1507,29 @@ class StandardReport(BaseReport):
         self._show_source = options.show_source
         self._show_pep8 = options.show_pep8
 
+    def init_file(self, filename, lines, expected, line_offset):
+        """Signal a new file."""
+        self._deferred_print = []
+        return super(StandardReport, self).init_file(
+            filename, lines, expected, line_offset)
+
     def error(self, line_number, offset, text, check):
         """Report an error, according to options."""
         code = super(StandardReport, self).error(line_number, offset,
                                                  text, check)
         if code and (self.counters[code] == 1 or self._repeat):
+            self._deferred_print.append(
+                (line_number, offset, code, text[5:], check.__doc__))
+        return code
+
+    def get_file_results(self):
+        """Print the result and return the overall count for this file."""
+        self._deferred_print.sort()
+        for line_number, offset, code, text, doc in self._deferred_print:
             print(self._fmt % {
                 'path': self.filename,
                 'row': self.line_offset + line_number, 'col': offset + 1,
-                'code': code, 'text': text[5:],
+                'code': code, 'text': text,
             })
             if self._show_source:
                 if line_number > len(self.lines):
@@ -1524,9 +1538,9 @@ class StandardReport(BaseReport):
                     line = self.lines[line_number - 1]
                 print(line.rstrip())
                 print(' ' * offset + '^')
-            if self._show_pep8:
-                print(check.__doc__.lstrip('\n').rstrip())
-        return code
+            if self._show_pep8 and doc:
+                print(doc.lstrip('\n').rstrip())
+        return self.file_errors
 
 
 class DiffReport(StandardReport):
