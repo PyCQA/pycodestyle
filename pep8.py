@@ -1508,9 +1508,7 @@ class StandardReport(BaseReport):
         self._show_pep8 = options.show_pep8
 
     def error(self, line_number, offset, text, check):
-        """
-        Report an error, according to options.
-        """
+        """Report an error, according to options."""
         code = super(StandardReport, self).error(line_number, offset,
                                                  text, check)
         if code and (self.counters[code] == 1 or self._repeat):
