@@ -447,7 +447,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
                 print("... " + line.rstrip())
 
             # record the initial indent.
-            rel_indent[row] = start[1] - indent_level
+            rel_indent[row] = expand_indent(line) - indent_level
 
             if depth:
                 # a bracket expression in a continuation line.
