@@ -143,8 +143,6 @@ Quick help is available on the command line::
                          received on STDIN
 
     Testing Options:
-      --testsuite=dir    run regression tests from dir
-      --doctest          run doctest on myself
       --benchmark        measure processing speed
 
     Configuration:

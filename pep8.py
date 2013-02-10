@@ -45,7 +45,7 @@ W warnings
 700 statements
 900 syntax error
 """
-__version__ = '1.4.2'
+__version__ = '1.4.3a0'
 
 import os
 import sys
@@ -70,6 +70,7 @@ else:
     DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
                                   os.path.expanduser('~/.config'), 'pep8')
 PROJECT_CONFIG = ('.pep8', 'tox.ini', 'setup.cfg')
+TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
@@ -1719,10 +1720,11 @@ def get_parser(prog='pep8', version=__version__):
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
     group = parser.add_option_group("Testing Options")
-    group.add_option('--testsuite', metavar='dir',
-                     help="run regression tests from dir")
-    group.add_option('--doctest', action='store_true',
-                     help="run doctest on myself")
+    if os.path.exists(TESTSUITE_PATH):
+        group.add_option('--testsuite', metavar='dir',
+                         help="run regression tests from dir")
+        group.add_option('--doctest', action='store_true',
+                         help="run doctest on myself")
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     return parser
@@ -1781,7 +1783,7 @@ def read_config(options, args, arglist, parser):
 
         # Third, overwrite with the command-line options
         options, _ = parser.parse_args(arglist, values=new_options)
-
+    options.doctest = options.testsuite = False
     return options
 
 
@@ -1806,9 +1808,9 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     options, args = parser.parse_args(arglist)
     options.reporter = None
 
-    if options.testsuite:
+    if options.ensure_value('testsuite', False):
         args.append(options.testsuite)
-    elif not options.doctest:
+    elif not options.ensure_value('doctest', False):
         if parse_argv and not args:
             if options.diff or any(os.path.exists(name)
                                    for name in PROJECT_CONFIG):
@@ -1845,7 +1847,7 @@ def _main():
     pep8style = StyleGuide(parse_argv=True, config_file=True)
     options = pep8style.options
     if options.doctest or options.testsuite:
-        sys.path[:0] = [os.path.join(os.path.dirname(__file__), 'testsuite')]
+        sys.path[:0] = [TESTSUITE_PATH]
         from test_pep8 import run_tests
         del sys.path[0]
         report = run_tests(pep8style, options.doctest, options.testsuite)
