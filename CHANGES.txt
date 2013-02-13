@@ -7,6 +7,8 @@ Changelog
 
 * Hide the ``--doctest`` and ``--testsuite`` options when installed.
 
+* Fix crash with AST checkers when the syntax is invalid. (Issue #160)
+
 
 1.4.2 (2013-02-10)
 ------------------

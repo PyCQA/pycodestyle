@@ -1221,7 +1221,7 @@ class Checker(object):
         offset = exc.args[1]
         if len(offset) > 2:
             offset = offset[1:3]
-        self.report_error(offset[0], offset[1],
+        self.report_error(offset[0], offset[1] or 0,
                           'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
                           self.report_invalid_syntax)
     report_invalid_syntax.__doc__ = "    Check if the syntax is valid."
