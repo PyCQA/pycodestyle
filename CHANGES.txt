@@ -9,6 +9,8 @@ Changelog
 
 * Fix crash with AST checkers when the syntax is invalid. (Issue #160)
 
+* Initiate a graceful shutdown on ``Control+C``.
+
 
 1.4.2 (2013-02-10)
 ------------------

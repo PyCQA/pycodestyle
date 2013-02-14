@@ -1603,11 +1603,14 @@ class StyleGuide(object):
         report = self.options.report
         runner = self.runner
         report.start()
-        for path in paths:
-            if os.path.isdir(path):
-                self.input_dir(path)
-            elif not self.excluded(path):
-                runner(path)
+        try:
+            for path in paths:
+                if os.path.isdir(path):
+                    self.input_dir(path)
+                elif not self.excluded(path):
+                    runner(path)
+        except KeyboardInterrupt:
+            print('... stopped')
         report.stop()
         return report
 
