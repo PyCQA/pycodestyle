@@ -11,6 +11,8 @@ Changelog
 
 * Read from standard input if no path is specified.
 
+* Initiate a graceful shutdown on ``Control+C``.
+
 
 1.4.2 (2013-02-10)
 ------------------
