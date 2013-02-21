@@ -1050,6 +1050,7 @@ else:
     def stdin_get_value():
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 readlines.__doc__ = "    Read the source code."
+noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
 
 
 def expand_indent(line):
@@ -1100,10 +1101,6 @@ def mute_string(text):
         start += 2
         end -= 2
     return text[:start] + 'x' * (end - start) + text[end:]
-
-
-def noqa(line):
-    return line.strip().lower().endswith(('# noqa', '# nopep8'))
 
 
 def parse_udiff(diff, patterns=None, parent='.'):
