@@ -1561,6 +1561,7 @@ class StyleGuide(object):
 
     def __init__(self, *args, **kwargs):
         # build options from the command line
+        self.checker_class = kwargs.pop('checker_class', Checker)
         parse_argv = kwargs.pop('parse_argv', False)
         config_file = kwargs.pop('config_file', None)
         parser = kwargs.pop('parser', None)
@@ -1618,7 +1619,8 @@ class StyleGuide(object):
         """Run all checks on a Python source file."""
         if self.options.verbose:
             print('checking %s' % filename)
-        fchecker = Checker(filename, lines=lines, options=self.options)
+        fchecker = self.checker_class(
+            filename, lines=lines, options=self.options)
         return fchecker.check_all(expected=expected, line_offset=line_offset)
 
     def input_dir(self, dirname):

@@ -13,6 +13,8 @@ Changelog
 
 * Initiate a graceful shutdown on ``Control+C``.
 
+* Allow to change the ``checker_class`` for the ``StyleGuide``.
+
 
 1.4.2 (2013-02-10)
 ------------------
