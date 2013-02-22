@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.4.x (unreleased)
+1.4.3 (2013-02-22)
 ------------------
 
 * Hide the ``--doctest`` and ``--testsuite`` options when installed.
