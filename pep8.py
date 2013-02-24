@@ -99,8 +99,8 @@ DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
-COMPARE_TYPE_REGEX = re.compile(r'([=!]=|is|is\s+not)\s*type(?:s\.(\w+)Type'
-                                r'|\(\s*(\(\s*\)|[^)]*[^ )])\s*\))')
+COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
+                                r'|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
@@ -945,10 +945,10 @@ def comparison_type(logical_line):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match:
-        inst = match.group(3)
+        inst = match.group(1)
         if inst and isidentifier(inst) and inst not in SINGLETONS:
             return  # Allow comparison for types which are not obvious
-        yield match.start(1), "E721 do not compare types, use 'isinstance()'"
+        yield match.start(0), "E721 do not compare types, use 'isinstance()'"
 
 
 def python_3000_has_key(logical_line):
