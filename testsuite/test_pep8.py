@@ -37,7 +37,7 @@ class TestReport(StandardReport):
         for key in set(self.counters) - set(self._benchmark_keys):
             del self.counters[key]
         self.messages = {}
-        return self.file_errors
+        return super(TestReport, self).get_file_results()
 
     def print_results(self):
         results = ("%(physical lines)d lines tested: %(files)d files, "

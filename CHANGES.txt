@@ -7,6 +7,9 @@ Changelog
 
 * Fix regression with the ``--diff`` option. (Issue #169)
 
+* Fix the ``TestReport`` class to print the unexpected warnings and
+  errors.
+
 
 1.4.3 (2013-02-22)
 ------------------
