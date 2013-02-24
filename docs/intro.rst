@@ -230,7 +230,11 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E225     | missing whitespace around operator                                   |
 +----------+----------------------------------------------------------------------+
-| E226 (*) | missing optional whitespace around operator                          |
+| E226 (*) | missing whitespace around arithmetic operator                        |
++----------+----------------------------------------------------------------------+
+| E227     | missing whitespace around bitwise or shift operator                  |
++----------+----------------------------------------------------------------------+
+| E228     | missing whitespace around modulo operator                            |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | E231     | missing whitespace after ','                                         |

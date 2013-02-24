@@ -5,6 +5,12 @@ Changelog
 1.4.x (unreleased)
 ------------------
 
+* Report E227 or E228 instead of E225 for whitespace around bitwise, shift
+  or modulo operators. (Issue #166)
+
+* Change the message for E226 to make clear that it is about arithmetic
+  operators.
+
 * Fix regression with the ``--diff`` option. (Issue #169)
 
 * Fix the ``TestReport`` class to print the unexpected warnings and
@@ -63,7 +69,7 @@ Changelog
 1.4 (2012-12-22)
 ----------------
 
-* Report E226 instead of E225 for optional white space around common
+* Report E226 instead of E225 for optional whitespace around common
   operators (``*``, ``**``, ``/``, ``+`` and ``-``).  This new error
   code is ignored in the default configuration because PEP 8 recommends
   to "use your own judgement". (Issue #96)

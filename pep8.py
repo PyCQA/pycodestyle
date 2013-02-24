@@ -81,11 +81,11 @@ PyCF_ONLY_AST = 1024
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
-WS_OPTIONAL_OPERATORS = frozenset(['**', '*', '/', '//', '+', '-'])
+ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-'])
+WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^',  '&',  '|', '<<', '>>', '%'])
 WS_NEEDED_OPERATORS = frozenset([
-    '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>',
-    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '<',  '>',  '<<'])
+    '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
+    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
 WHITESPACE = frozenset(' \t')
 SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
@@ -626,25 +626,16 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: hypot2 = x * x + y * y
     Okay: c = (a + b) * (a - b)
     Okay: foo(bar, key='word', *args, **kwargs)
-    Okay: baz(**kwargs)
-    Okay: negative = -1
-    Okay: spam(-1)
     Okay: alpha[:-i]
-    Okay: if not -5 < x < +5:\n    pass
-    Okay: lambda *args, **kw: (args, kw)
-    Okay: z = 2 ** 30
-    Okay: x = x / 2 - 1
 
     E225: i=i+1
     E225: submitted +=1
-    E225: c = alpha -4
     E225: x = x /2 - 1
     E225: z = x **y
     E226: c = (a+b) * (a-b)
-    E226: z = 2**30
-    E226: x = x*2 - 1
-    E226: x = x/2 - 1
     E226: hypot2 = x*x + y*y
+    E227: c = a|b
+    E228: msg = fmt%(errno, errmsg)
     """
     parens = 0
     need_space = False
@@ -674,8 +665,13 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     # A needed trailing space was not found
                     yield prev_end, "E225 missing whitespace around operator"
                 else:
-                    yield (need_space[0],
-                           "E226 missing optional whitespace around operator")
+                    code, optype = 'E226', 'arithmetic'
+                    if prev_text == '%':
+                        code, optype = 'E228', 'modulo'
+                    elif prev_text not in ARITHMETIC_OP:
+                        code, optype = 'E227', 'bitwise or shift'
+                    yield (need_space[0], "%s missing whitespace "
+                           "around %s operator" % (code, optype))
                 need_space = False
         elif token_type == tokenize.OP and prev_end is not None:
             if text == '=' and parens:
