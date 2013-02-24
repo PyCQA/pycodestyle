@@ -235,8 +235,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'pep8', u'pep8 documentation',
-     u'Florent Xicluna', 'pep8', 'One line description of project.',
+    ('index', 'pep8', u'pep8 documentation', u'Florent Xicluna',
+     'pep8', 'One line description of project.',
      'Miscellaneous'),
 ]
 
