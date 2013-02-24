@@ -11,6 +11,8 @@ Changelog
 * Change the message for E226 to make clear that it is about arithmetic
   operators.
 
+* Fix a false positive E128 for continuation line indentation with tabs.
+
 * Fix regression with the ``--diff`` option. (Issue #169)
 
 * Fix the ``TestReport`` class to print the unexpected warnings and

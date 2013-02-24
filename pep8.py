@@ -426,9 +426,9 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     # relative indents of physical lines
     rel_indent = [0] * nrows
     # visual indents
-    indent = [indent_level]
     indent_chances = {}
     last_indent = tokens[0][2]
+    indent = [last_indent[1]]
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
