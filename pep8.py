@@ -45,7 +45,7 @@ W warnings
 700 statements
 900 syntax error
 """
-__version__ = '1.4.3'
+__version__ = '1.4.4a0'
 
 import os
 import sys
@@ -1814,16 +1814,18 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         args.append(options.testsuite)
     elif not options.ensure_value('doctest', False):
         if parse_argv and not args:
-            import select
-            # wait for 1 second on the stdin fd
-            reads, __, __ = select.select([sys.stdin], [], [], 1.)
-            if reads:
-                args = ['-']
-            elif options.diff or any(os.path.exists(name)
-                                     for name in PROJECT_CONFIG):
+            if options.diff:
                 args = ['.']
             else:
-                parser.error('input not specified')
+                import select
+                # wait for 1 second on the stdin fd
+                reads, __, __ = select.select([sys.stdin], [], [], 1.)
+                if reads:
+                    args = ['-']
+                elif any(os.path.exists(name) for name in PROJECT_CONFIG):
+                    args = ['.']
+                else:
+                    parser.error('input not specified')
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
