@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.4.x (unreleased)
+1.4.4 (2013-02-24)
 ------------------
 
 * Report E227 or E228 instead of E225 for whitespace around bitwise, shift
