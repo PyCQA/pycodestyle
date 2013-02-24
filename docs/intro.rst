@@ -42,14 +42,10 @@ Always remember this statement from `PEP 8`_:
 Among other things, these features are currently not in the scope of
 the ``pep8`` library:
 
-* **naming conventions**: there's `a feature request
-  <https://github.com/jcrocholl/pep8/issues/44>`_ with `a patch
-  <https://github.com/jcrocholl/pep8/pull/121>`_, but it might
-  be too disruptive to include it in the library:  currently it's easy to make
-  an existing project clean regarding ``pep8`` checks; it can be done without
-  changing the API or the behaviour of the existing code.  It's not the same
-  for naming conventions: if you change the name of a class or a method, it
-  will break more code which depends on the library.
+* **naming conventions**: this kind of feature is supported through plugins.
+  Install `flake8 <https://pypi.python.org/pypi/flake8>`_ and the
+  `pep8-naming extension <https://pypi.python.org/pypi/pep8-naming>`_ to use
+  this feature.
 * **docstring conventions**: they are not in the scope of this library;
   see the `pep257 project <https://github.com/GreenSteam/pep257>`_.
 * **automatic fixing**: see the section *PEP8 Fixers* in the
