@@ -751,12 +751,12 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     parens = 0
     no_space = False
     prev_end = None
+    message = "E251 unexpected spaces around keyword / parameter equals"
     for token_type, text, start, end, line in tokens:
         if no_space:
             no_space = False
             if start != prev_end:
-                yield (prev_end,
-                       "E251 no spaces around keyword / parameter equals")
+                yield (prev_end, message)
         elif token_type == tokenize.OP:
             if text == '(':
                 parens += 1
@@ -765,8 +765,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             elif parens and text == '=':
                 no_space = True
                 if start != prev_end:
-                    yield (prev_end,
-                           "E251 no spaces around keyword / parameter equals")
+                    yield (prev_end, message)
         prev_end = end
 
 
