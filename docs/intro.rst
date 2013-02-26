@@ -245,7 +245,7 @@ This is the current list of error and warning codes:
 | E242 (*) | tab after ','                                                        |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E251     | no spaces around keyword / parameter equals                          |
+| E251     | unexpected spaces around keyword / parameter equals                  |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | E261     | at least two spaces before inline comment                            |
