@@ -35,7 +35,6 @@ setup(
     install_requires=[
         # Broken with Python 3: https://github.com/pypa/pip/issues/650
         # 'setuptools',
-        # -*- Extra requirements: -*-
     ],
     entry_points={
         'console_scripts': [
