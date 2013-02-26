@@ -5,8 +5,13 @@ Changelog
 1.x (unreleased)
 ----------------
 
-* Do not require ``setuptools`` to work around an issue with ``pip`` and
-  Python 3. (Issue #172)
+* When no path is specified, do not try to read from stdin.  The feature
+  was added in 1.4.3, but it is not supported on Windows.  Use ``-``
+  filename argument to read from stdin.  This usage is supported
+  since 1.3.4. (Issue #170)
+
+* Do not require ``setuptools`` in setup.py.  It works around an issue
+  with ``pip`` and Python 3. (Issue #172)
 
 * Add ``__pycache__`` to the ignore list.
 
