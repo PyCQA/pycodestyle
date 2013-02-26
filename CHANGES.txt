@@ -15,6 +15,8 @@ Changelog
 
 * Add ``__pycache__`` to the ignore list.
 
+* Change misleading message for E251. (Issue #171)
+
 
 1.4.4 (2013-02-24)
 ------------------
