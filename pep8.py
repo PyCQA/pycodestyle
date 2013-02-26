@@ -62,7 +62,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git'
+DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__'
 DEFAULT_IGNORE = 'E226,E24'
 if sys.platform == 'win32':
     DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')

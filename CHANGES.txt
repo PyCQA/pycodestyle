@@ -8,6 +8,8 @@ Changelog
 * Do not require ``setuptools`` to work around an issue with ``pip`` and
   Python 3. (Issue #172)
 
+* Add ``__pycache__`` to the ignore list.
+
 
 1.4.4 (2013-02-24)
 ------------------
