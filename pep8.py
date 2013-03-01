@@ -92,7 +92,7 @@ SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
-RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*(,)')
+RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
@@ -947,7 +947,7 @@ def comparison_type(logical_line):
         inst = match.group(1)
         if inst and isidentifier(inst) and inst not in SINGLETONS:
             return  # Allow comparison for types which are not obvious
-        yield match.start(0), "E721 do not compare types, use 'isinstance()'"
+        yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
 
 def python_3000_has_key(logical_line):
@@ -978,7 +978,7 @@ def python_3000_raise_comma(logical_line):
     """
     match = RAISE_COMMA_REGEX.match(logical_line)
     if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        yield match.start(1), "W602 deprecated form of raising exception"
+        yield match.end() - 1, "W602 deprecated form of raising exception"
 
 
 def python_3000_not_equal(logical_line):
