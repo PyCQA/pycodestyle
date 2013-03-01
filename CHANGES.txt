@@ -20,6 +20,8 @@ Changelog
 * Do not report false E302 when the source file has a coding cookie or a
   comment on the first line. (Issue #174)
 
+* Reorganize the tests and add basic tests for the API. (Issue #161)
+
 
 1.4.4 (2013-02-24)
 ------------------

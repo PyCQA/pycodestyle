@@ -13,6 +13,7 @@ script:
   - python pep8.py --testsuite testsuite
   - python pep8.py --statistics pep8.py
   - python pep8.py --doctest
+  - python -m testsuite.test_all
 matrix:
   allow_failures:
     - python: pypy
