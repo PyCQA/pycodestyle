@@ -1,11 +1,8 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os.path
 import re
 import sys
 
-import pep8
-from pep8 import Checker, StyleGuide, BaseReport, StandardReport, readlines
+from pep8 import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 
@@ -47,6 +44,49 @@ class TestReport(StandardReport):
         else:
             print(results % "")
         print("Test failed." if self.total_errors else "Test passed.")
+
+
+def selftest(options):
+    """
+    Test all check functions with test cases in docstrings.
+    """
+    count_failed = count_all = 0
+    report = BaseReport(options)
+    counters = report.counters
+    checks = options.physical_checks + options.logical_checks
+    for name, check, argument_names in checks:
+        for line in check.__doc__.splitlines():
+            line = line.lstrip()
+            match = SELFTEST_REGEX.match(line)
+            if match is None:
+                continue
+            code, source = match.groups()
+            lines = [part.replace(r'\t', '\t') + '\n'
+                     for part in source.split(r'\n')]
+            checker = Checker(lines=lines, options=options, report=report)
+            checker.check_all()
+            error = None
+            if code == 'Okay':
+                if len(counters) > len(options.benchmark_keys):
+                    codes = [key for key in counters
+                             if key not in options.benchmark_keys]
+                    error = "incorrectly found %s" % ', '.join(codes)
+            elif not counters.get(code):
+                error = "failed to find %s" % code
+            # Keep showing errors for multiple tests
+            for key in set(counters) - set(options.benchmark_keys):
+                del counters[key]
+            report.messages = {}
+            count_all += 1
+            if not error:
+                if options.verbose:
+                    print("%s: %s" % (code, source))
+            else:
+                count_failed += 1
+                print("pep8.py: %s:" % error)
+                for line in checker.lines:
+                    print(line.rstrip())
+    return count_failed, count_all
 
 
 def init_tests(pep8style):
@@ -98,49 +138,7 @@ def init_tests(pep8style):
         return report.counters['failed tests']
 
     pep8style.runner = run_tests
-
-
-def selftest(options):
-    """
-    Test all check functions with test cases in docstrings.
-    """
-    count_failed = count_all = 0
-    report = BaseReport(options)
-    counters = report.counters
-    checks = options.physical_checks + options.logical_checks
-    for name, check, argument_names in checks:
-        for line in check.__doc__.splitlines():
-            line = line.lstrip()
-            match = SELFTEST_REGEX.match(line)
-            if match is None:
-                continue
-            code, source = match.groups()
-            lines = [part.replace(r'\t', '\t') + '\n'
-                     for part in source.split(r'\n')]
-            checker = Checker(lines=lines, options=options, report=report)
-            checker.check_all()
-            error = None
-            if code == 'Okay':
-                if len(counters) > len(options.benchmark_keys):
-                    codes = [key for key in counters
-                             if key not in options.benchmark_keys]
-                    error = "incorrectly found %s" % ', '.join(codes)
-            elif not counters.get(code):
-                error = "failed to find %s" % code
-            # Keep showing errors for multiple tests
-            for key in set(counters) - set(options.benchmark_keys):
-                del counters[key]
-            report.messages = {}
-            count_all += 1
-            if not error:
-                if options.verbose:
-                    print("%s: %s" % (code, source))
-            else:
-                count_failed += 1
-                print("%s: %s:" % (pep8.__file__, error))
-                for line in checker.lines:
-                    print(line.rstrip())
-    return count_failed, count_all
+init_tests.__test__ = False
 
 
 def run_tests(style, doctest=True, testsuite=False):
@@ -159,12 +157,4 @@ def run_tests(style, doctest=True, testsuite=False):
     if testsuite:
         init_tests(style)
     return style.check_files()
-
-
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        sys.exit(pep8._main())
-    pep8style = StyleGuide(paths=[os.path.dirname(__file__)], ignore=None)
-    report = run_tests(pep8style, doctest=True, testsuite=True)
-    report.print_results()
-    sys.exit(1 if report.total_errors else 0)
+run_tests.__test__ = False

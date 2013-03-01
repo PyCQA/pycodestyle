@@ -1844,9 +1844,7 @@ def _main():
     pep8style = StyleGuide(parse_argv=True, config_file=True)
     options = pep8style.options
     if options.doctest or options.testsuite:
-        sys.path[:0] = [TESTSUITE_PATH]
-        from test_pep8 import run_tests
-        del sys.path[0]
+        from testsuite.support import run_tests
         report = run_tests(pep8style, options.doctest, options.testsuite)
     else:
         report = pep8style.check_files()
