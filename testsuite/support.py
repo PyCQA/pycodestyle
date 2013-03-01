@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import os.path
 import re
 import sys
 
 from pep8 import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 class TestReport(StandardReport):
@@ -141,9 +143,9 @@ def init_tests(pep8style):
 init_tests.__test__ = False
 
 
-def run_tests(style, doctest=True, testsuite=False):
+def run_tests(style):
     options = style.options
-    if doctest:
+    if options.doctest:
         import doctest
         fail_d, done_d = doctest.testmod(report=False, verbose=options.verbose)
         fail_s, done_s = selftest(options)
@@ -154,7 +156,7 @@ def run_tests(style, doctest=True, testsuite=False):
             print("Test failed." if count_failed else "Test passed.")
         if count_failed:
             sys.exit(1)
-    if testsuite:
+    if options.testsuite:
         init_tests(style)
     return style.check_files()
 run_tests.__test__ = False

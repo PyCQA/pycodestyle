@@ -1845,7 +1845,7 @@ def _main():
     options = pep8style.options
     if options.doctest or options.testsuite:
         from testsuite.support import run_tests
-        report = run_tests(pep8style, options.doctest, options.testsuite)
+        report = run_tests(pep8style)
     else:
         report = pep8style.check_files()
     if options.statistics:
