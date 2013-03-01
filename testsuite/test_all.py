@@ -9,8 +9,12 @@ from testsuite.support import init_tests, selftest
 
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Note: please only use a subset of unittest methods which were present
+# in Python 2.5: assert(True|False|Equal|NotEqual|Raises)
+
 
 class Pep8TestCase(unittest.TestCase):
+    """Test the standard errors and warnings (E and W)."""
 
     def setUp(self):
         self._style = pep8.StyleGuide(
@@ -44,6 +48,7 @@ class Pep8TestCase(unittest.TestCase):
 
 
 class APITestCase(unittest.TestCase):
+    """Test the public methods."""
 
     def setUp(self):
         self._saved_checks = pep8._checks
