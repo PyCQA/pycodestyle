@@ -17,6 +17,19 @@ class X:
 
 
 #: E302
+#!python
+# -*- coding: utf-8 -*-
+def a():
+    pass
+#: E302
+"""Main module."""
+def _main():
+    pass
+#: E302
+import sys
+def get_sys_path():
+    return sys.path
+#: E302
 def a():
     pass
 

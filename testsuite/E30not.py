@@ -1,3 +1,19 @@
+#: Okay
+class X:
+    pass
+#: Okay
+
+def foo():
+    pass
+#: Okay
+# -*- coding: utf-8 -*-
+class X:
+    pass
+#: Okay
+# -*- coding: utf-8 -*-
+def foo():
+    pass
+#: Okay
 class X:
 
     def a():
