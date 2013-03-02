@@ -45,7 +45,7 @@ class Pep8TestCase(unittest.TestCase):
                          msg='Failures: %s' % report.messages)
 
 
-def _main():
+def suite():
     from testsuite.test_api import APITestCase
     from testsuite.test_shell import ShellTestCase
 
@@ -53,8 +53,11 @@ def _main():
     suite.addTest(unittest.makeSuite(Pep8TestCase))
     suite.addTest(unittest.makeSuite(APITestCase))
     suite.addTest(unittest.makeSuite(ShellTestCase))
-    runner = unittest.TextTestRunner(verbosity=2)
-    return runner.run(suite)
+    return suite
+
+
+def test_main():
+    return unittest.TextTestRunner(verbosity=2).run(suite())
 
 if __name__ == '__main__':
-    sys.exit(not _main())
+    sys.exit(not test_main())
