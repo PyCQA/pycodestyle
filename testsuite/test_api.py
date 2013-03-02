@@ -118,7 +118,8 @@ class APITestCase(unittest.TestCase):
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 1)
-        self.assertTrue(stdout[0].startswith("missing-file:1:1: E902 IOError"))
+        # < 3.3 returns IOError; >= 3.3 returns FileNotFoundError
+        self.assertTrue(stdout[0].startswith("missing-file:1:1: E902 "))
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -289,6 +290,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(report.total_errors)
 
         self.assertRaises(TypeError, pep8style.check_files, 42)
-        self.assertRaises(TypeError, pep8style.check_files, [42])
+        # < 3.3 raises TypeError; >= 3.3 raises AttributeError
+        self.assertRaises(Exception, pep8style.check_files, [42])
         # TODO: runner
         # TODO: input_file
