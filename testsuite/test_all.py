@@ -17,7 +17,7 @@ class Pep8TestCase(unittest.TestCase):
     def setUp(self):
         self._style = pep8.StyleGuide(
             paths=[os.path.join(ROOT_DIR, 'testsuite')],
-            ignore=None, quiet=True)
+            select='E,W', quiet=True)
 
     def test_doctest(self):
         import doctest

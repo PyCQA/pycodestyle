@@ -4,15 +4,7 @@ import sys
 import unittest
 
 import pep8
-from testsuite.support import ROOT_DIR
-
-
-class PseudoFile(list):
-    """Simplified file interface."""
-    write = list.append
-
-    def __str__(self):
-        return ''.join(self)
+from testsuite.support import ROOT_DIR, PseudoFile
 
 
 class ShellTestCase(unittest.TestCase):
@@ -52,7 +44,7 @@ class ShellTestCase(unittest.TestCase):
             errorcode = None
         except SystemExit:
             errorcode = sys.exc_info()[1].code
-        return str(sys.stdout), str(sys.stderr), errorcode
+        return sys.stdout.getvalue(), sys.stderr.getvalue(), errorcode
 
     def test_print_usage(self):
         stdout, stderr, errcode = self.pep8('--help')

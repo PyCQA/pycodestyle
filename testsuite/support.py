@@ -9,6 +9,14 @@ SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+class PseudoFile(list):
+    """Simplified file interface."""
+    write = list.append
+
+    def getvalue(self):
+        return ''.join(self)
+
+
 class TestReport(StandardReport):
     """Collect the results for the tests."""
 
