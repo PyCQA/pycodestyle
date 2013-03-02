@@ -23,6 +23,9 @@ Changelog
 * Reorganize the tests and add tests for the API and for the command line
   usage and options. (Issues #161 and #162)
 
+* Ignore all checks which are not explicitly selected when ``select`` is
+  passed to the ``StyleGuide`` constructor.
+
 
 1.4.4 (2013-02-24)
 ------------------
