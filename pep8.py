@@ -691,10 +691,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     binary_usage = (prev_type not in SKIP_TOKENS)
 
                 if binary_usage:
-                    if text in WS_OPTIONAL_OPERATORS:
-                        need_space = None
-                    else:
-                        need_space = True
+                    need_space = None
             elif text in WS_OPTIONAL_OPERATORS:
                 need_space = None
 
