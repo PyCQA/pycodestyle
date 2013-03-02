@@ -46,18 +46,17 @@ class Pep8TestCase(unittest.TestCase):
 
 
 def suite():
-    from testsuite.test_api import APITestCase
-    from testsuite.test_shell import ShellTestCase
+    from testsuite import test_api, test_shell
 
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(Pep8TestCase))
-    suite.addTest(unittest.makeSuite(APITestCase))
-    suite.addTest(unittest.makeSuite(ShellTestCase))
+    suite.addTest(unittest.makeSuite(test_api.APITestCase))
+    suite.addTest(unittest.makeSuite(test_shell.ShellTestCase))
     return suite
 
 
-def test_main():
+def _main():
     return unittest.TextTestRunner(verbosity=2).run(suite())
 
 if __name__ == '__main__':
-    sys.exit(not test_main())
+    sys.exit(not _main())

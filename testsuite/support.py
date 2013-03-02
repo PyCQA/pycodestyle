@@ -140,7 +140,6 @@ def init_tests(pep8style):
         return report.counters['failed tests']
 
     pep8style.runner = run_tests
-init_tests.__test__ = False
 
 
 def run_tests(style):
@@ -159,4 +158,6 @@ def run_tests(style):
     if options.testsuite:
         init_tests(style)
     return style.check_files()
-run_tests.__test__ = False
+
+# nose should not collect these functions
+init_tests.__test__ = run_tests.__test__ = False
