@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+1.4.5 (2013-03-06)
+------------------
 
 * When no path is specified, do not try to read from stdin.  The feature
   was added in 1.4.3, but it is not supported on Windows.  Use ``-``
