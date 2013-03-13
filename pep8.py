@@ -105,6 +105,7 @@ KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
+NOTE_REGEX = re.compile(r'(TODO|FIXME)')  # noqa
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -227,6 +228,15 @@ def maximum_line_length(physical_line, max_line_length):
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
+
+
+def todo_notes(physical_line):
+    """Return lines with todo notes."""
+    if noqa(physical_line):
+        return
+    match = NOTE_REGEX.search(physical_line)
+    if match:
+        return match.start(), 'T000 %s' % match.group(0)
 
 
 ##############################################################################
