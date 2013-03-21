@@ -15,7 +15,7 @@ print "E124", ("visual",
 #: E124
 a = (123,
 )
-#: E125
+#: E129
 if (row < 0 or self.moduleCount <= row or
     col < 0 or self.moduleCount <= col):
     raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
@@ -92,7 +92,7 @@ def qualify_by_address(
     self, cr, uid, ids, context=None,
     params_to_check=frozenset(QUALIF_BY_ADDRESS_PARAM)):
     """ This gets called by the web server """
-#: E125
+#: E129
 if (a == 2 or
     b == "abc def ghi"
     "jkl mno"):

@@ -542,8 +542,11 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
         last_token_multiline = (start[0] != end[0])
 
     if indent_next and rel_indent[-1] == 4:
-        yield (last_indent, "E125 continuation line does not distinguish "
-               "itself from next logical line")
+        if visual_indent:
+            code = "E129 visually indented line"
+        else:
+            code = "E125 continuation line"
+        yield (last_indent, "%s with same indent as next logical line" % code)
 
 
 def whitespace_before_parameters(logical_line, tokens):

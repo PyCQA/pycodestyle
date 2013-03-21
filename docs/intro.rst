@@ -199,13 +199,15 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E124 (^) | closing bracket does not match visual indentation                    |
 +----------+----------------------------------------------------------------------+
-| E125 (^) | continuation line does not distinguish itself from next logical line |
+| E125 (^) | continuation line with same indent as next logical line              |
 +----------+----------------------------------------------------------------------+
 | E126 (^) | continuation line over-indented for hanging indent                   |
 +----------+----------------------------------------------------------------------+
 | E127 (^) | continuation line over-indented for visual indent                    |
 +----------+----------------------------------------------------------------------+
 | E128 (^) | continuation line under-indented for visual indent                   |
++----------+----------------------------------------------------------------------+
+| E129 (^) | visually indented line with same indent as next logical line         |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E2**   | *Whitespace*                                                         |
