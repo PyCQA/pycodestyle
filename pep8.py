@@ -402,10 +402,11 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
     E122: a = (\n42)
     E123: a = (\n    42\n    )
     E124: a = (24,\n     42\n)
-    E125: if (a or\n    b):\n    pass
+    E125: if (\n    b):\n    pass
     E126: a = (\n        42)
     E127: a = (24,\n      42)
     E128: a = (24,\n    42)
+    E129: if (a or\n    b):\n    pass
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
