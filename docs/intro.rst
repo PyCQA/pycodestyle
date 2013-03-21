@@ -191,21 +191,21 @@ This is the current list of error and warning codes:
 | E113     | unexpected indentation                                               |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E121     | continuation line indentation is not a multiple of four              |
+| E121 (^) | continuation line indentation is not a multiple of four              |
 +----------+----------------------------------------------------------------------+
-| E122     | continuation line missing indentation or outdented                   |
+| E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
-| E123     | closing bracket does not match indentation of opening bracket's line |
+| E123 (^) | closing bracket does not match indentation of opening bracket's line |
 +----------+----------------------------------------------------------------------+
-| E124     | closing bracket does not match visual indentation                    |
+| E124 (^) | closing bracket does not match visual indentation                    |
 +----------+----------------------------------------------------------------------+
-| E125     | continuation line does not distinguish itself from next logical line |
+| E125 (^) | continuation line does not distinguish itself from next logical line |
 +----------+----------------------------------------------------------------------+
-| E126     | continuation line over-indented for hanging indent                   |
+| E126 (^) | continuation line over-indented for hanging indent                   |
 +----------+----------------------------------------------------------------------+
-| E127     | continuation line over-indented for visual indent                    |
+| E127 (^) | continuation line over-indented for visual indent                    |
 +----------+----------------------------------------------------------------------+
-| E128     | continuation line under-indented for visual indent                   |
+| E128 (^) | continuation line under-indented for visual indent                   |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E2**   | *Whitespace*                                                         |
@@ -280,7 +280,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | **E5**   | *Line length*                                                        |
 +----------+----------------------------------------------------------------------+
-| E501     | line too long (82 > 79 characters)                                   |
+| E501 (^) | line too long (82 > 79 characters)                                   |
 +----------+----------------------------------------------------------------------+
 | E502     | the backslash is redundant between brackets                          |
 +----------+----------------------------------------------------------------------+
@@ -293,9 +293,9 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E703     | statement ends with a semicolon                                      |
 +----------+----------------------------------------------------------------------+
-| E711     | comparison to None should be 'if cond is None:'                      |
+| E711 (^) | comparison to None should be 'if cond is None:'                      |
 +----------+----------------------------------------------------------------------+
-| E712     | comparison to True should be 'if cond is True:' or 'if cond:'        |
+| E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
 +----------+----------------------------------------------------------------------+
 | E721     | do not compare types, use 'isinstance()'                             |
 +----------+----------------------------------------------------------------------+
@@ -340,6 +340,11 @@ This is the current list of error and warning codes:
 **(*)** In the default configuration, the checks **E226**, **E241**
 and **E242** are ignored because they are not rules unanimously accepted,
 and `PEP 8`_ does not enforce them.
+
+**(^)** These checks can be disabled at the line level using the ``# noqa``
+special comment.  This possibility should be reserved for special cases.
+
+  *Special cases aren't special enough to break the rules.*
 
 
 Note: most errors can be listed with such one-liner::
