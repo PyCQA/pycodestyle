@@ -215,9 +215,7 @@ def maximum_line_length(physical_line, max_line_length):
     """
     line = physical_line.rstrip()
     length = len(line)
-    if length > max_line_length:
-        if noqa(line):
-            return
+    if length > max_line_length and not noqa(line):
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
@@ -383,7 +381,7 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, "E113 unexpected indentation"
 
 
-def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
+def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
     r"""
     Continuation lines should align wrapped elements either vertically using
     Python's implicit line joining inside parentheses, brackets and braces, or
@@ -411,7 +409,7 @@ def continuation_line_indentation(logical_line, tokens, indent_level, verbose):
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
-    if nrows == 1 or noqa(tokens[0][4]):
+    if noqa or nrows == 1:
         return
 
     # indent_next tells us whether the next block is indented; assuming
@@ -565,11 +563,9 @@ def whitespace_before_parameters(logical_line, tokens):
     E211: dict ['key'] = list[index]
     E211: dict['key'] = list [index]
     """
-    prev_type = tokens[0][0]
-    prev_text = tokens[0][1]
-    prev_end = tokens[0][3]
+    prev_type, prev_text, __, prev_end, __ = tokens[0]
     for index in range(1, len(tokens)):
-        token_type, text, start, end, line = tokens[index]
+        token_type, text, start, end, __ = tokens[index]
         if (token_type == tokenize.OP and
             text in '([' and
             start != prev_end and
@@ -894,7 +890,7 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
-def comparison_to_singleton(logical_line):
+def comparison_to_singleton(logical_line, noqa):
     """
     Comparisons to singletons like None should always be done
     with "is" or "is not", never the equality operators.
@@ -908,7 +904,7 @@ def comparison_to_singleton(logical_line):
     set to some other value.  The other value might have a type (such as a
     container) that could be false in a boolean context!
     """
-    match = COMPARE_SINGLETON_REGEX.search(logical_line)
+    match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
     if match:
         same = (match.group(1) == '==')
         singleton = match.group(2)
@@ -1262,10 +1258,14 @@ class Checker(object):
         """
         self.mapping = []
         logical = []
+        comments = []
         length = 0
         previous = None
         for token in self.tokens:
             token_type, text = token[0:2]
+            if token_type == tokenize.COMMENT:
+                comments.append(text)
+                continue
             if token_type in SKIP_TOKENS:
                 continue
             if token_type == tokenize.STRING:
@@ -1288,6 +1288,7 @@ class Checker(object):
             length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
+        self.noqa = comments and noqa(''.join(comments))
         # With Python 2, if the line ends with '\r\r\n' the assertion fails
         # assert self.logical_line.strip() == self.logical_line
 
