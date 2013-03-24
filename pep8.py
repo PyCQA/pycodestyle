@@ -1820,13 +1820,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
-    if options.filename:
-        options.filename = options.filename.split(',')
+    options.filename = options.filename and options.filename.split(',')
     options.exclude = options.exclude.split(',')
-    if options.select:
-        options.select = options.select.split(',')
-    if options.ignore:
-        options.ignore = options.ignore.split(',')
+    options.select = options.select and options.select.split(',')
+    options.ignore = options.ignore and options.ignore.split(',')
 
     if options.diff:
         options.reporter = DiffReport
