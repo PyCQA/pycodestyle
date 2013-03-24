@@ -1533,6 +1533,30 @@ class StandardReport(BaseReport):
         return self.file_errors
 
 
+class ImmediateReport(BaseReport):
+    """Collect and print the results of the checks."""
+
+    def __init__(self, options):
+        super(ImmediateReport, self).__init__(options)
+        self._fmt = REPORT_FORMAT.get(options.format.lower(),
+                                      options.format)
+        self._repeat = options.repeat
+        self._show_source = options.show_source
+        self._show_pep8 = options.show_pep8
+
+    def error(self, line_number, offset, text, check):
+        """Report an error, according to options."""
+        code = super(ImmediateReport, self).error(line_number, offset,
+                                                  text, check)
+        if code and (self.counters[code] == 1 or self._repeat):
+            print(self._fmt % {
+                'path': self.filename,
+                'row': self.line_offset + line_number, 'col': offset + 1,
+                'code': code, 'text': text[5:],
+            })
+        return code
+
+
 class DiffReport(StandardReport):
     """Collect and print the results for the changed lines only."""
 
@@ -1719,6 +1743,8 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
+    parser.add_option('--immediate', action='store_true',
+                      help="don't cache the error output until EOF")
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
@@ -1824,6 +1850,9 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         stdin = stdin_get_value()
         options.selected_lines = parse_udiff(stdin, options.filename, args[0])
         args = sorted(options.selected_lines)
+
+    if options.immediate:
+        options.reporter = ImmediateReport
 
     return options, args
 
