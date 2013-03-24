@@ -69,7 +69,7 @@ if sys.platform == 'win32':
 else:
     DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
                                   os.path.expanduser('~/.config'), 'pep8')
-PROJECT_CONFIG = ('.pep8', 'tox.ini', 'setup.cfg')
+PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
@@ -1742,17 +1742,11 @@ def read_config(options, args, arglist, parser):
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
-        for name in PROJECT_CONFIG:
-            local_conf = os.path.join(parent, name)
-            if os.path.isfile(local_conf):
-                break
-        else:
-            parent, tail = os.path.split(parent)
-            continue
-        if options.verbose:
-            print('local configuration: %s' % local_conf)
-        config.read(local_conf)
-        break
+        if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
+            if options.verbose:
+                print('local configuration: in %s' % parent)
+            break
+        parent, tail = os.path.split(parent)
 
     pep8_section = parser.prog
     if config.has_section(pep8_section):

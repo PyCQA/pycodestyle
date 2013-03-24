@@ -7,6 +7,10 @@ Changelog
 
 * Honor ``# noqa`` for errors E711 and E712. (Issue #180)
 
+* When both a ``tox.ini`` and a ``setup.cfg`` are present in the project
+  directory, merge their contents.  The ``tox.ini`` file takes
+  precedence (same as before). (Issue #182)
+
 
 1.4.5 (2013-03-06)
 ------------------

@@ -163,9 +163,9 @@ Example::
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project level, a ``.pep8`` file, a ``tox.ini`` file or a ``setup.cfg``
-file is read if present.  Only the first file is considered.  If this file
-does not have a ``[pep8]`` section, no project specific configuration is
+At the project level, a ``tox.ini`` file or a ``setup.cfg`` file is read if
+present (``.pep8`` file is also supported, but it is deprecated).  If none of
+these files have a ``[pep8]`` section, no project specific configuration is
 loaded.
 
 If the ``ignore`` option is not in the configuration and not in the arguments,
