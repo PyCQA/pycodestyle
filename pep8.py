@@ -227,9 +227,48 @@ def maximum_line_length(physical_line, max_line_length):
                     "(%d > %d characters)" % (length, max_line_length))
 
 
-##############################################################################
-# Plugins (check functions) for logical lines
-##############################################################################
+def whitespace_after_block_comment(physical_line, lines, line_number):
+    """
+    Block comments should have an space after #
+
+    Block comments generally apply to some (or all) code that follows them,
+    and are indented to the same level as that code. Each line of a block
+    comment starts with a # and a single space (unless it is indented text
+    inside the comment).
+
+    Okay: # Block comment
+
+    Okay: # Block comment1
+          # Block comment2
+
+    E265: #Block comment
+
+    E266: # Block comment1
+
+          # Block comment2
+    """
+    line = physical_line.strip()
+    if len(line) > 2 and line_number != 1:
+        if line[0] == '#':
+            if line[1] != ' ':
+                return 0, "E265 not whitespace after # in block comments"
+            else:
+                # Check not blank lines between two valid block comments
+                if line_number > 2:
+                    for index_line in range(line_number - 2, 0, -1):
+                        line_before = lines[index_line].strip()
+                        if line_before == '':
+                            after_last_blank_line = lines[index_line - 1].strip()
+                            if after_last_blank_line != '' and after_last_blank_line[0] == '#':
+                                # previous comment should already be valid
+                                return 0, "E266 blank lines between block comments"
+                        else:
+                            # no more iteration is needed at this point
+                            break
+
+# #############################################################################
+#  Plugins (check functions) for logical lines
+# #############################################################################
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
@@ -430,6 +469,7 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
+    last_token_multiline = None
     for token_type, text, start, end, line in tokens:
 
         newline = row < start[0] - first_row
@@ -872,6 +912,7 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = "bbb " \\n    "ccc"
     """
     prev_start = prev_end = parens = 0
+    backslash = None
     for token_type, text, start, end, line in tokens:
         if start[0] != prev_start and parens and backslash:
             yield backslash, "E502 the backslash is redundant between brackets"
