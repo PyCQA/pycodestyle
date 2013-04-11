@@ -1637,7 +1637,7 @@ class StyleGuide(object):
             for filename in sorted(files):
                 # contain a pattern that matches?
                 if ((filename_match(filename, filepatterns) and
-                     not self.excluded(filename))):
+                     not self.excluded(os.path.join(root, filename)))):
                     runner(os.path.join(root, filename))
 
     def excluded(self, filename):
