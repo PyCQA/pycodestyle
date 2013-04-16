@@ -13,6 +13,8 @@ Changelog
 
 * Give priority to ``--select`` over ``--ignore``. (Issue #188)
 
+* Compare full path when exluding a file. (Issue #186)
+
 
 1.4.5 (2013-03-06)
 ------------------
