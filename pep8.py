@@ -1579,7 +1579,7 @@ class StyleGuide(object):
             options.ignore = tuple(DEFAULT_IGNORE.split(','))
         else:
             # Ignore all checks which are not explicitly selected
-            options.ignore = tuple(options.ignore or options.select and ('',))
+            options.ignore = ('',) if options.select else tuple(options.ignore)
         options.benchmark_keys = BENCHMARK_KEYS[:]
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')

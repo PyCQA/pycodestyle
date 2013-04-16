@@ -11,6 +11,8 @@ Changelog
   directory, merge their contents.  The ``tox.ini`` file takes
   precedence (same as before). (Issue #182)
 
+* Give priority to ``--select`` over ``--ignore``. (Issue #188)
+
 
 1.4.5 (2013-03-06)
 ------------------

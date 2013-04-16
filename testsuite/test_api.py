@@ -194,6 +194,18 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(options.select, ('E', 'W'))
         self.assertEqual(options.ignore, ('',))
 
+        options = parse_argv('--select E --ignore E24').options
+        self.assertEqual(options.select, ('E',))
+        self.assertEqual(options.ignore, ('',))
+
+        options = parse_argv('--ignore E --select E24').options
+        self.assertEqual(options.select, ('E24',))
+        self.assertEqual(options.ignore, ('',))
+
+        options = parse_argv('--ignore W --select E24').options
+        self.assertEqual(options.select, ('E24',))
+        self.assertEqual(options.ignore, ('',))
+
         pep8style = pep8.StyleGuide(paths=[E11])
         self.assertFalse(pep8style.ignore_code('E112'))
         self.assertFalse(pep8style.ignore_code('W191'))
