@@ -105,6 +105,7 @@ KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
+PARAMETER_ASSIGN = re.compile(r'[\w]+ = [\w]+')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -238,10 +239,19 @@ def whitespace_after_block_comment(physical_line, lines, line_number):
     comment starts with a # and a single space (unless it is indented text
     inside the comment).
 
+    The following exclusions have been added:
+        Sphynx style attribute documentation
+        Embedded Multi comments with #
+
     Okay: # Block comment
 
     Okay: # Block comment1
           # Block comment2
+
+    Okay: #: This param defines foo
+          foo = True
+
+    Okay: ############# FOO Functions #################
 
     E265: #Block comment
 
@@ -249,28 +259,51 @@ def whitespace_after_block_comment(physical_line, lines, line_number):
 
           # Block comment2
     """
+    ERROR_E266 = "E266 blank lines between block comments"
+    ERROR_E265 = "E265 not whitespace after # in block comments"
     line = physical_line.strip()
-    if len(line) > 2 and line_number != 1:
+    # Exclusions of inline comments
+    if line_number == 1 and line[0:2] == '#!':
+        # don't check first line when it's definition of python interpreter
+        return
+    if line[0:2] == '##':
+        # Exclude habitual ### for embedded multi comments
+        return
+    if line[0:3] == '#: ':
+        # next_line should be #: or a parameter assign
+        try:
+            next_line = lines[line_number].strip()
+            if next_line[0:3] == '#: ' or PARAMETER_ASSIGN.match(next_line):
+                # Exclude Synphix style attribute documentation
+                return
+        except IndexError:
+            # end of file arrived, we follow validation
+            pass
+
+    # Check when an inline comment may occur
+    if len(line) > 2:
         if line[0] == '#':
             if line[1] != ' ':
-                return 0, "E265 not whitespace after # in block comments"
+                return 0, ERROR_E265
             else:
                 # Check not blank lines between two valid block comments
                 if line_number > 2:
                     for index_line in range(line_number - 2, 0, -1):
                         line_before = lines[index_line].strip()
                         if line_before == '':
-                            after_last_blank_line = lines[index_line - 1].strip()
-                            if after_last_blank_line != '' and after_last_blank_line[0] == '#':
+                            next_line_before = lines[index_line - 1]
+                            next_line_before = next_line_before.strip()
+                            if next_line_before != '' \
+                                    and next_line_before[0] == '#':
                                 # previous comment should already be valid
-                                return 0, "E266 blank lines between block comments"
+                                return 0, ERROR_E266
                         else:
                             # no more iteration is needed at this point
                             break
 
-# #############################################################################
+##############################################################################
 #  Plugins (check functions) for logical lines
-# #############################################################################
+##############################################################################
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
