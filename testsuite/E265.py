@@ -12,6 +12,11 @@ aaa = 1
 
 def foo:
     pass
+#: Okay
+# example of docstring not parsing
+"""
+#foo not parsed
+"""
 #: E265
 #Block comment
 a = 1

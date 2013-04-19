@@ -62,6 +62,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
+
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__'
 DEFAULT_IGNORE = 'E226,E24'
 if sys.platform == 'win32':
@@ -95,7 +96,7 @@ INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
-DOCSTRING_REGEX = re.compile(r'u?r?["\']')
+DOCSTRING_REGEX = re.compile(r'u?r?(["\']{3})')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
@@ -111,6 +112,9 @@ PARAMETER_ASSIGN = re.compile(r'[\w]+ = [\w]+')
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
+# global parameters to detect block comments and docstring
+_commented_block = False
+_begin_block = None
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -253,7 +257,14 @@ def whitespace_after_block_comment(physical_line, lines, line_number):
 
     Okay: ############# FOO Functions #################
 
+    Okay: '''FOO docstring
+             #foo
+          '''
+
     E265: #Block comment
+
+    E265: # Block comment
+          #Block comment second
 
     E266: # Block comment1
 
@@ -262,6 +273,27 @@ def whitespace_after_block_comment(physical_line, lines, line_number):
     ERROR_E266 = "E266 blank lines between block comments"
     ERROR_E265 = "E265 not whitespace after # in block comments"
     line = physical_line.strip()
+
+    # Exclude lines of docstring included between """ ... """
+    # Use local thread as a container for avoiding complex logic
+    global _commented_block, _begin_block
+    m = DOCSTRING_REGEX.match(line)
+    if m:
+        # mark docstring block as started, or finished
+        if _commented_block is False:  # mark begin of docstring
+            _begin_block = m.group(1)  # store begin
+            _commented_block = True
+        else:
+            # Check begin of docstring quotes to avoid false positives
+            if m.group(1) == _begin_block:
+                _commented_block = False
+                _begin_block = None
+        return
+
+    if _commented_block:
+        # We are inside block comments
+        return
+
     # Exclusions of inline comments
     if line_number == 1 and line[0:2] == '#!':
         # don't check first line when it's definition of python interpreter
@@ -279,7 +311,6 @@ def whitespace_after_block_comment(physical_line, lines, line_number):
         except IndexError:
             # end of file arrived, we follow validation
             pass
-
     # Check when an inline comment may occur
     if len(line) > 2:
         if line[0] == '#':
