@@ -50,6 +50,44 @@ result = {
             }
         ]
     }
+#: E123
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+    ]
+#: E123
+result = some_function_that_takes_arguments(
+    'a', 'b', 'c',
+    'd', 'e', 'f',
+    )
+#: E124
+my_list = [1, 2, 3,
+           4, 5, 6,
+]
+#: E124
+my_list = [1, 2, 3,
+           4, 5, 6,
+                   ]
+#: E124
+result = some_function_that_takes_arguments('a', 'b', 'c',
+                                            'd', 'e', 'f',
+)
+#: E121
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+     ]
+#: E126
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+        ]
+#: E122
+if True:
+    result = some_function_that_takes_arguments(
+        'a', 'b', 'c',
+        'd', 'e', 'f',
+)
 #: E121
 result = {
    'key1': 'value',

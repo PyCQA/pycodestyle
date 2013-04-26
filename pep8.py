@@ -457,17 +457,17 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
                 # an unbracketed continuation line (ie, backslash)
                 open_row = 0
             hang = rel_indent[row] - rel_indent[open_row]
-            visual_indent = indent_chances.get(start[1])
+            close_bracket = (token_type == tokenize.OP and text in ']})')
+            visual_indent = not close_bracket and indent_chances.get(start[1])
 
-            if token_type == tokenize.OP and text in ']})':
-                # this line starts with a closing bracket
-                if indent[depth]:
-                    if start[1] != indent[depth]:
-                        yield (start, "E124 closing bracket does not match "
-                               "visual indentation")
-                elif hang:
-                    yield (start, "E123 closing bracket does not match "
-                           "indentation of opening bracket's line")
+            if close_bracket and indent[depth]:
+                # closing bracket for visual indent
+                if start[1] != indent[depth]:
+                    yield (start, "E124 closing bracket does not match "
+                           "visual indentation")
+            elif close_bracket and not hang:
+                # closing bracket matches indentation of opening bracket's line
+                pass
             elif visual_indent is True:
                 # visual indent is verified
                 if not indent[depth]:
@@ -481,7 +481,9 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
                        "under-indented for visual indent")
             elif hang == 4 or (indent_next and rel_indent[row] == 8):
                 # hanging indent is verified
-                pass
+                if close_bracket:
+                    yield (start, "E123 closing bracket does not match "
+                           "indentation of opening bracket's line")
             else:
                 # indent is broken
                 if hang <= 0:

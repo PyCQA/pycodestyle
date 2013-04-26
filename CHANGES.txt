@@ -15,6 +15,8 @@ Changelog
 
 * Compare full path when exluding a file. (Issue #186)
 
+* Correctly report other E12 errors when E123 is ignored. (Issue #103)
+
 
 1.4.5 (2013-03-06)
 ------------------
