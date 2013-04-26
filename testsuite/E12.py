@@ -4,6 +4,11 @@ print "E121", (
 #: E122
 print "E122", (
 "dent")
+#: E123
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+    ]
 #: E124
 print "E124", ("visual",
                "indent_two"
@@ -37,6 +42,66 @@ print "E128", ("under-",
 #:
 
 
+#: E121
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+     ]
+#: E121
+result = {
+   'key1': 'value',
+   'key2': 'value',
+}
+#: E121
+rv.update(dict.fromkeys((
+    'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
+    'reasonComment_de', 'reasonComment_it'),
+          '?'),
+          "foo")
+#: E121
+abricot = 3 + \
+          4 + \
+          5 + 6
+#: E121
+print "hello", (
+
+    "there",
+     # "john",
+    "dude")
+#: E121
+part = set_mimetype((
+    a.get('mime_type', 'text')),
+                       'default')
+#:
+
+
+#: E122
+if True:
+    result = some_function_that_takes_arguments(
+        'a', 'b', 'c',
+        'd', 'e', 'f',
+)
+#: E122
+if some_very_very_very_long_variable_name or var \
+or another_very_long_variable_name:
+    raise Exception()
+#: E122
+if some_very_very_very_long_variable_name or var[0] \
+or another_very_long_variable_name:
+    raise Exception()
+#: E122
+if True:
+    if some_very_very_very_long_variable_name or var \
+    or another_very_long_variable_name:
+        raise Exception()
+#: E122
+if True:
+    if some_very_very_very_long_variable_name or var[0] \
+    or another_very_long_variable_name:
+        raise Exception()
+#:
+
+
 #: E123 W291
 print "E123", (   
     "bad", "hanging", "close"
@@ -50,11 +115,6 @@ result = {
             }
         ]
     }
-#: E123
-my_list = [
-    1, 2, 3,
-    4, 5, 6,
-    ]
 #: E123
 result = some_function_that_takes_arguments(
     'a', 'b', 'c',
@@ -72,41 +132,32 @@ my_list = [1, 2, 3,
 result = some_function_that_takes_arguments('a', 'b', 'c',
                                             'd', 'e', 'f',
 )
-#: E121
-my_list = [
-    1, 2, 3,
-    4, 5, 6,
-     ]
-#: E126
-my_list = [
-    1, 2, 3,
-    4, 5, 6,
-        ]
-#: E122
-if True:
-    result = some_function_that_takes_arguments(
-        'a', 'b', 'c',
-        'd', 'e', 'f',
+#: E124
+fooff(aaaa,
+      cca(
+          vvv,
+          dadd
+      ), fff,
 )
-#: E121
-result = {
-   'key1': 'value',
-   'key2': 'value',
-}
-#: E121
-rv.update(dict.fromkeys((
-    'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
-    'reasonComment_de', 'reasonComment_it'),
-          '?'),
-          "foo")
-#: E121
-abricot = 3 + \
-          4 + \
-          5 + 6
-#: E126
-abris = 3 + \
-        4 + \
-        5 + 6
+#: E124
+fooff(aaaa,
+      ccaaa(
+          vvv,
+          dadd
+      ),
+      fff,
+)
+#: E124
+d = dict('foo',
+         help="exclude files or directories which match these "
+              "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
+              )
+#: E124 E128
+if line_removed:
+    self.event(cr, uid,
+        name="Removing the option for contract",
+        description="contract line has been removed",
+        )
 #:
 
 
@@ -139,6 +190,15 @@ if (a == 2 or
 
 
 #: E126
+my_list = [
+    1, 2, 3,
+    4, 5, 6,
+        ]
+#: E126
+abris = 3 + \
+        4 + \
+        5 + 6
+#: E126
 fixed = re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] + \
         target[c + 1:]
 #: E126
@@ -168,6 +228,18 @@ if (
     ) or
         y == 4):
     pass
+#: E126
+troublesome_hash = {
+    "hash": "value",
+    "long": "the quick brown fox jumps over the lazy dog before doing a "
+        "somersault",
+}
+#: E126
+# probably not easily fixed, without using 'ast'
+troublesome_hash_ii = {
+    "long key that tends to happen more when you're indented":
+        "stringwithalongtoken you don't want to break",
+}
 #:
 
 
@@ -188,43 +260,6 @@ def qualify_by_address(self, cr, uid, ids, context=None,
 #:
 
 
-#: E121
-print "hello", (
-
-    "there",
-     # "john",
-    "dude")
-#: E121
-part = set_mimetype((
-    a.get('mime_type', 'text')),
-                       'default')
-#: E124
-fooff(aaaa,
-      cca(
-          vvv,
-          dadd
-      ), fff,
-)
-#: E124
-fooff(aaaa,
-      ccaaa(
-          vvv,
-          dadd
-      ),
-      fff,
-)
-#: E126
-troublesome_hash = {
-    "hash": "value",
-    "long": "the quick brown fox jumps over the lazy dog before doing a "
-        "somersault",
-}
-#: E126
-# probably not easily fixed, without using 'ast'
-troublesome_hash_ii = {
-    "long key that tends to happen more when you're indented":
-        "stringwithalongtoken you don't want to break",
-}
 #: E128
 foo(1, 2, 3,
 4, 5, 6)
@@ -264,17 +299,6 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
-#: E124
-d = dict('foo',
-         help="exclude files or directories which match these "
-              "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
-              )
-#: E124 E128
-if line_removed:
-    self.event(cr, uid,
-        name="Removing the option for contract",
-        description="contract line has been removed",
-        )
 #: E128
 if line_removed:
     self.event(cr, uid,
@@ -302,22 +326,4 @@ input1 = {'a': {'calc': 1 + 2}, 'b': 1
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))
-#: E122
-if some_very_very_very_long_variable_name or var \
-or another_very_long_variable_name:
-    raise Exception()
-#: E122
-if some_very_very_very_long_variable_name or var[0] \
-or another_very_long_variable_name:
-    raise Exception()
-#: E122
-if True:
-    if some_very_very_very_long_variable_name or var \
-    or another_very_long_variable_name:
-        raise Exception()
-#: E122
-if True:
-    if some_very_very_very_long_variable_name or var[0] \
-    or another_very_long_variable_name:
-        raise Exception()
 #:
