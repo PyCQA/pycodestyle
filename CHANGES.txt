@@ -13,7 +13,7 @@ Changelog
 
 * Give priority to ``--select`` over ``--ignore``. (Issue #188)
 
-* Compare full path when exluding a file. (Issue #186)
+* Compare full path when excluding a file. (Issue #186)
 
 * Correctly report other E12 errors when E123 is ignored. (Issue #103)
 
