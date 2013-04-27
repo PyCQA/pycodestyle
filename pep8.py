@@ -1205,9 +1205,12 @@ class Checker(object):
 
     def report_invalid_syntax(self):
         exc_type, exc = sys.exc_info()[:2]
-        offset = exc.args[1]
-        if len(offset) > 2:
-            offset = offset[1:3]
+        if len(exc.args) > 1:
+            offset = exc.args[1]
+            if len(offset) > 2:
+                offset = offset[1:3]
+        else:
+            offset = (1, 0)
         self.report_error(offset[0], offset[1] or 0,
                           'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
                           self.report_invalid_syntax)
@@ -1324,7 +1327,7 @@ class Checker(object):
     def check_ast(self):
         try:
             tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
-        except SyntaxError:
+        except (SyntaxError, TypeError):
             return self.report_invalid_syntax()
         for name, cls, _ in self._ast_checks:
             checker = cls(tree, self.filename)

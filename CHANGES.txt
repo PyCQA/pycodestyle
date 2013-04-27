@@ -17,6 +17,9 @@ Changelog
 
 * Correctly report other E12 errors when E123 is ignored. (Issue #103)
 
+* Do not crash when running AST checks and the document contains null bytes.
+  (Issue #184)
+
 
 1.4.5 (2013-03-06)
 ------------------

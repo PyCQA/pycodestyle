@@ -10,6 +10,15 @@ from testsuite.support import ROOT_DIR, PseudoFile
 E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
 
 
+class DummyChecker(object):
+    def __init__(self, tree, filename):
+        pass
+
+    def run(self):
+        if False:
+            yield
+
+
 class APITestCase(unittest.TestCase):
     """Test the public methods."""
 
@@ -68,13 +77,6 @@ class APITestCase(unittest.TestCase):
                             for name, func, args in options.logical_checks))
 
     def test_register_ast_check(self):
-        class DummyChecker(object):
-            def __init__(self, tree, filename):
-                pass
-
-            def run(self):
-                if False:
-                    yield
         pep8.register_check(DummyChecker, ['Z701'])
 
         self.assertTrue(DummyChecker in pep8._checks['tree'])
@@ -87,18 +89,14 @@ class APITestCase(unittest.TestCase):
                             for name, cls, args in options.ast_checks))
 
     def test_register_invalid_check(self):
-        class DummyChecker(object):
+        class InvalidChecker(DummyChecker):
             def __init__(self, filename):
                 pass
-
-            def run(self):
-                if False:
-                    yield
 
         def check_dummy(logical, tokens):
             if False:
                 yield
-        pep8.register_check(DummyChecker, ['Z741'])
+        pep8.register_check(InvalidChecker, ['Z741'])
         pep8.register_check(check_dummy, ['Z441'])
 
         for checkers in pep8._checks.values():
@@ -306,3 +304,13 @@ class APITestCase(unittest.TestCase):
         self.assertRaises(Exception, pep8style.check_files, [42])
         # TODO: runner
         # TODO: input_file
+
+    def test_check_nullbytes(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
+
+        self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"))
+        self.assertFalse(sys.stderr)
+        self.assertEqual(count_errors, 1)
