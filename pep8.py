@@ -1413,6 +1413,8 @@ class Checker(object):
                     self.blank_lines = 0
                     if COMMENT_WITH_NL:
                         # The comment also ends a physical line
+                        text = text.rstrip('\r\n')
+                        self.tokens = [(token_type, text) + token[2:]]
                         self.check_logical()
         return self.report.get_file_results()
 
