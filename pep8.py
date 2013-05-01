@@ -1017,6 +1017,7 @@ if '' == ''.encode():
         finally:
             f.close()
 
+    BOM_UTF8 = '\xef\xbb\xbf'
     isidentifier = re.compile(r'[a-zA-Z_]\w*').match
     stdin_get_value = sys.stdin.read
 else:
@@ -1035,6 +1036,7 @@ else:
         finally:
             f.close()
 
+    BOM_UTF8 = '\ufeff'
     isidentifier = str.isidentifier
 
     def stdin_get_value():
@@ -1200,9 +1202,8 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
-        bom = '\xEF\xBB\xBF'
-        if len(self.lines) and self.lines[0].startswith(bom):
-            self.lines[0] = self.lines[0][len(bom):]
+        if self.lines and self.lines[0].startswith(BOM_UTF8):
+            self.lines[0] = self.lines[0][len(BOM_UTF8):]
         self.report = report or options.report
         self.report_error = self.report.error
 

@@ -20,6 +20,8 @@ Changelog
 * Do not crash when running AST checks and the document contains null bytes.
   (Issue #184)
 
+* Fix false positive E261/E262 when the file contains a BOM. (Issue #193)
+
 
 1.4.5 (2013-03-06)
 ------------------
