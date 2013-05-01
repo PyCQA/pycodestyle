@@ -1200,6 +1200,9 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
+        bom = '\xEF\xBB\xBF'
+        if len(self.lines) and self.lines[0].startswith(bom):
+            self.lines[0] = self.lines[0][len(bom):]
         self.report = report or options.report
         self.report_error = self.report.error
 
