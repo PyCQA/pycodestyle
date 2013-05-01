@@ -22,6 +22,8 @@ Changelog
 
 * Fix false positive E261/E262 when the file contains a BOM. (Issue #193)
 
+* Add E265 for space before block comment. (Issue #190)
+
 
 1.4.5 (2013-03-06)
 ------------------
