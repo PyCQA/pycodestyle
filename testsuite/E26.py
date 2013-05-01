@@ -9,7 +9,13 @@ x = y + 1  #:  Increment x
 #: E265
 #Block comment
 a = 1
+#: E265
+m = 42
+#! This is important
+mx = 42 - 42
 #: Okay
+#!/usr/bin/env python
+
 pass  # an inline comment
 x = x + 1   # Increment x
 y = y + 1   #: Increment x
