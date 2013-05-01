@@ -124,7 +124,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 4)
+        self.assertEqual(report.total_errors, 6)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -132,7 +132,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide(paths=[E11]).check_files()
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 4)
+        self.assertEqual(report.total_errors, 6)
         self.assertFalse(sys.stderr)
         self.reset()
 
