@@ -17,9 +17,12 @@ Changelog
 
 * Correctly report other E12 errors when E123 is ignored. (Issue #103)
 
-* New option `--hang-closing` to switch to the alternative style of
+* New option ``--hang-closing`` to switch to the alternative style of
   closing bracket indentation for hanging indent.  Add error E133 for
   closing bracket which is missing indentation. (Issue #103)
+
+* Accept both styles of closing bracket indentation for hanging indent.
+  Do not report error E123 in the default configuration. (Issue #103)
 
 * Do not crash when running AST checks and the document contains null bytes.
   (Issue #184)
