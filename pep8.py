@@ -842,19 +842,21 @@ def compound_statements(logical_line):
     line = logical_line
     last_char = len(line) - 1
     found = line.find(':')
-    if -1 < found < last_char:
+    while -1 < found < last_char:
         before = line[:found]
         if (before.count('{') <= before.count('}') and  # {'a': 1} (dict)
             before.count('[') <= before.count(']') and  # [1:2] (slice)
             before.count('(') <= before.count(')') and  # (Python 3 annotation)
                 not LAMBDA_REGEX.search(before)):       # lambda x: x
             yield found, "E701 multiple statements on one line (colon)"
+        found = line.find(':', found + 1)
     found = line.find(';')
-    if -1 < found:
+    while -1 < found:
         if found < last_char:
             yield found, "E702 multiple statements on one line (semicolon)"
         else:
             yield found, "E703 statement ends with a semicolon"
+        found = line.find(';', found + 1)
 
 
 def explicit_line_join(logical_line, tokens):

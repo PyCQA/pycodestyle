@@ -22,6 +22,8 @@ Changelog
 
 * Fix false positive E261/E262 when the file contains a BOM. (Issue #193)
 
+* Fix E701, E702 and E703 not detected sometimes. (Issue #196)
+
 
 1.4.5 (2013-03-06)
 ------------------
