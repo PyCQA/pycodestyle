@@ -302,8 +302,20 @@ class APITestCase(unittest.TestCase):
         self.assertRaises(TypeError, pep8style.check_files, 42)
         # < 3.3 raises TypeError; >= 3.3 raises AttributeError
         self.assertRaises(Exception, pep8style.check_files, [42])
-        # TODO: runner
-        # TODO: input_file
+
+    def test_check_unicode(self):
+        # Do not crash if lines are Unicode (Python 2.x)
+        pep8.register_check(DummyChecker, ['Z701'])
+        source = '#\n'
+        if hasattr(source, 'decode'):
+            source = source.decode('ascii')
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=[source])
+
+        self.assertFalse(sys.stdout)
+        self.assertFalse(sys.stderr)
+        self.assertEqual(count_errors, 0)
 
     def test_check_nullbytes(self):
         pep8.register_check(DummyChecker, ['Z701'])
@@ -314,3 +326,6 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"))
         self.assertFalse(sys.stderr)
         self.assertEqual(count_errors, 1)
+
+        # TODO: runner
+        # TODO: input_file
