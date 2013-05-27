@@ -65,6 +65,13 @@ if bar:
 	    "bracket's line"
 	)
 #
+#: W191
+if True:
+	print "line tab indented"
+#: Okay
+"""if True:
+	print "line tab indented"
+"""
 #: E101 W191
 # you want vertical alignment, so use a parens
 if ((foo.bar("baz") and
@@ -81,7 +88,7 @@ if (a == 2 or
     b == "abc def ghi"
          "jkl mno"):
 	return True
-#: E101 W191
+#: W191
 if (a == 2 or
     b == """abc def ghi
 jkl mno"""):

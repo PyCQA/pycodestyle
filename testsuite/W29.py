@@ -2,6 +2,17 @@
 # 情
 #: W291
 print 
+#: Okay
+"""this is a multi-line string
+trailing whilespace here  
+"""
+#: Okay
+"""trailing whitespace here 
+and on the following line
+    
+"""
+#: W291
+"""trailing whitespace not allowed after the string""" 
 #: W293
 class Foo(object):
     
