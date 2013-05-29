@@ -1750,10 +1750,14 @@ def read_config(options, args, arglist, parser):
     config = RawConfigParser()
 
     user_conf = options.config
-    if user_conf and os.path.isfile(user_conf):
-        if options.verbose:
-            print('user configuration: %s' % user_conf)
-        config.read(user_conf)
+    if user_conf:
+        if os.path.isfile(user_conf):
+            if options.verbose:
+                print('user configuration: %s' % user_conf)
+            config.read(user_conf)
+        else:
+            print('Not a file: %s' % user_conf)
+            sys.exit(1)
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
