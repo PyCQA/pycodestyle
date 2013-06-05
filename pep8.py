@@ -62,6 +62,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
+
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__'
 DEFAULT_IGNORE = 'E226,E24'
 if sys.platform == 'win32':
@@ -95,7 +96,7 @@ INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
-DOCSTRING_REGEX = re.compile(r'u?r?["\']')
+DOCSTRING_REGEX = re.compile(r'u?r?(["\']{3})')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
@@ -105,11 +106,15 @@ KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
+PARAMETER_ASSIGN = re.compile(r'[\w]+ = [\w]+')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
+# global parameters to detect block comments and docstring
+_commented_block = False
+_begin_block = None
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -227,8 +232,106 @@ def maximum_line_length(physical_line, max_line_length):
                     "(%d > %d characters)" % (length, max_line_length))
 
 
+def whitespace_after_block_comment(physical_line, lines, line_number):
+    """
+    Block comments should have an space after #
+
+    Block comments generally apply to some (or all) code that follows them,
+    and are indented to the same level as that code. Each line of a block
+    comment starts with a # and a single space (unless it is indented text
+    inside the comment).
+
+    The following exclusions have been added:
+        Sphynx style attribute documentation
+        Embedded Multi comments with #
+
+    Okay: # Block comment
+
+    Okay: # Block comment1
+          # Block comment2
+
+    Okay: #: This param defines foo
+          foo = True
+
+    Okay: ############# FOO Functions #################
+
+    Okay: '''FOO docstring
+             #foo
+          '''
+
+    E265: #Block comment
+
+    E265: # Block comment
+          #Block comment second
+
+    E266: # Block comment1
+
+          # Block comment2
+    """
+    ERROR_E266 = "E266 blank lines between block comments"
+    ERROR_E265 = "E265 not whitespace after # in block comments"
+    line = physical_line.strip()
+
+    # Exclude lines of docstring included between """ ... """
+    # Use local thread as a container for avoiding complex logic
+    global _commented_block, _begin_block
+    m = DOCSTRING_REGEX.match(line)
+    if m:
+        # mark docstring block as started, or finished
+        if _commented_block is False:  # mark begin of docstring
+            _begin_block = m.group(1)  # store begin
+            _commented_block = True
+        else:
+            # Check begin of docstring quotes to avoid false positives
+            if m.group(1) == _begin_block:
+                _commented_block = False
+                _begin_block = None
+        return
+
+    if _commented_block:
+        # We are inside block comments
+        return
+
+    # Exclusions of inline comments
+    if line_number == 1 and line[0:2] == '#!':
+        # don't check first line when it's definition of python interpreter
+        return
+    if line[0:2] == '##':
+        # Exclude habitual ### for embedded multi comments
+        return
+    if line[0:3] == '#: ':
+        # next_line should be #: or a parameter assign
+        try:
+            next_line = lines[line_number].strip()
+            if next_line[0:3] == '#: ' or PARAMETER_ASSIGN.match(next_line):
+                # Exclude Synphix style attribute documentation
+                return
+        except IndexError:
+            # end of file arrived, we follow validation
+            pass
+    # Check when an inline comment may occur
+    if len(line) > 2:
+        if line[0] == '#':
+            if line[1] != ' ':
+                return 0, ERROR_E265
+            else:
+                # Check not blank lines between two valid block comments
+                if line_number > 2:
+                    for index_line in range(line_number - 2, 0, -1):
+                        line_before = lines[index_line].strip()
+                        if line_before == '':
+                            next_line_before = lines[index_line - 1]
+                            next_line_before = next_line_before.strip()
+                            if next_line_before != '' \
+                                    and next_line_before[0] == '#':
+                                # previous comment should already be valid
+                                return 0, ERROR_E266
+                        else:
+                            # no more iteration is needed at this point
+                            break
+
 ##############################################################################
-# Plugins (check functions) for logical lines
+#  Plugins (check functions) for logical lines
 ##############################################################################
 
 
@@ -430,6 +533,7 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
+    last_token_multiline = None
     for token_type, text, start, end, line in tokens:
 
         newline = row < start[0] - first_row
@@ -876,6 +980,7 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = "bbb " \\n    "ccc"
     """
     prev_start = prev_end = parens = 0
+    backslash = None
     for token_type, text, start, end, line in tokens:
         if start[0] != prev_start and parens and backslash:
             yield backslash, "E502 the backslash is redundant between brackets"

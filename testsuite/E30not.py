@@ -97,17 +97,17 @@ def c():
 
 def d():
     pass
-
+#: Okay
 # This is a
 # ... multi-line comment
-
+#: Okay
 # And this one is
 # ... a second paragraph
 # ... which spans on 3 lines
-
-
+#: Okay
 # Function `e` is below
 # NOTE: Hey this is a testcase
+
 
 def e():
     pass
@@ -123,12 +123,10 @@ def a():
     print
 
 # Comment 1
-
+#: Okay
 # Comment 2
-
-
+#: Okay
 # Comment 3
-
 def b():
 
     pass
