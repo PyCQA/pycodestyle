@@ -159,6 +159,7 @@ Quick help is available on the command line::
     --max-line-length=n  set maximum allowed line length (default: 79)
     --max-doc-length=n   set maximum allowed doc line length and perform these
                          checks (unchecked if not set)
+    --indent-size=n      set how many spaces make up an indent (default: 4)
     --hang-closing       hang closing bracket instead of matching indentation of
                          opening bracket's line
     --format=format      set the error format [default|pylint|<custom>]
