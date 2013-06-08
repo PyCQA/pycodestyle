@@ -72,6 +72,7 @@ else:
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
+INDENT_SIZE = 4
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
@@ -355,9 +356,10 @@ def missing_whitespace(logical_line):
 
 
 def indentation(logical_line, previous_logical, indent_char,
-                indent_level, previous_indent_level):
+                indent_level, previous_indent_level,
+                indent_size, indent_size_str):
     r"""
-    Use 4 spaces per indentation level.
+    Use indent_size (usually 4) spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
@@ -372,8 +374,8 @@ def indentation(logical_line, previous_logical, indent_char,
     Okay: a = 1\nb = 2
     E113: a = 1\n    b = 2
     """
-    if indent_char == ' ' and indent_level % 4:
-        yield 0, "E111 indentation is not a multiple of four"
+    if indent_char == ' ' and indent_level % indent_size:
+        yield 0, "E111 indentation is not a multiple of " + indent_size_str
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
         yield 0, "E112 expected an indented block"
@@ -381,7 +383,8 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, "E113 unexpected indentation"
 
 
-def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
+def continued_indentation(logical_line, tokens, indent_level, noqa, verbose,
+                          indent_size, indent_size_str):
     r"""
     Continuation lines should align wrapped elements either vertically using
     Python's implicit line joining inside parentheses, brackets and braces, or
@@ -479,7 +482,8 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
                 # visual indent is broken
                 yield (start, "E128 continuation line "
                        "under-indented for visual indent")
-            elif hang == 4 or (indent_next and rel_indent[row] == 8):
+            elif (hang == indent_size or
+                  (indent_next and rel_indent[row] == 2 * indent_size)):
                 # hanging indent is verified
                 if close_bracket:
                     yield (start, "E123 closing bracket does not match "
@@ -490,8 +494,9 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
                     error = "E122", "missing indentation or outdented"
                 elif indent[depth]:
                     error = "E127", "over-indented for visual indent"
-                elif hang % 4:
-                    error = "E121", "indentation is not a multiple of four"
+                elif hang % indent_size:
+                    error = ("E121", "indentation is not a multiple of " +
+                                     indent_size_str)
                 else:
                     error = "E126", "over-indented for hanging indent"
                 yield start, "%s continuation line %s" % error
@@ -1183,6 +1188,9 @@ class Checker(object):
         self._logical_checks = options.logical_checks
         self._ast_checks = options.ast_checks
         self.max_line_length = options.max_line_length
+        self.indent_size = options.indent_size
+        self.indent_size_str = ({2: 'two', 4: 'four', 8: 'eight'}
+                                .get(self.indent_size, str(self.indent_size)))
         self.verbose = options.verbose
         self.filename = filename
         if filename is None:
@@ -1693,8 +1701,9 @@ def get_parser(prog='pep8', version=__version__):
     parser = OptionParser(prog=prog, version=version,
                           usage="%prog [options] input ...")
     parser.config_options = [
-        'exclude', 'filename', 'select', 'ignore', 'max-line-length', 'count',
-        'format', 'quiet', 'show-pep8', 'show-source', 'statistics', 'verbose']
+        'exclude', 'filename', 'select', 'ignore', 'max-line-length',
+        'indent-size', 'count', 'format', 'quiet', 'show-pep8', 'show-source',
+        'statistics', 'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
@@ -1728,6 +1737,10 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
                       help="set maximum allowed line length "
+                           "(default: %default)")
+    parser.add_option('--indent-size', type='int', metavar='n',
+                      default=INDENT_SIZE,
+                      help="set allowed indent size multiple (tab width) "
                            "(default: %default)")
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
