@@ -164,7 +164,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(pep8style.options.filename, ['*.py'])
         self.assertEqual(pep8style.options.format, 'default')
         self.assertEqual(pep8style.options.select, ())
-        self.assertEqual(pep8style.options.ignore, ('E226', 'E24'))
+        self.assertEqual(pep8style.options.ignore, ('E123', 'E226', 'E24'))
         self.assertEqual(pep8style.options.max_line_length, 79)
 
     def test_styleguide_ignore_code(self):
@@ -178,7 +178,7 @@ class APITestCase(unittest.TestCase):
 
         options = parse_argv('').options
         self.assertEqual(options.select, ())
-        self.assertEqual(options.ignore, ('E226', 'E24'))
+        self.assertEqual(options.ignore, ('E123', 'E226', 'E24'))
 
         options = parse_argv('--doctest').options
         self.assertEqual(options.select, ())

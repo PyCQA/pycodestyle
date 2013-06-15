@@ -134,6 +134,8 @@ Quick help is available on the command line::
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
     --max-line-length=n  set maximum allowed line length (default: 79)
+    --hang-closing       hang closing bracket instead of matching indentation of
+                         opening bracket's line
     --format=format      set the error format [default|pylint|<custom>]
     --diff               report only lines changed according to the unified diff
                          received on STDIN
@@ -145,8 +147,8 @@ Quick help is available on the command line::
       The project options are read from the [pep8] section of the tox.ini
       file or the setup.cfg file located in any parent folder of the path(s)
       being processed.  Allowed options are: exclude, filename, select,
-      ignore, max-line-length, count, format, quiet, show-pep8, show-source,
-      statistics, verbose.
+      ignore, max-line-length, hang-closing, count, format, quiet, show-pep8,
+      show-source, statistics, verbose.
 
       --config=path      user config file location (default: ~/.config/pep8)
 
@@ -195,7 +197,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
-| E123 (^) | closing bracket does not match indentation of opening bracket's line |
+| E123 (*) | closing bracket does not match indentation of opening bracket's line |
 +----------+----------------------------------------------------------------------+
 | E124 (^) | closing bracket does not match visual indentation                    |
 +----------+----------------------------------------------------------------------+
@@ -207,6 +209,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E128 (^) | continuation line under-indented for visual indent                   |
 +----------+----------------------------------------------------------------------+
+| E133 (*) | closing bracket is missing indentation                               |
 +----------+----------------------------------------------------------------------+
 | **E2**   | *Whitespace*                                                         |
 +----------+----------------------------------------------------------------------+
@@ -337,9 +340,11 @@ This is the current list of error and warning codes:
 | W604     | backticks are deprecated, use 'repr()'                               |
 +----------+----------------------------------------------------------------------+
 
-**(*)** In the default configuration, the checks **E226**, **E241**
-and **E242** are ignored because they are not rules unanimously accepted,
-and `PEP 8`_ does not enforce them.
+**(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
+**E241** and **E242** are ignored because they are not rules unanimously
+accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
+exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
+instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
