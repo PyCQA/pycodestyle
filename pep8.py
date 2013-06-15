@@ -93,6 +93,7 @@ BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
 RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
+EXCEPT_COMMA_TARGET_IDENTIFIER_REGEX = re.compile(r'except\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,\s*\w+\s*,\s*\w+')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
@@ -1003,6 +1004,21 @@ def python_3000_backticks(logical_line):
     pos = logical_line.find('`')
     if pos > -1:
         yield pos, "W604 backticks are deprecated, use 'repr()'"
+
+
+def python_3000_catching_exceptions(logical_line):
+    """
+    Commas to delineate exception identifier targets are removed in Python 3.
+    Use 'as' instead.
+
+    Okay: except DummyError as exc:
+    Okay: except (DummyError, AnotherError):
+    W605: except DummyError, exc:
+    """
+    match = EXCEPT_COMMA_TARGET_IDENTIFIER_REGEX.match(logical_line)
+    if match:
+        yield (match.end() - 1, "W605 commas to delineate exception "
+               " identifier targets are deprecated, use 'as'")
 
 
 ##############################################################################

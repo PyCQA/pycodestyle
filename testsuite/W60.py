@@ -12,3 +12,8 @@ if x <> 0:
     x = 0
 #: W604
 val = `1 + 2`
+#: W605
+try:
+    pass
+except KeyError, exc:
+    pass
