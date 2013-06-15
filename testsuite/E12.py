@@ -99,6 +99,12 @@ if True:
     if some_very_very_very_long_variable_name or var[0] \
     or another_very_long_variable_name:
         raise Exception()
+#: E122
+dictionary = [
+    "is": {
+    "nested": yes(),
+    },
+]
 #:
 
 

@@ -24,6 +24,8 @@ Changelog
 
 * Fix E701, E702 and E703 not detected sometimes. (Issue #196)
 
+* Fix E122 not detected in some cases. (Issue #201)
+
 
 1.4.5 (2013-03-06)
 ------------------
