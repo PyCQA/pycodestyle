@@ -535,6 +535,7 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
                 for idx in range(row, -1, -1):
                     if parens[idx]:
                         parens[idx] -= 1
+                        rel_indent[row] = rel_indent[idx]
                         break
             assert len(indent) == depth + 1
             if start[1] not in indent_chances:
@@ -543,7 +544,7 @@ def continued_indentation(logical_line, tokens, indent_level, noqa, verbose):
 
         last_token_multiline = (start[0] != end[0])
 
-    if indent_next and rel_indent[-1] == 4:
+    if indent_next and expand_indent(line) == indent_level + 4:
         yield (last_indent, "E125 continuation line does not distinguish "
                "itself from next logical line")
 

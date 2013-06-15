@@ -564,4 +564,18 @@ result = some_function_that_takes_arguments('a', 'b', 'c',
                                             'd', 'e', 'f',
                                             )
 
+# issue 203
+dica = {
+    ('abc'
+     'def'): (
+        'abc'),
+}
+
+(abcdef[0]
+       [1]) = (
+    'abc')
+
+('abc'
+ 'def') == (
+    'abc')
 #

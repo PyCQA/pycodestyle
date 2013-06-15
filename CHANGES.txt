@@ -26,6 +26,8 @@ Changelog
 
 * Fix E122 not detected in some cases. (Issue #201)
 
+* Fix false positive E121 with multiple brackets. (Issue #203)
+
 
 1.4.5 (2013-03-06)
 ------------------
