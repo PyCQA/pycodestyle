@@ -459,7 +459,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 open_row = 0
             hang = rel_indent[row] - rel_indent[open_row]
             close_bracket = (token_type == tokenize.OP and text in ']})')
-            visual_indent = not close_bracket and indent_chances.get(start[1])
+            visual_indent = (not close_bracket and hang > 0 and
+                             indent_chances.get(start[1]))
 
             if close_bracket and indent[depth]:
                 # closing bracket for visual indent
@@ -474,7 +475,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # visual indent is verified
                 if not indent[depth]:
                     indent[depth] = start[1]
-            elif hang > 0 and visual_indent in (text, str):
+            elif visual_indent in (text, str):
                 # ignore token lined up with matching one from a previous line
                 pass
             elif indent[depth] and start[1] < indent[depth]:

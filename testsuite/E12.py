@@ -105,6 +105,14 @@ dictionary = [
     "nested": yes(),
     },
 ]
+#: E122
+setup('',
+      scripts=[''],
+      classifiers=[
+      'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+      ])
 #:
 
 
