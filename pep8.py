@@ -1649,13 +1649,15 @@ class StyleGuide(object):
                 print('directory ' + root)
             counters['directories'] += 1
             for subdir in sorted(dirs):
-                if self.excluded(subdir, root):
+                path = path = os.path.join(root, subdir)
+                if self.excluded(path, root):
                     dirs.remove(subdir)
             for filename in sorted(files):
                 # contain a pattern that matches?
-                if ((filename_match(filename, filepatterns) and
-                     not self.excluded(filename, root))):
-                    runner(os.path.join(root, filename))
+                if filename_match(filename, filepatterns):
+                    path = os.path.join(root, filename)
+                    if not self.excluded(path, root):
+                        runner(path)
 
     def excluded(self, filename, parent=None):
         """
