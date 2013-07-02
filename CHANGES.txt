@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+1.4.6 (2013-07-02)
+------------------
 
 * Honor ``# noqa`` for errors E711 and E712. (Issue #180)
 
