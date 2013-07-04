@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+* Fix ignoring too many checks when ``--select`` is used with codes
+  declared in a flake8 extension. (Issue #216)
+
+
 1.4.6 (2013-07-02)
 ------------------
 

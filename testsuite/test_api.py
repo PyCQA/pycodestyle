@@ -219,6 +219,13 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.ignore_code('W191'))
         self.assertTrue(pep8style.ignore_code('E241'))
 
+        pep8style = pep8.StyleGuide(select=('F401',), paths=[E11])
+        self.assertEqual(pep8style.options.select, ('F401',))
+        self.assertEqual(pep8style.options.ignore, ('',))
+        self.assertFalse(pep8style.ignore_code('F'))
+        self.assertFalse(pep8style.ignore_code('F401'))
+        self.assertTrue(pep8style.ignore_code('F402'))
+
     def test_styleguide_excluded(self):
         pep8style = pep8.StyleGuide(paths=[E11])
 
