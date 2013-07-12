@@ -233,7 +233,7 @@ def maximum_line_length(physical_line, max_line_length):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical, previous_indent_level):
+                previous_logical, previous_indent_level, nested_function):
     r"""
     Separate top-level function and class definitions with two blank lines.
 
@@ -247,6 +247,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
 
     Okay: def a():\n    pass\n\n\ndef b():\n    pass
     Okay: def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass
+    Okay: def a():\n    c = 4\n    def b():\n        pass
 
     E301: class Foo:\n    b = 0\n    def bar():\n        pass
     E302: def a():\n    pass\n\ndef b(n):\n    pass
@@ -264,7 +265,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     elif logical_line.startswith(('def ', 'class ', '@')):
         if indent_level:
             if not (blank_lines or previous_indent_level < indent_level or
-                    DOCSTRING_REGEX.match(previous_logical)):
+                    DOCSTRING_REGEX.match(previous_logical) or
+                    nested_function):
                 yield 0, "E301 expected 1 blank line, found 0"
         elif blank_lines != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_lines
@@ -1319,6 +1321,12 @@ class Checker(object):
         indent = first_line[:self.mapping[0][1][2][1]]
         self.previous_indent_level = self.indent_level
         self.indent_level = expand_indent(indent)
+        for line in reversed(self.lines[:self.line_number]):
+            if line.startswith('def '):
+                self.nested_function = True
+                break
+        else:
+            self.nested_function = False
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
         for name, check, argument_names in self._logical_checks:
