@@ -2,12 +2,7 @@
 from __future__ import with_statement
 from setuptools import setup
 
-
-def get_version():
-    with open('pep8.py') as f:
-        for line in f:
-            if line.startswith('__version__'):
-                return eval(line.split('=')[-1])
+from pep8 import __version__
 
 
 def get_long_description():
@@ -20,7 +15,7 @@ def get_long_description():
 
 setup(
     name='pep8',
-    version=get_version(),
+    version=__version__,
     description="Python style guide checker",
     long_description=get_long_description(),
     keywords='pep8',
