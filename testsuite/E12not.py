@@ -128,7 +128,7 @@ part = [-1, (2, 3,
 fnct(1, 2, 3,
      4, 5, 6)
 
-fnct(1, 2, 3
+fnct(1, 2, 3,
      4, 5, 6,
      7, 8, 9,
      10, 11)
@@ -568,14 +568,19 @@ result = some_function_that_takes_arguments('a', 'b', 'c',
 dica = {
     ('abc'
      'def'): (
-        'abc'),
+         'abc'),
 }
 
 (abcdef[0]
        [1]) = (
-    'abc')
+           'abc')
 
 ('abc'
  'def') == (
-    'abc')
+     'abc')
 #
+
+# issue 214
+bar(
+    1).zap(
+        2)

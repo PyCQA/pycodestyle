@@ -431,6 +431,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
+    last_token_multiline = False
     for token_type, text, start, end, line in tokens:
 
         newline = row < start[0] - first_row
@@ -538,7 +539,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 for idx in range(row, -1, -1):
                     if parens[idx]:
                         parens[idx] -= 1
-                        rel_indent[row] = rel_indent[idx]
                         break
             assert len(indent) == depth + 1
             if start[1] not in indent_chances:
@@ -547,7 +547,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
 
         last_token_multiline = (start[0] != end[0])
 
-    if indent_next and expand_indent(line) == indent_level + 4:
+    if indent_next and rel_indent[-1] == 4:
         yield (last_indent, "E125 continuation line does not distinguish "
                "itself from next logical line")
 
@@ -880,6 +880,7 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = "bbb " \\n    "ccc"
     """
     prev_start = prev_end = parens = 0
+    backslash = None
     for token_type, text, start, end, line in tokens:
         if start[0] != prev_start and parens and backslash:
             yield backslash, "E502 the backslash is redundant between brackets"
