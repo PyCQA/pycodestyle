@@ -2,7 +2,12 @@
 from __future__ import with_statement
 from setuptools import setup
 
-from pep8 import __version__
+
+def get_version():
+    try:
+        return __import__('pep8').__version__
+    except ImportError:
+        return ""
 
 
 def get_long_description():
@@ -15,7 +20,7 @@ def get_long_description():
 
 setup(
     name='pep8',
-    version=__version__,
+    version=get_version(),
     description="Python style guide checker",
     long_description=get_long_description(),
     keywords='pep8',
