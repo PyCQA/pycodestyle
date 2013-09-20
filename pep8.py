@@ -54,6 +54,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import multiprocessing
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -1439,6 +1440,17 @@ class BaseReport(object):
         self.counters['files'] += 1
         self.counters['physical lines'] += len(lines)
 
+    def get_state(self):
+        return dict(total_errors=self.total_errors,
+                    counters=self.counters,
+                    messages=self.messages)
+
+    def update_state(self, state):
+        self.total_errors += state['total_errors']
+        for key, value in state['counters'].items():
+            self.counters[key] = self.counters.get(key, 0) + value
+        self.messages.update(state['messages'])
+
     def increment_logical_line(self):
         """Signal a new logical line."""
         self.counters['logical lines'] += 1
@@ -1581,8 +1593,8 @@ class StyleGuide(object):
             if 'paths' in options_dict:
                 self.paths = options_dict['paths']
 
-        self.runner = self.input_file
         self.options = options
+        self.n_jobs = int(self.options.jobs)
 
         if not options.reporter:
             options.reporter = BaseReport if options.quiet else StandardReport
@@ -1603,6 +1615,29 @@ class StyleGuide(object):
         options.logical_checks = self.get_checks('logical_line')
         options.ast_checks = self.get_checks('tree')
         self.init_report()
+        self.init_processing()
+
+    def init_processing(self):
+        if self.n_jobs == 1:
+            self.runner = self.input_file
+            return
+
+        self.task_queue = multiprocessing.Queue()
+        self.result_queue = multiprocessing.Queue()
+        self.runner = self.queue_file
+        for i in range(self.n_jobs):
+            p = multiprocessing.Process(target=self.process_main,
+                                        args=(self.task_queue,
+                                              self.result_queue))
+            p.start()
+
+    def collect_queues(self):
+        if self.n_jobs == 1:
+            return
+        report = self.options.report
+        for i in range(self.n_jobs):
+            self.task_queue.put('DONE')
+            report.update_state(self.result_queue.get())
 
     def init_report(self, reporter=None):
         """Initialize the report instance."""
@@ -1624,8 +1659,17 @@ class StyleGuide(object):
                     runner(path)
         except KeyboardInterrupt:
             print('... stopped')
+        self.collect_queues()
         report.stop()
         return report
+
+    def process_main(self, tasks, results):
+        for filename in iter(tasks.get, 'DONE'):
+            self.input_file(filename)
+        results.put(self.options.report.get_state())
+
+    def queue_file(self, filename):
+        self.task_queue.put(filename)
 
     def input_file(self, filename, lines=None, expected=None, line_offset=0):
         """Run all checks on a Python source file."""
@@ -1754,6 +1798,8 @@ def get_parser(prog='pep8', version=__version__):
                          help="run doctest on myself")
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
+    parser.add_option('-j', '--jobs', default='1',
+                      help="number of jobs to run simultaneously")
     return parser
 
 
