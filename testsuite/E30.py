@@ -1,13 +1,11 @@
 #: E301
 class X:
-
     def a():
         pass
     def b():
         pass
 #: E301
 class X:
-
     def a():
         pass
     # comment

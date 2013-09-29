@@ -132,3 +132,50 @@ def a():
 def b():
 
     pass
+
+
+# Nested functions
+def c():
+    def d():
+        pass
+    def f():
+        pass
+    @decorated
+    def g():
+        pass
+    def h():
+        pass
+
+
+# Function nested in a method
+class Foo(object):
+    def foo(self):
+        def bar():
+            pass
+        def bar2():
+            pass
+        @decorated
+        def bar3():
+            pass
+        def bar4():
+            pass
+
+    def bar(self):
+        pass
+
+
+# Class nested in a function
+def foo():
+    class A(object):
+        def a(self):
+            pass
+        def b(self):
+            pass
+        @decorated
+        def c(self):
+            pass
+        def d(self):
+            pass
+    class B(object):
+        def c(self):
+            pass

@@ -52,6 +52,7 @@ import sys
 import re
 import time
 import inspect
+from itertools import takewhile
 import keyword
 import tokenize
 from optparse import OptionParser
@@ -233,7 +234,7 @@ def maximum_line_length(physical_line, max_line_length):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical, previous_indent_level):
+                previous_logical, previous_indent_level, inside_function):
     r"""
     Separate top-level function and class definitions with two blank lines.
 
@@ -261,13 +262,16 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             yield 0, "E304 blank lines found after function decorator"
     elif blank_lines > 2 or (indent_level and blank_lines == 2):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
-    elif logical_line.startswith(('def ', 'class ', '@')):
-        if indent_level:
-            if not (blank_lines or previous_indent_level < indent_level or
-                    DOCSTRING_REGEX.match(previous_logical)):
-                yield 0, "E301 expected 1 blank line, found 0"
-        elif blank_lines != 2:
-            yield 0, "E302 expected 2 blank lines, found %d" % blank_lines
+    elif (logical_line.startswith(('def ', 'class ', '@')) and
+            not indent_level and blank_lines != 2):
+        yield 0, "E302 expected 2 blank lines, found %d" % blank_lines
+    elif (logical_line.startswith(('def ', '@')) and
+            0 < indent_level <= 4 and
+            not inside_function and
+            not blank_lines and
+            previous_indent_level >= indent_level and
+            not DOCSTRING_REGEX.match(previous_logical)):
+        yield 0, "E301 expected 1 blank line, found 0"
 
 
 def extraneous_whitespace(logical_line):
@@ -1319,6 +1323,14 @@ class Checker(object):
         indent = first_line[:self.mapping[0][1][2][1]]
         self.previous_indent_level = self.indent_level
         self.indent_level = expand_indent(indent)
+
+        # Is this line inside a global (non-indented) function?
+        def is_not_global_class(line):
+            return not line.startswith('class ')
+        lines = reversed(self.lines[:self.line_number])
+        lines = takewhile(is_not_global_class, lines)
+        self.inside_function = any(line.startswith('def ') for line in lines)
+
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
         for name, check, argument_names in self._logical_checks:
