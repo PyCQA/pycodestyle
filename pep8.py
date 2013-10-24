@@ -1009,6 +1009,40 @@ def python_3000_backticks(logical_line):
         yield pos, "W604 backticks are deprecated, use 'repr()'"
 
 
+def not_in(logical_line):
+    """
+    Check for use of "not in" for evaluating membership.
+
+    Okay: if x not in y:\n    pass
+    Okay: if not (X in Y or X is Z):\n    pass
+    Okay: if not (X in Y):\n    pass
+    E713: if not X in Y
+    E713: if not X.B in Y
+    """
+
+    split_line = logical_line.split()
+    if (len(split_line) == 5 and split_line[0] == 'if' and
+            split_line[1] == 'not' and split_line[3] == 'in' and not
+            split_line[2].startswith('(')):
+                yield (logical_line.find('not'), "E713: Use the 'not in' "
+                       "operator for collection membership evaluation")
+
+
+def is_not(logical_line):
+    """
+    Check for use of 'is not' for testing unequal identities.
+
+    Okay: if x is not y:\n    pass
+    E714: if not X is Y
+    E714: if not X.B is Y
+    """
+
+    split_line = logical_line.split()
+    if (len(split_line) == 5 and split_line[0] == 'if' and
+            split_line[1] == 'not' and split_line[3] == 'is'):
+                yield (logical_line.find('not'), "E714: Use the 'is not' "
+                       "operator when testing for unequal identities")
+
 ##############################################################################
 # Helper functions
 ##############################################################################
