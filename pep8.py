@@ -428,6 +428,11 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     indent_chances = {}
     last_indent = tokens[0][2]
     indent = [last_indent[1]]
+
+    # dict values on their own line can optionally be indented one level past
+    # the key
+    possible_dict_key_open = False
+
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -487,6 +492,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if close_bracket and not hang_closing:
                     yield (start, "E123 closing bracket does not match "
                            "indentation of opening bracket's line")
+            elif hang == 8 and newline and possible_dict_key_open:
+                # dict value is indented one level past the key
+                pass
             else:
                 # indent is broken
                 if hang <= 0:
@@ -544,6 +552,14 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if start[1] not in indent_chances:
                 # allow to line up tokens
                 indent_chances[start[1]] = text
+
+        # determine if the current token triggers an optional indentation block
+        # for dict values indented one level past the corresponding key
+        if possible_dict_key_open:
+            if token_type not in (tokenize.NL, tokenize.COMMENT):
+                possible_dict_key_open = False
+        elif text == ':':
+            possible_dict_key_open = True
 
         last_token_multiline = (start[0] != end[0])
 
