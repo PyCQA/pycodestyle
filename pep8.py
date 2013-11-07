@@ -1344,7 +1344,7 @@ class Checker(object):
         for name, cls, _ in self._ast_checks:
             checker = cls(tree, self.filename)
             for lineno, offset, text, check in checker.run():
-                if not noqa(self.lines[lineno - 1]):
+                if not self.lines or not noqa(self.lines[lineno - 1]):
                     self.report_error(lineno, offset, text, check)
 
     def generate_tokens(self):
