@@ -97,6 +97,14 @@ if length > options.max_line_length:
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
+#: W191
+'''
+	multiline string with tab in it'''
+#: E101 W191
+'''multiline string
+	with tabs
+   and spaces
+'''
 #: E101 W191
 if foo is None and bar is "frop" and \
         blah == 'yeah':

@@ -45,3 +45,11 @@ ddd = \
 ('''
     ''' + ' \
 ')
+#
+#: E501
+'''multiline string
+with a long long long long long long long long long long long long long long long long line
+'''
+#: E501
+'''same thing, but this time without a terminal newline in the string
+long long long long long long long long long long long long long long long long line'''
