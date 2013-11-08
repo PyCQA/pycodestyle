@@ -200,7 +200,7 @@ def missing_newline(physical_line):
         return len(physical_line), "W292 no newline at end of file"
 
 
-def maximum_line_length(physical_line, max_line_length):
+def maximum_line_length(physical_line, max_line_length, multiline):
     """
     Limit all lines to a maximum of 79 characters.
 
@@ -216,6 +216,10 @@ def maximum_line_length(physical_line, max_line_length):
     line = physical_line.rstrip()
     length = len(line)
     if length > max_line_length and not noqa(line):
+        # Sometimes, long lines in docstrings are hard to avoid -- like,
+        # a long URL that can't be wrapped because it has no whitespace.
+        if multiline and re.match(r'^\s*\S+$', line):
+            return
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
@@ -1187,6 +1191,7 @@ class Checker(object):
         self._logical_checks = options.logical_checks
         self._ast_checks = options.ast_checks
         self.max_line_length = options.max_line_length
+        self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
@@ -1358,10 +1363,12 @@ class Checker(object):
             # *not* check the last line: its newline is outside of the
             # multiline string, so we consider it a regular physical line
             # (it will be checked when we see the newline token).
+            self.multiline = True
             self.line_number = token[2][0]
             for line in token[1].split('\n')[:-1]:
                 self.check_physical(line + '\n')
                 self.line_number += 1
+            self.multiline = False
         elif token[0] in (tokenize.NEWLINE, tokenize.NL):
             self.check_physical(token[4])
 
