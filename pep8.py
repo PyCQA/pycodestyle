@@ -1363,6 +1363,8 @@ class Checker(object):
             # *not* check the last line: its newline is outside of the
             # multiline string, so we consider it a regular physical line
             # (it will be checked when we see the newline token).
+            if noqa(token[4]):
+                return
             self.multiline = True
             self.line_number = token[2][0]
             for line in token[1].split('\n')[:-1]:

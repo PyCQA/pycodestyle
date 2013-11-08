@@ -105,6 +105,20 @@ if os.path.exists(os.path.join(path, PEP8_BIN)):
 	with tabs
    and spaces
 '''
+#: Okay
+'''sometimes, you just need to go nuts in a multiline string
+	and allow all sorts of crap
+  like mixed tabs and spaces
+      
+or trailing whitespace  
+or long long long long long long long long long long long long long long long long long lines
+'''  # nopep8
+#: Okay
+'''this one
+	will get no warning
+even though the noqa comment is not immediately after the string
+''' + foo  # noqa
+#
 #: E101 W191
 if foo is None and bar is "frop" and \
         blah == 'yeah':
