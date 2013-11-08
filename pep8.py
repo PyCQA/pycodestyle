@@ -1249,7 +1249,7 @@ class Checker(object):
             arguments.append(getattr(self, name))
         return check(*arguments)
 
-    def check_physical(self, line_number, line):
+    def check_physical(self, line):
         """
         Run all physical checks on a raw input line.
         """
@@ -1258,7 +1258,7 @@ class Checker(object):
             result = self.run_check(check, argument_names)
             if result is not None:
                 offset, text = result
-                self.report_error(line_number, offset, text, check)
+                self.report_error(self.line_number, offset, text, check)
 
     def build_tokens_line(self):
         """
@@ -1358,12 +1358,12 @@ class Checker(object):
             # *not* check the last line: its newline is outside of the
             # multiline string, so we consider it a regular physical line
             # (it will be checked when we see the newline token).
-            line_number = token[2][0]
+            self.line_number = token[2][0]
             for line in token[1].split('\n')[:-1]:
-                self.check_physical(line_number, line + '\n')
-                line_number += 1
+                self.check_physical(line + '\n')
+                self.line_number += 1
         elif token[0] in (tokenize.NEWLINE, tokenize.NL):
-            self.check_physical(self.line_number, token[4])
+            self.check_physical(token[4])
 
     def check_all(self, expected=None, line_offset=0):
         """
