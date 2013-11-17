@@ -65,3 +65,6 @@ that I'm calling:
 
     http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
 """
+#: E501
+"""
+longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces"""
