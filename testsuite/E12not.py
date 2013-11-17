@@ -494,6 +494,7 @@ troublefree_hash = {
     ("long key that tends to happen more "
      "when you're indented"): "stringwithalongtoken you don't want to break",
 }
+
 # confusing but accepted... don't do that
 troublesome_hash = {
     "hash": "value",
@@ -501,6 +502,56 @@ troublesome_hash = {
     "somersault",
     "long key that tends to happen more "
     "when you're indented": "stringwithalongtoken you don't want to break",
+}
+
+# ideal form
+troublefree_hash = {
+    "long key that tends to happen more when you're indented":
+        "stringwithalongtoken you don't want to break",
+}
+
+# ideal forms with comments
+troublefree_hash = {
+    "long key that tends to happen more when you're indented":  # EOL comment
+        "stringwithalongtoken you don't want to break",
+}
+troublefree_hash = {
+    "long key that tends to happen more when you're indented":
+        # value comment
+        "stringwithalongtoken you don't want to break",
+}
+troublefree_hash = {
+    "long key that tends to happen more when you're indented":
+        # value comment
+        # over several lines
+        "stringwithalongtoken you don't want to break",
+}
+troublefree_hash = {
+    "long key that tends to happen more when you're indented":  # EOL comment
+        # with value comment
+        # over several lines
+        "stringwithalongtoken you don't want to break",
+}
+
+troublefree_hash_list = [
+    {
+        "long key that tends to happen more when you're indented":
+            "stringwithalongtoken you don't want to break",
+    },
+    {
+        "another long key that tends to happen more when you're indented":
+            "stringwithalongtoken you don't want to break",
+    }
+]
+troublefree_nested_hash = {
+    "one": {
+        "long key that tends to happen more when you're indented":
+            "stringwithalongtoken you don't want to break",
+    },
+    "two": {
+        "another long key that tends to happen more when you're indented":
+            "stringwithalongtoken you don't want to break",
+    }
 }
 
 #

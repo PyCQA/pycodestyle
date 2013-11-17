@@ -248,12 +248,6 @@ troublesome_hash = {
     "long": "the quick brown fox jumps over the lazy dog before doing a "
         "somersault",
 }
-#: E126
-# probably not easily fixed, without using 'ast'
-troublesome_hash_ii = {
-    "long key that tends to happen more when you're indented":
-        "stringwithalongtoken you don't want to break",
-}
 #:
 
 
