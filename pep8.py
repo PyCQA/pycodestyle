@@ -1356,13 +1356,28 @@ class Checker(object):
 
     def maybe_check_physical(self, token):
         """
-        If token calls for it, check current physical line(s).
+        If appropriate (based on token), check current physical line(s).
         """
-        if token[0] == tokenize.STRING and token[1].count('\n'):
-            # Check the physical lines that make up a multiline string. Do
-            # *not* check the last line: its newline is outside of the
-            # multiline string, so we consider it a regular physical line
-            # (it will be checked when we see the newline token).
+        # This is called after every token, but we only want to take action
+        # after a token that ends a line.
+        if token[0] in (tokenize.NEWLINE, tokenize.NL):
+            # Obviously, a newline token ends a single physical line.
+            self.check_physical(token[4])
+        elif token[0] == tokenize.STRING and token[1].count('\n'):
+            # Less obviously, a string that contains newlines is a
+            # multiline string, either triple-quoted or with internal
+            # newlines backslash-escaped. Check every physical line in the
+            # string *except* for the last one: its newline is outside of
+            # the multiline string, so we consider it a regular physical
+            # line, and will check it like any other physical line.
+            #
+            # Subtleties:
+            # - we don't *completely* ignore the last line; if it contains
+            #   the magical "# noqa" comment, we disable all physical
+            #   checks for the entire multiline string
+            # - have to wind self.line_number back because initially it
+            #   points to the last line of the string, and we want
+            #   check_physical() to give accurate feedback
             if noqa(token[4]):
                 return
             self.multiline = True
@@ -1371,8 +1386,6 @@ class Checker(object):
                 self.check_physical(line + '\n')
                 self.line_number += 1
             self.multiline = False
-        elif token[0] in (tokenize.NEWLINE, tokenize.NL):
-            self.check_physical(token[4])
 
     def check_all(self, expected=None, line_offset=0):
         """
