@@ -1838,6 +1838,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
                 args = ['.']
             else:
                 parser.error('input not specified')
+        elif not args:
+            args = ['.']
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
