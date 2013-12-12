@@ -1324,16 +1324,18 @@ class Checker(object):
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
-            for result in self.run_check(check, argument_names):
-                offset, text = result
-                if isinstance(offset, tuple):
-                    orig_number, orig_offset = offset
-                else:
-                    for token_offset, token in self.mapping:
-                        if offset >= token_offset:
-                            orig_number = token[2][0]
-                            orig_offset = (token[2][1] + offset - token_offset)
-                self.report_error(orig_number, orig_offset, text, check)
+            results = self.run_check(check, argument_names)
+            if results is not None:
+                for result in results
+                    offset, text = result
+                    if isinstance(offset, tuple):
+                        orig_number, orig_offset = offset
+                    else:
+                        for token_offset, token in self.mapping:
+                            if offset >= token_offset:
+                                orig_number = token[2][0]
+                                orig_offset = (token[2][1] + offset - token_offset)
+                    self.report_error(orig_number, orig_offset, text, check)
         self.previous_logical = self.logical_line
 
     def check_ast(self):
