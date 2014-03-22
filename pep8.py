@@ -1046,7 +1046,7 @@ else:
     def stdin_get_value():
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 readlines.__doc__ = "    Read the source code."
-noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
+noqa = re.compile(r'#\s*no(?:qa|pep8)\b', re.I).search
 
 
 def expand_indent(line):
