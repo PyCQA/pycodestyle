@@ -8,6 +8,8 @@ Changelog
 * Fix ignoring too many checks when ``--select`` is used with codes
   declared in a flake8 extension. (Issue #216)
 
+* Fix regression with multiple brackets. (Issue #214)
+
 
 1.4.6 (2013-07-02)
 ------------------

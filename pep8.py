@@ -424,6 +424,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     parens = [0] * nrows
     # relative indents of physical lines
     rel_indent = [0] * nrows
+    open_rows = [[0]]
     # visual indents
     indent_chances = {}
     last_indent = tokens[0][2]
@@ -448,17 +449,15 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             # record the initial indent.
             rel_indent[row] = expand_indent(line) - indent_level
 
-            if depth:
-                # a bracket expression in a continuation line.
-                # find the line that it was opened on
-                for open_row in range(row - 1, -1, -1):
-                    if parens[open_row]:
-                        break
-            else:
-                # an unbracketed continuation line (ie, backslash)
-                open_row = 0
-            hang = rel_indent[row] - rel_indent[open_row]
+            # identify closing bracket
             close_bracket = (token_type == tokenize.OP and text in ']})')
+
+            # is the indent relative to an opening bracket line?
+            valid_hang = 4 if (hang_closing or not close_bracket) else 0
+            for open_row in reversed(open_rows[depth]):
+                if rel_indent[row] == rel_indent[open_row] + valid_hang:
+                    break
+            hang = rel_indent[row] - rel_indent[open_row]
             visual_indent = (not close_bracket and hang > 0 and
                              indent_chances.get(start[1]))
 
@@ -519,6 +518,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if text in '([{':
                 depth += 1
                 indent.append(0)
+                if len(open_rows) == depth:
+                    open_rows.append([])
+                open_rows[depth].append(row)
                 parens[row] += 1
                 if verbose >= 4:
                     print("bracket depth %s seen, col %s, visual min = %s" %
@@ -532,13 +534,13 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 for ind in list(indent_chances):
                     if ind >= prev_indent:
                         del indent_chances[ind]
+                del open_rows[depth + 1:]
                 depth -= 1
                 if depth:
                     indent_chances[indent[depth]] = True
                 for idx in range(row, -1, -1):
                     if parens[idx]:
                         parens[idx] -= 1
-                        rel_indent[row] = rel_indent[idx]
                         break
             assert len(indent) == depth + 1
             if start[1] not in indent_chances:
