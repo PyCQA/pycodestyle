@@ -5,6 +5,7 @@ Changelog
 1.x (unreleased)
 ----------------
 
+* Allow the checkers to report errors on empty files. (Issue #240)
 * Fix ignoring too many checks when ``--select`` is used with codes
   declared in a flake8 extension. (Issue #216)
 
