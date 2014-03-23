@@ -15,6 +15,8 @@ Changelog
 * Fix ``StyleGuide`` to parse the local configuration if the
   keyword argument ``paths`` is specified. (Issue #246)
 
+* Fix a false positive E124 for hanging indent. (Issue #254)
+
 
 1.4.6 (2013-07-02)
 ------------------

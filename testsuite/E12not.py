@@ -588,3 +588,32 @@ bar(
     1).zap(
     2)
 #
+if True:
+
+    def example_issue254():
+        return [node.copy(
+            (
+                replacement
+                # First, look at all the node's current children.
+                for child in node.children
+                # Replace them.
+                for replacement in replace(child)
+            ),
+            dict(name=token.undefined)
+        )]
+
+
+def valid_example():
+    return [node.copy(properties=dict(
+            (key, val if val is not None else token.undefined)
+            for key, val in node.items()
+            ))]
+
+
+def other_example():
+    return [node.copy(properties=dict(
+        (key, val if val is not None else token.undefined)
+        for key, val in node.items()
+    ))]
+
+#

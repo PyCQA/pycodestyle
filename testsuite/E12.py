@@ -340,4 +340,17 @@ input1 = {'a': {'calc': 1 + 2}, 'b': 1
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))
+#: E123
+if True:
+    def example_issue254():
+        return [node.copy(
+            (
+                replacement
+                # First, look at all the node's current children.
+                for child in node.children
+                # Replace them.
+                for replacement in replace(child)
+                ),
+            dict(name=token.undefined)
+        )]
 #:

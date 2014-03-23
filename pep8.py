@@ -473,6 +473,16 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # closing bracket matches indentation of opening bracket's line
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
+            elif indent[depth] and start[1] < indent[depth]:
+                if visual_indent is not True:
+                    # visual indent is broken
+                    yield (start, "E128 continuation line "
+                           "under-indented for visual indent")
+            elif hang == 4 or (indent_next and rel_indent[row] == 8):
+                # hanging indent is verified
+                if close_bracket and not hang_closing:
+                    yield (start, "E123 closing bracket does not match "
+                           "indentation of opening bracket's line")
             elif visual_indent is True:
                 # visual indent is verified
                 if not indent[depth]:
@@ -480,15 +490,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             elif visual_indent in (text, str):
                 # ignore token lined up with matching one from a previous line
                 pass
-            elif indent[depth] and start[1] < indent[depth]:
-                # visual indent is broken
-                yield (start, "E128 continuation line "
-                       "under-indented for visual indent")
-            elif hang == 4 or (indent_next and rel_indent[row] == 8):
-                # hanging indent is verified
-                if close_bracket and not hang_closing:
-                    yield (start, "E123 closing bracket does not match "
-                           "indentation of opening bracket's line")
             else:
                 # indent is broken
                 if hang <= 0:
