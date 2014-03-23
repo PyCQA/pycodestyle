@@ -1764,25 +1764,60 @@ def get_parser(prog='pep8', version=__version__):
     return parser
 
 
+def _read_config(config_path, config, pep8_section):
+    """Update total `config` from a file on `config_path` path.
+    """
+    _config = RawConfigParser()
+    configs_parsed = _config.read(config_path)
+
+    # adjust exclude paths to the current working directory
+    if _config.has_section(pep8_section):
+        base_dir = os.path.abspath(os.path.dirname(config_path))
+        if _config.has_option(pep8_section, 'exclude'):
+            exclude = _config.get(pep8_section, 'exclude')
+            exclude = exclude.split(',')
+            for i, path in enumerate(exclude):
+                if path.startswith('./'):
+                    path = os.path.join(base_dir, path)
+                    path = os.path.relpath(path, os.getcwd())
+                    if not path.startswith('.'):
+                        path = os.path.join('.', path)
+                    exclude[i] = path
+            _config.set(pep8_section, 'exclude', ','.join(exclude))
+
+    # merge configuration
+    for section in _config.sections():
+        if not config.has_section(section):
+            config.add_section(section)
+        for option in _config.options(section):
+            config.set(section, option, _config.get(section, option))
+
+    return configs_parsed
+
+
 def read_config(options, args, arglist, parser):
     """Read both user configuration and local configuration."""
     config = RawConfigParser()
+    pep8_section = parser.prog
 
     user_conf = options.config
     if user_conf and os.path.isfile(user_conf):
         if options.verbose:
             print('user configuration: %s' % user_conf)
-        config.read(user_conf)
+        _read_config(user_conf, config, pep8_section)
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
-        if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
+        configs_parsed = []
+        for fn in PROJECT_CONFIG:
+            configs_parsed.extend(
+                _read_config(os.path.join(parent, fn), config, pep8_section))
+        if configs_parsed:
             if options.verbose:
                 print('local configuration: in %s' % parent)
             break
         (parent, tail) = os.path.split(parent)
 
-    pep8_section = parser.prog
     if config.has_section(pep8_section):
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list])
