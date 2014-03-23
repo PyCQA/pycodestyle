@@ -11,6 +11,12 @@ Changelog
 
 * Fix regression with multiple brackets. (Issue #214)
 
+* Allow long lines in multiline strings and comments if they cannot
+  be wrapped. (Issue #224).
+
+* Optionally disable physical line checks inside multiline strings,
+  using ``# noqa``. (Issue #242)
+
 
 1.4.6 (2013-07-02)
 ------------------

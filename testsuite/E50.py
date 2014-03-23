@@ -68,3 +68,37 @@ that I'm calling:
 #: E501
 """
 longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces"""
+#: Okay
+"""
+This
+                                                                       almost_empty_line
+"""
+#: E501
+"""
+This
+                                                                        almost_empty_line
+"""
+#: E501
+# A basic comment
+# with a long long long long long long long long long long long long long long long long line
+
+#
+#: Okay
+# I'm some great comment.  Because I'm so great, I'm going to give you a
+# reference to some valuable information about some API that I'm calling:
+#
+#     http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+
+import this
+
+# longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces
+
+#
+#: Okay
+# This
+#                                                                      almost_empty_line
+
+#
+#: E501
+# This
+#                                                                       almost_empty_line

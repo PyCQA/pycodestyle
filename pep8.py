@@ -218,7 +218,14 @@ def maximum_line_length(physical_line, max_line_length, multiline):
     if length > max_line_length and not noqa(line):
         # Sometimes, long lines in docstrings are hard to avoid -- like,
         # a long URL that can't be wrapped because it has no whitespace.
-        if multiline and re.match(r'^\s*\S+$', line):
+        # And similar case exists with URL in comments.
+        #
+        # A check is added to still report the error when the 72 first
+        # chars are whitespaces (79 - 7).
+        chunks = line.split()
+        if ((len(chunks) == 1 and multiline) or
+            (len(chunks) == 2 and chunks[0] == '#')) and \
+                len(line) - len(chunks[-1]) < max_line_length - 7:
             return
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
@@ -1351,8 +1358,8 @@ class Checker(object):
         tokengen = tokenize.generate_tokens(self.readline)
         try:
             for token in tokengen:
-                yield token
                 self.maybe_check_physical(token)
+                yield token
         except (SyntaxError, tokenize.TokenError):
             self.report_invalid_syntax()
 
@@ -1365,7 +1372,7 @@ class Checker(object):
         if token[0] in (tokenize.NEWLINE, tokenize.NL):
             # Obviously, a newline token ends a single physical line.
             self.check_physical(token[4])
-        elif token[0] == tokenize.STRING and token[1].count('\n'):
+        elif token[0] == tokenize.STRING and '\n' in token[1]:
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal
             # newlines backslash-escaped. Check every physical line in the
