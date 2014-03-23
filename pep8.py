@@ -1574,15 +1574,15 @@ class StyleGuide(object):
     def __init__(self, *args, **kwargs):
         # build options from the command line
         self.checker_class = kwargs.pop('checker_class', Checker)
-        arglist = kwargs.pop('arglist', None)
         parse_argv = kwargs.pop('parse_argv', False)
         config_file = kwargs.pop('config_file', None)
         parser = kwargs.pop('parser', None)
+        # build options from dict
+        options_dict = dict(*args, **kwargs)
+        arglist = None if parse_argv else options_dict.get('paths', None)
         options, self.paths = process_options(
             arglist, parse_argv, config_file, parser)
-        if args or kwargs:
-            # build options from dict
-            options_dict = dict(*args, **kwargs)
+        if options_dict:
             options.__dict__.update(options_dict)
             if 'paths' in options_dict:
                 self.paths = options_dict['paths']
@@ -1817,9 +1817,6 @@ def read_config(options, args, arglist, parser):
 def process_options(arglist=None, parse_argv=False, config_file=None,
                     parser=None):
     """Process options passed either via arglist or via command line args."""
-    if not arglist and not parse_argv:
-        # Don't read the command line if the module is used as a library.
-        arglist = []
     if not parser:
         parser = get_parser()
     if not parser.has_option('--config'):
@@ -1832,7 +1829,11 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
             (parser.prog, ', '.join(parser.config_options))))
         group.add_option('--config', metavar='path', default=config_file,
                          help="user config file location (default: %default)")
-    # If parse_argv is None, the arguments are parsed from sys.argv
+    # Don't read the command line if the module is used as a library.
+    if not arglist and not parse_argv:
+        arglist = []
+    # If parse_argv is True and arglist is None, arguments are
+    # parsed from the command line (sys.argv)
     (options, args) = parser.parse_args(arglist)
     options.reporter = None
 

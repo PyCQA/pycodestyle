@@ -12,6 +12,9 @@ Changelog
 
 * Fix regression with multiple brackets. (Issue #214)
 
+* Fix ``StyleGuide`` to parse the local configuration if the
+  keyword argument ``paths`` is specified. (Issue #246)
+
 
 1.4.6 (2013-07-02)
 ------------------
