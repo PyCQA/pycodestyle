@@ -1345,10 +1345,10 @@ class Checker(object):
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
-            for result in self.run_check(check, argument_names):
-                offset, text = result
+            for result in self.run_check(check, argument_names) or ():
+                (offset, text) = result
                 if isinstance(offset, tuple):
-                    orig_number, orig_offset = offset
+                    (orig_number, orig_offset) = offset
                 else:
                     for token_offset, token in self.mapping:
                         if offset >= token_offset:

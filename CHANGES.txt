@@ -20,6 +20,9 @@ Changelog
 * Fix behaviour when ``exclude`` is in the configuration file and
   the current directory is not the project directory. (Issue #247)
 
+* The logical checks can return ``None`` instead of an empty iterator.
+  (Issue #250)
+
 
 1.4.6 (2013-07-02)
 ------------------
