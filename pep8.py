@@ -1128,6 +1128,21 @@ def parse_udiff(diff, patterns=None, parent='.'):
                  if rows and filename_match(path, patterns)])
 
 
+def normalize_paths(value, parent=os.curdir):
+    """Parse a comma-separated list of paths.
+
+    Return a list of absolute paths.
+    """
+    if not value or isinstance(value, list):
+        return value
+    paths = []
+    for path in value.split(','):
+        if path.startswith('./'):
+            path = os.path.abspath(os.path.join(parent, path))
+        paths.append(path.rstrip('/'))
+    return paths
+
+
 def filename_match(filename, patterns, default=True):
     """
     Check if patterns contains a pattern that matches filename.
@@ -1594,8 +1609,6 @@ class StyleGuide(object):
         if not options.reporter:
             options.reporter = BaseReport if options.quiet else StandardReport
 
-        for index, value in enumerate(options.exclude):
-            options.exclude[index] = value.rstrip('/')
         options.select = tuple(options.select or ())
         if not (options.select or options.ignore or
                 options.testsuite or options.doctest) and DEFAULT_IGNORE:
@@ -1675,6 +1688,7 @@ class StyleGuide(object):
             return True
         if parent:
             filename = os.path.join(parent, filename)
+        filename = os.path.abspath(filename)
         return filename_match(filename, self.options.exclude)
 
     def ignore_code(self, code):
@@ -1774,9 +1788,11 @@ def read_config(options, args, arglist, parser):
             print('user configuration: %s' % user_conf)
         config.read(user_conf)
 
+    local_dir = os.curdir
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
         if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
+            local_dir = parent
             if options.verbose:
                 print('local configuration: in %s' % parent)
             break
@@ -1804,6 +1820,8 @@ def read_config(options, args, arglist, parser):
                 value = config.getint(pep8_section, opt)
             elif opt_type == 'string':
                 value = config.get(pep8_section, opt)
+                if normalized_opt == 'exclude':
+                    value = normalize_paths(value, local_dir)
             else:
                 assert opt_type in ('store_true', 'store_false')
                 value = config.getboolean(pep8_section, opt)
@@ -1851,7 +1869,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
     options.filename = options.filename and options.filename.split(',')
-    options.exclude = options.exclude.split(',')
+    options.exclude = normalize_paths(options.exclude)
     options.select = options.select and options.select.split(',')
     options.ignore = options.ignore and options.ignore.split(',')
 
