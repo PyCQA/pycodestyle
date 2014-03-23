@@ -424,10 +424,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     parens = [0] * nrows
     # relative indents of physical lines
     rel_indent = [0] * nrows
+    # for each depth, collect a list of opening rows
     open_rows = [[0]]
     # visual indents
     indent_chances = {}
     last_indent = tokens[0][2]
+    # for each depth, memorize the visual indent column
     indent = [last_indent[1]]
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
@@ -458,6 +460,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if rel_indent[row] == rel_indent[open_row] + valid_hang:
                     break
             hang = rel_indent[row] - rel_indent[open_row]
+            # is there any chance of visual indent?
             visual_indent = (not close_bracket and hang > 0 and
                              indent_chances.get(start[1]))
 
@@ -1202,7 +1205,7 @@ class Checker(object):
             try:
                 self.lines = readlines(filename)
             except IOError:
-                exc_type, exc = sys.exc_info()[:2]
+                (exc_type, exc) = sys.exc_info()[:2]
                 self._io_error = '%s: %s' % (exc_type.__name__, exc)
                 self.lines = []
         else:
@@ -1218,7 +1221,7 @@ class Checker(object):
         self.report_error = self.report.error
 
     def report_invalid_syntax(self):
-        exc_type, exc = sys.exc_info()[:2]
+        (exc_type, exc) = sys.exc_info()[:2]
         if len(exc.args) > 1:
             offset = exc.args[1]
             if len(offset) > 2:
@@ -1268,7 +1271,7 @@ class Checker(object):
         for name, check, argument_names in self._physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
-                offset, text = result
+                (offset, text) = result
                 self.report_error(self.line_number, offset, text, check)
 
     def build_tokens_line(self):
@@ -1281,7 +1284,7 @@ class Checker(object):
         length = 0
         previous = None
         for token in self.tokens:
-            token_type, text = token[0:2]
+            (token_type, text) = token[0:2]
             if token_type == tokenize.COMMENT:
                 comments.append(text)
                 continue
@@ -1290,8 +1293,8 @@ class Checker(object):
             if token_type == tokenize.STRING:
                 text = mute_string(text)
             if previous:
-                end_row, end = previous[3]
-                start_row, start = token[2]
+                (end_row, end) = previous[3]
+                (start_row, start) = token[2]
                 if end_row != start_row:    # different row
                     prev_text = self.lines[end_row - 1][end - 1]
                     if prev_text == ',' or (prev_text not in '{[('
@@ -1343,7 +1346,7 @@ class Checker(object):
             tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
         except (SyntaxError, TypeError):
             return self.report_invalid_syntax()
-        for name, cls, _ in self._ast_checks:
+        for name, cls, __ in self._ast_checks:
             checker = cls(tree, self.filename)
             for lineno, offset, text, check in checker.run():
                 if not self.lines or not noqa(self.lines[lineno - 1]):
@@ -1775,7 +1778,7 @@ def read_config(options, args, arglist, parser):
             if options.verbose:
                 print('local configuration: in %s' % parent)
             break
-        parent, tail = os.path.split(parent)
+        (parent, tail) = os.path.split(parent)
 
     pep8_section = parser.prog
     if config.has_section(pep8_section):
@@ -1783,7 +1786,7 @@ def read_config(options, args, arglist, parser):
                             for o in parser.option_list])
 
         # First, read the default values
-        new_options, _ = parser.parse_args([])
+        (new_options, __) = parser.parse_args([])
 
         # Second, parse the configuration
         for opt in config.options(pep8_section):
@@ -1805,7 +1808,7 @@ def read_config(options, args, arglist, parser):
             setattr(new_options, normalized_opt, value)
 
         # Third, overwrite with the command-line options
-        options, _ = parser.parse_args(arglist, values=new_options)
+        (options, __) = parser.parse_args(arglist, values=new_options)
     options.doctest = options.testsuite = False
     return options
 
@@ -1828,7 +1831,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
             (parser.prog, ', '.join(parser.config_options))))
         group.add_option('--config', metavar='path', default=config_file,
                          help="user config file location (default: %default)")
-    options, args = parser.parse_args(arglist)
+    # If parse_argv is None, the arguments are parsed from sys.argv
+    (options, args) = parser.parse_args(arglist)
     options.reporter = None
 
     if options.ensure_value('testsuite', False):
