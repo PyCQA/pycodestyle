@@ -30,6 +30,8 @@ Changelog
 * Do not report multiple E101 if only the first indentation starts
   with a tab. (Issue #237)
 
+* Fix a rare false positive W602. (Issue #34)
+
 
 1.4.6 (2013-07-02)
 ------------------
