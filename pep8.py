@@ -1265,7 +1265,12 @@ class Checker(object):
         """
         line = self.readline()
         if line:
-            self.check_physical(line)
+            for i, s in enumerate(["'''", '"""']):
+                self.string[i] = (self.string[i] + line.count(s)) % 2
+                if self.string[i]:
+                    break
+            if self.string == [0, 0]:
+                self.check_physical(line)
         return line
 
     def run_check(self, check, argument_names):
@@ -1391,6 +1396,7 @@ class Checker(object):
         self.previous_logical = ''
         self.tokens = []
         self.blank_lines = blank_lines_before_comment = 0
+        self.string = [0, 0]
         parens = 0
         for token in self.generate_tokens():
             self.tokens.append(token)
