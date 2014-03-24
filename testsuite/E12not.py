@@ -616,4 +616,7 @@ def other_example():
         for key, val in node.items()
     ))]
 
+foo([
+    'bug'
+])
 #
