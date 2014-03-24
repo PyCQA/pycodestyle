@@ -2,13 +2,13 @@
 }
 #: E901
 = [x
-#: E901 E101 W191
+#: E901 E101 E101 W191 W191
 while True:
     try:
 	    pass
 	except:
 		print 'Whoops'
-#: E122 E225 E251 E701
+#: E122 E122 E225 E251 E251 E701
 
 # Do not crash if code is invalid
 if msg:

@@ -1,15 +1,15 @@
 #: E221
 a = 12 + 3
 b = 4  + 5
-#: E221
+#: E221 E221
 x             = 1
 y             = 2
 long_variable = 3
-#: E221
+#: E221 E221
 x[0]          = 1
 x[1]          = 2
 long_variable = 3
-#: E221
+#: E221 E221
 x = f(x)          + 1
 y = long_variable + 2
 z = x[0]          + 3
@@ -23,11 +23,11 @@ long_variable = 3
 #: E222
 a = a +  1
 b = b + 10
-#: E222
+#: E222 E222
 x =            -1
 y =            -2
 long_variable = 3
-#: E222
+#: E222 E222
 x[0] =          1
 x[1] =          2
 long_variable = 3
@@ -68,9 +68,9 @@ z = (x + 1)** y
 _1kB = _1MB >>10
 #: E225
 _1kB = _1MB>> 10
-#: E225
+#: E225 E225
 i=i+ 1
-#: E225
+#: E225 E225
 i=i +1
 #: E225 E226
 i=i+1
@@ -86,7 +86,7 @@ c = (a+ b)*(a - b)
 
 #: E226
 z = 2**30
-#: E226
+#: E226 E226
 c = (a+b) * (a-b)
 #: E226
 norman = True+False
@@ -94,7 +94,7 @@ norman = True+False
 x = x*2 - 1
 #: E226
 x = x/2 - 1
-#: E226
+#: E226 E226
 hypot2 = x*x + y*y
 #: E226
 c = (a + b)*(a - b)

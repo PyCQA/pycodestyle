@@ -1,4 +1,4 @@
-#: E251
+#: E251 E251
 def foo(bar = False):
     '''Test function with an error in declaration'''
     pass
@@ -6,7 +6,7 @@ def foo(bar = False):
 foo(bar= True)
 #: E251
 foo(bar =True)
-#: E251
+#: E251 E251
 foo(bar = True)
 #: E251
 y = bar(root= "sdasd")

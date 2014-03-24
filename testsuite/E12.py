@@ -52,13 +52,13 @@ result = {
    'key1': 'value',
    'key2': 'value',
 }
-#: E121
+#: E121 E121
 rv.update(dict.fromkeys((
     'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
     'reasonComment_de', 'reasonComment_it'),
           '?'),
           "foo")
-#: E121
+#: E121 E121
 abricot = 3 + \
           4 + \
           5 + 6
@@ -121,7 +121,7 @@ print "E123", (
     "bad", "hanging", "close"
     )
 #
-#: E123
+#: E123 E123 E123
 result = {
     'foo': [
         'bar', {
@@ -166,7 +166,7 @@ d = dict('foo',
          help="exclude files or directories which match these "
               "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
               )
-#: E124 E128
+#: E124 E128 E128
 if line_removed:
     self.event(cr, uid,
         name="Removing the option for contract",
@@ -208,14 +208,14 @@ my_list = [
     1, 2, 3,
     4, 5, 6,
         ]
-#: E126
+#: E126 E126
 abris = 3 + \
         4 + \
         5 + 6
 #: E126
 fixed = re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] + \
         target[c + 1:]
-#: E126
+#: E126 E126
 rv.update(dict.fromkeys((
             'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
             'reasonComment_de', 'reasonComment_it'),
@@ -313,13 +313,13 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
-#: E128
+#: E128 E128
 if line_removed:
     self.event(cr, uid,
               name="Removing the option for contract",
               description="contract line has been removed",
                )
-#: E124 E127
+#: E124 E127 E127
 if line_removed:
     self.event(cr, uid,
                 name="Removing the option for contract",

@@ -38,7 +38,7 @@ if (
 	pass
 #:
 
-#: E101 W191
+#: E101 E101 W191 W191
 if start[1] > end_col and not (
         over_indent == 4 and indent_next):
 	return(0, "E121 continuation line over-"
@@ -56,7 +56,7 @@ def long_function_name(
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
 	raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
-#: E101 W191
+#: E101 E101 E101 E101 W191 W191 W191 W191 W191 W191
 if bar:
 	return(
 	    start, 'E121 lines starting with a '
@@ -86,14 +86,14 @@ if (a == 2 or
     b == """abc def ghi
 jkl mno"""):
 	return True
-#: E101 W191
+#: E101 W191 W191
 if length > options.max_line_length:
 	return options.max_line_length, \
 	    "E501 line too long (%d characters)" % length
 
 
 #
-#: E101 W191
+#: E101 W191 W191
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
