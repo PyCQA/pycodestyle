@@ -959,7 +959,7 @@ def comparison_type(logical_line):
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
 
-def python_3000_has_key(logical_line):
+def python_3000_has_key(logical_line, noqa):
     r"""
     The {}.has_key() method is removed in the Python 3.
     Use the 'in' operation instead.
@@ -967,6 +967,8 @@ def python_3000_has_key(logical_line):
     Okay: if "alph" in d:\n    print d["alph"]
     W601: assert d.has_key('alph')
     """
+    if noqa:
+        return
     pos = logical_line.find('.has_key(')
     if pos > -1:
         yield pos, "W601 .has_key() is deprecated, use 'in'"
