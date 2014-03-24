@@ -37,7 +37,7 @@ class TestReport(StandardReport):
                 self.counters[code] -= 1
         for code, extra in sorted(self.counters.items()):
             if code not in self._benchmark_keys:
-                if extra:
+                if extra and code in self.expected:
                     self.file_errors += 1
                     self.total_errors += 1
                     print('%s: error %s found too many times (+%d)' %
