@@ -967,10 +967,8 @@ def python_3000_has_key(logical_line, noqa):
     Okay: if "alph" in d:\n    print d["alph"]
     W601: assert d.has_key('alph')
     """
-    if noqa:
-        return
     pos = logical_line.find('.has_key(')
-    if pos > -1:
+    if pos > -1 and not noqa:
         yield pos, "W601 .has_key() is deprecated, use 'in'"
 
 
