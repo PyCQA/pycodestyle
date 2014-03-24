@@ -382,7 +382,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          noqa, verbose):
+                          indent_char, noqa, verbose):
     r"""
     Continuation lines should align wrapped elements either vertically using
     Python's implicit line joining inside parentheses, brackets and braces, or
@@ -420,6 +420,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     indent_next = logical_line.endswith(':')
 
     row = depth = 0
+    valid_hangs = (4,) if indent_char != '\t' else (4, 8)
     # remember how many brackets were opened on each line
     parens = [0] * nrows
     # relative indents of physical lines
@@ -455,11 +456,11 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             close_bracket = (token_type == tokenize.OP and text in ']})')
 
             # is the indent relative to an opening bracket line?
-            valid_hang = 4 if (hang_closing or not close_bracket) else 0
             for open_row in reversed(open_rows[depth]):
-                if rel_indent[row] == rel_indent[open_row] + valid_hang:
+                hang = rel_indent[row] - rel_indent[open_row]
+                hanging_indent = hang in valid_hangs
+                if hanging_indent:
                     break
-            hang = rel_indent[row] - rel_indent[open_row]
             # is there any chance of visual indent?
             visual_indent = (not close_bracket and hang > 0 and
                              indent_chances.get(start[1]))
@@ -478,7 +479,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     # visual indent is broken
                     yield (start, "E128 continuation line "
                            "under-indented for visual indent")
-            elif hang == 4 or (indent_next and rel_indent[row] == 8):
+            elif hanging_indent or (indent_next and rel_indent[row] == 8):
                 # hanging indent is verified
                 if close_bracket and not hang_closing:
                     yield (start, "E123 closing bracket does not match "

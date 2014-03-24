@@ -4,7 +4,7 @@ if False:
 #:
 
 
-#: E126 W191
+#: W191
 y = x == 2 \
 	or x == 3
 #: E101 W191
@@ -101,4 +101,23 @@ if os.path.exists(os.path.join(path, PEP8_BIN)):
 if foo is None and bar is "frop" and \
         blah == 'yeah':
 	blah = 'yeahnah'
+
+
+#
+#: W191 W191 W191
+if True:
+	foo(
+		1,
+		2)
+#: W191 W191 W191 W191 W191
+def test_keys(self):
+	"""areas.json - All regions are accounted for."""
+	expected = set([
+		u'Norrbotten',
+		u'V\xe4sterbotten',
+	])
+#: W191
+x = [
+	'abc'
+]
 #:

@@ -19,6 +19,8 @@ Changelog
 
 * Fix a false positive E126 with embedded colon. (Issue #144)
 
+* Fix a false positive E126 when indenting with tabs. (Issue #204)
+
 * Fix behaviour when ``exclude`` is in the configuration file and
   the current directory is not the project directory. (Issue #247)
 

@@ -25,4 +25,17 @@ class TestP4Poller(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+#
+#: E101 W191 W191
+if True:
+	foo(1,
+	    2)
+#: E101 E101 W191 W191
+def test_keys(self):
+    """areas.json - All regions are accounted for."""
+    expected = set([
+	u'Norrbotten',
+	u'V\xe4sterbotten',
+    ])
 #:
