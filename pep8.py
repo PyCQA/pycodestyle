@@ -1289,6 +1289,8 @@ class Checker(object):
             if result is not None:
                 (offset, text) = result
                 self.report_error(self.line_number, offset, text, check)
+                if text[:4] == 'E101':
+                    self.indent_char = line[0]
 
     def build_tokens_line(self):
         """

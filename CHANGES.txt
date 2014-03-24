@@ -23,6 +23,9 @@ Changelog
 * The logical checks can return ``None`` instead of an empty iterator.
   (Issue #250)
 
+* Do not report multiple E101 if only the first indentation starts
+  with a tab. (Issue #237)
+
 
 1.4.6 (2013-07-02)
 ------------------
