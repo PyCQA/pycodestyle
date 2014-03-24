@@ -5,6 +5,9 @@ Changelog
 1.x (unreleased)
 ----------------
 
+* Report E713 and E714 when operators ``not in`` and ``is not`` are
+  recommended. (Issue #236)
+
 * Allow the checkers to report errors on empty files. (Issue #240)
 
 * Fix ignoring too many checks when ``--select`` is used with codes
