@@ -17,6 +17,8 @@ Changelog
 
 * Fix a false positive E124 for hanging indent. (Issue #254)
 
+* Fix a false positive E126 with embedded colon. (Issue #144)
+
 * Fix behaviour when ``exclude`` is in the configuration file and
   the current directory is not the project directory. (Issue #247)
 

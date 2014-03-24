@@ -516,6 +516,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         # special case for the "if" statement because len("if (") == 4
         elif not indent_chances and not row and not depth and text == 'if':
             indent_chances[end[1] + 1] = True
+        elif text == ':' and line[end[1]:].isspace():
+            open_rows[depth].append(row)
 
         # keep track of bracket depth
         if token_type == tokenize.OP:

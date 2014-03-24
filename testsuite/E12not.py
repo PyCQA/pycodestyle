@@ -619,4 +619,16 @@ def other_example():
 foo([
     'bug'
 ])
+
+# issue 144, finally!
+some_hash = {
+    "long key that tends to happen more when you're indented":
+        "stringwithalongtoken you don't want to break",
+}
+
+{
+    1:
+        999999 if True
+        else 0,
+}
 #
