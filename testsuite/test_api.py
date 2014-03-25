@@ -336,7 +336,7 @@ class APITestCase(unittest.TestCase):
             expected = "stdin:1:2: E901 SyntaxError"
         else:
             expected = "stdin:1:1: E901 TypeError"
-        self.assertTrue(stdout.startswith(expected),,
+        self.assertTrue(stdout.startswith(expected),
                         msg='Output %r does not start with %r' %
                         (stdout, expected))
         self.assertFalse(sys.stderr)
