@@ -15,6 +15,12 @@ Changes:
 * Report E713 and E714 when operators ``not in`` and ``is not`` are
   recommended. (Issue #236)
 
+* Allow long lines in multiline strings and comments if they cannot
+  be wrapped. (Issue #224).
+
+* Optionally disable physical line checks inside multiline strings,
+  using ``# noqa``. (Issue #242)
+
 * Change text for E121 to report "continuation line under-indented
   for hanging indent" instead of indentation not being a
   multiple of 4.

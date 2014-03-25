@@ -201,7 +201,7 @@ def missing_newline(physical_line):
         return len(physical_line), "W292 no newline at end of file"
 
 
-def maximum_line_length(physical_line, max_line_length):
+def maximum_line_length(physical_line, max_line_length, multiline):
     """
     Limit all lines to a maximum of 79 characters.
 
@@ -217,6 +217,13 @@ def maximum_line_length(physical_line, max_line_length):
     line = physical_line.rstrip()
     length = len(line)
     if length > max_line_length and not noqa(line):
+        # Special case for long URLs in multi-line docstrings or comments,
+        # but still report the error when the 72 first chars are whitespaces.
+        chunks = line.split()
+        if ((len(chunks) == 1 and multiline) or
+            (len(chunks) == 2 and chunks[0] == '#')) and \
+                len(line) - len(chunks[-1]) < max_line_length - 7:
+            return
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
@@ -1251,6 +1258,7 @@ class Checker(object):
         self._logical_checks = options.logical_checks
         self._ast_checks = options.ast_checks
         self.max_line_length = options.max_line_length
+        self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
@@ -1299,16 +1307,9 @@ class Checker(object):
         self.line_number += 1
         if self.line_number > len(self.lines):
             return ''
-        return self.lines[self.line_number - 1]
-
-    def readline_check_physical(self):
-        """
-        Check and return the next physical line. This method can be
-        used to feed tokenize.generate_tokens.
-        """
-        line = self.readline()
-        if line:
-            self.check_physical(line)
+        line = self.lines[self.line_number - 1]
+        if self.indent_char is None and line[:1] in WHITESPACE:
+            self.indent_char = line[0]
         return line
 
     def run_check(self, check, argument_names):
@@ -1325,8 +1326,6 @@ class Checker(object):
         Run all physical checks on a raw input line.
         """
         self.physical_line = line
-        if self.indent_char is None and line[:1] in WHITESPACE:
-            self.indent_char = line[0]
         for name, check, argument_names in self._physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
@@ -1421,12 +1420,45 @@ class Checker(object):
     def generate_tokens(self):
         if self._io_error:
             self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
-        tokengen = tokenize.generate_tokens(self.readline_check_physical)
+        tokengen = tokenize.generate_tokens(self.readline)
         try:
             for token in tokengen:
+                self.maybe_check_physical(token)
                 yield token
         except (SyntaxError, tokenize.TokenError):
             self.report_invalid_syntax()
+
+    def maybe_check_physical(self, token):
+        """
+        If appropriate (based on token), check current physical line(s).
+        """
+        # Called after every token, but act only on end of line.
+        if token[0] in (tokenize.NEWLINE, tokenize.NL):
+            # Obviously, a newline token ends a single physical line.
+            self.check_physical(token[4])
+        elif token[0] == tokenize.STRING and '\n' in token[1]:
+            # Less obviously, a string that contains newlines is a
+            # multiline string, either triple-quoted or with internal
+            # newlines backslash-escaped. Check every physical line in the
+            # string *except* for the last one: its newline is outside of
+            # the multiline string, so we consider it a regular physical
+            # line, and will check it like any other physical line.
+            #
+            # Subtleties:
+            # - we don't *completely* ignore the last line; if it contains
+            #   the magical "# noqa" comment, we disable all physical
+            #   checks for the entire multiline string
+            # - have to wind self.line_number back because initially it
+            #   points to the last line of the string, and we want
+            #   check_physical() to give accurate feedback
+            if noqa(token[4]):
+                return
+            self.multiline = True
+            self.line_number = token[2][0]
+            for line in token[1].split('\n')[:-1]:
+                self.check_physical(line + '\n')
+                self.line_number += 1
+            self.multiline = False
 
     def check_all(self, expected=None, line_offset=0):
         """
