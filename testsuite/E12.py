@@ -42,7 +42,7 @@ print "E128", ("under-",
 #:
 
 
-#: E121
+#: E126
 my_list = [
     1, 2, 3,
     4, 5, 6,
@@ -52,23 +52,23 @@ result = {
    'key1': 'value',
    'key2': 'value',
 }
-#: E121 E121
+#: E126 E126
 rv.update(dict.fromkeys((
     'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
     'reasonComment_de', 'reasonComment_it'),
           '?'),
           "foo")
-#: E121 E121
+#: E126 E126
 abricot = 3 + \
           4 + \
           5 + 6
-#: E121
+#: E126
 print "hello", (
 
     "there",
      # "john",
     "dude")
-#: E121
+#: E126
 part = set_mimetype((
     a.get('mime_type', 'text')),
                        'default')

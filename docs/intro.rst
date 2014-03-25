@@ -194,7 +194,7 @@ This is the current list of error and warning codes:
 | E113     | unexpected indentation                                               |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E121 (^) | continuation line indentation is not a multiple of four              |
+| E121 (^) | continuation line under-indented for hanging indent                  |
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+

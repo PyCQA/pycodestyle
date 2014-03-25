@@ -499,10 +499,10 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     error = "E122", "missing indentation or outdented"
                 elif indent[depth]:
                     error = "E127", "over-indented for visual indent"
-                elif hang % 4:
-                    error = "E121", "indentation is not a multiple of four"
-                else:
+                elif hang > 4:
                     error = "E126", "over-indented for hanging indent"
+                else:
+                    error = "E121", "under-indented for hanging indent"
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
