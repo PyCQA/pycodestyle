@@ -330,7 +330,8 @@ class APITestCase(unittest.TestCase):
         pep8style = pep8.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
-        self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"))
+        self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"),
+                        msg='Output is %r' % sys.stdout[0])
         self.assertFalse(sys.stderr)
         self.assertEqual(count_errors, 1)
 
