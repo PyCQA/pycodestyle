@@ -58,11 +58,11 @@ rv.update(dict.fromkeys((
     'reasonComment_de', 'reasonComment_it'),
           '?'),
           "foo")
-#: E126 E126
+#: E126
 abricot = 3 + \
           4 + \
           5 + 6
-#: E126
+#: E131
 print "hello", (
 
     "there",
@@ -208,7 +208,7 @@ my_list = [
     1, 2, 3,
     4, 5, 6,
         ]
-#: E126 E126
+#: E126
 abris = 3 + \
         4 + \
         5 + 6
@@ -242,7 +242,7 @@ if (
     ) or
         y == 4):
     pass
-#: E126
+#: E131
 troublesome_hash = {
     "hash": "value",
     "long": "the quick brown fox jumps over the lazy dog before doing a "

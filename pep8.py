@@ -416,6 +416,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     E127: a = (24,\n      42)
     E128: a = (24,\n    42)
     E129: if (a or\n    b):\n    pass
+    E131: a = (\n    42\n 24)
     """
     first_row = tokens[0][2][0]
     nrows = 1 + tokens[-1][2][0] - first_row
@@ -436,6 +437,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     rel_indent = [0] * nrows
     # for each depth, collect a list of opening rows
     open_rows = [[0]]
+    # for each depth, memorize the hanging indentation
+    hangs = [None]
     # visual indents
     indent_chances = {}
     last_indent = tokens[0][2]
@@ -470,6 +473,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 hanging_indent = hang in valid_hangs
                 if hanging_indent:
                     break
+            if hangs[depth]:
+                hanging_indent = (hang == hangs[depth])
             # is there any chance of visual indent?
             visual_indent = (not close_bracket and hang > 0 and
                              indent_chances.get(start[1]))
@@ -493,10 +498,10 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if close_bracket and not hang_closing:
                     yield (start, "E123 closing bracket does not match "
                            "indentation of opening bracket's line")
+                hangs[depth] = hang
             elif visual_indent is True:
                 # visual indent is verified
-                if not indent[depth]:
-                    indent[depth] = start[1]
+                indent[depth] = start[1]
             elif visual_indent in (text, str):
                 # ignore token lined up with matching one from a previous line
                 pass
@@ -506,10 +511,14 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     error = "E122", "missing indentation or outdented"
                 elif indent[depth]:
                     error = "E127", "over-indented for visual indent"
-                elif hang > 4:
-                    error = "E126", "over-indented for hanging indent"
+                elif not close_bracket and hangs[depth]:
+                    error = "E131", "unaligned for hanging indent"
                 else:
-                    error = "E121", "under-indented for hanging indent"
+                    hangs[depth] = hang
+                    if hang > 4:
+                        error = "E126", "over-indented for hanging indent"
+                    else:
+                        error = "E121", "under-indented for hanging indent"
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
@@ -534,6 +543,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if text in '([{':
                 depth += 1
                 indent.append(0)
+                hangs.append(None)
                 if len(open_rows) == depth:
                     open_rows.append([])
                 open_rows[depth].append(row)
@@ -544,6 +554,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             elif text in ')]}' and depth > 0:
                 # parent indents should not be more than this one
                 prev_indent = indent.pop() or last_indent[1]
+                hangs.pop()
                 for d in range(depth):
                     if indent[d] > prev_indent:
                         indent[d] = 0

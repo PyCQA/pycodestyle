@@ -25,6 +25,10 @@ Changes:
   for hanging indent" instead of indentation not being a
   multiple of 4.
 
+* Report E131 instead of E121 / E126 if the hanging indent is not
+  consistent within the same continuation block.  It helps when
+  error E121 or E126 is in the ``ignore`` list.
+
 * Report E126 instead of E121 when the continuation line is hanging
   with extra indentation, even if indentation is not a multiple of 4.
 
