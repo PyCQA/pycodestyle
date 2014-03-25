@@ -330,8 +330,15 @@ class APITestCase(unittest.TestCase):
         pep8style = pep8.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
-        self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"),
-                        msg='Output is %r' % sys.stdout[0])
+        stdout = sys.stdout.getvalue()
+        if 'SyntaxError' in stdout:
+            # PyPy 2.2 returns a SyntaxError
+            expected = "stdin:1:2: E901 SyntaxError"
+        else:
+            expected = "stdin:1:1: E901 TypeError"
+        self.assertTrue(stdout.startswith(expected),,
+                        msg='Output %r does not start with %r' %
+                        (stdout, expected))
         self.assertFalse(sys.stderr)
         self.assertEqual(count_errors, 1)
 
