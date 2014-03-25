@@ -308,9 +308,9 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
 +----------+----------------------------------------------------------------------+
-| E713     | evaluating membership should be 'elem not in collection'             |
+| E713     | test for membership should be 'not in'                               |
 +----------+----------------------------------------------------------------------+
-| E714     | testing unequal identities should be 'x is not y'                    |
+| E714     | test for object identity should be 'is not'                          |
 +----------+----------------------------------------------------------------------+
 | E721     | do not compare types, use 'isinstance()'                             |
 +----------+----------------------------------------------------------------------+

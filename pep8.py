@@ -986,13 +986,11 @@ def comparison_negative(logical_line):
     """
     match = COMPARE_NEGATIVE_REGEX.search(logical_line)
     if match:
+        pos = match.start(1)
         if match.group(2) == 'in':
-            msg = ("E713: Use the 'not in' "
-                   "operator for collection membership evaluation")
+            yield pos, "E713 test for membership should be 'not in'"
         else:
-            msg = ("E714: Use the 'is not' "
-                   "operator when testing for unequal identities")
-        yield match.start(1), msg
+            yield pos, "E714 test for object identity should be 'is not'"
 
 
 def comparison_type(logical_line):
