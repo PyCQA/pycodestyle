@@ -27,7 +27,7 @@ The :class:`Checker` class can be used to check a single file.
    .. automethod:: check_files(paths=None)
    .. automethod:: input_file(filename, lines=None, expected=None, line_offset=0)
    .. automethod:: input_dir(dirname)
-   .. automethod:: excluded(filename)
+   .. automethod:: excluded(filename, parent=None)
    .. automethod:: ignore_code(code)
    .. automethod:: get_checks(argument_name)
 

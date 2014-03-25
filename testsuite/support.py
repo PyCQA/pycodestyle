@@ -28,21 +28,28 @@ class TestReport(StandardReport):
     def get_file_results(self):
         # Check if the expected errors were found
         label = '%s:%s:1' % (self.filename, self.line_offset)
-        codes = sorted(self.expected)
-        for code in codes:
+        for code in self.expected:
             if not self.counters.get(code):
                 self.file_errors += 1
                 self.total_errors += 1
                 print('%s: error %s not found' % (label, code))
+            else:
+                self.counters[code] -= 1
+        for code, extra in sorted(self.counters.items()):
+            if code not in self._benchmark_keys:
+                if extra and code in self.expected:
+                    self.file_errors += 1
+                    self.total_errors += 1
+                    print('%s: error %s found too many times (+%d)' %
+                          (label, code, extra))
+                # Reset counters
+                del self.counters[code]
         if self._verbose and not self.file_errors:
             print('%s: passed (%s)' %
-                  (label, ' '.join(codes) or 'Okay'))
+                  (label, ' '.join(self.expected) or 'Okay'))
         self.counters['test cases'] += 1
         if self.file_errors:
             self.counters['failed tests'] += 1
-        # Reset counters
-        for key in set(self.counters) - set(self._benchmark_keys):
-            del self.counters[key]
         self.messages = {}
         return super(TestReport, self).get_file_results()
 

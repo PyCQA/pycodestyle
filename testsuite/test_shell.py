@@ -15,14 +15,17 @@ class ShellTestCase(unittest.TestCase):
         self._saved_stdout = sys.stdout
         self._saved_stderr = sys.stderr
         self._saved_pconfig = pep8.PROJECT_CONFIG
-        self._saved_cpread = pep8.RawConfigParser.read
+        self._saved_cpread = pep8.RawConfigParser._read
         self._saved_stdin_get_value = pep8.stdin_get_value
         self._config_filenames = []
         self.stdin = ''
         sys.argv = ['pep8']
         sys.stdout = PseudoFile()
         sys.stderr = PseudoFile()
-        pep8.RawConfigParser.read = self._config_filenames.append
+
+        def fake_config_parser_read(cp, fp, filename):
+            self._config_filenames.append(filename)
+        pep8.RawConfigParser._read = fake_config_parser_read
         pep8.stdin_get_value = self.stdin_get_value
 
     def tearDown(self):
@@ -30,7 +33,7 @@ class ShellTestCase(unittest.TestCase):
         sys.stdout = self._saved_stdout
         sys.stderr = self._saved_stderr
         pep8.PROJECT_CONFIG = self._saved_pconfig
-        pep8.RawConfigParser.read = self._saved_cpread
+        pep8.RawConfigParser._read = self._saved_cpread
         pep8.stdin_get_value = self._saved_stdin_get_value
 
     def stdin_get_value(self):

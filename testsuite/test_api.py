@@ -10,6 +10,15 @@ from testsuite.support import ROOT_DIR, PseudoFile
 E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
 
 
+class DummyChecker(object):
+    def __init__(self, tree, filename):
+        pass
+
+    def run(self):
+        if False:
+            yield
+
+
 class APITestCase(unittest.TestCase):
     """Test the public methods."""
 
@@ -68,13 +77,6 @@ class APITestCase(unittest.TestCase):
                             for name, func, args in options.logical_checks))
 
     def test_register_ast_check(self):
-        class DummyChecker(object):
-            def __init__(self, tree, filename):
-                pass
-
-            def run(self):
-                if False:
-                    yield
         pep8.register_check(DummyChecker, ['Z701'])
 
         self.assertTrue(DummyChecker in pep8._checks['tree'])
@@ -87,18 +89,14 @@ class APITestCase(unittest.TestCase):
                             for name, cls, args in options.ast_checks))
 
     def test_register_invalid_check(self):
-        class DummyChecker(object):
+        class InvalidChecker(DummyChecker):
             def __init__(self, filename):
                 pass
-
-            def run(self):
-                if False:
-                    yield
 
         def check_dummy(logical, tokens):
             if False:
                 yield
-        pep8.register_check(DummyChecker, ['Z741'])
+        pep8.register_check(InvalidChecker, ['Z741'])
         pep8.register_check(check_dummy, ['Z441'])
 
         for checkers in pep8._checks.values():
@@ -180,7 +178,7 @@ class APITestCase(unittest.TestCase):
 
         options = parse_argv('').options
         self.assertEqual(options.select, ())
-        self.assertEqual(options.ignore, ('E226', 'E24'))
+        self.assertEqual(options.ignore, ('E123', 'E226', 'E24'))
 
         options = parse_argv('--doctest').options
         self.assertEqual(options.select, ())
@@ -192,6 +190,18 @@ class APITestCase(unittest.TestCase):
 
         options = parse_argv('--select E,W').options
         self.assertEqual(options.select, ('E', 'W'))
+        self.assertEqual(options.ignore, ('',))
+
+        options = parse_argv('--select E --ignore E24').options
+        self.assertEqual(options.select, ('E',))
+        self.assertEqual(options.ignore, ('',))
+
+        options = parse_argv('--ignore E --select E24').options
+        self.assertEqual(options.select, ('E24',))
+        self.assertEqual(options.ignore, ('',))
+
+        options = parse_argv('--ignore W --select E24').options
+        self.assertEqual(options.select, ('E24',))
         self.assertEqual(options.ignore, ('',))
 
         pep8style = pep8.StyleGuide(paths=[E11])
@@ -208,6 +218,13 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(pep8style.ignore_code('E112'))
         self.assertFalse(pep8style.ignore_code('W191'))
         self.assertTrue(pep8style.ignore_code('E241'))
+
+        pep8style = pep8.StyleGuide(select=('F401',), paths=[E11])
+        self.assertEqual(pep8style.options.select, ('F401',))
+        self.assertEqual(pep8style.options.ignore, ('',))
+        self.assertFalse(pep8style.ignore_code('F'))
+        self.assertFalse(pep8style.ignore_code('F401'))
+        self.assertTrue(pep8style.ignore_code('F402'))
 
     def test_styleguide_excluded(self):
         pep8style = pep8.StyleGuide(paths=[E11])
@@ -292,5 +309,30 @@ class APITestCase(unittest.TestCase):
         self.assertRaises(TypeError, pep8style.check_files, 42)
         # < 3.3 raises TypeError; >= 3.3 raises AttributeError
         self.assertRaises(Exception, pep8style.check_files, [42])
+
+    def test_check_unicode(self):
+        # Do not crash if lines are Unicode (Python 2.x)
+        pep8.register_check(DummyChecker, ['Z701'])
+        source = '#\n'
+        if hasattr(source, 'decode'):
+            source = source.decode('ascii')
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=[source])
+
+        self.assertFalse(sys.stdout)
+        self.assertFalse(sys.stderr)
+        self.assertEqual(count_errors, 0)
+
+    def test_check_nullbytes(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
+
+        self.assertTrue(sys.stdout[0].startswith("stdin:1:1: E901 TypeError"))
+        self.assertFalse(sys.stderr)
+        self.assertEqual(count_errors, 1)
+
         # TODO: runner
         # TODO: input_file

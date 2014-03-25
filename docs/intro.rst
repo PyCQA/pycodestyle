@@ -134,6 +134,8 @@ Quick help is available on the command line::
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
     --max-line-length=n  set maximum allowed line length (default: 79)
+    --hang-closing       hang closing bracket instead of matching indentation of
+                         opening bracket's line
     --format=format      set the error format [default|pylint|<custom>]
     --diff               report only lines changed according to the unified diff
                          received on STDIN
@@ -145,8 +147,8 @@ Quick help is available on the command line::
       The project options are read from the [pep8] section of the tox.ini
       file or the setup.cfg file located in any parent folder of the path(s)
       being processed.  Allowed options are: exclude, filename, select,
-      ignore, max-line-length, count, format, quiet, show-pep8, show-source,
-      statistics, verbose.
+      ignore, max-line-length, hang-closing, count, format, quiet, show-pep8,
+      show-source, statistics, verbose.
 
       --config=path      user config file location (default: ~/.config/pep8)
 
@@ -163,13 +165,14 @@ Example::
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project level, a ``.pep8`` file, a ``tox.ini`` file or a ``setup.cfg``
-file is read if present.  Only the first file is considered.  If this file
-does not have a ``[pep8]`` section, no project specific configuration is
+At the project level, a ``tox.ini`` file or a ``setup.cfg`` file is read if
+present (``.pep8`` file is also supported, but it is deprecated).  If none of
+these files have a ``[pep8]`` section, no project specific configuration is
 loaded.
 
 If the ``ignore`` option is not in the configuration and not in the arguments,
-only the error codes ``E226`` and ``E241/E242`` are ignored (see below).
+only the error codes ``E123/E133``, ``E226`` and ``E241/E242`` are ignored
+(see below).
 
 
 Error codes
@@ -195,7 +198,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
-| E123 (^) | closing bracket does not match indentation of opening bracket's line |
+| E123 (*) | closing bracket does not match indentation of opening bracket's line |
 +----------+----------------------------------------------------------------------+
 | E124 (^) | closing bracket does not match visual indentation                    |
 +----------+----------------------------------------------------------------------+
@@ -208,6 +211,8 @@ This is the current list of error and warning codes:
 | E128 (^) | continuation line under-indented for visual indent                   |
 +----------+----------------------------------------------------------------------+
 | E129 (^) | visually indented line with same indent as next logical line         |
++----------+----------------------------------------------------------------------+
+| E133 (*) | closing bracket is missing indentation                               |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E2**   | *Whitespace*                                                         |
@@ -299,6 +304,10 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
 +----------+----------------------------------------------------------------------+
+| E713     | evaluating membership should be 'elem not in collection'             |
++----------+----------------------------------------------------------------------+
+| E714     | testing unequal identities should be 'x is not y'                    |
++----------+----------------------------------------------------------------------+
 | E721     | do not compare types, use 'isinstance()'                             |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
@@ -339,9 +348,12 @@ This is the current list of error and warning codes:
 | W604     | backticks are deprecated, use 'repr()'                               |
 +----------+----------------------------------------------------------------------+
 
-**(*)** In the default configuration, the checks **E226**, **E241**
-and **E242** are ignored because they are not rules unanimously accepted,
-and `PEP 8`_ does not enforce them.
+
+**(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
+**E241** and **E242** are ignored because they are not rules unanimously
+accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
+exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
+instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.

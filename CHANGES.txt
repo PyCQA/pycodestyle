@@ -5,10 +5,72 @@ Changelog
 1.x (unreleased)
 ----------------
 
-* Honor ``# noqa`` for errors E711 and E712. (Issue #180)
-
 * Report E129 instead of E125 for visually indented line with same
   indent as next logical line.  (Issue #126)
+
+* Report E713 and E714 when operators ``not in`` and ``is not`` are
+  recommended. (Issue #236)
+
+* Allow the checkers to report errors on empty files. (Issue #240)
+
+* Fix ignoring too many checks when ``--select`` is used with codes
+  declared in a flake8 extension. (Issue #216)
+
+* Fix regression with multiple brackets. (Issue #214)
+
+* Fix ``StyleGuide`` to parse the local configuration if the
+  keyword argument ``paths`` is specified. (Issue #246)
+
+* Fix a false positive E124 for hanging indent. (Issue #254)
+
+* Fix a false positive E126 with embedded colon. (Issue #144)
+
+* Fix a false positive E126 when indenting with tabs. (Issue #204)
+
+* Fix behaviour when ``exclude`` is in the configuration file and
+  the current directory is not the project directory. (Issue #247)
+
+* The logical checks can return ``None`` instead of an empty iterator.
+  (Issue #250)
+
+* Do not report multiple E101 if only the first indentation starts
+  with a tab. (Issue #237)
+
+* Fix a rare false positive W602. (Issue #34)
+
+
+1.4.6 (2013-07-02)
+------------------
+
+* Honor ``# noqa`` for errors E711 and E712. (Issue #180)
+
+* When both a ``tox.ini`` and a ``setup.cfg`` are present in the project
+  directory, merge their contents.  The ``tox.ini`` file takes
+  precedence (same as before). (Issue #182)
+
+* Give priority to ``--select`` over ``--ignore``. (Issue #188)
+
+* Compare full path when excluding a file. (Issue #186)
+
+* Correctly report other E12 errors when E123 is ignored. (Issue #103)
+
+* New option ``--hang-closing`` to switch to the alternative style of
+  closing bracket indentation for hanging indent.  Add error E133 for
+  closing bracket which is missing indentation. (Issue #103)
+
+* Accept both styles of closing bracket indentation for hanging indent.
+  Do not report error E123 in the default configuration. (Issue #103)
+
+* Do not crash when running AST checks and the document contains null bytes.
+  (Issue #184)
+
+* Fix false positive E261/E262 when the file contains a BOM. (Issue #193)
+
+* Fix E701, E702 and E703 not detected sometimes. (Issue #196)
+
+* Fix E122 not detected in some cases. (Issue #201 and #208)
+
+* Fix false positive E121 with multiple brackets. (Issue #203)
 
 
 1.4.5 (2013-03-06)
