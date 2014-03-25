@@ -782,7 +782,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
         prev_end = end
 
 
-def whitespace_before_inline_comment(logical_line, tokens):
+def whitespace_before_comment(logical_line, tokens):
     """
     Separate inline comments by at least two spaces.
 
@@ -790,23 +790,33 @@ def whitespace_before_inline_comment(logical_line, tokens):
     comments should be separated by at least two spaces from the statement.
     They should start with a # and a single space.
 
+    Each line of a block comment starts with a # and a single space
+    (unless it is indented text inside the comment).
+
     Okay: x = x + 1  # Increment x
     Okay: x = x + 1    # Increment x
+    Okay: # Block comment
     E261: x = x + 1 # Increment x
     E262: x = x + 1  #Increment x
     E262: x = x + 1  #  Increment x
+    E265: #Block comment
     """
     prev_end = (0, 0)
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.COMMENT:
-            if not line[:start[1]].strip():
-                continue
-            if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
-                yield (prev_end,
-                       "E261 at least two spaces before inline comment")
+            inline_comment = line[:start[1]].strip()
+            if inline_comment:
+                if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
+                    yield (prev_end,
+                           "E261 at least two spaces before inline comment")
             symbol, sp, comment = text.partition(' ')
-            if symbol not in ('#', '#:') or comment[:1].isspace():
-                yield start, "E262 inline comment should start with '# '"
+            bad_prefix = symbol not in ('#', '#:')
+            if inline_comment:
+                if bad_prefix or comment[:1].isspace():
+                    yield start, "E262 inline comment should start with '# '"
+            elif bad_prefix:
+                if text.rstrip('#') and (start[0] > 1 or symbol[1] != '!'):
+                    yield start, "E265 block comment should start with '# '"
         elif token_type != tokenize.NL:
             prev_end = end
 
@@ -1371,9 +1381,9 @@ class Checker(object):
         """
         self.build_tokens_line()
         self.report.increment_logical_line()
-        first_line = self.lines[self.mapping[0][1][2][0] - 1]
-        indent = first_line[:self.mapping[0][1][2][1]]
-        self.previous_indent_level = self.indent_level
+        token0 = self.mapping[0][1] if self.mapping else self.tokens[0]
+        first_line = self.lines[token0[2][0] - 1]
+        indent = first_line[:token0[2][1]]
         self.indent_level = expand_indent(indent)
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
@@ -1385,12 +1395,17 @@ class Checker(object):
                 if isinstance(offset, tuple):
                     (orig_number, orig_offset) = offset
                 else:
+                    orig_number = token0[2][0]
+                    orig_offset = token0[2][1] + offset
                     for token_offset, token in self.mapping:
                         if offset >= token_offset:
                             orig_number = token[2][0]
                             orig_offset = (token[2][1] + offset - token_offset)
                 self.report_error(orig_number, orig_offset, text, check)
-        self.previous_logical = self.logical_line
+        if self.logical_line:
+            self.previous_indent_level = self.indent_level
+            self.previous_logical = self.logical_line
+        self.tokens = []
 
     def check_ast(self):
         try:
@@ -1423,6 +1438,7 @@ class Checker(object):
         self.line_number = 0
         self.indent_char = None
         self.indent_level = 0
+        self.previous_indent_level = 0
         self.previous_logical = ''
         self.tokens = []
         self.blank_lines = blank_lines_before_comment = 0
@@ -1447,20 +1463,23 @@ class Checker(object):
                     if self.blank_lines < blank_lines_before_comment:
                         self.blank_lines = blank_lines_before_comment
                     self.check_logical()
-                    self.tokens = []
                     self.blank_lines = blank_lines_before_comment = 0
                 elif token_type == tokenize.NL:
                     if len(self.tokens) == 1:
                         # The physical line contains only this token.
                         self.blank_lines += 1
-                    self.tokens = []
+                        del self.tokens[0]
+                    else:
+                        self.check_logical()
                 elif token_type == tokenize.COMMENT and len(self.tokens) == 1:
                     if blank_lines_before_comment < self.blank_lines:
                         blank_lines_before_comment = self.blank_lines
                     self.blank_lines = 0
                     if COMMENT_WITH_NL:
                         # The comment also ends a physical line
-                        self.tokens = []
+                        text = text.rstrip('\r\n')
+                        self.tokens = [(token_type, text) + token[2:]]
+                        self.check_logical()
         return self.report.get_file_results()
 
 

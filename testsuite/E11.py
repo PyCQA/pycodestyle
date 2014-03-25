@@ -10,3 +10,7 @@ print
 #: E113
 print
     print
+#: E111 E113
+mimetype = 'application/x-directory'
+     # 'httpd/unix-directory'
+create_date = False

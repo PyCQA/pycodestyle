@@ -8,6 +8,8 @@ Changelog
 * Report E129 instead of E125 for visually indented line with same
   indent as next logical line.  (Issue #126)
 
+* Report E265 for space before block comment. (Issue #190)
+
 * Report E713 and E714 when operators ``not in`` and ``is not`` are
   recommended. (Issue #236)
 
