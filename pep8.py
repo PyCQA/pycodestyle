@@ -45,7 +45,7 @@ W warnings
 700 statements
 900 syntax error
 """
-__version__ = '1.5.0a0'
+__version__ = '1.5.0'
 
 import os
 import sys
