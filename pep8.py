@@ -45,7 +45,7 @@ W warnings
 700 statements
 900 syntax error
 """
-__version__ = '1.5.0'
+__version__ = '1.5.1a0'
 
 import os
 import sys
@@ -442,6 +442,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     # visual indents
     indent_chances = {}
     last_indent = tokens[0][2]
+    visual_indent = None
     # for each depth, memorize the visual indent column
     indent = [last_indent[1]]
     if verbose >= 3:

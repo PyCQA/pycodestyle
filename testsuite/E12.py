@@ -347,4 +347,8 @@ if True:
                 ),
             dict(name=token.undefined)
         )]
+#: E125
+if ("""
+    """):
+    pass
 #:
