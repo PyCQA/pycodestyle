@@ -2,8 +2,10 @@ Changelog
 =========
 
 
-1.5.x (unreleased)
+1.5.1 (2014-03-27)
 ------------------
+
+Bug fixes:
 
 * Fix a crash with E125 on multi-line strings. (Issue #263)
 
