@@ -1052,7 +1052,7 @@ else:
         """Read the source code."""
         f = open(filename, 'rb')
         try:
-            coding, lines = tokenize.detect_encoding(f.readline)
+            (coding, lines) = tokenize.detect_encoding(f.readline)
             f = TextIOWrapper(f, coding, line_buffering=True)
             return [l.decode(coding) for l in lines] + f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
@@ -1077,8 +1077,6 @@ def expand_indent(line):
     >>> expand_indent('    ')
     4
     >>> expand_indent('\t')
-    8
-    >>> expand_indent('    \t')
     8
     >>> expand_indent('       \t')
     8
