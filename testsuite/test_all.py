@@ -46,12 +46,13 @@ class Pep8TestCase(unittest.TestCase):
 
 
 def suite():
-    from testsuite import test_api, test_shell
+    from testsuite import test_api, test_shell, test_diff
 
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(Pep8TestCase))
     suite.addTest(unittest.makeSuite(test_api.APITestCase))
     suite.addTest(unittest.makeSuite(test_shell.ShellTestCase))
+    suite.addTest(unittest.makeSuite(test_diff.DiffTestCase))
     return suite
 
 
