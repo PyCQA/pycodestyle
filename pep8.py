@@ -44,6 +44,8 @@ W warnings
 700 statements
 900 syntax error
 """
+from __future__ import with_statement
+
 __version__ = '1.5.2a0'
 
 import os
@@ -1039,29 +1041,23 @@ if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
         """Read the source code."""
-        f = open(filename)
-        try:
+        with open(filename) as f:
             return f.readlines()
-        finally:
-            f.close()
     isidentifier = re.compile(r'[a-zA-Z_]\w*').match
     stdin_get_value = sys.stdin.read
 else:
     # Python 3
     def readlines(filename):
         """Read the source code."""
-        f = open(filename, 'rb')
         try:
-            (coding, lines) = tokenize.detect_encoding(f.readline)
-            f = TextIOWrapper(f, coding, line_buffering=True)
-            return [l.decode(coding) for l in lines] + f.readlines()
+            with open(filename, 'rb') as f:
+                (coding, lines) = tokenize.detect_encoding(f.readline)
+                f = TextIOWrapper(f, coding, line_buffering=True)
+                return [l.decode(coding) for l in lines] + f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
-            f.close()
             # Fall back if files are improperly declared
-            f = open(filename, encoding='latin-1')
-            return f.readlines()
-        finally:
-            f.close()
+            with open(filename, encoding='latin-1') as f:
+                return f.readlines()
     isidentifier = str.isidentifier
 
     def stdin_get_value():
