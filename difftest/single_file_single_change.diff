@@ -1,0 +1,19 @@
+diff --git a/aarki.js b/aarki2.js
+new file mode 100644
+index 0000000..f3d341b
+--- aarki.py
++++ aarki2.py
+@@ -1,5 +1,8 @@
++def log():
++  print
++  name = 3
+ 
+-   name = 1
+-   grade = 2
+-   hellp < 1
+-       for nice in here:
++
++   hello < 1
++   bye = 8
++       for no in here:
+\ No newline at end of file

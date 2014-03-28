@@ -1,0 +1,14 @@
+diff --git a/jackfruit/conf/templates/appia.js b/jackfruit/conf/templates/appia.js
+deleted file mode 100644
+index f04b6be..0000000
+--- a/jackfruit/conf/templates/appia.js
++++ /dev/null
+@@ -1,8 +0,0 @@
+-module.exports = {
+-    'appia/login_check': {
+-        engine: 'api'
+-    },
+-    'appia/scrape_monetization': {
+-        engine: 'api'
+-    }
+-};

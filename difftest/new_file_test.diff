@@ -1,0 +1,15 @@
+diff --git a/jackfruit/conf/templates/taptica_advertiser.js b/jackfruit/conf/templates/taptica_advertiser.js
+new file mode 100644
+index 0000000..f3d341b
+--- /dev/null
++++ b/jackfruit/conf/templates/taptica_advertiser.js
+@@ -0,0 +1,8 @@
++module.exports = {
++    'taptica_advertiser/login_check': {
++        engine: 'api'
++    },
++    'taptica_advertiser/scrape_expense': {
++        engine: 'api'
++    }
++};
+\ No newline at end of file

@@ -1,0 +1,14 @@
+--- engine.py	2014-03-28 16:33:42.000000000 +0800
++++ engine2.py	2014-03-28 17:47:19.000000000 +0800
+@@ -19,11 +19,7 @@
+     ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
+     main_script_filename = ROOT + '/main.js'
+ 
+-    if timeout:
+-        signal.signal(signal.SIGALRM, alarm_handler)
+-        signal.alarm(timeout)
+ 
+-    args = [NODE_PATH, main_script_filename, '--template', template]
+ 
+     for proxy in proxies:
+         args += ['--proxy', proxy]

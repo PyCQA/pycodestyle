@@ -1,0 +1,21 @@
+--- engine.py	2014-03-28 16:33:42.000000000 +0800
++++ engine3.py	2014-03-28 17:35:55.000000000 +0800
+@@ -16,12 +16,12 @@
+ 
+ 
+ def start_scraping_engine(template, output, params={}, task_id=None, timeout=0, proxies=[], **kwargs):
+-    ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
+-    main_script_filename = ROOT + '/main.js'
+-
+-    if timeout:
+-        signal.signal(signal.SIGALRM, alarm_handler)
+-        signal.alarm(timeout)
++    ROOT = os.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
++    mainfilename = ROOT + '/main.js'
++    args
++    if tist:
++        sigsignal(signal.SIGALRM, alarm_handler)
++        signalfout)
+ 
+     args = [NODE_PATH, main_script_filename, '--template', template]
+ 

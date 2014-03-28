@@ -1163,29 +1163,43 @@ def mute_string(text):
     return text[:start] + 'x' * (end - start) + text[end:]
 
 
-def parse_udiff(diff, patterns=None, parent='.'):
-    """Return a dictionary of matching lines."""
-    # For each file of the diff, the entry key is the filename,
-    # and the value is a set of row numbers to consider.
+def parse_udiff_sub(paragraph, patterns, parent):
     rv = {}
+    lineCount = 0
     path = nrows = None
-    for line in diff.splitlines():
+
+    for line in paragraph.splitlines():
+        lineCount += 1
+
         if nrows:
-            if line[:1] != '-':
-                nrows -= 1
-            continue
+            if line[:1] == '-':
+                lineCount -= 1
+            elif line[:1] == '+':
+                rv[path].add(lineCount)
+
         if line[:3] == '@@ ':
             hunk_match = HUNK_REGEX.match(line)
             row, nrows = [int(g or '1') for g in hunk_match.groups()]
-            rv[path].update(range(row, row + nrows))
+            lineCount = row - 1
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
             if path[:2] == 'b/':
                 path = path[2:]
             rv[path] = set()
-    return dict([(os.path.join(parent, path), rows)
-                 for (path, rows) in rv.items()
-                 if rows and filename_match(path, patterns)])
+
+    for (path, rows) in rv.items():
+        if rows and filename_match(path, patterns):
+            return (os.path.join(parent, path), rows)
+
+
+def parse_udiff(diff, patterns=None, parent='.'):
+    test = []
+
+    for para in diff.split('diff --git '):
+        diff = parse_udiff_sub(para, patterns, parent)
+        if diff:
+            test.append(diff)
+    return dict(test)
 
 
 def normalize_paths(value, parent=os.curdir):
