@@ -78,6 +78,14 @@ class DiffTestCase(unittest.TestCase):
             errorcode = sys.exc_info()[1].code
         return sys.stdout.getvalue(), sys.stderr.getvalue(), errorcode
 
+    def pep8_parse_diff(self, diffContent):
+        try:
+            diffResult = pep8.parse_udiff(diffContent)
+            errorcode = None
+        except SystemExit:
+            errorcode = sys.exc_info()[1].code
+        return diffResult, sys.stderr.getvalue(), errorcode
+
     def test_check_diff(self):
         pep8.PROJECT_CONFIG = ()
 
