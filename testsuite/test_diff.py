@@ -232,7 +232,10 @@ class DiffTestCase(unittest.TestCase):
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        for line, num in zip(stdout, (20, 24, 29, 34, 36, 2, 3, 4, 6, 7, 8)):
+        for line, num in zip(stdout, (
+            20, 24, 29, 34, 36,
+            2, 3, 4, 6, 7, 8, 9)
+        ):
             path, x, y, msg = line.split(':')
             self.assertEqual(x, str(num))
 
@@ -257,7 +260,7 @@ class DiffTestCase(unittest.TestCase):
         for line, num in zip(stdout, (
             2, 3, 4, 5, 6, 7, 8,
             2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-            2, 3, 4, 5)
+            2, 3, 4, 5, 6)
         ):
             path, x, y, msg = line.split(':')
             self.assertEqual(x, str(num))
