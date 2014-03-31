@@ -6,6 +6,21 @@ import unittest
 import pep8
 from testsuite.support import ROOT_DIR, PseudoFile
 
+SINGLELINEDIFF       = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'line_modify_test.diff')
+MUTILSQELINEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'modify_sequence_mutil_line_test.diff')
+MUTILINSQELINEDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'modify_insequence_mutil_line_test.diff')
+MUTILEMPTYLINEDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'add_mutil_empty_line_test.diff')
+CONTENTDIFF          = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'del_content_test.diff')
+
+SINGLEFILESINGLEDIFF = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'single_file_single_change.diff')
+SINGLEFILEMUTILDIFF  = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'single_file_mutil_change.diff')
+MUTILFILEMUTILDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_file_mutil_change.diff')
+
+SINGLENEWFILEDIFF    = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'new_file_test.diff')
+MUTILNEWFILEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_new_file.diff')
+SINGLEDELFILEDIFF    = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'del_file_test.diff')
+MUTILDELFILEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_del_file.diff')
+RENAMEFILEDIFF       = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'rename_file_test.diff')
 
 class DiffTestCase(unittest.TestCase):
     """Test the usual CLI options and output."""
@@ -72,6 +87,8 @@ class DiffTestCase(unittest.TestCase):
     def test_check_simple(self):
         E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
         stdout, stderr, errcode = self.pep8(E11)
+        print stdout
+        print stderr
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -103,10 +120,10 @@ class DiffTestCase(unittest.TestCase):
 
     def test_check_non_existent(self):
         self.stdin = 'import os, sys\n'
-        stdout, stderr, errcode = self.pep8('fictitious.py')
+        stdout, stderr, errcode = self.pep8('nonexist.py')
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertTrue(stdout.startswith('fictitious.py:1:1: E902 '))
+        self.assertTrue(stdout.startswith('nonexist.py:1:1: E902 '))
 
     def test_check_noarg(self):
         # issue #170: do not read stdin by default
