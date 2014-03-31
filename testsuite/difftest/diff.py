@@ -5,6 +5,7 @@ from fnmatch import fnmatch
 
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 
+
 def filename_match(filename, patterns, default=True):
     """
     Check if patterns contains a pattern that matches filename.
@@ -13,6 +14,7 @@ def filename_match(filename, patterns, default=True):
     if not patterns:
         return default
     return any(fnmatch(filename, pattern) for pattern in patterns)
+
 
 def parse_udiff_sub(paragraph, patterns, parent):
     rv = {}
@@ -41,7 +43,8 @@ def parse_udiff_sub(paragraph, patterns, parent):
     for (path, rows) in rv.items():
         if rows and filename_match(path, patterns):
             return (os.path.join(parent, path), rows)
-        
+
+
 def parse_udiff(diff, patterns=None, parent='.'):
     test = []
 
@@ -51,10 +54,11 @@ def parse_udiff(diff, patterns=None, parent='.'):
             test.append(diff)
     return dict(test)
 
+
 if __name__ == '__main__':
     for root, dirs, files in os.walk(os.getcwd()):
         for f in files:
-            fileHandle = open (f)
+            fileHandle = open(f)
             text = fileHandle.read()
             dic = parse_udiff(text)
             print f

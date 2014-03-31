@@ -1,0 +1,22 @@
+diff --git a/testsuite/difftest/E214.py b/testsuite/difftest/E214.py
+--- a/testsuite/difftest/E214.py
++++ b/testsuite/difftest/E214.py
+@@ -7,6 +7,18 @@
+ 
+ NODE_PATH='node'
+ 
++
++
++
++
++
++
++
++
++
++
++
++
+ class Alarm(Exception):
+     pass
+ 

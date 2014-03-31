@@ -1,0 +1,12 @@
+diff --git a/testsuite/difftest/E211.py b/testsuite/difftest/E211.py
+--- a/testsuite/difftest/E211.py
++++ b/testsuite/difftest/E211.py
+@@ -3,7 +3,7 @@
+ import os
+ import simplejson
+ import signal
+-import subprocess
++import sub
+ 
+ NODE_PATH='node'
+ 

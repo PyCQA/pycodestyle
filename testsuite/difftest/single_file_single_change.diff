@@ -1,9 +1,7 @@
-diff --git a/aarki.js b/aarki2.js
-new file mode 100644
-index 0000000..f3d341b
---- aarki.py
-+++ aarki2.py
-@@ -1,5 +1,8 @@
+diff --git a/testsuite/difftest/E216.py b/testsuite/difftest/E216.py
+--- a/testsuite/difftest/E216.py
++++ b/testsuite/difftest/E216.py
+@@ -1,5 +2,9 @@
 +def log():
 +  print
 +  name = 3

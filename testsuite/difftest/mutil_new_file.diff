@@ -1,9 +1,9 @@
-diff --git a/jackfruit/conf/templates/applift_advertiser.js b/jackfruit/conf/templates/applift_advertiser.js
+diff --git a/testsuite/difftest/E218.py a/testsuite/difftest/E218.py
 new file mode 100644
 index 9ec1d41..0000000
-+++ b/jackfruit/conf/templates/applift_advertiser.js
++++ b/testsuite/difftest/E218.py
 --- /dev/null
-@@ -1,8 +1,8 @@
+@@ -1,8 +2,9 @@
 +module.exports = {
 +    'applift_advertiser/login_check': {
 +        engine: 'browser'
@@ -12,12 +12,12 @@ index 9ec1d41..0000000
 +        engine: 'browser'
 +    }
 +};
-diff --git a/jackfruit/templates/applift_advertiser/login_check.js b/jackfruit/templates/applift_advertiser/login_check.js
+diff --git a/testsuite/difftest/E219.py a/testsuite/difftest/E219.py
 new file mode 100644
 index 0db0de1..0000000
-+++ b/jackfruit/templates/applift_advertiser/login_check.js
++++ b/testsuite/difftest/E219.py
 --- /dev/null
-@@ -1,16 +1,16 @@
+@@ -1,16 +2,17 @@
 +var common = require(TEMPLATES_ROOT + '/applift_advertiser/common');
 +var constants = require(TEMPLATES_ROOT + '/ad_networks/common/constants');
 +var utils = require(TEMPLATES_ROOT + '/ad_networks/common/utils');
@@ -34,12 +34,12 @@ index 0db0de1..0000000
 +    ],
 +    options: utils.GetOptions(requiredOptions)
 +};
-diff --git a/jackfruit/templates/applift_advertiser/settings.js b/jackfruit/templates/applift_advertiser/settings.js
+diff --git a/testsuite/difftest/E220.py a/testsuite/difftest/E220.py
 new file mode 100644
 index b53c210..0000000
-+++ b/jackfruit/templates/applift_advertiser/settings.js
++++ b/testsuite/difftest/E220.py
 --- /dev/null
-@@ -1,5 +1,5 @@
+@@ -1,5 +2,6 @@
 +(function() {
 +    'use strict';
 +    module.exports.campaignPage = "http://partner.applift.com/";

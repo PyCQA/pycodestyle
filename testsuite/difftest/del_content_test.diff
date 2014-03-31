@@ -1,5 +1,6 @@
---- engine.py	2014-03-28 16:33:42.000000000 +0800
-+++ engine2.py	2014-03-28 17:47:19.000000000 +0800
+diff --git a/testsuite/difftest/E215.py b/testsuite/difftest/E215.py
+--- a/testsuite/difftest/E215.py
++++ b/testsuite/difftest/E215.py
 @@ -19,11 +19,7 @@
      ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
      main_script_filename = ROOT + '/main.js'

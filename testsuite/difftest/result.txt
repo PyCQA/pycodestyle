@@ -1,0 +1,78 @@
+.DS_Store
+{}
+>>>>>>>>>>>>>>>>>>
+add_mutil_empty_line_test.diff
+{'./testsuite/difftest/E214.py': set([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])}
+>>>>>>>>>>>>>>>>>>
+del_content_test.diff
+{}
+>>>>>>>>>>>>>>>>>>
+del_file_test.diff
+{}
+>>>>>>>>>>>>>>>>>>
+diff.py
+{}
+>>>>>>>>>>>>>>>>>>
+E211.py
+{}
+>>>>>>>>>>>>>>>>>>
+E212.py
+{}
+>>>>>>>>>>>>>>>>>>
+E213.py
+{}
+>>>>>>>>>>>>>>>>>>
+E214.py
+{}
+>>>>>>>>>>>>>>>>>>
+E215.py
+{}
+>>>>>>>>>>>>>>>>>>
+E216.py
+{}
+>>>>>>>>>>>>>>>>>>
+E217.py
+{}
+>>>>>>>>>>>>>>>>>>
+E218.py
+{}
+>>>>>>>>>>>>>>>>>>
+E219.py
+{}
+>>>>>>>>>>>>>>>>>>
+E220.py
+{}
+>>>>>>>>>>>>>>>>>>
+line_modify_test.diff
+{'./testsuite/difftest/E211.py': set([6])}
+>>>>>>>>>>>>>>>>>>
+modify_insequence_mutil_line.diff
+{'./testsuite/difftest/E213.py': set([24, 36, 34, 20, 29])}
+>>>>>>>>>>>>>>>>>>
+modify_sequence_mutil_line.diff
+{'./testsuite/difftest/E212.py': set([8, 9])}
+>>>>>>>>>>>>>>>>>>
+mutil_del_file.diff
+{}
+>>>>>>>>>>>>>>>>>>
+mutil_file_mutil_change.diff
+{'./testsuite/difftest/E216.py': set([1, 2, 3, 5, 6, 7, 8]), './testsuite/difftest/E213.py': set([24, 36, 34, 20, 29])}
+>>>>>>>>>>>>>>>>>>
+mutil_new_file.diff
+{'./testsuite/difftest/E219.py': set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]), './testsuite/difftest/E220.py': set([1, 2, 3, 4, 5]), './testsuite/difftest/E218.py': set([1, 2, 3, 4, 5, 6, 7, 8])}
+>>>>>>>>>>>>>>>>>>
+new_file_test.diff
+{'./testsuite/difftest/E218.py': set([1, 2, 3, 4, 5, 6, 7, 8])}
+>>>>>>>>>>>>>>>>>>
+rename_file_test.diff
+{'./testsuite/difftest/E220.py': set([1, 2])}
+>>>>>>>>>>>>>>>>>>
+result.txt
+{}
+>>>>>>>>>>>>>>>>>>
+single_file_mutil_change.diff
+{'./testsuite/difftest/E217.py': set([16, 39, 15, 45, 7])}
+>>>>>>>>>>>>>>>>>>
+single_file_single_change.diff
+{'./testsuite/difftest/E216.py': set([1, 2, 3, 5, 6, 7, 8])}
+>>>>>>>>>>>>>>>>>>

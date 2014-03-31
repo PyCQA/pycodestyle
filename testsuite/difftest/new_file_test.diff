@@ -1,9 +1,9 @@
-diff --git a/jackfruit/conf/templates/taptica_advertiser.js b/jackfruit/conf/templates/taptica_advertiser.js
+diff --git a/testsuite/difftest/E218.py b/testsuite/difftest/E218.py
 new file mode 100644
 index 0000000..f3d341b
 --- /dev/null
-+++ b/jackfruit/conf/templates/taptica_advertiser.js
-@@ -0,0 +1,8 @@
++++ b/testsuite/difftest/E218.py
+@@ -0,0 +2,9 @@
 +module.exports = {
 +    'taptica_advertiser/login_check': {
 +        engine: 'api'
@@ -12,4 +12,3 @@ index 0000000..f3d341b
 +        engine: 'api'
 +    }
 +};
-\ No newline at end of file

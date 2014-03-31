@@ -1,28 +1,8 @@
-diff --git a/aarki.js b/aarki2.js
+diff --git a/testsuite/difftest/E217.py b/testsuite/difftest/E217.py
 new file mode 100644
 index 0000000..f3d341b
---- aarki.py
-+++ aarki2.py
-@@ -1,5 +1,8 @@
-+def log():
-+  print
-+  name = 3
- 
--   name = 1
--   grade = 2
--   hellp < 1
--       for nice in here:
-+
-+   hello < 1
-+   bye = 8
-+       for no in here:
-\ No newline at end of file
-
-diff --git a/engine.py b/engine2.py
-new file mode 100644
-index 0000000..f3d341b
---- engine.py
-+++ engine2.py
+--- a/testsuite/difftest/E217.py
++++ b/testsuite/difftest/E217.py
 @@ -4,6 +4,7 @@
  import simplejson
  import signal
@@ -57,18 +37,11 @@ index 0000000..f3d341b
      if task_id:
          args += ['--task_id', str(task_id)]
  
-@@ -63,8 +56,17 @@
+@@ -36,8 +36,17 @@
      return proc.returncode
  
  
-+
-+
-+
-+
-+
-+
-+
-+
++ a
  start_jackfruit = start_scraping_engine
  
  

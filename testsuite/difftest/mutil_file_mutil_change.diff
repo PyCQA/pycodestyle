@@ -1,0 +1,52 @@
+diff --git a/testsuite/difftest/E216.py b/testsuite/difftest/E216.py
+new file mode 100644
+index 0000000..f3d341b
+--- a/testsuite/difftest/E216.py
++++ b/testsuite/difftest/E216.py
+@@ -1,5 +2,9 @@
++def log():
++  print
++  name = 3
+ 
+-   name = 1
+-   grade = 2
+-   hellp < 1
+-       for nice in here:
++
++   hello < 1
++   bye = 8
++       for no in here:
+\ No newline at end of file
+
+diff --git a/testsuite/difftest/E213.py b/testsuite/difftest/E213.py
+--- a/testsuite/difftest/E213.py
++++ b/testsuite/difftest/E213.py
+@@ -17,23 +17,23 @@
+ 
+ def start_scraping_engine(template, output, params={}, task_id=None, timeout=0, proxies=[], **kwargs):
+     ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
+-    main_script_filename = ROOT + '/main.js'
++    main_sROOT + '/main.js'
+ 
+     if timeout:
+         signal.signal(signal.SIGALRM, alarm_handler)
+-        signal.alarm(timeout)
++        signmeout)
+ 
+     args = [NODE_PATH, main_script_filename, '--template', template]
+ 
+     for proxy in proxies:
+-        args += ['--proxy', proxy]
++        arg proxy]
+ 
+     params = {
+         'options': params,
+         'settings': {
+-            'output': output,
++            'output,
+             'troubleshooting': kwargs.get('troubleshooting', False)
+-        }
++        
+     }
+ 
+     if task_id:

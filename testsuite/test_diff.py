@@ -6,21 +6,35 @@ import unittest
 import pep8
 from testsuite.support import ROOT_DIR, PseudoFile
 
-SINGLELINEDIFF       = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'line_modify_test.diff')
-MUTILSQELINEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'modify_sequence_mutil_line_test.diff')
-MUTILINSQELINEDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'modify_insequence_mutil_line_test.diff')
-MUTILEMPTYLINEDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'add_mutil_empty_line_test.diff')
-CONTENTDIFF          = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'del_content_test.diff')
+SINGLELINEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'line_modify_test.diff')
+MUTILSQELINEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'modify_sequence_mutil_line.diff')
+MUTILINSQELINEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'modify_insequence_mutil_line.diff')
+MUTILEMPTYLINEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'add_mutil_empty_line_test.diff')
+CONTENTDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'del_content_test.diff')
 
-SINGLEFILESINGLEDIFF = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'single_file_single_change.diff')
-SINGLEFILEMUTILDIFF  = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'single_file_mutil_change.diff')
-MUTILFILEMUTILDIFF   = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_file_mutil_change.diff')
+SINGLEFILESINGLEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'single_file_single_change.diff')
+SINGLEFILEMUTILDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'single_file_mutil_change.diff')
+MUTILFILEMUTILDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'mutil_file_mutil_change.diff')
 
-SINGLENEWFILEDIFF    = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'new_file_test.diff')
-MUTILNEWFILEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_new_file.diff')
-SINGLEDELFILEDIFF    = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'del_file_test.diff')
-MUTILDELFILEDIFF     = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'mutil_del_file.diff')
-RENAMEFILEDIFF       = os.path.join(ROOT_DIR, 'testsuite', 'difftest', 'rename_file_test.diff')
+SINGLENEWFILEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'new_file_test.diff')
+MUTILNEWFILEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'mutil_new_file.diff')
+SINGLEDELFILEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'del_file_test.diff')
+MUTILDELFILEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'mutil_del_file.diff')
+RENAMEFILEDIFF = os.path.join(
+    ROOT_DIR, 'testsuite', 'difftest', 'rename_file_test.diff')
+
 
 class DiffTestCase(unittest.TestCase):
     """Test the usual CLI options and output."""
@@ -137,69 +151,150 @@ class DiffTestCase(unittest.TestCase):
 
     def test_check_diff(self):
         pep8.PROJECT_CONFIG = ()
-        diff_lines = [
-            "--- testsuite/E11.py   2006-06-01 08:49:50 +0500",
-            "+++ testsuite/E11.py   2008-04-06 17:36:29 +0500",
-            "@@ -2,4 +2,7 @@",
-            " if x > 2:",
-            "   print x",
-            "+#: E111",
-            "+if True:",
-            "+     print",
-            " #: E112",
-            " if False:",
-            "",
-        ]
 
+        # test if single line changed in a file
+        diff_lines = open(SINGLELINEDIFF).read().splitlines()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8('--diff')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        for line, num, col in zip(stdout, (3, 6), (3, 6)):
+        for line, num in zip(stdout, (6, 6)):
             path, x, y, msg = line.split(':')
             self.assertEqual(x, str(num))
-            self.assertEqual(y, str(col))
-            self.assertTrue(msg.startswith(' E11'))
 
-        diff_lines[:2] = ["--- a/testsuite/E11.py   2006-06-01 08:49 +0400",
-                          "+++ b/testsuite/E11.py   2008-04-06 17:36 +0400"]
+        # test if mutil squence lines changed in a file
+        diff_lines = open(MUTILSQELINEDIFF).read().splitlines()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8('--diff')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        for line, num, col in zip(stdout, (3, 6), (3, 6)):
+        for line, num in zip(stdout, (8, 9)):
             path, x, y, msg = line.split(':')
             self.assertEqual(x, str(num))
-            self.assertEqual(y, str(col))
-            self.assertTrue(msg.startswith(' E11'))
 
-        # issue #127, #137: one-line chunks
-        diff_lines[:-1] = ["diff --git a/testsuite/E11.py b/testsuite/E11.py",
-                           "index 8735e25..2ecb529 100644",
-                           "--- a/testsuite/E11.py",
-                           "+++ b/testsuite/E11.py",
-                           "@@ -5,0 +6 @@ if True:",
-                           "+     print"]
+        # test if mutil insquence lines changed in a file
+        diff_lines = open(MUTILINSQELINEDIFF).read().splitlines()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8('--diff')
-        (stdout,) = stdout.splitlines()
+        stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertTrue('testsuite/E11.py:6:6: E111 ' in stdout)
+        for line, num in zip(stdout, (20, 24, 29, 34, 36)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test if mutil empty lines changed in a file
+        diff_lines = open(MUTILEMPTYLINEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertEqual(stdout, [])
+
+        # test if a clock of content changed in a file
+        diff_lines = open(CONTENTDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertEqual(stdout, [])
+
+        # test there is a single change block in a file
+        diff_lines = open(SINGLEFILESINGLEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (2, 3, 4, 6, 7, 8, 9)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test there is mutil changes blocks in a file
+        diff_lines = open(SINGLEFILEMUTILDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (7, 15, 16, 39, 45)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test there is mutil changes blocks in mutil files
+        diff_lines = open(MUTILFILEMUTILDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (20, 24, 29, 34, 36, 2, 3, 4, 6, 7, 8)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test create a new file
+        diff_lines = open(SINGLENEWFILEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (2, 3, 4, 5, 6, 7, 8, 9)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test create new files
+        diff_lines = open(MUTILNEWFILEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (
+            2, 3, 4, 5, 6, 7, 8,
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+            2, 3, 4, 5)
+        ):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
+
+        # test del one file
+        diff_lines = open(SINGLEDELFILEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertEqual(stdout, [])
+
+        # test del mutil files
+        diff_lines = open(MUTILDELFILEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertEqual(stdout, [])
+
+        # test rename a file
+        diff_lines = open(RENAMEFILEDIFF).read().splitlines()
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pep8('--diff')
+        stdout = stdout.splitlines()
+        self.assertEqual(errcode, 1)
+        self.assertFalse(stderr)
+        for line, num in zip(stdout, (2, 3)):
+            path, x, y, msg = line.split(':')
+            self.assertEqual(x, str(num))
 
         # missing '--diff'
+        diff_lines = open(RENAMEFILEDIFF).read().splitlines()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8()
         self.assertEqual(errcode, 2)
         self.assertFalse(stdout)
         self.assertTrue(stderr.startswith('Usage: pep8 [options] input ...'))
-
-        # no matching file in the diff
-        diff_lines[3] = "+++ b/testsuite/lost/E11.py"
-        self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8('--diff')
-        self.assertFalse(errcode)
-        self.assertFalse(stdout)
-        self.assertFalse(stderr)
