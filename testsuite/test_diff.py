@@ -37,7 +37,7 @@ RENAMEFILEDIFF = os.path.join(
 
 
 class DiffTestCase(unittest.TestCase):
-    """Test the usual CLI options and output."""
+    """Test the different diff info options and output."""
 
     def setUp(self):
         self._saved_argv = sys.argv
@@ -77,77 +77,6 @@ class DiffTestCase(unittest.TestCase):
         except SystemExit:
             errorcode = sys.exc_info()[1].code
         return sys.stdout.getvalue(), sys.stderr.getvalue(), errorcode
-
-    def test_print_usage(self):
-        stdout, stderr, errcode = self.pep8('--help')
-        self.assertFalse(errcode)
-        self.assertFalse(stderr)
-        self.assertTrue(stdout.startswith("Usage: pep8 [options] input"))
-
-        stdout, stderr, errcode = self.pep8('--version')
-        self.assertFalse(errcode)
-        self.assertFalse(stderr)
-        self.assertEqual(stdout.count('\n'), 1)
-
-        stdout, stderr, errcode = self.pep8('--obfuscated')
-        self.assertEqual(errcode, 2)
-        self.assertEqual(stderr.splitlines(),
-                         ["Usage: pep8 [options] input ...", "",
-                          "pep8: error: no such option: --obfuscated"])
-        self.assertFalse(stdout)
-
-        self.assertFalse(self._config_filenames)
-
-    def test_check_simple(self):
-        E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
-        stdout, stderr, errcode = self.pep8(E11)
-        print stdout
-        print stderr
-        stdout = stdout.splitlines()
-        self.assertEqual(errcode, 1)
-        self.assertFalse(stderr)
-        self.assertEqual(len(stdout), 6)
-        for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
-            path, x, y, msg = line.split(':')
-            self.assertTrue(path.endswith(E11))
-            self.assertEqual(x, str(num))
-            self.assertEqual(y, str(col))
-            self.assertTrue(msg.startswith(' E11'))
-        # Config file read from the pep8's tox.ini
-        (config_filename,) = self._config_filenames
-        self.assertTrue(config_filename.endswith('tox.ini'))
-
-    def test_check_stdin(self):
-        pep8.PROJECT_CONFIG = ()
-        stdout, stderr, errcode = self.pep8('-')
-        self.assertFalse(errcode)
-        self.assertFalse(stderr)
-        self.assertFalse(stdout)
-
-        self.stdin = 'import os, sys\n'
-        stdout, stderr, errcode = self.pep8('-')
-        stdout = stdout.splitlines()
-        self.assertEqual(errcode, 1)
-        self.assertFalse(stderr)
-        self.assertEqual(stdout,
-                         ['stdin:1:10: E401 multiple imports on one line'])
-
-    def test_check_non_existent(self):
-        self.stdin = 'import os, sys\n'
-        stdout, stderr, errcode = self.pep8('nonexist.py')
-        self.assertEqual(errcode, 1)
-        self.assertFalse(stderr)
-        self.assertTrue(stdout.startswith('nonexist.py:1:1: E902 '))
-
-    def test_check_noarg(self):
-        # issue #170: do not read stdin by default
-        pep8.PROJECT_CONFIG = ()
-        stdout, stderr, errcode = self.pep8()
-        self.assertEqual(errcode, 2)
-        self.assertEqual(stderr.splitlines(),
-                         ["Usage: pep8 [options] input ...", "",
-                          "pep8: error: input not specified"])
-        self.assertFalse(self._config_filenames)
 
     def test_check_diff(self):
         pep8.PROJECT_CONFIG = ()
