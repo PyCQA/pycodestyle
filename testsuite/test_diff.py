@@ -93,7 +93,7 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(SINGLELINEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([6])}
+        right = {'./testsuite/difftest/Diff_test_1.py': set([6])}
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -102,7 +102,7 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(MUTILSQELINEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([8, 9])}
+        right = {'./testsuite/difftest/Diff_test_1.py': set([8, 9])}
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -111,7 +111,9 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(MUTILINSQELINEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([24, 36, 34, 20, 29])}
+        right = {
+            './testsuite/difftest/Diff_test_1.py': set([24, 36, 34, 20, 29])
+        }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -121,7 +123,7 @@ class DiffTestCase(unittest.TestCase):
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
         right = {
-            './testsuite/E10.py':
+            './testsuite/difftest/Diff_test_1.py':
             set([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
         }
         self.assertEqual(stdout, right)
@@ -141,7 +143,9 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(SINGLEFILESINGLEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([2, 3, 4, 6, 7, 8, 9])}
+        right = {
+            './testsuite/difftest/Diff_test_1.py': set([2, 3, 4, 6, 7, 8, 9])
+        }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -150,7 +154,9 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(SINGLEFILEMUTILDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([16, 39, 15, 45, 7])}
+        right = {
+            './testsuite/difftest/Diff_test_1.py': set([16, 39, 15, 45, 7])
+        }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -160,8 +166,8 @@ class DiffTestCase(unittest.TestCase):
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
         right = {
-            './testsuite/E10.py': set([2, 3, 4, 6, 7, 8, 9]),
-            './testsuite/E11.py': set([24, 36, 34, 20, 29])
+            './testsuite/difftest/Diff_test_1.py': set([2, 3, 4, 6, 7, 8, 9]),
+            './testsuite/difftest/Diff_test_2.py': set([24, 36, 34, 20, 29])
         }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
@@ -171,7 +177,10 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(SINGLENEWFILEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([2, 3, 4, 5, 6, 7, 8, 9])}
+        right = {
+            './testsuite/difftest/Diff_test_1.py':
+            set([2, 3, 4, 5, 6, 7, 8, 9])
+        }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)
@@ -181,11 +190,12 @@ class DiffTestCase(unittest.TestCase):
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
         right = {
-            './testsuite/E12.py': set([2, 3, 4, 5, 6]),
-            './testsuite/E11.py': set([
+            './testsuite/difftest/Diff_test_3.py': set([2, 3, 4, 5, 6]),
+            './testsuite/difftest/Diff_test_2.py': set([
                 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
             ]),
-            './testsuite/E10.py': set([2, 3, 4, 5, 6, 7, 8, 9])
+            './testsuite/difftest/Diff_test_1.py':
+            set([2, 3, 4, 5, 6, 7, 8, 9])
         }
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
@@ -213,7 +223,7 @@ class DiffTestCase(unittest.TestCase):
         diff_lines = open(RENAMEFILEDIFF).read()
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pep8_parse_diff(diff_lines)
-        right = {'./testsuite/E10.py': set([2, 3])}
+        right = {'./testsuite/difftest/Diff_test_1.py': set([2, 3])}
         self.assertEqual(stdout, right)
         self.assertIsNone(errcode)
         self.assertFalse(stderr)

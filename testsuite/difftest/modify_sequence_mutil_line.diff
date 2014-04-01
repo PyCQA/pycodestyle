@@ -1,6 +1,6 @@
-diff --git a/testsuite/E10.py b/testsuite/E10.py
---- a/testsuite/E10.py
-+++ b/testsuite/E10.py
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
 @@ -1,12 +1,12 @@
 
 

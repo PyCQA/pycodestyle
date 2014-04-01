@@ -1,8 +1,8 @@
-diff --git a/testsuite/E10.py b/testsuite/E10.py
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
 new file mode 100644
 index 0000000..f3d341b
---- a/testsuite/E10.py
-+++ b/testsuite/E10.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
 @@ -1,5 +2,9 @@
 +add me
 +add me
@@ -18,9 +18,9 @@ index 0000000..f3d341b
 +add me
 \ No newline at end of file
 
-diff --git a/testsuite/E11.py b/testsuite/E11.py
---- a/testsuite/E11.py
-+++ b/testsuite/E11.py
+diff --git a/testsuite/difftest/Diff_test_2.py b/testsuite/difftest/Diff_test_2.py
+--- a/testsuite/difftest/Diff_test_2.py
++++ b/testsuite/difftest/Diff_test_2.py
 @@ -17,23 +17,23 @@
 
 I am here

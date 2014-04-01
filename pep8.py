@@ -1165,22 +1165,23 @@ def mute_string(text):
 
 def parse_udiff(diff, patterns=None, parent='.'):
     rv = {}
-    lineCount = 0
+    line_num = 0
     path = nrows = None
 
     for line in diff.splitlines():
-        lineCount += 1
 
         if nrows:
+            # update exact num of this line
+            line_num += 1
             if line[:1] == '-':
-                lineCount -= 1
+                line_num -= 1
             elif line[:1] == '+' and line[:2] != '++':
-                rv[path].add(lineCount)
+                rv[path].add(line_num)
 
         if line[:3] == '@@ ':
             hunk_match = HUNK_REGEX.match(line)
             row, nrows = [int(g or '1') for g in hunk_match.groups()]
-            lineCount = row - 1
+            line_num = row - 1
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
             if path[:2] == 'b/':

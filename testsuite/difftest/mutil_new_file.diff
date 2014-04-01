@@ -1,7 +1,7 @@
-diff --git a/testsuite/E10.py a/testsuite/E10.py
+diff --git a/testsuite/difftest/Diff_test_1.py a/testsuite/difftest/Diff_test_1.py
 new file mode 100644
 index 9ec1d41..0000000
-+++ b/testsuite/E10.py
++++ b/testsuite/difftest/Diff_test_1.py
 --- /dev/null
 @@ -1,8 +2,9 @@
 +add me
@@ -12,10 +12,10 @@ index 9ec1d41..0000000
 +add me
 +add me
 +add me
-diff --git a/testsuite/E11.py a/testsuite/E11.py
+diff --git a/testsuite/difftest/Diff_test_2.py a/testsuite/difftest/Diff_test_2.py
 new file mode 100644
 index 0db0de1..0000000
-+++ b/testsuite/E11.py
++++ b/testsuite/difftest/Diff_test_2.py
 --- /dev/null
 @@ -1,16 +2,17 @@
 +add me
@@ -34,10 +34,10 @@ index 0db0de1..0000000
 +add me
 +add me
 +add me
-diff --git a/testsuite/E12.py a/testsuite/E12.py
+diff --git a/testsuite/difftest/Diff_test_3.py a/testsuite/difftest/Diff_test_3.py
 new file mode 100644
 index b53c210..0000000
-+++ b/testsuite/E12.py
++++ b/testsuite/difftest/Diff_test_3.py
 --- /dev/null
 @@ -1,5 +2,6 @@
 +add me
