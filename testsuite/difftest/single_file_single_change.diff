@@ -1,17 +1,17 @@
-diff --git a/testsuite/difftest/E216.py b/testsuite/difftest/E216.py
---- a/testsuite/difftest/E216.py
-+++ b/testsuite/difftest/E216.py
+diff --git a/testsuite/E10.py b/testsuite/E10.py
+--- a/testsuite/E10.py
++++ b/testsuite/E10.py
 @@ -1,5 +2,9 @@
-+def log():
-+  print
-+  name = 3
- 
--   name = 1
--   grade = 2
--   hellp < 1
--       for nice in here:
-+
-+   hello < 1
-+   bye = 8
-+       for no in here:
++add me
++add me
++add me
+
+-remove me
+-remove me
+-remove me
+-remove me
++add me
++add me
++add me
++add me
 \ No newline at end of file

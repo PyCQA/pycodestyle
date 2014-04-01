@@ -1,16 +1,16 @@
-diff --git a/testsuite/difftest/E221.py b/testsuite/difftest/E221.py
+diff --git a/testsuite/E11.py b/testsuite/E11.py
 deleted file mode 100644
 index d645695..0000000
---- a/testsuite/difftest/E221.py
+--- a/testsuite/E11.py
 +++ /dev/null
 @@ -2,3 +0,0 @@
--
--                                 Apache License
-diff --git a/testsuite/difftest/E220.py b/testsuite/difftest/E220.py
+-remove me
+-remove me
+diff --git a/testsuite/E10.py b/testsuite/E10.py
 new file mode 100644
 index 0000000..d645695
 --- /dev/null
-+++ b/testsuite/difftest/E220.py
++++ b/testsuite/E10.py
 @@ -0,0 +2,3 @@
-+
-+                                 Apache License
++add me
++add me

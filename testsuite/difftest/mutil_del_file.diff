@@ -1,47 +1,47 @@
-diff --git a/jackfruit/conf/templates/applift_advertiser.js b/jackfruit/conf/templates/applift_advertiser.js
+diff --git a/testsuite/E10.py b/testsuite/E10.py
 deleted file mode 100644
 index 9ec1d41..0000000
---- a/jackfruit/conf/templates/applift_advertiser.js
+--- a/testsuite/E10.py
 +++ /dev/null
 @@ -1,8 +0,0 @@
--module.exports = {
--    'applift_advertiser/login_check': {
--        engine: 'browser'
--    },
--    'applift_advertiser/scrape_expense':{
--        engine: 'browser'
--    }
--};
-diff --git a/jackfruit/templates/applift_advertiser/login_check.js b/jackfruit/templates/applift_advertiser/login_check.js
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+diff --git a/testsuite/E11.py b/testsuite/E11.py
 deleted file mode 100644
 index 0db0de1..0000000
---- a/jackfruit/templates/applift_advertiser/login_check.js
+--- a/testsuite/E11.py
 +++ /dev/null
 @@ -1,16 +0,0 @@
--var common = require(TEMPLATES_ROOT + '/applift_advertiser/common');
--var constants = require(TEMPLATES_ROOT + '/ad_networks/common/constants');
--var utils = require(TEMPLATES_ROOT + '/ad_networks/common/utils');
--var requiredOptions = ['login', 'password'];
--var ExitLoginCheck = function ExitLoginCheck() {
--    utils.ExitScraper(constants.EXIT_CODES.SUCCESS, G.resultsObj.status_code, 'Login expense check OK');
--};
--
--module.exports = {
--    sequence:[
--        common.OpencampaignPage,
--        common.LogincampaignPage,
--        ExitLoginCheck
--    ],
--    options: utils.GetOptions(requiredOptions)
--};
-diff --git a/jackfruit/templates/applift_advertiser/settings.js b/jackfruit/templates/applift_advertiser/settings.js
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+diff --git a/testsuite/E12.py b/testsuite/E12.py
 deleted file mode 100644
 index b53c210..0000000
---- a/jackfruit/templates/applift_advertiser/settings.js
+--- a/testsuite/E12.py
 +++ /dev/null
 @@ -1,5 +0,0 @@
--(function() {
--    'use strict';
--    module.exports.campaignPage = "http://partner.applift.com/";
--    module.exports.expenBaseUrl = "http://partner.applift.com/stats/stats.json?api_key=" + "<%= apiKey %>&start_date=" + "<%= startDate %>&end_date=" + "<%= endDate %>&group[]=Country.name&group[]=Stat.date&field[]=Stat.leads&field[]=Stat.ltr&field[]=Stat.revenue&field[]=Stat.clicks&field[]=Stat.impressions&page=" + "<%= pageNumber %>&filter[Stat.offer_id]=" + "<%= campaignId %>";
--})();
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all

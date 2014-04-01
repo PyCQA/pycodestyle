@@ -1,50 +1,50 @@
-diff --git a/testsuite/difftest/E217.py b/testsuite/difftest/E217.py
+diff --git a/testsuite/E10.py b/testsuite/E10.py
 new file mode 100644
 index 0000000..f3d341b
---- a/testsuite/difftest/E217.py
-+++ b/testsuite/difftest/E217.py
+--- a/testsuite/E10.py
++++ b/testsuite/E10.py
 @@ -4,6 +4,7 @@
- import simplejson
- import signal
- import subprocess
-+import thisisfirstadd
- 
- NODE_PATH='node'
- 
+I am here
+I am here
+I am here
++add me
+
+I am here
+
 @@ -11,8 +12,8 @@
-     pass
- 
- 
--def alarm_handler(signo, frame):
--    raise Alarm()
-+class thisisdel2lineandadd2line:
-+    pass
- 
- 
- def start_scraping_engine(template, output, params={}, task_id=None, timeout=0, proxies=[], **kwargs):
+I am here
+
+
+-remove me
+-remove me
++add me
++add me
+
+
+ I am here
 @@ -28,14 +29,6 @@
-     for proxy in proxies:
-         args += ['--proxy', proxy]
- 
--    params = {
--        'options': params,
--        'settings': {
--            'output': output,
--            'troubleshooting': kwargs.get('troubleshooting', False)
--        }
--    }
--
-     if task_id:
-         args += ['--task_id', str(task_id)]
- 
+I am here
+I am here
+
+-remove me
+-remove me
+-remove me
+-remove me
+-remove me
+-remove me
+-remove me
+-remove me
+I am here
+I am here
+
 @@ -36,8 +36,17 @@
-     return proc.returncode
- 
- 
-+ a
- start_jackfruit = start_scraping_engine
- 
- 
- if __name__ == '__main__':
-     start_scraping_engine('xx/scraper', output='/tmp/xx/', params={'option1':'xx', 'option2':'xx', 'option3':'xx'})
-+    helloinhere
+I am here
+
+
++add me
+I am here
+
+
+I am here
+I am here
++add me

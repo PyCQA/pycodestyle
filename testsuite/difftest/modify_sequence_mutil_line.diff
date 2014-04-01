@@ -1,18 +1,18 @@
-diff --git a/testsuite/difftest/E212.py b/testsuite/difftest/E212.py
---- a/testsuite/difftest/E212.py
-+++ b/testsuite/difftest/E212.py
+diff --git a/testsuite/E10.py b/testsuite/E10.py
+--- a/testsuite/E10.py
++++ b/testsuite/E10.py
 @@ -1,12 +1,12 @@
- 
- 
-    if timeout:
-        signal.signal(signal.SIGALRM, alarm_handler)
-        signal.alarm(timeout)
-    ROOT = os.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
-    mainfilename = ROOT + '/main.js'
--    args
--    if tist:
-+        sigsignal(signal.SIGALRM, alarm_handler)
-+        signalfout)
- 
-     args = [NODE_PATH, main_script_filename, '--template', template]
- 
+
+
+I am here
+I am here
+I am here
+I am here
+I am here
+-remove me
+-remove me again
++add me
++add me again
+I am here
+I am here
+

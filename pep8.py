@@ -1163,18 +1163,18 @@ def mute_string(text):
     return text[:start] + 'x' * (end - start) + text[end:]
 
 
-def parse_udiff_sub(paragraph, patterns, parent):
+def parse_udiff(diff, patterns=None, parent='.'):
     rv = {}
     lineCount = 0
     path = nrows = None
 
-    for line in paragraph.splitlines():
+    for line in diff.splitlines():
         lineCount += 1
 
         if nrows:
             if line[:1] == '-':
                 lineCount -= 1
-            elif line[:1] == '+':
+            elif line[:1] == '+' and line[:2] != '++':
                 rv[path].add(lineCount)
 
         if line[:3] == '@@ ':
@@ -1187,19 +1187,9 @@ def parse_udiff_sub(paragraph, patterns, parent):
                 path = path[2:]
             rv[path] = set()
 
-    for (path, rows) in rv.items():
-        if rows and filename_match(path, patterns):
-            return (os.path.join(parent, path), rows)
-
-
-def parse_udiff(diff, patterns=None, parent='.'):
-    test = []
-
-    for para in diff.split('diff --git '):
-        diff = parse_udiff_sub(para, patterns, parent)
-        if diff:
-            test.append(diff)
-    return dict(test)
+    return dict([(os.path.join(parent, path), rows)
+                 for (path, rows) in rv.items()
+                 if rows and filename_match(path, patterns)])
 
 
 def normalize_paths(value, parent=os.curdir):

@@ -1,12 +1,12 @@
-diff --git a/testsuite/difftest/E211.py b/testsuite/difftest/E211.py
---- a/testsuite/difftest/E211.py
-+++ b/testsuite/difftest/E211.py
+diff --git a/testsuite/E10.py b/testsuite/E10.py
+--- a/testsuite/E10.py
++++ b/testsuite/E10.py
 @@ -3,7 +3,7 @@
- import os
- import simplejson
- import signal
--import subprocess
-+import sub
- 
- NODE_PATH='node'
- 
+I am nothing
+I am nothing
+I am nothing
+-remove me
++add me
+
+I am here
+

@@ -1,15 +1,15 @@
-diff --git a/testsuite/difftest/E215.py b/testsuite/difftest/E215.py
---- a/testsuite/difftest/E215.py
-+++ b/testsuite/difftest/E215.py
+diff --git a/testsuite/E10.py b/testsuite/E10.py
+--- a/testsuite/E10.py
++++ b/testsuite/E10.py
 @@ -19,11 +19,7 @@
-     ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jackfruit')
-     main_script_filename = ROOT + '/main.js'
- 
--    if timeout:
--        signal.signal(signal.SIGALRM, alarm_handler)
--        signal.alarm(timeout)
- 
--    args = [NODE_PATH, main_script_filename, '--template', template]
- 
-     for proxy in proxies:
-         args += ['--proxy', proxy]
+    Hello I am valid
+    Hello I am valid
+
+-   I shoud be minus
+-   I shoud be minus
+-   I shoud be minus
+
+-   I shoud be minus
+
+    Hello I am valid
+    Hello I am valid

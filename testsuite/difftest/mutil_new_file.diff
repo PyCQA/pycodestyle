@@ -1,47 +1,47 @@
-diff --git a/testsuite/difftest/E218.py a/testsuite/difftest/E218.py
+diff --git a/testsuite/E10.py a/testsuite/E10.py
 new file mode 100644
 index 9ec1d41..0000000
-+++ b/testsuite/difftest/E218.py
++++ b/testsuite/E10.py
 --- /dev/null
 @@ -1,8 +2,9 @@
-+module.exports = {
-+    'applift_advertiser/login_check': {
-+        engine: 'browser'
-+    },
-+    'applift_advertiser/scrape_expense':{
-+        engine: 'browser'
-+    }
-+};
-diff --git a/testsuite/difftest/E219.py a/testsuite/difftest/E219.py
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
+diff --git a/testsuite/E11.py a/testsuite/E11.py
 new file mode 100644
 index 0db0de1..0000000
-+++ b/testsuite/difftest/E219.py
++++ b/testsuite/E11.py
 --- /dev/null
 @@ -1,16 +2,17 @@
-+var common = require(TEMPLATES_ROOT + '/applift_advertiser/common');
-+var constants = require(TEMPLATES_ROOT + '/ad_networks/common/constants');
-+var utils = require(TEMPLATES_ROOT + '/ad_networks/common/utils');
-+var requiredOptions = ['login', 'password'];
-+var ExitLoginCheck = function ExitLoginCheck() {
-+    utils.ExitScraper(constants.EXIT_CODES.SUCCESS, G.resultsObj.status_code, 'Login expense check OK');
-+};
-+
-+module.exports = {
-+    sequence:[
-+        common.OpencampaignPage,
-+        common.LogincampaignPage,
-+        ExitLoginCheck
-+    ],
-+    options: utils.GetOptions(requiredOptions)
-+};
-diff --git a/testsuite/difftest/E220.py a/testsuite/difftest/E220.py
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
++add me
+diff --git a/testsuite/E12.py a/testsuite/E12.py
 new file mode 100644
 index b53c210..0000000
-+++ b/testsuite/difftest/E220.py
++++ b/testsuite/E12.py
 --- /dev/null
 @@ -1,5 +2,6 @@
-+(function() {
-+    'use strict';
-+    module.exports.campaignPage = "http://partner.applift.com/";
-+    module.exports.expenBaseUrl = "http://partner.applift.com/stats/stats.json?api_key=" + "<%= apiKey %>&start_date=" + "<%= startDate %>&end_date=" + "<%= endDate %>&group[]=Country.name&group[]=Stat.date&field[]=Stat.leads&field[]=Stat.ltr&field[]=Stat.revenue&field[]=Stat.clicks&field[]=Stat.impressions&page=" + "<%= pageNumber %>&filter[Stat.offer_id]=" + "<%= campaignId %>";
-+})();
++add me
++add me
++add me
++add me
++add me
