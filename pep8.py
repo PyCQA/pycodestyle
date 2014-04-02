@@ -556,6 +556,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 indent_chances[start[1]] = text
 
         last_token_multiline = (start[0] != end[0])
+        if last_token_multiline:
+            rel_indent[end[0] - first_row] = rel_indent[row]
 
     if indent_next and expand_indent(line) == indent_level + 4:
         if visual_indent:

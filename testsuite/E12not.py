@@ -632,3 +632,15 @@ some_hash = {
         else 0,
 }
 #
+from textwrap import dedent
+
+
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+        build='build',
+        # more stuff
+    )
+)

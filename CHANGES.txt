@@ -5,7 +5,7 @@ Changelog
 1.5.x (unreleased)
 ------------------
 
-
+* Fix false positive E121/E126 with multi-line strings. (Issue #265)
 
 
 1.5.1 (2014-03-27)
