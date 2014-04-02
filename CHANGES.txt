@@ -9,6 +9,8 @@ Changelog
 
 * Fix E501 not detected in comments with Python 2.5.
 
+* Distribute a universal wheel file.
+
 
 1.5.1 (2014-03-27)
 ------------------

@@ -82,6 +82,10 @@ Links
    :target: https://travis-ci.org/jcrocholl/pep8
    :alt: Build status
 
+.. image:: https://pypip.in/wheel/pep8/badge.png
+   :target: https://pypi.python.org/pypi/pep8
+   :alt: Wheel Status
+
 * `Read the documentation <http://pep8.readthedocs.org/>`_
 
 * `Fork me on GitHub <http://github.com/jcrocholl/pep8>`_
