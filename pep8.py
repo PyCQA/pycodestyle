@@ -1164,6 +1164,15 @@ def filename_match(filename, patterns, default=True):
     return any(fnmatch(filename, pattern) for pattern in patterns)
 
 
+if COMMENT_WITH_NL:
+    def _is_eol_token(token):
+        return (token[0] in (tokenize.NEWLINE, tokenize.NL) or
+                (token[0] == tokenize.COMMENT and token[1] == token[4]))
+else:
+    def _is_eol_token(token):
+        return token[0] in (tokenize.NEWLINE, tokenize.NL)
+
+
 ##############################################################################
 # Framework to run all checks
 ##############################################################################
@@ -1380,7 +1389,7 @@ class Checker(object):
     def maybe_check_physical(self, token):
         """If appropriate (based on token), check current physical line(s)."""
         # Called after every token, but act only on end of line.
-        if token[0] in (tokenize.NEWLINE, tokenize.NL):
+        if _is_eol_token(token):
             # Obviously, a newline token ends a single physical line.
             self.check_physical(token[4])
         elif token[0] == tokenize.STRING and '\n' in token[1]:

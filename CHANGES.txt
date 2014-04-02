@@ -7,6 +7,8 @@ Changelog
 
 * Fix false positive E121/E126 with multi-line strings. (Issue #265)
 
+* Fix E501 not detected in comments with Python 2.5.
+
 
 1.5.1 (2014-03-27)
 ------------------
