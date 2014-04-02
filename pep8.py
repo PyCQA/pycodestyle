@@ -1055,7 +1055,7 @@ else:
                 f = TextIOWrapper(f, coding, line_buffering=True)
                 return [l.decode(coding) for l in lines] + f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
-            # Fall back if files are improperly declared
+            # Fall back if file encoding is improperly declared
             with open(filename, encoding='latin-1') as f:
                 return f.readlines()
     isidentifier = str.isidentifier
@@ -1125,7 +1125,7 @@ def parse_udiff(diff, patterns=None, parent='.'):
             continue
         if line[:3] == '@@ ':
             hunk_match = HUNK_REGEX.match(line)
-            row, nrows = [int(g or '1') for g in hunk_match.groups()]
+            (row, nrows) = [int(g or '1') for g in hunk_match.groups()]
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
