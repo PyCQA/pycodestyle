@@ -351,4 +351,14 @@ if True:
 if ("""
     """):
     pass
+#: E122 E122 E122
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+    build='build',
+    # more stuff
+)
+)
 #:
