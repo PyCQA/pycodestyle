@@ -560,11 +560,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             rel_indent[end[0] - first_row] = rel_indent[row]
 
     if indent_next and expand_indent(line) == indent_level + 4:
+        pos = (start[0], indent[0] + 4)
         if visual_indent:
             code = "E129 visually indented line"
         else:
             code = "E125 continuation line"
-        yield (last_indent, "%s with same indent as next logical line" % code)
+        yield pos, "%s with same indent as next logical line" % code
 
 
 def whitespace_before_parameters(logical_line, tokens):
