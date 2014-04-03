@@ -1296,7 +1296,7 @@ class Checker(object):
 
     def build_tokens_line(self):
         """Build a logical line from tokens."""
-        self.mapping = []
+        mapping = []
         logical = []
         comments = []
         length = 0
@@ -1323,23 +1323,21 @@ class Checker(object):
                     fill = self.lines[end_row - 1][end:start]
                     logical.append(fill)
                     length += len(fill)
-            self.mapping.append((length, token))
+            mapping.append((length, token))
             logical.append(text)
             length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
         self.noqa = comments and noqa(''.join(comments))
-        # With Python 2, if the line ends with '\r\r\n' the assertion fails
-        # assert self.logical_line.strip() == self.logical_line
+        return mapping or [(0, self.tokens[0])]
 
     def check_logical(self):
         """Build a line from tokens and run all logical checks on it."""
-        self.build_tokens_line()
         self.report.increment_logical_line()
-        token0 = self.mapping[0][1] if self.mapping else self.tokens[0]
-        first_line = self.lines[token0[2][0] - 1]
-        indent = first_line[:token0[2][1]]
-        self.indent_level = expand_indent(indent)
+        mapping = self.build_tokens_line()
+        (start_row, start_col) = mapping[0][1][2]
+        start_line = self.lines[start_row - 1]
+        self.indent_level = expand_indent(start_line[:start_col])
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
         for name, check, argument_names in self._logical_checks:
@@ -1350,8 +1348,7 @@ class Checker(object):
                 if isinstance(offset, tuple):
                     (li_number, li_offset) = offset
                 else:
-                    (token_offset, token) = (0, token0)
-                    for (token_offset, token) in self.mapping:
+                    for (token_offset, token) in mapping:
                         if offset < token_offset:
                             break
                     li_number = token[2][0]
