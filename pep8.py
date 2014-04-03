@@ -761,6 +761,8 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     prev_end = None
     message = "E251 unexpected spaces around keyword / parameter equals"
     for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.NL:
+            continue
         if no_space:
             no_space = False
             if start != prev_end:

@@ -7,6 +7,8 @@ Changelog
 
 Changes:
 
+* Do not allow newline after parameter equal. (Issue #252)
+
 * Distribute a universal wheel file.
 
 Bug fixes:

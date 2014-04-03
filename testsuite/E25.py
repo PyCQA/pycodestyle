@@ -10,6 +10,13 @@ foo(bar =True)
 foo(bar = True)
 #: E251
 y = bar(root= "sdasd")
+#: E251:2:29
+parser.add_argument('--long-option',
+                    default=
+                    "/rather/long/filesystem/path/here/blah/blah/blah")
+#: E251:1:45
+parser.add_argument('--long-option', default
+                    ="/rather/long/filesystem/path/here/blah/blah/blah")
 #: Okay
 foo(bar=(1 == 1))
 foo(bar=(1 != 1))
