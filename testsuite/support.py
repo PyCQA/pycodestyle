@@ -25,14 +25,32 @@ class TestReport(StandardReport):
         super(TestReport, self).__init__(options)
         self._verbose = options.verbose
 
+    def error(self, line_number, offset, text, check):
+        """Report an error, according to options."""
+        code = text[:4]
+        if code in self.counters:
+            self.counters[code] += 1
+        else:
+            self.counters[code] = 1
+        detailed_code = '%s:%s:%s' % (code, line_number, offset + 1)
+        # Don't care about expected errors or warnings
+        if code in self.expected or detailed_code in self.expected:
+            return
+        self._deferred_print.append(
+            (line_number, offset, detailed_code, text[5:], check.__doc__))
+        self.file_errors += 1
+        self.total_errors += 1
+        return code
+
     def get_file_results(self):
         # Check if the expected errors were found
         label = '%s:%s:1' % (self.filename, self.line_offset)
-        for code in self.expected:
+        for extended_code in self.expected:
+            code = extended_code.split(':')[0]
             if not self.counters.get(code):
                 self.file_errors += 1
                 self.total_errors += 1
-                print('%s: error %s not found' % (label, code))
+                print('%s: error %s not found' % (label, extended_code))
             else:
                 self.counters[code] -= 1
         for code, extra in sorted(self.counters.items()):
@@ -50,7 +68,6 @@ class TestReport(StandardReport):
         self.counters['test cases'] += 1
         if self.file_errors:
             self.counters['failed tests'] += 1
-        self.messages = {}
         return super(TestReport, self).get_file_results()
 
     def print_results(self):
@@ -93,7 +110,6 @@ def selftest(options):
             # Keep showing errors for multiple tests
             for key in set(counters) - set(options.benchmark_keys):
                 del counters[key]
-            report.messages = {}
             count_all += 1
             if not error:
                 if options.verbose:
