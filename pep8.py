@@ -1600,7 +1600,7 @@ class StandardReport(BaseReport):
                 else:
                     line = self.lines[line_number - 1]
                 print(line.rstrip())
-                print(' ' * offset + '^')
+                print(re.sub(r'\S', ' ', line[:offset]) + '^')
             if self._show_pep8 and doc:
                 print('    ' + doc.strip())
         return self.file_errors

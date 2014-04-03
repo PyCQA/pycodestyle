@@ -19,6 +19,8 @@ Bug fixes:
 
 * Fix E501 not detected in comments with Python 2.5.
 
+* Fix caret position with ``--show-source`` when line contains tabs.
+
 
 1.5.1 (2014-03-27)
 ------------------
