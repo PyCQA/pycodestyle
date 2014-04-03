@@ -227,7 +227,7 @@ def maximum_line_length(physical_line, max_line_length, multiline):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                previous_logical, previous_indent_level):
+                blank_before, previous_logical, previous_indent_level):
     r"""Separate top-level function and class definitions with two blank lines.
 
     Method definitions inside a class are separated by a single blank line.
@@ -256,11 +256,11 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif logical_line.startswith(('def ', 'class ', '@')):
         if indent_level:
-            if not (blank_lines or previous_indent_level < indent_level or
+            if not (blank_before or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
                 yield 0, "E301 expected 1 blank line, found 0"
-        elif blank_lines != 2:
-            yield 0, "E302 expected 2 blank lines, found %d" % blank_lines
+        elif blank_before != 2:
+            yield 0, "E302 expected 2 blank lines, found %d" % blank_before
 
 
 def extraneous_whitespace(logical_line):
@@ -1339,6 +1339,8 @@ class Checker(object):
         (start_row, start_col) = mapping[0][1][2]
         start_line = self.lines[start_row - 1]
         self.indent_level = expand_indent(start_line[:start_col])
+        if self.blank_before < self.blank_lines:
+            self.blank_before = self.blank_lines
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
         for name, check, argument_names in self._logical_checks:
@@ -1358,6 +1360,7 @@ class Checker(object):
         if self.logical_line:
             self.previous_indent_level = self.indent_level
             self.previous_logical = self.logical_line
+        self.blank_lines = 0
         self.tokens = []
 
     def check_ast(self):
@@ -1421,11 +1424,10 @@ class Checker(object):
             self.check_ast()
         self.line_number = 0
         self.indent_char = None
-        self.indent_level = 0
-        self.previous_indent_level = 0
+        self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
         self.tokens = []
-        self.blank_lines = blank_lines_before_comment = 0
+        self.blank_lines = self.blank_before = 0
         parens = 0
         for token in self.generate_tokens():
             self.tokens.append(token)
@@ -1444,10 +1446,8 @@ class Checker(object):
                     parens -= 1
             elif not parens:
                 if token_type == tokenize.NEWLINE:
-                    if self.blank_lines < blank_lines_before_comment:
-                        self.blank_lines = blank_lines_before_comment
                     self.check_logical()
-                    self.blank_lines = blank_lines_before_comment = 0
+                    self.blank_before = 0
                 elif token_type == tokenize.NL:
                     if len(self.tokens) == 1:
                         # The physical line contains only this token.
@@ -1455,11 +1455,8 @@ class Checker(object):
                         del self.tokens[0]
                     else:
                         self.check_logical()
-                elif token_type == tokenize.COMMENT and len(self.tokens) == 1:
-                    if blank_lines_before_comment < self.blank_lines:
-                        blank_lines_before_comment = self.blank_lines
-                    self.blank_lines = 0
-                    if COMMENT_WITH_NL:
+                elif COMMENT_WITH_NL and token_type == tokenize.COMMENT:
+                    if len(self.tokens) == 1:
                         # The comment also ends a physical line
                         text = text.rstrip('\r\n')
                         self.tokens = [(token_type, text) + token[2:]]

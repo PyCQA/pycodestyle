@@ -1,11 +1,11 @@
-#: E301
+#: E301:5:5
 class X:
 
     def a():
         pass
     def b():
         pass
-#: E301
+#: E301:6:5
 class X:
 
     def a():
@@ -16,26 +16,26 @@ class X:
 #:
 
 
-#: E302
+#: E302:3:1
 #!python
 # -*- coding: utf-8 -*-
 def a():
     pass
-#: E302
+#: E302:2:1
 """Main module."""
 def _main():
     pass
-#: E302
+#: E302:2:1
 import sys
 def get_sys_path():
     return sys.path
-#: E302
+#: E302:4:1
 def a():
     pass
 
 def b():
     pass
-#: E302
+#: E302:6:1
 def a():
     pass
 
@@ -46,13 +46,13 @@ def b():
 #:
 
 
-#: E303
+#: E303:5:1
 print
 
 
 
 print
-#: E303
+#: E303:5:1
 print
 
 
@@ -60,18 +60,21 @@ print
 # comment
 
 print
-#: E303
+#: E303:5:5 E303:8:5
 def a():
     print
 
 
     # comment
 
+
+    # another comment
+
     print
 #:
 
 
-#: E304
+#: E304:3:1
 @decorator
 
 def function():

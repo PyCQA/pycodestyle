@@ -11,6 +11,8 @@ Changes:
 
 Bug fixes:
 
+* Report correct line number for E303 with comments. (Issue #60)
+
 * Fix line number reported for multi-line strings. (Issue #220)
 
 * Fix false positive E121/E126 with multi-line strings. (Issue #265)
