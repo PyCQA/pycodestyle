@@ -11,6 +11,8 @@ Changes:
 
 Bug fixes:
 
+* Fix line number reported for multi-line strings. (Issue #220)
+
 * Fix false positive E121/E126 with multi-line strings. (Issue #265)
 
 * Fix E501 not detected in comments with Python 2.5.

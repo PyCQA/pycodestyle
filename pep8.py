@@ -1348,15 +1348,15 @@ class Checker(object):
             for result in self.run_check(check, argument_names) or ():
                 (offset, text) = result
                 if isinstance(offset, tuple):
-                    (orig_number, orig_offset) = offset
+                    (li_number, li_offset) = offset
                 else:
-                    orig_number = token0[2][0]
-                    orig_offset = token0[2][1] + offset
-                    for token_offset, token in self.mapping:
-                        if offset >= token_offset:
-                            orig_number = token[2][0]
-                            orig_offset = (token[2][1] + offset - token_offset)
-                self.report_error(orig_number, orig_offset, text, check)
+                    (token_offset, token) = (0, token0)
+                    for (token_offset, token) in self.mapping:
+                        if offset < token_offset:
+                            break
+                    li_number = token[2][0]
+                    li_offset = (token[2][1] + offset - token_offset)
+                self.report_error(li_number, li_offset, text, check)
         if self.logical_line:
             self.previous_indent_level = self.indent_level
             self.previous_logical = self.logical_line
