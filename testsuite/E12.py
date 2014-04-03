@@ -347,11 +347,17 @@ if True:
                 ),
             dict(name=token.undefined)
         )]
-#: E125
+#: E125:2:5 E125:8:5
 if ("""
     """):
     pass
-#: E122 E122 E122
+
+for foo in """
+    abc
+    123
+    """.strip().split():
+    print(foo)
+#: E122:6:5 E122:7:5 E122:8:1
 print dedent(
     '''
         mkdir -p ./{build}/
