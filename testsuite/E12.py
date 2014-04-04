@@ -367,4 +367,10 @@ print dedent(
     # more stuff
 )
 )
+#: E701:1:8 E122:2:1 E203:4:8 E128:5:1
+if True:\
+print(True)
+
+print(a
+, end=' ')
 #:

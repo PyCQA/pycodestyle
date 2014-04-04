@@ -1326,13 +1326,13 @@ class Checker(object):
                     fill = self.lines[end_row - 1][end:start]
                     logical.append(fill)
                     length += len(fill)
+            length += len(text)
             mapping.append((length, token))
             logical.append(text)
-            length += len(text)
             previous = token
         self.logical_line = ''.join(logical)
         self.noqa = comments and noqa(''.join(comments))
-        return mapping or [(0, self.tokens[0])]
+        return mapping or [(len(self.tokens[0][1]), self.tokens[0])]
 
     def check_logical(self):
         """Build a line from tokens and run all logical checks on it."""
@@ -1354,10 +1354,10 @@ class Checker(object):
                     (li_number, li_offset) = offset
                 else:
                     for (token_offset, token) in mapping:
-                        if offset < token_offset:
+                        if offset <= token_offset:
                             break
-                    li_number = token[2][0]
-                    li_offset = (token[2][1] + offset - token_offset)
+                    li_number = token[3][0]
+                    li_offset = (token[3][1] + offset - token_offset)
                 self.report_error(li_number, li_offset, text, check)
         if self.logical_line:
             self.previous_indent_level = self.indent_level
@@ -1460,8 +1460,10 @@ class Checker(object):
                 elif COMMENT_WITH_NL and token_type == tokenize.COMMENT:
                     if len(self.tokens) == 1:
                         # The comment also ends a physical line
-                        text = text.rstrip('\r\n')
-                        self.tokens = [(token_type, text) + token[2:]]
+                        token = list(token)
+                        token[1] = text.rstrip('\r\n')
+                        token[3] = (token[2][0], token[2][1] + len(token[1]))
+                        self.tokens = [tuple(token)]
                         self.check_logical()
         return self.report.get_file_results()
 

@@ -5,6 +5,10 @@ Changelog
 1.5.x (unreleased)
 ------------------
 
+Bug fixes:
+
+* Fix wrong offset computation when error is on the last char
+  of a physical line. (Issue #268)
 
 
 1.5.2 (2014-04-04)
