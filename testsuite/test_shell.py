@@ -82,11 +82,10 @@ class ShellTestCase(unittest.TestCase):
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
-        # Config file read from the pep8's setup.cfg or tox.ini
-        config_filenames = self._config_filenames
-        self.assertEqual(len(config_filenames), 2)
-        self.assertTrue(config_filenames[0].endswith('setup.cfg'))
-        self.assertTrue(config_filenames[1].endswith('tox.ini'))
+        # Config file read from the pep8's setup.cfg
+        config_filenames = [os.path.basename(p)
+                            for p in self._config_filenames]
+        self.assertTrue('setup.cfg' in config_filenames)
 
     def test_check_stdin(self):
         pep8.PROJECT_CONFIG = ()
