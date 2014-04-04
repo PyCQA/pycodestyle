@@ -46,7 +46,7 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.5.2a0'
+__version__ = '1.5.2'
 
 import os
 import sys

@@ -2,18 +2,18 @@ Changelog
 =========
 
 
-1.5.x (unreleased)
+1.5.2 (2014-04-04)
 ------------------
 
 Changes:
-
-* Do not allow newline after parameter equal. (Issue #252)
 
 * Distribute a universal wheel file.
 
 Bug fixes:
 
 * Report correct line number for E303 with comments. (Issue #60)
+
+* Do not allow newline after parameter equal. (Issue #252)
 
 * Fix line number reported for multi-line strings. (Issue #220)
 
