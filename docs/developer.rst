@@ -14,7 +14,7 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 * `Source code <https://github.com/jcrocholl/pep8>`_ and
   `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/jcrocholl/pep8>`_ against Python
-  2.5 through 3.3 and PyPy, on `Travis-CI platform
+  2.6 through 3.3 and PyPy, on `Travis-CI platform
   <http://about.travis-ci.org/>`_.
 
 .. _available on GitHub: https://github.com/jcrocholl/pep8

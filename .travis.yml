@@ -7,7 +7,7 @@ python:
   - pypy
 install:
   - pip install -e .
-  - pip freeze
+  - pip list
 script:
   - python pep8.py --testsuite testsuite
   - python pep8.py --statistics pep8.py
