@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+* Fix negative offset with E303 before a multi-line docstring.
+  (Issue #269)
+
+
 1.5.3 (2014-04-04)
 ------------------
 

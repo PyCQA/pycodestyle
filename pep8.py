@@ -88,7 +88,7 @@ WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
 WHITESPACE = frozenset(' \t')
-SKIP_TOKENS = frozenset([tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE,
+SKIP_TOKENS = frozenset([tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
@@ -1306,10 +1306,12 @@ class Checker(object):
         previous = None
         for token in self.tokens:
             (token_type, text) = token[0:2]
+            if token_type in SKIP_TOKENS:
+                continue
+            if not mapping:
+                mapping.append((0, token[2]))
             if token_type == tokenize.COMMENT:
                 comments.append(text)
-                continue
-            if token_type in SKIP_TOKENS:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
@@ -1327,18 +1329,18 @@ class Checker(object):
                     logical.append(fill)
                     length += len(fill)
             length += len(text)
-            mapping.append((length, token))
+            mapping.append((length, token[3]))
             logical.append(text)
             previous = token
         self.logical_line = ''.join(logical)
         self.noqa = comments and noqa(''.join(comments))
-        return mapping or [(len(self.tokens[0][1]), self.tokens[0])]
+        return mapping
 
     def check_logical(self):
         """Build a line from tokens and run all logical checks on it."""
         self.report.increment_logical_line()
         mapping = self.build_tokens_line()
-        (start_row, start_col) = mapping[0][1][2]
+        (start_row, start_col) = mapping[0][1]
         start_line = self.lines[start_row - 1]
         self.indent_level = expand_indent(start_line[:start_col])
         if self.blank_before < self.blank_lines:
@@ -1350,10 +1352,10 @@ class Checker(object):
                 print('   ' + name)
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
-                    for token_offset, token in mapping:
+                    for token_offset, pos in mapping:
                         if offset <= token_offset:
                             break
-                    offset = (token[3][0], token[3][1] + offset - token_offset)
+                    offset = (pos[0], pos[1] + offset - token_offset)
                 self.report_error(offset[0], offset[1], text, check)
         if self.logical_line:
             self.previous_indent_level = self.indent_level
