@@ -46,7 +46,7 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.5.3'
+__version__ = '1.5.4a0'
 
 import os
 import sys
@@ -1348,17 +1348,13 @@ class Checker(object):
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
-            for result in self.run_check(check, argument_names) or ():
-                (offset, text) = result
-                if isinstance(offset, tuple):
-                    (li_number, li_offset) = offset
-                else:
-                    for (token_offset, token) in mapping:
+            for offset, text in self.run_check(check, argument_names) or ():
+                if not isinstance(offset, tuple):
+                    for token_offset, token in mapping:
                         if offset <= token_offset:
                             break
-                    li_number = token[3][0]
-                    li_offset = (token[3][1] + offset - token_offset)
-                self.report_error(li_number, li_offset, text, check)
+                    offset = (token[3][0], token[3][1] + offset - token_offset)
+                self.report_error(offset[0], offset[1], text, check)
         if self.logical_line:
             self.previous_indent_level = self.indent_level
             self.previous_logical = self.logical_line
