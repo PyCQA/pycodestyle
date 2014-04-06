@@ -1299,39 +1299,33 @@ class Checker(object):
 
     def build_tokens_line(self):
         """Build a logical line from tokens."""
-        mapping = []
         logical = []
         comments = []
         length = 0
-        previous = None
-        for token in self.tokens:
-            (token_type, text) = token[0:2]
+        prev_row = prev_col = mapping = None
+        for token_type, text, start, end, line in self.tokens:
             if token_type in SKIP_TOKENS:
                 continue
             if not mapping:
-                mapping.append((0, token[2]))
+                mapping = [(0, start)]
             if token_type == tokenize.COMMENT:
                 comments.append(text)
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
-            if previous:
-                (end_row, end) = previous[3]
-                (start_row, start) = token[2]
-                if end_row != start_row:    # different row
-                    prev_text = self.lines[end_row - 1][end - 1]
+            if prev_row:
+                (start_row, start_col) = start
+                if prev_row != start_row:    # different row
+                    prev_text = self.lines[prev_row - 1][prev_col - 1]
                     if prev_text == ',' or (prev_text not in '{[('
                                             and text not in '}])'):
-                        logical.append(' ')
-                        length += 1
-                elif end != start:  # different column
-                    fill = self.lines[end_row - 1][end:start]
-                    logical.append(fill)
-                    length += len(fill)
-            length += len(text)
-            mapping.append((length, token[3]))
+                        text = ' ' + text
+                elif prev_col != start_col:  # different column
+                    text = line[prev_col:start_col] + text
             logical.append(text)
-            previous = token
+            length += len(text)
+            mapping.append((length, end))
+            (prev_row, prev_col) = end
         self.logical_line = ''.join(logical)
         self.noqa = comments and noqa(''.join(comments))
         return mapping
