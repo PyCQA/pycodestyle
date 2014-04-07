@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+1.5.4 (2014-04-07)
+------------------
 
 * Fix negative offset with E303 before a multi-line docstring.
   (Issue #269)
