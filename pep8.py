@@ -88,9 +88,10 @@ WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
 WHITESPACE = frozenset(' \t')
-SKIP_TOKENS = frozenset([tokenize.NL, tokenize.NEWLINE,
-                         tokenize.INDENT, tokenize.DEDENT])
-SKIP_TOKENS_C = SKIP_TOKENS.union([tokenize.COMMENT])
+NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
+SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
+# ERRORTOKEN is triggered by backticks in Python 3
+SKIP_COMMENTS = SKIP_TOKENS.union([tokenize.COMMENT, tokenize.ERRORTOKEN])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
@@ -434,8 +435,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         newline = row < start[0] - first_row
         if newline:
             row = start[0] - first_row
-            newline = (not last_token_multiline and
-                       token_type not in (tokenize.NL, tokenize.NEWLINE))
+            newline = not last_token_multiline and token_type not in NEWLINE
 
         if newline:
             # this is the beginning of a continuation line.
@@ -657,8 +657,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     prev_type = tokenize.OP
     prev_text = prev_end = None
     for token_type, text, start, end, line in tokens:
-        if token_type in (tokenize.NL, tokenize.NEWLINE, tokenize.ERRORTOKEN):
-            # ERRORTOKEN is triggered by backticks in Python 3
+        if token_type in SKIP_COMMENTS:
             continue
         if text in ('(', 'lambda'):
             parens += 1
@@ -698,14 +697,8 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Check if the operator is being used as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
-                if prev_type == tokenize.OP:
-                    binary_usage = (prev_text in '}])')
-                elif prev_type == tokenize.NAME:
-                    binary_usage = (prev_text not in KEYWORDS)
-                else:
-                    binary_usage = (prev_type not in SKIP_TOKENS_C)
-
-                if binary_usage:
+                if (prev_text in '}])' if prev_type == tokenize.OP
+                        else prev_text not in KEYWORDS):
                     need_space = None
             elif text in WS_OPTIONAL_OPERATORS:
                 need_space = None
@@ -1170,11 +1163,11 @@ def filename_match(filename, patterns, default=True):
 
 if COMMENT_WITH_NL:
     def _is_eol_token(token):
-        return (token[0] in (tokenize.NEWLINE, tokenize.NL) or
+        return (token[0] in NEWLINE or
                 (token[0] == tokenize.COMMENT and token[1] == token[4]))
 else:
     def _is_eol_token(token):
-        return token[0] in (tokenize.NEWLINE, tokenize.NL)
+        return token[0] in NEWLINE
 
 
 ##############################################################################
@@ -1440,11 +1433,11 @@ class Checker(object):
                 elif text in '}])':
                     parens -= 1
             elif not parens:
-                if token_type == tokenize.NEWLINE:
-                    self.check_logical()
-                    self.blank_before = 0
-                elif token_type == tokenize.NL:
-                    if len(self.tokens) == 1:
+                if token_type in NEWLINE:
+                    if token_type == tokenize.NEWLINE:
+                        self.check_logical()
+                        self.blank_before = 0
+                    elif len(self.tokens) == 1:
                         # The physical line contains only this token.
                         self.blank_lines += 1
                         del self.tokens[0]
