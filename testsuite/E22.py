@@ -149,4 +149,9 @@ if alpha[:-i]:
 
 def squares(n):
     return (i ** 2 for i in range(n))
+
+ENG_PREFIXES = {
+    -6: "\u03bc",  # Greek letter mu
+    -3: "m",
+}
 #:

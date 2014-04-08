@@ -46,7 +46,7 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.5.4'
+__version__ = '1.5.5a0'
 
 import os
 import sys
@@ -90,6 +90,7 @@ WS_NEEDED_OPERATORS = frozenset([
 WHITESPACE = frozenset(' \t')
 SKIP_TOKENS = frozenset([tokenize.NL, tokenize.NEWLINE,
                          tokenize.INDENT, tokenize.DEDENT])
+SKIP_TOKENS_C = SKIP_TOKENS.union([tokenize.COMMENT])
 BENCHMARK_KEYS = ['directories', 'files', 'logical lines', 'physical lines']
 
 INDENT_REGEX = re.compile(r'([ \t]*)')
@@ -702,7 +703,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 elif prev_type == tokenize.NAME:
                     binary_usage = (prev_text not in KEYWORDS)
                 else:
-                    binary_usage = (prev_type not in SKIP_TOKENS)
+                    binary_usage = (prev_type not in SKIP_TOKENS_C)
 
                 if binary_usage:
                     need_space = None

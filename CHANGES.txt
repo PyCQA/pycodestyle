@@ -2,8 +2,18 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+Bug fixes:
+
+* Fix regression with E22 checks and inline comments. (Issue #271)
+
+
 1.5.4 (2014-04-07)
 ------------------
+
+Bug fixes:
 
 * Fix negative offset with E303 before a multi-line docstring.
   (Issue #269)
