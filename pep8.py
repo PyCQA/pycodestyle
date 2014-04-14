@@ -1267,8 +1267,8 @@ class Checker(object):
         """Get the next line from the input buffer."""
         if self.line_number >= len(self.lines):
             return ''
+        line = self.lines[self.line_number]
         self.line_number += 1
-        line = self.lines[self.line_number - 1]
         if self.indent_char is None and line[:1] in WHITESPACE:
             self.indent_char = line[0]
         return line
