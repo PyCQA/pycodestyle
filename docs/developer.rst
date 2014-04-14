@@ -52,8 +52,9 @@ additional information with extra arguments.  All attributes of the
 * ``lines``: a list of the raw lines from the input file
 * ``tokens``: the tokens that contribute to this logical line
 * ``line_number``: line number in the input file
+* ``total_lines``: number of lines in the input file
 * ``blank_lines``: blank lines before this one
-* ``indent_char``: first indentation character in this file (``" "`` or ``"\t"``)
+* ``indent_char``: indentation character in this file (``" "`` or ``"\t"``)
 * ``indent_level``: indentation (with tabs expanded to multiples of 8)
 * ``previous_indent_level``: indentation on previous line
 * ``previous_logical``: previous logical line
