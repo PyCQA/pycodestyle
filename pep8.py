@@ -171,23 +171,20 @@ def trailing_whitespace(physical_line):
             return 0, "W293 blank line contains whitespace"
 
 
-def trailing_blank_lines(physical_line, lines, line_number):
+def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     r"""Trailing blank lines are superfluous.
 
     Okay: spam(1)
     W391: spam(1)\n
+
+    However the last line should end with a new line (warning W292).
     """
-    if not physical_line.rstrip() and line_number == len(lines):
-        return 0, "W391 blank line at end of file"
-
-
-def missing_newline(physical_line):
-    r"""The last line should have a newline.
-
-    Reports warning W292.
-    """
-    if physical_line.rstrip() == physical_line:
-        return len(physical_line), "W292 no newline at end of file"
+    if line_number == total_lines:
+        stripped_last_line = physical_line.rstrip()
+        if not stripped_last_line:
+            return 0, "W391 blank line at end of file"
+        if stripped_last_line == physical_line:
+            return len(physical_line), "W292 no newline at end of file"
 
 
 def maximum_line_length(physical_line, max_line_length, multiline):
@@ -1265,7 +1262,7 @@ class Checker(object):
 
     def readline(self):
         """Get the next line from the input buffer."""
-        if self.line_number >= len(self.lines):
+        if self.line_number >= self.total_lines:
             return ''
         line = self.lines[self.line_number]
         self.line_number += 1
@@ -1408,6 +1405,7 @@ class Checker(object):
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
         self.report.init_file(self.filename, self.lines, expected, line_offset)
+        self.total_lines = len(self.lines)
         if self._ast_checks:
             self.check_ast()
         self.line_number = 0
