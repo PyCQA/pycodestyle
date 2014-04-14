@@ -157,7 +157,10 @@ def init_tests(pep8style):
                     testcase.append(line)
                 continue
             if codes and index:
-                codes = [c for c in codes if c != 'Okay']
+                if 'noeol' in codes:
+                    testcase[-1] = testcase[-1].rstrip('\n')
+                codes = [c for c in codes
+                         if c not in ('Okay', 'noeol')]
                 # Run the checker
                 runner(filename, testcase, expected=codes,
                        line_offset=line_offset)

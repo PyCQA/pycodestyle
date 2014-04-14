@@ -46,7 +46,7 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.5.5'
+__version__ = '1.5.6a0'
 
 import os
 import sys
@@ -1265,9 +1265,9 @@ class Checker(object):
 
     def readline(self):
         """Get the next line from the input buffer."""
-        self.line_number += 1
-        if self.line_number > len(self.lines):
+        if self.line_number >= len(self.lines):
             return ''
+        self.line_number += 1
         line = self.lines[self.line_number - 1]
         if self.indent_char is None and line[:1] in WHITESPACE:
             self.indent_char = line[0]
@@ -1451,6 +1451,11 @@ class Checker(object):
                         token[3] = (token[2][0], token[2][1] + len(token[1]))
                         self.tokens = [tuple(token)]
                         self.check_logical()
+        if len(self.tokens) > 1 and (token_type == tokenize.ENDMARKER and
+                                     self.tokens[-2][0] not in SKIP_TOKENS):
+            self.tokens.pop()
+            self.check_physical(self.tokens[-1][4])
+            self.check_logical()
         return self.report.get_file_results()
 
 

@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+Bug fixes:
+
+* Check the last line even if it has no end-of-line. (Issue #273)
+
+
 1.5.5 (2014-04-10)
 ------------------
 
