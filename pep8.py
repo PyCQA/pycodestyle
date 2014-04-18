@@ -55,6 +55,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import errno
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -1672,6 +1673,9 @@ class StyleGuide(object):
                     runner(path)
         except KeyboardInterrupt:
             print('... stopped')
+        except IOError as e:
+            if e.errno != errno.EPIPE:
+                raise e
         report.stop()
         return report
 
