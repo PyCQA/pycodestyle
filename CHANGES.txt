@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+1.x (unreleased)
+----------------
+
+Bug fixes:
+
+* Skip the traceback on "Broken pipe" signal. (Issue #275)
+
+
 1.5.6 (2014-04-14)
 ------------------
 

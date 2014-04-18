@@ -46,7 +46,7 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.5.6'
+__version__ = '1.5.7a0'
 
 import os
 import sys
@@ -55,7 +55,6 @@ import time
 import inspect
 import keyword
 import tokenize
-import errno
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -1673,9 +1672,6 @@ class StyleGuide(object):
                     runner(path)
         except KeyboardInterrupt:
             print('... stopped')
-        except IOError as e:
-            if e.errno != errno.EPIPE:
-                raise e
         report.stop()
         return report
 
@@ -1917,6 +1913,14 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
 
 def _main():
     """Parse options and run checks on Python source."""
+    import signal
+
+    # Handle "Broken pipe" gracefully
+    try:
+        signal.signal(signal.SIGPIPE, lambda signum, frame: sys.exit(1))
+    except ValueError:
+        pass    # not supported on Windows
+
     pep8style = StyleGuide(parse_argv=True, config_file=True)
     options = pep8style.options
     if options.doctest or options.testsuite:
