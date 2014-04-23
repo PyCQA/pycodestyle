@@ -120,7 +120,7 @@ a = b%c
 #: E228
 msg = fmt%(errno, errmsg)
 #: E228
-msg = "Error %d occured"%errno
+msg = "Error %d occurred"%errno
 #:
 
 #: Okay

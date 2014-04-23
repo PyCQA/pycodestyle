@@ -406,7 +406,7 @@ Bug fixes:
 * Fix E901 when printing source with ``--show-source``.
 
 * Report all errors for each checker, instead of reporting only the
-  first occurence for each line.
+  first occurrence for each line.
 
 * Option ``--show-pep8`` implies ``--first``.
 
@@ -440,7 +440,7 @@ Bug fixes:
 0.7.0 (2012-03-26)
 ------------------
 
-* Now ``--first`` prints only the first occurence of each error.
+* Now ``--first`` prints only the first occurrence of each error.
   The ``--repeat`` flag becomes obsolete because it is the default
   behaviour. (Issue #6)
 
