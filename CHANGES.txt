@@ -9,6 +9,9 @@ Bug fixes:
 
 * Skip the traceback on "Broken pipe" signal. (Issue #275)
 
+* Report E266 instead of E265 when the block comment starts with
+  multiple ``#``. (Issue #270)
+
 
 1.5.6 (2014-04-14)
 ------------------
