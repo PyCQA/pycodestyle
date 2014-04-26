@@ -1,15 +1,15 @@
-#: E261
+#: E261:1:5
 pass # an inline comment
-#: E262
+#: E262:1:12
 x = x + 1  #Increment x
-#: E262
+#: E262:1:12
 x = x + 1  #  Increment x
-#: E262
+#: E262:1:12
 x = y + 1  #:  Increment x
-#: E265
+#: E265:1:1
 #Block comment
 a = 1
-#: E265
+#: E265:2:1
 m = 42
 #! This is important
 mx = 42 - 42
