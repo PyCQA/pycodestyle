@@ -304,6 +304,8 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E703     | statement ends with a semicolon                                      |
 +----------+----------------------------------------------------------------------+
+| E704     | multiple statements on one line (def)                                |
++----------+----------------------------------------------------------------------+
 | E711 (^) | comparison to None should be 'if cond is None:'                      |
 +----------+----------------------------------------------------------------------+
 | E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
@@ -313,6 +315,8 @@ This is the current list of error and warning codes:
 | E714     | test for object identity should be 'is not'                          |
 +----------+----------------------------------------------------------------------+
 | E721     | do not compare types, use 'isinstance()'                             |
++----------+----------------------------------------------------------------------+
+| E731     | do not assign a lambda expression, use a def                         |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E9**   | *Runtime*                                                            |
