@@ -1918,7 +1918,7 @@ def _main():
     # Handle "Broken pipe" gracefully
     try:
         signal.signal(signal.SIGPIPE, lambda signum, frame: sys.exit(1))
-    except ValueError:
+    except AttributeError:
         pass    # not supported on Windows
 
     pep8style = StyleGuide(parse_argv=True, config_file=True)
