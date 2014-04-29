@@ -158,7 +158,8 @@ Configuration
 
 The behaviour may be configured at two levels.
 
-The user settings are read from the ``~/.config/pep8`` file.
+The user settings are read from the ``~/.config/pep8`` file and 
+for Windows from the ``~\.pep8`` file.
 Example::
 
   [pep8]
