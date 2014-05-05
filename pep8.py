@@ -1837,12 +1837,11 @@ def read_config(options, args, arglist, parser):
 
         # Second, parse the configuration
         for opt in config.options(pep8_section):
+            if opt.replace('_', '-') not in parser.config_options:
+                print("  unknown option '%s' ignored" % opt)
+                continue
             if options.verbose > 1:
                 print("  %s = %s" % (opt, config.get(pep8_section, opt)))
-            if opt.replace('_', '-') not in parser.config_options:
-                print("Unknown option: '%s'\n  not in [%s]" %
-                      (opt, ' '.join(parser.config_options)))
-                sys.exit(1)
             normalized_opt = opt.replace('-', '_')
             opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):
