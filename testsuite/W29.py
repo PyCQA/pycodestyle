@@ -15,3 +15,7 @@ string with trailing whitespace'''
 1+ 1
 #: W292:1:27 E261:1:12 noeol
 import this # no line feed
+#: W292:3:22 noeol
+class Test(object):
+    def __repr__(self):
+        return 'test'

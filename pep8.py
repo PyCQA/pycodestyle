@@ -1367,6 +1367,8 @@ class Checker(object):
         tokengen = tokenize.generate_tokens(self.readline)
         try:
             for token in tokengen:
+                if token[2][0] > self.total_lines:
+                    return
                 self.maybe_check_physical(token)
                 yield token
         except (SyntaxError, tokenize.TokenError):
@@ -1449,10 +1451,8 @@ class Checker(object):
                         token[3] = (token[2][0], token[2][1] + len(token[1]))
                         self.tokens = [tuple(token)]
                         self.check_logical()
-        if len(self.tokens) > 1 and (token_type == tokenize.ENDMARKER and
-                                     self.tokens[-2][0] not in SKIP_TOKENS):
-            self.tokens.pop()
-            self.check_physical(self.tokens[-1][4])
+        if self.tokens:
+            self.check_physical(self.lines[-1])
             self.check_logical()
         return self.report.get_file_results()
 
