@@ -886,7 +886,7 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = ("bbb "\n       "ccc")
     Okay: aaa = "bbb " \\n    "ccc"
     """
-    prev_start = prev_end = parens = 0
+    prev_start = prev_end = parens = backslash = 0
     for token_type, text, start, end, line in tokens:
         if start[0] != prev_start and parens and backslash:
             yield backslash, "E502 the backslash is redundant between brackets"
