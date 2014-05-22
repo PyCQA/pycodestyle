@@ -1758,8 +1758,8 @@ def get_parser(prog='pep8', version=__version__):
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
-        'hang-closing', 'count', 'format', 'quiet', 'show-pep8',
-        'show-source', 'statistics', 'verbose']
+        'hang-closing', 'double-indent', 'count', 'format', 'quiet',
+        'show-pep8', 'show-source', 'statistics', 'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
