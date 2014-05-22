@@ -370,7 +370,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          indent_char, noqa, verbose):
+                          indent_char, double_indent, noqa, verbose):
     r"""Continuation lines indentation.
 
     Continuation lines should align wrapped elements either vertically
@@ -409,7 +409,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     indent_next = logical_line.endswith(':')
 
     row = depth = 0
-    valid_hangs = (4,) if indent_char != '\t' else (4, 8)
+    if double_indent:
+        valid_hangs = (8,)
+    elif indent_char != '\t':
+        valid_hangs = (4,)
+    else:
+        valid_hangs = (4, 8)
     # remember how many brackets were opened on each line
     parens = [0] * nrows
     # relative indents of physical lines
@@ -1220,6 +1225,7 @@ class Checker(object):
         self.max_line_length = options.max_line_length
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
+        self.double_indent = options.double_indent
         self.verbose = options.verbose
         self.filename = filename
         if filename is None:
@@ -1791,6 +1797,9 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--hang-closing', action='store_true',
                       help="hang closing bracket instead of matching "
                            "indentation of opening bracket's line")
+    parser.add_option('--double-indent', action='store_true',
+                      help="use double indent for all hanging continuation "
+                           "lines (NON PEP 8 COMPLIANT)")
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
