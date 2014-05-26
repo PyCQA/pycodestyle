@@ -1037,7 +1037,7 @@ if '' == ''.encode():
     # Python 2: implicit encoding.
     def readlines(filename):
         """Read the source code."""
-        with open(filename) as f:
+        with open(filename, 'rU') as f:
             return f.readlines()
     isidentifier = re.compile(r'[a-zA-Z_]\w*').match
     stdin_get_value = sys.stdin.read
