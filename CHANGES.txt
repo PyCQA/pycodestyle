@@ -14,6 +14,8 @@ Bug fixes:
 
 * Check the last line even if it does not end with a newline. (Issue #286)
 
+* Always open files in universal newlines mode in Python 2. (Issue #288)
+
 
 1.5.6 (2014-04-14)
 ------------------
