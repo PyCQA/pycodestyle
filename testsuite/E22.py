@@ -135,8 +135,8 @@ baz(**kwargs)
 negative = -1
 spam(-1)
 -negative
-lambda *args, **kw: (args, kw)
-lambda a, b=h[:], c=0: (a, b, c)
+func1(lambda *args, **kw: (args, kw))
+func2(lambda a, b=h[:], c=0: (a, b, c))
 if not -5 < x < +5:
     print >>sys.stderr, "x is out of range."
 print >> sys.stdout, "x is an integer."
