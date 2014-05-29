@@ -9,6 +9,9 @@ Changelog
 
 * Report E704 for one-liner def instead of E701. (Issue #277)
 
+* Replace codes E111, E112 and E113 with codes E114, E115 and E116
+  for wrong indentation of comments. (Issue #274)
+
 
 1.5.7 (2014-05-29)
 ------------------

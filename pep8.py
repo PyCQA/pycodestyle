@@ -353,20 +353,25 @@ def indentation(logical_line, previous_logical, indent_char,
     Okay: a = 1
     Okay: if a == 0:\n    a = 1
     E111:   a = 1
+    E114:   # a = 1
 
     Okay: for item in items:\n    pass
     E112: for item in items:\npass
+    E115: for item in items:\n# Hi\n    pass
 
     Okay: a = 1\nb = 2
     E113: a = 1\n    b = 2
+    E116: a = 1\n    # b = 2
     """
-    if indent_char == ' ' and indent_level % 4:
-        yield 0, "E111 indentation is not a multiple of four"
+    c = 0 if logical_line else 3
+    tmpl = "E11%d %s" if logical_line else "E11%d %s (comment)"
+    if indent_level % 4:
+        yield 0, tmpl % (1 + c, "indentation is not a multiple of four")
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
-        yield 0, "E112 expected an indented block"
-    if indent_level > previous_indent_level and not indent_expect:
-        yield 0, "E113 unexpected indentation"
+        yield 0, tmpl % (2 + c, "expected an indented block")
+    elif not indent_expect and indent_level > previous_indent_level:
+        yield 0, tmpl % (3 + c, "unexpected indentation")
 
 
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
