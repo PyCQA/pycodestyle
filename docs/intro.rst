@@ -313,7 +313,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E703     | statement ends with a semicolon                                      |
 +----------+----------------------------------------------------------------------+
-| E704     | multiple statements on one line (def)                                |
+| E704 (*) | multiple statements on one line (def)                                |
 +----------+----------------------------------------------------------------------+
 | E711 (^) | comparison to None should be 'if cond is None:'                      |
 +----------+----------------------------------------------------------------------+
@@ -367,7 +367,7 @@ This is the current list of error and warning codes:
 
 
 **(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
-**E241** and **E242** are ignored because they are not rules unanimously
+**E241**, **E242** and **E704** are ignored because they are not rules unanimously
 accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
 exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
 instead of **E123**.
