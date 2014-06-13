@@ -1207,11 +1207,14 @@ def init_checks_registry():
 
     The first argument name is either 'physical_line' or 'logical_line'.
     """
+    # Load from this module
+    # This module is not mentioned in its own setup.py so that it works as
+    # expected stand-alone (or when running the testsuite)
+    register_from_module(inspect.getmodule(register_check))
     try:
         from pkg_resources import iter_entry_points
     except ImportError:
-        # No pkg_resources -- use the old behavior, load from this module only
-        register_from_module(inspect.getmodule(register_check))
+        pass
     else:
         # pkg_resources is available -- load from 'pep8.checks' entry point
         for entry_point in iter_entry_points('pep8.checks'):
