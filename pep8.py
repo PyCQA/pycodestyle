@@ -1193,14 +1193,36 @@ def register_check(check, codes=None):
             _add_check(check, 'tree', codes, None)
 
 
+def register_from_module(module):
+    """Register all globally visible functions in a module."""
+    for (name, function) in inspect.getmembers(module, inspect.isfunction):
+        register_check(function)
+
+
 def init_checks_registry():
-    """Register all globally visible functions.
+    """Register all checks.
+
+    Checks are function, they are loaded from pkg_resources's 'pep8.checks'
+    entry points.
 
     The first argument name is either 'physical_line' or 'logical_line'.
     """
-    mod = inspect.getmodule(register_check)
-    for (name, function) in inspect.getmembers(mod, inspect.isfunction):
-        register_check(function)
+    try:
+        from pkg_resources import iter_entry_points
+    except ImportError:
+        # No pkg_resources -- use the old behavior, load from this module only
+        register_from_module(inspect.getmodule(register_check))
+    else:
+        # pkg_resources is available -- load from 'pep8.checks' entry point
+        for entry_point in iter_entry_points('pep8.checks'):
+            check = entry_point.load()
+            # Entry point may either be a module, in which case we register all
+            # its globally visible functions
+            if inspect.ismodule(check):
+                register_from_module(check)
+            # Or a single function, which we register
+            else:
+                register_check(check)
 init_checks_registry()
 
 

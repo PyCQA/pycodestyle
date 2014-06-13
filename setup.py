@@ -40,6 +40,9 @@ setup(
         'console_scripts': [
             'pep8 = pep8:_main',
         ],
+        'pep8.checks': [
+            'builtin = pep8:filename_match',
+        ],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
