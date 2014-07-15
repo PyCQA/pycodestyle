@@ -62,6 +62,10 @@ try:
     from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
+try:
+    import xattr
+except ImportError:
+    xattr = None
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__'
 DEFAULT_IGNORE = 'E123,E226,E24,E704'
@@ -1692,13 +1696,55 @@ class StyleGuide(object):
         report.stop()
         return report
 
+    def remove_mtime_xattr(self, filename):
+        if not xattr:
+            return
+        try:
+            xattr.removexattr(filename, 'pep8-mtime')
+        except IOError:
+            pass
+
+    def skip_unmodified(self, filename):
+        """Skip checks on unmodified files that that had previously successful
+        runs.
+
+        This uses `xattr` to efficiently store the old mtime with the file
+        being checked.
+        """
+        if self.options.skip_unmodified and not xattr:
+            sys.stderr.write("`xattr` module needed for --skip-unmodified\n")
+            sys.exit(1)
+
+        try:
+            old_mtime = xattr.getxattr(filename, 'pep8-mtime')
+        except IOError:
+            old_mtime = None
+
+        new_mtime = str(os.path.getmtime(filename))
+
+        try:
+            xattr.setxattr(filename, 'pep8-mtime', new_mtime)
+        except IOError:
+            pass
+
+        return self.skip_unmodified and old_mtime == new_mtime
+
     def input_file(self, filename, lines=None, expected=None, line_offset=0):
         """Run all checks on a Python source file."""
         if self.options.verbose:
             print('checking %s' % filename)
+        if self.skip_unmodified(filename):
+            if self.options.verbose:
+                print('skipping unmodified file %s' % filename)
+            return
         fchecker = self.checker_class(
             filename, lines=lines, options=self.options)
-        return fchecker.check_all(expected=expected, line_offset=line_offset)
+        count = fchecker.check_all(expected=expected, line_offset=line_offset)
+        # If there were any errors or warnings, strip the mtime entry so we
+        # recheck on next run
+        if count:
+            self.remove_mtime_xattr(filename)
+        return count
 
     def input_dir(self, dirname):
         """Check all files in this directory and all subdirectories."""
@@ -1813,6 +1859,9 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
+    parser.add_option('--skip-unmodified', action='store_true',
+                      help="Skip passing files that were not modified since"
+                           " last run (Requires `xattr` module)")
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
