@@ -922,6 +922,45 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
+def break_around_binary_operator(logical_line, tokens):
+    r"""
+    Avoid breaks before binary operators.
+
+    The preferred place to break around a binary operator is after the
+    operator, not before it.
+
+    W503: (width == 0\n + height == 0)
+    W503: (width == 0\n and height == 0)
+
+    Okay: (width == 0 +\n height == 0)
+    Okay: foo(\n    -x)
+    Okay: foo(x\n    [])
+    Okay: x = '''\n''' + ''
+    Okay: foo(x,\n    -y)
+    Okay: foo(x,  # comment\n    -y)
+    """
+    def is_binary_operator(token_type, text):
+        # The % character is strictly speaking a binary operator, but the
+        # common usage seems to be to put it next to the format parameters,
+        # after a line break.
+        return ((token_type == tokenize.OP or text == 'and' or text == 'or')
+                and text not in "()[]{},:.;@=%")
+
+    line_break = False
+    unary_context = True
+    for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.COMMENT:
+            continue
+        if ('\n' in text or '\r' in text) and token_type != tokenize.STRING:
+            line_break = True
+        else:
+            if (is_binary_operator(token_type, text) and line_break
+                    and not unary_context):
+                yield start, "W503 line break before binary operator"
+            unary_context = text in '([{,;'
+            line_break = False
+
+
 def comparison_to_singleton(logical_line, noqa):
     r"""Comparison to singletons should use "is" or "is not".
 
