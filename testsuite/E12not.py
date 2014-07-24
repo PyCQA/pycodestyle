@@ -632,7 +632,7 @@ some_hash = {
         else 0,
 }
 #
-from textwrap import dedent
+from textwrap import dedent  # noqa
 
 
 print dedent(
