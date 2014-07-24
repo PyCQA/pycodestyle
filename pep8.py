@@ -506,8 +506,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
-        if (parens[row] and token_type not in (tokenize.NL, tokenize.COMMENT)
-                and not indent[depth]):
+        if (parens[row] and
+                token_type not in (tokenize.NL, tokenize.COMMENT) and
+                not indent[depth]):
             indent[depth] = start[1]
             indent_chances[start[1]] = True
             if verbose >= 4:
@@ -943,8 +944,8 @@ def break_around_binary_operator(logical_line, tokens):
         # The % character is strictly speaking a binary operator, but the
         # common usage seems to be to put it next to the format parameters,
         # after a line break.
-        return ((token_type == tokenize.OP or text == 'and' or text == 'or')
-                and text not in "()[]{},:.;@=%")
+        return ((token_type == tokenize.OP or text in ['and', 'or']) and
+                text not in "()[]{},:.;@=%")
 
     line_break = False
     unary_context = True
@@ -954,8 +955,8 @@ def break_around_binary_operator(logical_line, tokens):
         if ('\n' in text or '\r' in text) and token_type != tokenize.STRING:
             line_break = True
         else:
-            if (is_binary_operator(token_type, text) and line_break
-                    and not unary_context):
+            if (is_binary_operator(token_type, text) and line_break and
+                    not unary_context):
                 yield start, "W503 line break before binary operator"
             unary_context = text in '([{,;'
             line_break = False
@@ -1364,8 +1365,8 @@ class Checker(object):
                 (start_row, start_col) = start
                 if prev_row != start_row:    # different row
                     prev_text = self.lines[prev_row - 1][prev_col - 1]
-                    if prev_text == ',' or (prev_text not in '{[('
-                                            and text not in '}])'):
+                    if prev_text == ',' or (prev_text not in '{[(' and
+                                            text not in '}])'):
                         text = ' ' + text
                 elif prev_col != start_col:  # different column
                     text = line[prev_col:start_col] + text
