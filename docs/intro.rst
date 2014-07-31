@@ -122,6 +122,22 @@ You can also make pep8.py show the error text in different formats by using --fo
   $ pep8 testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
   testsuite/E40.py|2|10| E401 multiple imports on one line
 
+Variables in the ``custom`` format option::
+
++----------------+------------------+
+| **Variable**   | **Significance** |
++================+==================+
+| ``path``       | File name        |
++----------------+------------------+
+| ``row``        | Row number       |
++----------------+------------------+
+| ``col``        | Column number    |
++----------------+------------------+
+| ``code``       | Error code       |
++----------------+------------------+
+| ``text``       | Error text       |
++----------------+------------------+
+
 Quick help is available on the command line::
 
   $ pep8 -h
