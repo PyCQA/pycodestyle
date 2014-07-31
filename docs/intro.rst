@@ -111,7 +111,8 @@ Or you can display how often each error was found::
   612     W601 .has_key() is deprecated, use 'in'
   1188    W602 deprecated form of raising exception
 
-You can also make pep8.py show the error text in different formats by using --format having options default/pylint/custom
+You can also make pep8.py show the error text in different formats by using --format having options default/pylint/custom::
+
   $ pep8 testsuite/E40.py --format=default
   testsuite/E40.py:2:10: E401 multiple imports on one line
 
@@ -120,7 +121,7 @@ You can also make pep8.py show the error text in different formats by using --fo
 
   $ pep8 testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
   testsuite/E40.py|2|10| E401 multiple imports on one line
-  
+
 Quick help is available on the command line::
 
   $ pep8 -h
