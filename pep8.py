@@ -1809,7 +1809,13 @@ def get_parser(prog='pep8', version=__version__):
                       help="hang closing bracket instead of matching "
                            "indentation of opening bracket's line")
     parser.add_option('--format', metavar='format', default='default',
-                      help="set the error format [default|pylint|<custom>]")
+                      help="set the error format as [default|pylint|<custom>]"
+                           "\ndefault :"
+                           "%(path)s: %(row)d:%(col)d: %(code)s %(text)s"
+                           "\npylint :"
+                           "%(path)s: %(row)d: [%(code)s] %(text)s"
+                           "   <custom> format follows a similar pattern with "
+                           "the variables being (path,row,col,code,text)")
     parser.add_option('--diff', action='store_true',
                       help="report only lines changed according to the "
                            "unified diff received on STDIN")
