@@ -974,7 +974,7 @@ def comparison_negative(logical_line):
             yield pos, "E714 test for object identity should be 'is not'"
 
 
-def comparison_type(logical_line):
+def comparison_type(logical_line, noqa):
     r"""Object type comparisons should always use isinstance().
 
     Do not compare types directly.
@@ -990,7 +990,7 @@ def comparison_type(logical_line):
     Okay: if type(a1) is type(b1):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
-    if match:
+    if match and not noqa:
         inst = match.group(1)
         if inst and isidentifier(inst) and inst not in SINGLETONS:
             return  # Allow comparison for types which are not obvious
