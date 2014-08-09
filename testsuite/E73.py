@@ -8,3 +8,11 @@ while False:
 #: Okay
 f = object()
 f.method = lambda: 'Method'
+#: Okay
+f = {}
+f['a'] = lambda x: x ** 2
+#: Okay
+f = []
+f.append(lambda x: x ** 2)
+#: Okay
+lambda: 'no-op'
