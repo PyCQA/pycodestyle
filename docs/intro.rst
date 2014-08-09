@@ -158,8 +158,17 @@ Configuration
 
 The behaviour may be configured at two levels.
 
-The user settings are read from the ``~/.config/pep8`` file and 
-for Windows from the ``~\.pep8`` file.
+The user settings are read from the following locations
+
+If the :envvar:`XDG_CONFIG_HOME` environment variable is defined
+    ``XDG_CONFIG_HOME/pep8``
+    
+If :envvar:`XDG_CONFIG_HOME` is not defined and on Windows
+    ``~\.pep8``
+    
+Otherwise from
+    ``~/.config/pep8``
+
 Example::
 
   [pep8]
