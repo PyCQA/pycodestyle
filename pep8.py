@@ -763,7 +763,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             no_space = False
             if start != prev_end:
                 yield (prev_end, message)
-        elif token_type == tokenize.OP:
+        if token_type == tokenize.OP:
             if text == '(':
                 parens += 1
             elif text == ')':
