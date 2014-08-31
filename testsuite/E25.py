@@ -17,6 +17,11 @@ parser.add_argument('--long-option',
 #: E251:1:45
 parser.add_argument('--long-option', default
                     ="/rather/long/filesystem/path/here/blah/blah/blah")
+#: E251
+foo(True,
+    baz=(1, 2),
+    biz = 'foo'
+    )
 #: Okay
 foo(bar=(1 == 1))
 foo(bar=(1 != 1))
