@@ -1426,6 +1426,11 @@ class Checker(object):
             self.multiline = False
         elif lines_processed < (self.line_number - 1) \
                 and self.last_line is not None:
+            # We should always have processed every line up to the
+            # current one. But there are edge cases (particularly
+            # where the newline is escaped so doesn't generate a
+            # token) where we don't - this catches that situation and
+            # checks the last line.
             self.line_number -= 1
             self.check_physical(self.last_line)
             self.line_number += 1
