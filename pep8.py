@@ -1239,6 +1239,8 @@ class Checker(object):
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
+        self.physical_lines_checked = 0
+        self.last_line = None
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1297,6 +1299,7 @@ class Checker(object):
     def check_physical(self, line):
         """Run all physical checks on a raw input line."""
         self.physical_line = line
+        self.physical_lines_checked += 1
         for name, check, argument_names in self._physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
@@ -1394,6 +1397,7 @@ class Checker(object):
     def maybe_check_physical(self, token):
         """If appropriate (based on token), check current physical line(s)."""
         # Called after every token, but act only on end of line.
+        lines_processed = self.physical_lines_checked + self.blank_lines
         if _is_eol_token(token):
             # Obviously, a newline token ends a single physical line.
             self.check_physical(token[4])
@@ -1420,6 +1424,12 @@ class Checker(object):
                 self.check_physical(line + '\n')
                 self.line_number += 1
             self.multiline = False
+        elif lines_processed < (self.line_number - 1) \
+                and self.last_line is not None:
+            self.line_number -= 1
+            self.check_physical(self.last_line)
+            self.line_number += 1
+        self.last_line = token[4]
 
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
