@@ -1423,16 +1423,16 @@ class Checker(object):
                 self.line_number += 1
             self.multiline = False
         elif lines_processed < (self.line_number - 1) \
-                and self.last_line is not None:
+                and self.previous_line is not None:
             # We should always have processed every line up to the
             # current one. But there are edge cases (particularly
             # where the newline is escaped so doesn't generate a
             # token) where we don't - this catches that situation and
             # checks the last line.
             self.line_number -= 1
-            self.check_physical(self.last_line)
+            self.check_physical(self.previous_line)
             self.line_number += 1
-        self.last_line = token[4]
+        self.previous_line = token[4]
 
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
@@ -1441,7 +1441,7 @@ class Checker(object):
         if self._ast_checks:
             self.check_ast()
         self.line_number = 0
-        self.last_line = None
+        self.previous_line = None
         self.indent_char = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
