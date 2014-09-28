@@ -1239,8 +1239,6 @@ class Checker(object):
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
-        self.physical_lines_checked = 0
-        self.last_line = None
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1443,11 +1441,13 @@ class Checker(object):
         if self._ast_checks:
             self.check_ast()
         self.line_number = 0
+        self.last_line = None
         self.indent_char = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
         self.tokens = []
         self.blank_lines = self.blank_before = 0
+        self.physical_lines_checked = 0
         parens = 0
         for token in self.generate_tokens():
             self.tokens.append(token)
