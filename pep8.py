@@ -1485,8 +1485,8 @@ class BaseReport(object):
         # Results
         self.elapsed = 0
         self.total_errors = 0
-        self.counters = dict.fromkeys(self._benchmark_keys, 0)
         self.messages = {}
+        self.init_counters()
 
     def start(self):
         """Start the timer."""
@@ -1495,6 +1495,9 @@ class BaseReport(object):
     def stop(self):
         """Stop the timer."""
         self.elapsed = time.time() - self._start_time
+
+    def init_counters(self):
+        self.counters = dict.fromkeys(self._benchmark_keys, 0)
 
     def init_file(self, filename, lines, expected, line_offset):
         """Signal a new file."""
@@ -1583,6 +1586,7 @@ class StandardReport(BaseReport):
     def init_file(self, filename, lines, expected, line_offset):
         """Signal a new file."""
         self._deferred_print = []
+        self.init_counters()
         return super(StandardReport, self).init_file(
             filename, lines, expected, line_offset)
 
