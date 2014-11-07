@@ -1155,10 +1155,13 @@ def normalize_paths(value, parent=os.curdir):
 
     Return a list of absolute paths.
     """
-    if not value or isinstance(value, list):
+    if not value:
+        return []
+    if isinstance(value, list):
         return value
     paths = []
     for path in value.split(','):
+        path = path.strip()
         if '/' in path:
             path = os.path.abspath(os.path.join(parent, path))
         paths.append(path.rstrip('/'))
