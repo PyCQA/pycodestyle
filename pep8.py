@@ -122,6 +122,50 @@ HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
+# GENERATED DATA
+# generated from
+# http://www.unicode.org/Public/4.0-Update/EastAsianWidth-4.0.0.txt
+CHR_WIDTHS = [
+    (126, 1),
+    (159, 0),
+    (687, 1),
+    (710, 0),
+    (711, 1),
+    (727, 0),
+    (733, 1),
+    (879, 0),
+    (1154, 1),
+    (1161, 0),
+    (4347, 1),
+    (4447, 2),
+    (7467, 1),
+    (7521, 0),
+    (8369, 1),
+    (8426, 0),
+    (9000, 1),
+    (9002, 2),
+    (11021, 1),
+    (12350, 2),
+    (12351, 1),
+    (12438, 2),
+    (12442, 0),
+    (19893, 2),
+    (19967, 1),
+    (55203, 2),
+    (63743, 1),
+    (64106, 2),
+    (65039, 1),
+    (65059, 0),
+    (65131, 2),
+    (65279, 1),
+    (65376, 2),
+    (65500, 1),
+    (65510, 2),
+    (120831, 1),
+    (262141, 2),
+    (1114109, 1),
+]
+
 
 ##############################################################################
 # Plugins (check functions) for physical lines
@@ -437,6 +481,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     visual_indent = None
     # for each depth, memorize the visual indent column
     indent = [last_indent[1]]
+    last_line_pos = {}
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -448,6 +493,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             newline = not last_token_multiline and token_type not in NEWLINE
 
         if newline:
+            longer_size = 0
+            for pos, _longer_size in last_line_pos.items():
+                #  cumulative length of the difference before current indent
+                if pos < start[1]:
+                    longer_size += _longer_size
+            last_line_pos = {}
             # this is the beginning of a continuation line.
             last_indent = start
             if verbose >= 3:
@@ -469,7 +520,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 hanging_indent = (hang == hangs[depth])
             # is there any chance of visual indent?
             visual_indent = (not close_bracket and hang > 0 and
-                             indent_chances.get(start[1]))
+                             indent_chances.get(start[1] + longer_size))
 
             if close_bracket and indent[depth]:
                 # closing bracket for visual indent
@@ -480,7 +531,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # closing bracket matches indentation of opening bracket's line
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
-            elif indent[depth] and start[1] < indent[depth]:
+            # check visual indent use:
+            # `current indent + the length of the special unicode's different`
+            elif indent[depth] and (start[1] + longer_size) < indent[depth]:
                 if visual_indent is not True:
                     # visual indent is broken
                     yield (start, "E128 continuation line "
@@ -514,6 +567,17 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
+        if token_type == tokenize.STRING:
+            try:
+                letters = line[start[1] + 1:end[1] - 1].decode('utf-8')
+                # get the length of the special unicode's different
+                chr_len = sum([get_chr_greater_width(ord(c)) for c in letters])
+                if chr_len:
+                    last_line_pos[start[1] - 1] = chr_len
+            except UnicodeDecodeError:
+                # FIXME: testsuite has non-UTF8 encoding file and other problem
+                pass
+
         if (parens[row] and token_type not in (tokenize.NL, tokenize.COMMENT)
                 and not indent[depth]):
             indent[depth] = start[1]
@@ -1230,6 +1294,20 @@ def normalize_paths(value, parent=os.curdir):
             path = os.path.abspath(os.path.join(parent, path))
         paths.append(path.rstrip('/'))
     return paths
+
+
+def get_chr_greater_width(o):
+    """Return the screen column width greater than unicode's width.
+
+    Modify from:
+    https://github.com/wardi/urwid/blob/master/urwid/old_str_util.py#L80
+    ."""
+    if o == 0xe or o == 0xf:
+        return 0
+    for num, wid in CHR_WIDTHS:
+        if o <= num:
+            return wid - 1
+    return 0
 
 
 def filename_match(filename, patterns, default=True):
