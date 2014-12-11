@@ -101,7 +101,10 @@ ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
-COMPARE_SINGLETON_REGEX = re.compile(r'([=!]=)\s*(None|False|True)')
+COMPARE_SINGLETON_REGEX = re.compile(r'(?P<op>[=!]=)\s*'
+                                     r'(?P<singleton>None|False|True)')
+COMPARE_SINGLETON_REVERSE_REGEX = re.compile(r'(?P<singleton>None|False|True)'
+                                             r'\s*(?P<op>[=!]=)')
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^[({ ]+\s+(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
                                 r'|\s*\(\s*([^)]*[^ )])\s*\))')
@@ -930,17 +933,22 @@ def comparison_to_singleton(logical_line, noqa):
 
     Okay: if arg is not None:
     E711: if arg != None:
+    E711: if None == arg:
     E712: if arg == True:
+    E712: if False == arg:
 
     Also, beware of writing if x when you really mean if x is not None --
     e.g. when testing whether a variable or argument that defaults to None was
     set to some other value.  The other value might have a type (such as a
     container) that could be false in a boolean context!
     """
-    match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
+
+    match = not noqa and (COMPARE_SINGLETON_REGEX.search(logical_line) or
+                          COMPARE_SINGLETON_REVERSE_REGEX.search(logical_line))
     if match:
-        same = (match.group(1) == '==')
-        singleton = match.group(2)
+        singleton = match.group('singleton')
+        same = match.group('op')
+
         msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
         if singleton in ('None',):
             code = 'E711'
