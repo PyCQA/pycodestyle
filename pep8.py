@@ -947,7 +947,7 @@ def comparison_to_singleton(logical_line, noqa):
                           COMPARE_SINGLETON_REVERSE_REGEX.search(logical_line))
     if match:
         singleton = match.group('singleton')
-        same = match.group('op')
+        same = (match.group('op') == '==')
 
         msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
         if singleton in ('None',):
