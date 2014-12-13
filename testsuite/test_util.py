@@ -11,9 +11,12 @@ class UtilTestCase(unittest.TestCase):
         cwd = os.getcwd()
 
         self.assertEquals(pep8.normalize_paths(''), [])
+        self.assertEquals(pep8.normalize_paths([]), [])
+        self.assertEquals(pep8.normalize_paths(None), [])
         self.assertEquals(pep8.normalize_paths(['foo']), ['foo'])
         self.assertEquals(pep8.normalize_paths('foo'), ['foo'])
         self.assertEquals(pep8.normalize_paths('foo,bar'), ['foo', 'bar'])
+        self.assertEquals(pep8.normalize_paths('foo,  bar  '), ['foo', 'bar'])
         self.assertEquals(pep8.normalize_paths('/foo/bar,baz/../bat'),
                           ['/foo/bar', cwd + '/bat'])
         self.assertEquals(pep8.normalize_paths(".pyc,\n   build/*"),
