@@ -56,6 +56,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import json
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -77,6 +78,7 @@ MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
+    'ipynb': '%(path)s:Cell %(cell)s:%(row)d:%(col)d: %(code)s %(text)s',
 }
 
 PyCF_ONLY_AST = 1024
@@ -1053,29 +1055,69 @@ def python_3000_backticks(logical_line):
 
 if '' == ''.encode():
     # Python 2: implicit encoding.
-    def readlines(filename):
+    def readlines(filename, file_type="py"):
         """Read the source code."""
         with open(filename, 'rU') as f:
-            return f.readlines()
+            if file_type == "ipynb":
+
+                nb_json = f.read()
+                cell_dicts = json.loads(nb_json)["worksheets"][0]["cells"]
+                lines = []
+                cell_line_map = {}
+                cell_no = 0
+
+                for cell_dict in cell_dicts:
+                    try:
+                        lines += cell_dict["input"]
+                        cell_line_map[cell_no] = len(cell_dict["input"])
+                        cell_no += 1
+                    except:
+                        pass
+
+                return lines, cell_line_map, cell_no
+
+            else:
+                return f.readlines()
+
     isidentifier = re.compile(r'[a-zA-Z_]\w*').match
     stdin_get_value = sys.stdin.read
+
 else:
     # Python 3
-    def readlines(filename):
+    def readlines(filename, file_type="py"):
         """Read the source code."""
-        try:
-            with open(filename, 'rb') as f:
-                (coding, lines) = tokenize.detect_encoding(f.readline)
-                f = TextIOWrapper(f, coding, line_buffering=True)
-                return [l.decode(coding) for l in lines] + f.readlines()
-        except (LookupError, SyntaxError, UnicodeError):
-            # Fall back if file encoding is improperly declared
-            with open(filename, encoding='latin-1') as f:
-                return f.readlines()
+        if file_type != "ipynb":
+
+            try:
+                with open(filename, 'rb') as f:
+                    (coding, lines) = tokenize.detect_encoding(f.readline)
+                    f = TextIOWrapper(f, coding, line_buffering=True)
+                    return [l.decode(coding) for l in lines] + f.readlines()
+            except (LookupError, SyntaxError, UnicodeError):
+                # Fall back if file encoding is improperly declared
+                with open(filename, encoding='latin-1') as f:
+                    return f.readlines()
+
+        else:
+            with open(filename, 'rU') as f:
+                nb_json = f.read()
+                cell_dicts = json.loads(nb_json)["worksheets"][0]["cells"]
+                lines = []
+                cell_line_map = {}
+                cell_no = 0
+
+                for cell_dict in cell_dicts:
+                    lines += cell_dict["input"]
+                    cell_line_map[cell_no] = len(cell_dict["input"])
+                    cell_no += 1
+
+                return lines, cell_line_map
+
     isidentifier = str.isidentifier
 
     def stdin_get_value():
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+
 noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
 
 
@@ -1226,6 +1268,7 @@ init_checks_registry()
 
 
 class Checker(object):
+
     """Load a Python source file, tokenize it, check coding style."""
 
     def __init__(self, filename=None, lines=None,
@@ -1243,6 +1286,9 @@ class Checker(object):
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
+        self.cell_line_map = None
+        self.no_of_cells = None
+
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1251,7 +1297,12 @@ class Checker(object):
             self.lines = stdin_get_value().splitlines(True)
         elif lines is None:
             try:
-                self.lines = readlines(filename)
+                file_type = filename.split(".")[-1]  # py or ipynb
+                if not file_type == "ipynb":
+                    self.lines = readlines(filename)
+                else:
+                    self.lines, self.cell_line_map, self.no_of_cells = readlines(
+                        filename, file_type=file_type)
             except IOError:
                 (exc_type, exc) = sys.exc_info()[:2]
                 self._io_error = '%s: %s' % (exc_type.__name__, exc)
@@ -1411,7 +1462,7 @@ class Checker(object):
             #
             # Subtleties:
             # - we don't *completely* ignore the last line; if it contains
-            #   the magical "# noqa" comment, we disable all physical
+            # the magical "# noqa" comment, we disable all physical
             #   checks for the entire multiline string
             # - have to wind self.line_number back because initially it
             #   points to the last line of the string, and we want
@@ -1427,7 +1478,13 @@ class Checker(object):
 
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
-        self.report.init_file(self.filename, self.lines, expected, line_offset)
+        self.report.init_file(
+            self.filename,
+            self.lines,
+            expected,
+            line_offset,
+            self.cell_line_map,
+            self.no_of_cells)
         self.total_lines = len(self.lines)
         if self._ast_checks:
             self.check_ast()
@@ -1479,6 +1536,7 @@ class Checker(object):
 
 
 class BaseReport(object):
+
     """Collect the results of the checks."""
 
     print_filename = False
@@ -1500,10 +1558,19 @@ class BaseReport(object):
         """Stop the timer."""
         self.elapsed = time.time() - self._start_time
 
-    def init_file(self, filename, lines, expected, line_offset):
+    def init_file(
+            self,
+            filename,
+            lines,
+            expected,
+            line_offset,
+            cell_line_map=None,
+            no_of_cells=None):
         """Signal a new file."""
         self.filename = filename
         self.lines = lines
+        self.cell_line_map = cell_line_map
+        self.no_of_cells = no_of_cells
         self.expected = expected or ()
         self.line_offset = line_offset
         self.file_errors = 0
@@ -1569,26 +1636,36 @@ class BaseReport(object):
 
 
 class FileReport(BaseReport):
+
     """Collect the results of the checks and print only the filenames."""
     print_filename = True
 
 
 class StandardReport(BaseReport):
+
     """Collect and print the results of the checks."""
 
     def __init__(self, options):
         super(StandardReport, self).__init__(options)
         self._fmt = REPORT_FORMAT.get(options.format.lower(),
                                       options.format)
+        self._ipynb = True if options.format.lower() == "ipynb" else False
         self._repeat = options.repeat
         self._show_source = options.show_source
         self._show_pep8 = options.show_pep8
 
-    def init_file(self, filename, lines, expected, line_offset):
+    def init_file(
+            self,
+            filename,
+            lines,
+            expected,
+            line_offset,
+            cell_line_map=None,
+            no_of_cells=None):
         """Signal a new file."""
         self._deferred_print = []
         return super(StandardReport, self).init_file(
-            filename, lines, expected, line_offset)
+            filename, lines, expected, line_offset, cell_line_map, no_of_cells)
 
     def error(self, line_number, offset, text, check):
         """Report an error, according to options."""
@@ -1596,17 +1673,33 @@ class StandardReport(BaseReport):
                                                  text, check)
         if code and (self.counters[code] == 1 or self._repeat):
             self._deferred_print.append(
-                (line_number, offset, code, text[5:], check.__doc__))
+                (line_number,
+                    offset,
+                    code,
+                    text[
+                        5:],
+                    check.__doc__))
+
         return code
 
     def get_file_results(self):
         """Print the result and return the overall count for this file."""
         self._deferred_print.sort()
+
         for line_number, offset, code, text, doc in self._deferred_print:
+            if self._ipynb:
+                cell, row_no = self.line_in_cell(
+                    self.line_offset +
+                    line_number)
+            else:
+                cell = None
+                row_no = self.line_offset + line_number
+
             print(self._fmt % {
                 'path': self.filename,
-                'row': self.line_offset + line_number, 'col': offset + 1,
+                'row': row_no, 'col': offset + 1,
                 'code': code, 'text': text,
+                'cell': cell
             })
             if self._show_source:
                 if line_number > len(self.lines):
@@ -1617,10 +1710,29 @@ class StandardReport(BaseReport):
                 print(re.sub(r'\S', ' ', line[:offset]) + '^')
             if self._show_pep8 and doc:
                 print('    ' + doc.strip())
+
         return self.file_errors
+
+    def line_in_cell(self, abs_line_no):
+        """Get the line number and the cell number"""
+
+        # Cell line map contains the number of lines for each cell
+
+        cell_no = 0
+        # print abs_line_no, self.cell_line_map, self.no_of_cells
+        while (cell_no < self.no_of_cells) and (abs_line_no > 0):
+            abs_line_no -= self.cell_line_map[cell_no]
+            cell_no += 1
+
+        if abs_line_no <= 0:
+            cell_no -= 1
+            abs_line_no += self.cell_line_map[cell_no]
+
+        return cell_no + 1, abs_line_no
 
 
 class DiffReport(StandardReport):
+
     """Collect and print the results for the changed lines only."""
 
     def __init__(self, options):
@@ -1634,6 +1746,7 @@ class DiffReport(StandardReport):
 
 
 class StyleGuide(object):
+
     """Initialize a PEP-8 instance with few options."""
 
     def __init__(self, *args, **kwargs):
