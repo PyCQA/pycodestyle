@@ -37,7 +37,7 @@ Credits
 
 Created by Johann C. Rocholl.
 
-Maintained by Florent Xicluna.
+Maintained by Florent Xicluna and Ian Lee.
 
 
 .. _license:

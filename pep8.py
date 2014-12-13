@@ -2,6 +2,7 @@
 # pep8.py - Check Python source code formatting, according to PEP 8
 # Copyright (C) 2006-2009 Johann C. Rocholl <johann@rocholl.net>
 # Copyright (C) 2009-2014 Florent Xicluna <florent.xicluna@gmail.com>
+# Copyright (C) 2014 Ian Lee <ianlee1521@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files

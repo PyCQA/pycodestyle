@@ -45,7 +45,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pep8'
-copyright = u'2012-2013, Florent Xicluna'
+authors = u'Johann C. Rocholl, Florent Xicluna, Ian Lee'
+copyright = u'2006-2014, %s' % (authors)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -192,7 +193,7 @@ latex_elements = {
 #  author, documentclass [howto/manual]).
 latex_documents = [
     ('index', 'pep8.tex', u'pep8 documentation',
-     u'Florent Xicluna', 'manual'),
+     authors, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -222,7 +223,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'pep8', u'pep8 documentation',
-     [u'Florent Xicluna'], 1)
+     [authors], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -235,7 +236,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'pep8', u'pep8 documentation', u'Florent Xicluna',
+    ('index', 'pep8', u'pep8 documentation', authors,
      'pep8', 'One line description of project.',
      'Miscellaneous'),
 ]

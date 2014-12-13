@@ -5,6 +5,12 @@ Changelog
 1.x (unreleased)
 ----------------
 
+News:
+
+* Ian Lee <ianlee1521@gmail.com> joined the project as a maintainer.
+
+Bug fixes:
+
 * Report E731 for lambda assignment. (Issue #277)
 
 * Report E704 for one-liner def instead of E701.
