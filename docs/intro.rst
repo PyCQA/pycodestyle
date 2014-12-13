@@ -125,7 +125,7 @@ You can also make pep8.py show the error text in different formats by using --fo
 Variables in the ``custom`` format option
 
 +----------------+------------------+
-| **Variable**   | **Significance** |
+|   Variable     |   Significance   |
 +================+==================+
 | ``path``       | File name        |
 +----------------+------------------+
@@ -185,7 +185,7 @@ Configuration
 
 The behaviour may be configured at two levels.
 
-The user settings are read from the ``~/.config/pep8`` file and 
+The user settings are read from the ``~/.config/pep8`` file and
 for Windows from the ``~\.pep8`` file.
 Example::
 
