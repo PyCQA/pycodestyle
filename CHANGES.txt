@@ -5,6 +5,8 @@ Changelog
 1.x (unreleased)
 ----------------
 
+Bug fixes:
+
 * Report E731 for lambda assignment. (Issue #277)
 
 * Report E704 for one-liner def instead of E701.
@@ -15,6 +17,8 @@ Changelog
 
 * Report E266 instead of E265 when the block comment starts with
   multiple ``#``. (Issue #270)
+
+* Strip whitespace from around paths during normalization. (Issue #339 / #343)
 
 
 1.5.7 (2014-05-29)
