@@ -24,6 +24,8 @@ Bug fixes:
 
 * Strip whitespace from around paths during normalization. (Issue #339 / #343)
 
+* Update ``--format`` documentation. (Issue #198 / Pull Request #310)
+
 
 1.5.7 (2014-05-29)
 ------------------
