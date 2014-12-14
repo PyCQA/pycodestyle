@@ -342,5 +342,50 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(sys.stderr)
         self.assertEqual(count_errors, 1)
 
+    def test_styleguide_unmatched_triple_quotes(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+        lines = [
+            'def foo():\n',
+            '    """test docstring""\'\n',
+        ]
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=lines)
+        stdout = sys.stdout.getvalue()
+        self.assertEqual(count_errors, 2)
+
+        expected = 'stdin:2:5: E901 TokenError: EOF in multi-line string'
+        self.assertTrue(expected in stdout)
+
+        expected = (
+            'stdin:2:26: '
+            'E901 SyntaxError: EOF while scanning triple-quoted string literal'
+        )
+        self.assertTrue(expected in stdout)
+
+    def test_styleguide_continuation_line_outdented(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+        lines = [
+            'def foo():\n',
+            '    pass\n',
+            '\n',
+            '\\\n',
+            '\n',
+            'def bar():\n',
+            '    pass\n',
+        ]
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=lines)
+        self.assertEqual(count_errors, 2)
+        stdout = sys.stdout.getvalue()
+        expected = (
+            'stdin:6:1: '
+            'E122 continuation line missing indentation or outdented'
+        )
+        self.assertTrue(expected in stdout)
+        expected = 'stdin:6:1: E302 expected 2 blank lines, found 1'
+        self.assertTrue(expected in stdout)
+
         # TODO: runner
         # TODO: input_file

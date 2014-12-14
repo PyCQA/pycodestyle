@@ -26,6 +26,8 @@ Bug fixes:
 
 * Update ``--format`` documentation. (Issue #198 / Pull Request #310)
 
+* Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
+
 
 1.5.7 (2014-05-29)
 ------------------
