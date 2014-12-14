@@ -28,6 +28,8 @@ Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
 
+* Add ``.tox/`` to default excludes. (Issue #335)
+
 
 1.5.7 (2014-05-29)
 ------------------
