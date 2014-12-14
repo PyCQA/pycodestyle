@@ -160,7 +160,8 @@ class APITestCase(unittest.TestCase):
                          ['directories', 'files',
                           'logical lines', 'physical lines'])
         self.assertEqual(pep8style.options.exclude,
-                         ['.svn', 'CVS', '.bzr', '.hg', '.git', '__pycache__'])
+                         ['.svn', 'CVS', '.bzr', '.hg',
+                          '.git', '__pycache__', '.tox'])
         self.assertEqual(pep8style.options.filename, ['*.py'])
         self.assertEqual(pep8style.options.format, 'default')
         self.assertEqual(pep8style.options.select, ())
@@ -233,6 +234,7 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.excluded('./foo/bar/main.py'))
 
         self.assertTrue(pep8style.excluded('./CVS'))
+        self.assertTrue(pep8style.excluded('./.tox'))
         self.assertTrue(pep8style.excluded('./subdir/CVS'))
         self.assertTrue(pep8style.excluded('__pycache__'))
         self.assertTrue(pep8style.excluded('./__pycache__'))
