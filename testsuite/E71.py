@@ -1,11 +1,28 @@
 #: E711
 if res == None:
     pass
+#: E711
+if res != None:
+    pass
+#: E711
+if None == res:
+    pass
+#: E711
+if None != res:
+    pass
+
+#
 #: E712
 if res == True:
     pass
 #: E712
 if res != False:
+    pass
+#: E712
+if True != res:
+    pass
+#: E712
+if False == res:
     pass
 
 #
