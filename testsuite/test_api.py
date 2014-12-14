@@ -350,17 +350,10 @@ class APITestCase(unittest.TestCase):
         ]
 
         pep8style = pep8.StyleGuide()
-        count_errors = pep8style.input_file('stdin', lines=lines)
+        pep8style.input_file('stdin', lines=lines)
         stdout = sys.stdout.getvalue()
-        self.assertEqual(count_errors, 2)
 
         expected = 'stdin:2:5: E901 TokenError: EOF in multi-line string'
-        self.assertTrue(expected in stdout)
-
-        expected = (
-            'stdin:2:26: '
-            'E901 SyntaxError: EOF while scanning triple-quoted string literal'
-        )
         self.assertTrue(expected in stdout)
 
     def test_styleguide_continuation_line_outdented(self):
