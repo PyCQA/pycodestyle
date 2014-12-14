@@ -17,3 +17,7 @@ script:
 matrix:
   allow_failures:
     - python: pypy
+
+notifications:
+  email:
+    - IanLee1521@gmail.com
