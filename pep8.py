@@ -63,6 +63,7 @@ try:
     from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
+import ast
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E123,E226,E24,E704'
@@ -79,7 +80,7 @@ REPORT_FORMAT = {
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
 }
 
-PyCF_ONLY_AST = 1024
+from ast import PyCF_ONLY_AST
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
@@ -1102,6 +1103,42 @@ def python_3000_backticks(logical_line):
 
 
 ##############################################################################
+# Plugins (check functions) for AST tree
+##############################################################################
+
+
+class MethodArgsCheck(object):
+    def __init__(self, tree, filename):
+        self.tree = tree
+        self.filename = filename
+
+    def run(self):
+        classes = [n.body for n in ast.walk(self.tree)
+                   if isinstance(n, ast.ClassDef)]
+        meths = [i for s in classes for i in s
+                 if isinstance(i, ast.FunctionDef)]
+        for m in meths:
+            if any(d.id == 'staticmethod'
+                   for d in m.decorator_list if isinstance(d, ast.Name)):
+                continue
+            if m.name == '__new__':
+                continue
+            if not m.args.args:
+                continue
+            if not m.decorator_list:
+                if m.args.args[0].id != 'self':
+                    n, o = m.args.args[0].lineno, m.args.args[0].col_offset
+                    yield (n, o, "E741 use self for the first "
+                           "argument to instance methods.", self)
+            elif any(d.id == 'classmethod'
+                     for d in m.decorator_list if isinstance(d, ast.Name)):
+                if m.args.args[0].id != 'cls':
+                    n, o = m.args.args[0].lineno, m.args.args[0].col_offset
+                    yield (n, o, "E742 use cls for the first "
+                           "argument to class methods.", self)
+
+
+##############################################################################
 # Helper functions
 ##############################################################################
 
@@ -1270,13 +1307,17 @@ def register_check(check, codes=None):
 
 
 def init_checks_registry():
-    """Register all globally visible functions.
+    """Register all globally visible functions and classes.
 
-    The first argument name is either 'physical_line' or 'logical_line'.
+    The first argument name for functions is either 'physical_line'
+    or 'logical_line'.  Classes should have the __init__ method
+    with first two arguments 'self' and 'tree'.
     """
     mod = inspect.getmodule(register_check)
-    for (name, function) in inspect.getmembers(mod, inspect.isfunction):
-        register_check(function)
+    for (name, e) in inspect.getmembers(mod,
+                                        lambda x: (inspect.isfunction(x)
+                                                   or inspect.isclass(x))):
+        register_check(e)
 init_checks_registry()
 
 
