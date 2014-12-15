@@ -589,11 +589,13 @@ def whitespace_before_parameters(logical_line, tokens):
 
     Okay: spam(1)
     E211: spam (1)
+    E211: print (1)
 
     Okay: dict['key'] = list[index]
     E211: dict ['key'] = list[index]
     E211: dict['key'] = list [index]
     """
+    explicit_error = ['print']
     prev_type, prev_text, __, prev_end, __ = tokens[0]
     for index in range(1, len(tokens)):
         token_type, text, start, end, __ = tokens[index]
@@ -604,7 +606,8 @@ def whitespace_before_parameters(logical_line, tokens):
             # Syntax "class A (B):" is allowed, but avoid it
             (index < 2 or tokens[index - 2][1] != 'class') and
                 # Allow "return (a.foo for a in range(5))"
-                not keyword.iskeyword(prev_text)):
+                (not keyword.iskeyword(prev_text) or
+                 prev_text in explicit_error)):
             yield prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
