@@ -10,14 +10,14 @@ class UtilTestCase(unittest.TestCase):
     def test_normalize_paths(self):
         cwd = os.getcwd()
 
-        self.assertEquals(pep8.normalize_paths(''), [])
-        self.assertEquals(pep8.normalize_paths([]), [])
-        self.assertEquals(pep8.normalize_paths(None), [])
-        self.assertEquals(pep8.normalize_paths(['foo']), ['foo'])
-        self.assertEquals(pep8.normalize_paths('foo'), ['foo'])
-        self.assertEquals(pep8.normalize_paths('foo,bar'), ['foo', 'bar'])
-        self.assertEquals(pep8.normalize_paths('foo,  bar  '), ['foo', 'bar'])
-        self.assertEquals(pep8.normalize_paths('/foo/bar,baz/../bat'),
-                          ['/foo/bar', cwd + '/bat'])
-        self.assertEquals(pep8.normalize_paths(".pyc,\n   build/*"),
-                          ['.pyc', cwd + '/build/*'])
+        self.assertEqual(pep8.normalize_paths(''), [])
+        self.assertEqual(pep8.normalize_paths([]), [])
+        self.assertEqual(pep8.normalize_paths(None), [])
+        self.assertEqual(pep8.normalize_paths(['foo']), ['foo'])
+        self.assertEqual(pep8.normalize_paths('foo'), ['foo'])
+        self.assertEqual(pep8.normalize_paths('foo,bar'), ['foo', 'bar'])
+        self.assertEqual(pep8.normalize_paths('foo,  bar  '), ['foo', 'bar'])
+        self.assertEqual(pep8.normalize_paths('/foo/bar,baz/../bat'),
+                         ['/foo/bar', cwd + '/bat'])
+        self.assertEqual(pep8.normalize_paths(".pyc,\n   build/*"),
+                         ['.pyc', cwd + '/build/*'])
