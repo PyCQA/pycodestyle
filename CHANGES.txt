@@ -30,6 +30,8 @@ Bug fixes:
 
 * Add ``.tox/`` to default excludes. (Issue #335)
 
+* Report E402 for import statements not at the top of the file. (Issue #264)
+
 
 1.5.7 (2014-05-29)
 ------------------

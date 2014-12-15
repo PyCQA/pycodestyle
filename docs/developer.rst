@@ -59,6 +59,12 @@ additional information with extra arguments.  All attributes of the
 * ``previous_indent_level``: indentation on previous line
 * ``previous_logical``: previous logical line
 
+Check plugins can also maintain per-file state. If you need this, declare
+a parameter named ``checker_state``. You will be passed a dict, which will be
+the same one for all lines in the same file but a different one for different
+files. Each check plugin gets its own dict, so you don't need to worry about
+clobbering the state of other plugins.
+
 The docstring of each check function shall be the relevant part of
 text from `PEP 8`_.  It is printed if the user enables ``--show-pep8``.
 Several docstrings contain examples directly from the `PEP 8`_ document.
