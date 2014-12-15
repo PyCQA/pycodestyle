@@ -32,6 +32,7 @@ Bug fixes:
 
 * Report E402 for import statements not at the top of the file. (Issue #264)
 
+* Explicitly issue E211 for "print (1)". (Issue #338)
 
 1.5.7 (2014-05-29)
 ------------------
