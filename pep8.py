@@ -839,7 +839,8 @@ def imports_on_separate_lines(logical_line):
             yield found, "E401 multiple imports on one line"
 
 
-def imports_on_top_of_file(logical_line, indent_level, checker_state, noqa):
+def module_imports_on_top_of_file(
+        logical_line, indent_level, checker_state, noqa):
     r"""Imports are always put at the top of the file, just after any module
     comments and docstrings, and before module globals and constants.
 
