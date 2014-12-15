@@ -583,6 +583,10 @@ def whitespace_before_parameters(logical_line, tokens):
       function call.
     - before the open parenthesis that starts an indexing or slicing.
 
+    Exceptions (but avoid them):
+    - After class name in definition, e.g.: "class A (B):"
+    - After return, e.g.: "return (a.foo for a in range(5))"
+
     Okay: spam(1)
     E211: spam (1)
 
