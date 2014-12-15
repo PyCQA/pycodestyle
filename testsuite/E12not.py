@@ -631,8 +631,6 @@ some_hash = {
         999999 if True
         else 0,
 }
-#
-from textwrap import dedent  # noqa
 
 
 print dedent(
