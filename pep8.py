@@ -839,6 +839,52 @@ def imports_on_separate_lines(logical_line):
             yield found, "E401 multiple imports on one line"
 
 
+def imports_on_top_of_file(logical_line, indent_level, checker_state, noqa):
+    r"""Imports are always put at the top of the file, just after any module
+    comments and docstrings, and before module globals and constants.
+
+    Okay: import os
+    Okay: # this is a comment\nimport os
+    Okay: '''this is a module docstring'''\nimport os
+    Okay: r'''this is a module docstring'''\nimport os
+    Okay: __version__ = "123"\nimport os
+    E402: a=1\nimport os
+    E402: 'One string'\n"Two string"\nimport os
+    E402: a=1\nfrom sys import x
+
+    Okay: if x:\n    import os
+    """
+    def is_string_literal(line):
+        if line[0] in 'uUbB':
+            line = line[1:]
+        if line and line[0] in 'rR':
+            line = line[1:]
+        return line and (line[0] == '"' or line[0] == "'")
+
+    if indent_level:  # Allow imports in conditional statements or functions
+        return
+    if not logical_line:  # Allow empty lines or comments
+        return
+    if noqa:
+        return
+    line = logical_line
+    if line.startswith('import ') or line.startswith('from '):
+        if checker_state.get('seen_non_imports', False):
+            yield 0, "E402 import not at top of file"
+    elif line.startswith('__version__ '):
+        # These lines should be included after the module's docstring, before
+        # any other code, separated by a blank line above and below.
+        return
+    elif is_string_literal(line):
+        # The first literal is a docstring, allow it. Otherwise, report error.
+        if checker_state.get('seen_docstring', False):
+            checker_state['seen_non_imports'] = True
+        else:
+            checker_state['seen_docstring'] = True
+    else:
+        checker_state['seen_non_imports'] = True
+
+
 def compound_statements(logical_line):
     r"""Compound statements (on the same line) are generally discouraged.
 
@@ -1251,6 +1297,8 @@ class Checker(object):
         self.hang_closing = options.hang_closing
         self.verbose = options.verbose
         self.filename = filename
+        # Dictionary where a checker can store its custom state.
+        self._checker_states = {}
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1306,10 +1354,16 @@ class Checker(object):
             arguments.append(getattr(self, name))
         return check(*arguments)
 
+    def init_checker_state(self, name, argument_names):
+        """ Prepares a custom state for the specific checker plugin."""
+        if 'checker_state' in argument_names:
+            self.checker_state = self._checker_states.setdefault(name, {})
+
     def check_physical(self, line):
         """Run all physical checks on a raw input line."""
         self.physical_line = line
         for name, check, argument_names in self._physical_checks:
+            self.init_checker_state(name, argument_names)
             result = self.run_check(check, argument_names)
             if result is not None:
                 (offset, text) = result
@@ -1368,6 +1422,7 @@ class Checker(object):
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
+            self.init_checker_state(name, argument_names)
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
                     for token_offset, pos in mapping:
