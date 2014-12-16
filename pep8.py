@@ -595,7 +595,7 @@ def whitespace_before_parameters(logical_line, tokens):
     E211: dict ['key'] = list[index]
     E211: dict['key'] = list [index]
     """
-    explicit_error = ('print')
+    explicit_error = ('print',)
     prev_type, prev_text, __, prev_end, __ = tokens[0]
     for index in range(1, len(tokens)):
         token_type, text, start, end, __ = tokens[index]
