@@ -926,7 +926,8 @@ def compound_statements(logical_line):
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
                 if before[-1:] == '=' and isidentifier(before[:-1].strip()):
-                    yield 0, "E731 do not assign a lambda expression, use a def"
+                    yield 0, ("E731 do not assign a lambda expression, use a "
+                              "def")
                 break
             if before.startswith('def '):
                 yield 0, "E704 multiple statements on one line (def)"
