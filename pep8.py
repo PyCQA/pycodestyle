@@ -66,11 +66,6 @@ except ImportError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E123,E226,E24,E704'
-if sys.platform == 'win32':
-    DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
-else:
-    DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
-                                  os.path.expanduser('~/.config'), 'pep8')
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
@@ -1961,7 +1956,12 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         parser = get_parser()
     if not parser.has_option('--config'):
         if config_file is True:
-            config_file = DEFAULT_CONFIG
+            if sys.platform == 'win32':
+                config_file = os.path.expanduser(r'~\.pep8')
+            else:
+                config_file = \
+                    os.path.join(os.getenv('XDG_CONFIG_HOME') or
+                                 os.path.expanduser('~/.config'), 'pep8')
         group = parser.add_option_group("Configuration", description=(
             "The project options are read from the [%s] section of the "
             "tox.ini file or the setup.cfg file located in any parent folder "
