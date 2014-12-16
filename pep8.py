@@ -47,8 +47,6 @@ W warnings
 """
 from __future__ import with_statement
 
-__version__ = '1.6.0a0'
-
 import os
 import sys
 import re
@@ -63,6 +61,8 @@ try:
     from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
+
+__version__ = '1.6.0a0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E123,E226,E24,E704'
@@ -850,7 +850,8 @@ def module_imports_on_top_of_file(
     Okay: # this is a comment\nimport os
     Okay: '''this is a module docstring'''\nimport os
     Okay: r'''this is a module docstring'''\nimport os
-    Okay: __version__ = "123"\nimport os
+    Okay: try:\n    import x\nexcept:\n    pass\nelse:\n    pass\nimport y
+    Okay: try:\n    import x\nexcept:\n    pass\nfinally:\n    pass\nimport y
     E402: a=1\nimport os
     E402: 'One string'\n"Two string"\nimport os
     E402: a=1\nfrom sys import x
@@ -864,6 +865,8 @@ def module_imports_on_top_of_file(
             line = line[1:]
         return line and (line[0] == '"' or line[0] == "'")
 
+    allowed_try_keywords = ('try', 'except', 'else', 'finally')
+
     if indent_level:  # Allow imports in conditional statements or functions
         return
     if not logical_line:  # Allow empty lines or comments
@@ -874,9 +877,9 @@ def module_imports_on_top_of_file(
     if line.startswith('import ') or line.startswith('from '):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 import not at top of file"
-    elif line.startswith('__version__ '):
-        # These lines should be included after the module's docstring, before
-        # any other code, separated by a blank line above and below.
+    elif any(line.startswith(kw) for kw in allowed_try_keywords):
+        # Allow try, except, else, finally keywords intermixed with imports in
+        # order to support conditional importing
         return
     elif is_string_literal(line):
         # The first literal is a docstring, allow it. Otherwise, report error.
