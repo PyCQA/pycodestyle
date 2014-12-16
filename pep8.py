@@ -876,7 +876,7 @@ def module_imports_on_top_of_file(
     line = logical_line
     if line.startswith('import ') or line.startswith('from '):
         if checker_state.get('seen_non_imports', False):
-            yield 0, "E402 import not at top of file"
+            yield 0, "E402 module level import not at top of file"
     elif any(line.startswith(kw) for kw in allowed_try_keywords):
         # Allow try, except, else, finally keywords intermixed with imports in
         # order to support conditional importing
