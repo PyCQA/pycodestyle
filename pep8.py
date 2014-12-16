@@ -1116,7 +1116,7 @@ if '' == ''.encode():
         """Read the source code."""
         with open(filename, 'rU') as f:
             return f.readlines()
-    isidentifier = re.compile(r'[a-zA-Z_]\w*').match
+    isidentifier = re.compile(r'[a-zA-Z_]\w*$').match
     stdin_get_value = sys.stdin.read
 else:
     # Python 3
