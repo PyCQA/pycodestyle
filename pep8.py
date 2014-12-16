@@ -112,7 +112,6 @@ COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
-IDENTIFIER_REGEX = re.compile('\s*[^.[\]]+\s=')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
@@ -923,10 +922,11 @@ def compound_statements(logical_line):
         if ((before.count('{') <= before.count('}') and   # {'a': 1} (dict)
              before.count('[') <= before.count(']') and   # [1:2] (slice)
              before.count('(') <= before.count(')'))):    # (annotation)
-            if LAMBDA_REGEX.search(before):
-                if IDENTIFIER_REGEX.match(before):
-                    yield 0, ("E731 do not assign a lambda expression, use a"
-                              " def")
+            lambda_kw = LAMBDA_REGEX.search(before)
+            if lambda_kw:
+                before = line[:lambda_kw.start()].rstrip()
+                if before[-1:] == '=' and isidentifier(before[:-1].strip()):
+                    yield 0, "E731 do not assign a lambda expression, use a def"
                 break
             if before.startswith('def '):
                 yield 0, "E704 multiple statements on one line (def)"
