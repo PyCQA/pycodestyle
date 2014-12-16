@@ -66,11 +66,15 @@ except ImportError:
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E123,E226,E24,E704'
-if sys.platform == 'win32':
-    DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
-else:
-    DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
-                                  os.path.expanduser('~/.config'), 'pep8')
+try:
+    if sys.platform == 'win32':
+        DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
+    else:
+        DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
+                                      os.path.expanduser('~/.config'), 'pep8')
+except ImportError:
+    DEFAULT_CONFIG = None
+
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
