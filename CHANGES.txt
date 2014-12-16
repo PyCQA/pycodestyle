@@ -43,6 +43,8 @@ Bug fixes:
 
 * Fix false positive E711/E712/E713. (Issues #330 and #336)
 
+* Do not skip physical checks if the newline is escaped. (Issue #319)
+
 
 1.5.7 (2014-05-29)
 ------------------

@@ -1238,14 +1238,12 @@ def filename_match(filename, patterns, default=True):
     return any(fnmatch(filename, pattern) for pattern in patterns)
 
 
+def _is_eol_token(token):
+    return token[0] in NEWLINE or token[4][token[3][1]:].lstrip() == '\\\n'
 if COMMENT_WITH_NL:
-    def _is_eol_token(token):
-        return (token[0] in NEWLINE or
-                (token[0] == tokenize.COMMENT and token[1] == token[4]))
-else:
-    def _is_eol_token(token):
-        return token[0] in NEWLINE
-
+    def _is_eol_token(token, _eol_token=_is_eol_token):
+        return _eol_token(token) or (token[0] == tokenize.COMMENT and
+                                     token[1] == token[4])
 
 ##############################################################################
 # Framework to run all checks
