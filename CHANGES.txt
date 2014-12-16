@@ -36,6 +36,8 @@ Bug fixes:
 
 * Don't crash if os.path.expanduser() throws an ImportError. (Issue #297)
 
+* Fix false positive E711/E712. (Issue #336)
+
 
 1.5.7 (2014-05-29)
 ------------------

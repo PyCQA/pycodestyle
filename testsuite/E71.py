@@ -55,4 +55,9 @@ if not (X in Y):
     pass
 if x is not y:
     pass
+
+if TrueElement.get_element(True) == TrueElement.get_element(False):
+    pass
+if (True) == TrueElement or x == TrueElement:
+    pass
 #:
