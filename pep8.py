@@ -106,11 +106,9 @@ ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
-COMPARE_SINGLETON_REGEX = re.compile(r'(?P<op>[=!]=)\s*'
-                                     r'(?P<singleton>None|False|True)')
-COMPARE_SINGLETON_REVERSE_REGEX = re.compile(r'(?P<singleton>None|False|True)'
-                                             r'\s*(?P<op>[=!]=)')
-COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^[({ ]+\s+(in|is)\s')
+COMPARE_SINGLETON_REGEX = re.compile(r'\b(None|False|True)?\s*([=!]=)'
+                                     r'\s*(?(1)|(None|False|True))\b')
+COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
                                 r'|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
@@ -998,12 +996,10 @@ def comparison_to_singleton(logical_line, noqa):
     set to some other value.  The other value might have a type (such as a
     container) that could be false in a boolean context!
     """
-
-    match = not noqa and (COMPARE_SINGLETON_REGEX.search(logical_line) or
-                          COMPARE_SINGLETON_REVERSE_REGEX.search(logical_line))
+    match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
     if match:
-        singleton = match.group('singleton')
-        same = (match.group('op') == '==')
+        singleton = match.group(1) or match.group(3)
+        same = (match.group(2) == '==')
 
         msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
         if singleton in ('None',):
@@ -1013,7 +1009,7 @@ def comparison_to_singleton(logical_line, noqa):
             nonzero = ((singleton == 'True' and same) or
                        (singleton == 'False' and not same))
             msg += " or 'if %scond:'" % ('' if nonzero else 'not ')
-        yield match.start(1), ("%s comparison to %s should be %s" %
+        yield match.start(2), ("%s comparison to %s should be %s" %
                                (code, singleton, msg))
 
 

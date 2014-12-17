@@ -39,6 +39,8 @@ Bug fixes:
 * Missing space around keyword parameter equal not always reported, E251.
   (Issue #323)
 
+* Fix false positive E711/E712/E713. (Issues #330 and #336)
+
 
 1.5.7 (2014-05-29)
 ------------------
