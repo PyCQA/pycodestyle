@@ -6,6 +6,7 @@ python:
   - 3.3
   - 3.4
   - pypy
+  - pypy3
 install:
   - pip install -e .
   - pip list
@@ -17,6 +18,7 @@ script:
 matrix:
   allow_failures:
     - python: pypy
+    - python: pypy3
 
 notifications:
   email:
