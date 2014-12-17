@@ -36,6 +36,9 @@ Bug fixes:
 
 * Don't crash if os.path.expanduser() throws an ImportError. (Issue #297)
 
+* Missing space around keyword parameter equal not always reported, E251.
+  (Issue #323)
+
 
 1.5.7 (2014-05-29)
 ------------------
