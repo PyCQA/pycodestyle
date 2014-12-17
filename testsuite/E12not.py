@@ -642,3 +642,6 @@ print dedent(
         # more stuff
     )
 )
+current_temp = "{t}°{d} {i}".format(t=42,
+                                    d=42424242,
+                                    i=323232)
