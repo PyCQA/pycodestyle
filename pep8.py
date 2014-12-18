@@ -1367,6 +1367,7 @@ class Checker(object):
     def check_physical(self, line):
         """Run all physical checks on a raw input line."""
         self.physical_line = line
+        self.physical_lines_checked += 1
         for name, check, argument_names in self._physical_checks:
             self.init_checker_state(name, argument_names)
             result = self.run_check(check, argument_names)
@@ -1470,6 +1471,7 @@ class Checker(object):
     def maybe_check_physical(self, token):
         """If appropriate (based on token), check current physical line(s)."""
         # Called after every token, but act only on end of line.
+        lines_processed = self.physical_lines_checked + self.blank_lines
         if _is_eol_token(token):
             # Obviously, a newline token ends a single physical line.
             self.check_physical(token[4])
@@ -1496,6 +1498,17 @@ class Checker(object):
                 self.check_physical(line + '\n')
                 self.line_number += 1
             self.multiline = False
+        elif lines_processed < (self.line_number - 1) \
+                and self.previous_line is not None:
+            # We should always have processed every line up to the
+            # current one. But there are edge cases (particularly
+            # where the newline is escaped so doesn't generate a
+            # token) where we don't - this catches that situation and
+            # checks the last line.
+            self.line_number -= 1
+            self.check_physical(self.previous_line)
+            self.line_number += 1
+        self.previous_line = token[4]
 
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
@@ -1504,11 +1517,13 @@ class Checker(object):
         if self._ast_checks:
             self.check_ast()
         self.line_number = 0
+        self.previous_line = None
         self.indent_char = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
         self.tokens = []
         self.blank_lines = self.blank_before = 0
+        self.physical_lines_checked = 0
         parens = 0
         for token in self.generate_tokens():
             self.tokens.append(token)
