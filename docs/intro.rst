@@ -228,7 +228,7 @@ This is the current list of error and warning codes:
 | E116     | unexpected indentation (comment)                                     |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E121 (^) | continuation line under-indented for hanging indent                  |
+| E121 (*^)| continuation line under-indented for hanging indent                  |
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
@@ -238,7 +238,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E125 (^) | continuation line with same indent as next logical line              |
 +----------+----------------------------------------------------------------------+
-| E126 (^) | continuation line over-indented for hanging indent                   |
+| E126 (*^)| continuation line over-indented for hanging indent                   |
 +----------+----------------------------------------------------------------------+
 | E127 (^) | continuation line over-indented for visual indent                    |
 +----------+----------------------------------------------------------------------+
@@ -395,11 +395,11 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 
 
-**(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
-**E241**, **E242** and **E704** are ignored because they are not rules unanimously
-accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
-exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
-instead of **E123**.
+**(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
+**E133**, **E226**, **E241**, **E242** and **E704** are ignored because they
+are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
+check **E133** is mutually exclusive with check **E123**.  Use switch ``--hang-
+closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
@@ -420,7 +420,7 @@ Related tools
 The `flake8 checker <https://flake8.readthedocs.org>`_ is a wrapper around
 ``pep8`` and similar tools. It supports plugins.
 
-Other tools which use ``pep8`` are referenced in the Wiki: `list of related tools
-<https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
+Other tools which use ``pep8`` are referenced in the Wiki: `list of related
+tools <https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
