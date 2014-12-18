@@ -30,6 +30,8 @@ Changes:
 
 * Add ``.tox/`` to default excludes. (Issue #335)
 
+* Do not report E121 or E126 in the default configuration. (Issues #256 / #316)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
