@@ -24,6 +24,8 @@ Changes:
 
 * Report E402 for import statements not at the top of the file. (Issue #264)
 
+* Do not enforce whitespaces around ``**`` operator. (Issue #292)
+
 * Strip whitespace from around paths during normalization. (Issue #339 / #343)
 
 * Update ``--format`` documentation. (Issue #198 / Pull Request #310)
