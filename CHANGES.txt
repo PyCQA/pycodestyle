@@ -34,6 +34,8 @@ Changes:
 
 * Do not report E121 or E126 in the default configuration. (Issues #256 / #316)
 
+* Allow spaces around the equals sign in an annotated function. (Issue #357)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
