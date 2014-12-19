@@ -755,7 +755,6 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     Okay: boolean(a <= b)
     Okay: boolean(a >= b)
     Okay: def foo(arg: int = 42):
-    Okay: def f(x: int, y=15, z: float = 0.123) -> list:
 
     E251: def complex(real, imag = 0.0):
     E251: return magic(r = real, i = imag)
@@ -786,6 +785,9 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 no_space = True
                 if start != prev_end:
                     yield (prev_end, message)
+            if not parens:
+                annotated_func_arg = False
+
         prev_end = end
 
 
