@@ -575,7 +575,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         yield pos, "%s with same indent as next logical line" % code
 
 
-def whitespace_before_parameters(logical_line, tokens):
+def whitespace_before_parameters(logical_line, tokens, checker_state):
     r"""Avoid extraneous whitespace.
 
     Avoid extraneous whitespace in the following situations:
@@ -589,7 +589,6 @@ def whitespace_before_parameters(logical_line, tokens):
 
     Okay: spam(1)
     E211: spam (1)
-    E211: print (1)
 
     Okay: dict['key'] = list[index]
     E211: dict ['key'] = list[index]
@@ -597,6 +596,9 @@ def whitespace_before_parameters(logical_line, tokens):
     """
     explicit_error = ('print',)
     prev_type, prev_text, __, prev_end, __ = tokens[0]
+    if 'from __future__ import print_function' in logical_line:
+        checker_state['print_function'] = True
+
     for index in range(1, len(tokens)):
         token_type, text, start, end, __ = tokens[index]
         if (token_type == tokenize.OP and
@@ -605,9 +607,10 @@ def whitespace_before_parameters(logical_line, tokens):
             (prev_type == tokenize.NAME or prev_text in '}])') and
             # Syntax "class A (B):" is allowed, but avoid it
             (index < 2 or tokens[index - 2][1] != 'class') and
-                # Allow "return (a.foo for a in range(5))"
-                (not keyword.iskeyword(prev_text) or
-                 prev_text in explicit_error)):
+            # Allow "return (a.foo for a in range(5))"
+            (not keyword.iskeyword(prev_text) or
+             (prev_text in explicit_error and
+              not checker_state.get('print_function')))):
             yield prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
         prev_text = text
