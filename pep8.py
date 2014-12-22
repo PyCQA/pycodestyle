@@ -777,9 +777,9 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 parens += 1
             elif text == ')':
                 parens -= 1
-            elif in_def and text == ':':
+            elif in_def and text == ':' and parens == 1:
                 annotated_func_arg = True
-            elif parens and text == ',':
+            elif parens and text == ',' and parens == 1:
                 annotated_func_arg = False
             elif parens and text == '=' and not annotated_func_arg:
                 no_space = True
