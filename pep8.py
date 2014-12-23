@@ -1866,7 +1866,8 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
-                      help="skip errors and warnings (e.g. E4,W)")
+                      help="skip errors and warnings (e.g. E4,W) "
+                           "(default: %s)" % DEFAULT_IGNORE)
     parser.add_option('--show-source', action='store_true',
                       help="show source code for each error")
     parser.add_option('--show-pep8', action='store_true',
