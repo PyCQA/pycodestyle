@@ -38,6 +38,12 @@ if not X in Y and Z == "zero":
 #: E713
 if X == "zero" or not Y in Z:
     pass
+#: E713
+if not (X) in Y:
+    pass
+#: E713
+if not X() in Y:
+    pass
 
 #
 #: E714
