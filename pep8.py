@@ -1681,6 +1681,13 @@ class StandardReport(BaseReport):
                 'row': self.line_offset + line_number, 'col': offset + 1,
                 'code': code, 'text': text,
             })
+            # stdout is block buffered when not stdout.isatty().
+            # When using pep8 in multiprocess, line can be broken where
+            # buffer boundary since other processes write to same file.
+            # So flush() after print() to avoid buffer boundary.
+            # Typical buffer size is 8192. line written safely when
+            # len(line) < 8192.
+            sys.stdout.flush()
             if self._show_source:
                 if line_number > len(self.lines):
                     line = ''
@@ -1688,8 +1695,10 @@ class StandardReport(BaseReport):
                     line = self.lines[line_number - 1]
                 print(line.rstrip())
                 print(re.sub(r'\S', ' ', line[:offset]) + '^')
+                sys.stdout.flush()
             if self._show_pep8 and doc:
                 print('    ' + doc.strip())
+                sys.stdout.flush()
         return self.file_errors
 
 
