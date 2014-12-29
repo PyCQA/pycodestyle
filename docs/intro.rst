@@ -183,9 +183,9 @@ Quick help is available on the command line::
 Configuration
 -------------
 
-The behaviour may be configured at two levels.
+The behaviour may be configured at two levels, the user and project levels.
 
-The user settings are read from the following locations:
+At the user level, settings are read from the following locations:
 
 If on Windows:
     ``~\.pep8``
@@ -202,7 +202,7 @@ Example::
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project level, a ``tox.ini`` file or a ``setup.cfg`` file is read if
+At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
 present (``.pep8`` file is also supported, but it is deprecated).  If none of
 these files have a ``[pep8]`` section, no project specific configuration is
 loaded.
