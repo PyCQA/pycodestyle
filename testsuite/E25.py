@@ -29,3 +29,8 @@ foo(bar=(1 >= 1))
 foo(bar=(1 <= 1))
 (options, args) = parser.parse_args()
 d[type(None)] = _deepcopy_atomic
+
+# Annotated Function Definitions
+#: Okay
+def munge(input: AnyStr, sep: AnyStr = None, limit=1000) -> AnyStr:
+    pass
