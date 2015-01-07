@@ -36,6 +36,9 @@ Changes:
 
 * Allow spaces around the equals sign in an annotated function. (Issue #357)
 
+* Do not check vertical whitespace of non-top level classes / function
+  definitions. (Issue #366)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
