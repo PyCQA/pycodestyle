@@ -6,6 +6,22 @@ class X:
 def foo():
     pass
 #: Okay
+if True:
+    def a():
+        pass
+
+
+    def b():
+        pass
+#: Okay
+if True:
+    class foo():
+        pass
+
+
+    class bar():
+        pass
+#: Okay
 # -*- coding: utf-8 -*-
 class X:
     pass
