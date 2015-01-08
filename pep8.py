@@ -1922,15 +1922,16 @@ def read_config(options, args, arglist, parser):
             print('user configuration: %s' % user_conf)
         config.read(user_conf)
 
-    local_dir = os.curdir
-    parent = tail = args and os.path.abspath(os.path.commonprefix(args))
-    while tail:
-        if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
-            local_dir = parent
-            if options.verbose:
-                print('local configuration: in %s' % parent)
-            break
-        (parent, tail) = os.path.split(parent)
+    else:
+        local_dir = os.curdir
+        parent = tail = args and os.path.abspath(os.path.commonprefix(args))
+        while tail:
+            if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
+                local_dir = parent
+                if options.verbose:
+                    print('local configuration: in %s' % parent)
+                break
+            (parent, tail) = os.path.split(parent)
 
     pep8_section = parser.prog
     if config.has_section(pep8_section):
