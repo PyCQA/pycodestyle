@@ -248,7 +248,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
 
     E301: class Foo:\n    b = 0\n    def bar():\n        pass
     E302: def a():\n    pass\n\ndef b(n):\n    pass
-    E303: def a():\n    pass\n\n\n\ndef b(n):\n    pass
+    E302: def a():\n    pass\n\n\n\ndef b(n):\n    pass
     E303: def a():\n\n\n\n    pass
     E304: @decorator\n\ndef a():\n    pass
     """
@@ -257,8 +257,6 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     if previous_logical.startswith('@'):
         if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
-    elif blank_lines > 2 or (indent_level and blank_lines == 2):
-        yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif logical_line.startswith(('def ', 'class ', '@')):
         if indent_level:
             if not (blank_before or previous_indent_level < indent_level or
@@ -266,6 +264,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 yield 0, "E301 expected 1 blank line, found 0"
         elif blank_before != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
+    elif blank_lines > 2 or (indent_level and blank_lines == 2):
+        yield 0, "E303 too many blank lines (%d)" % blank_lines
 
 
 def extraneous_whitespace(logical_line):

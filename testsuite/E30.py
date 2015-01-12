@@ -87,4 +87,13 @@ def function():
 """This class docstring comes on line 5.
 It gives error E303: too many blank lines (3)
 """
+#: E302
+def a():
+    pass
+
+
+
+
+def b(n):
+    pass
 #:
