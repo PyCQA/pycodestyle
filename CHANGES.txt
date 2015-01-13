@@ -52,6 +52,8 @@ Bug fixes:
 
 * Do not skip physical checks if the newline is escaped. (Issue #319)
 
+* Ignore vertical whitespace checks if not at top-level of module. (Issue #366)
+
 
 1.5.7 (2014-05-29)
 ------------------
