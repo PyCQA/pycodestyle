@@ -16,6 +16,9 @@ class PseudoFile(list):
     def getvalue(self):
         return ''.join(self)
 
+    def flush(self):
+        pass
+
 
 class TestReport(StandardReport):
     """Collect the results for the tests."""
