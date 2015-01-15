@@ -96,4 +96,17 @@ def a():
 
 def b(n):
     pass
+#: E303:5:5 E303:11:5
+class Foo(object):
+
+
+
+    def a(self):
+        pass
+
+
+
+
+    def b(self):
+        pass
 #:
