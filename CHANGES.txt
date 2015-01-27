@@ -51,6 +51,9 @@ Bug fixes:
 
 * Do not skip physical checks if the newline is escaped. (Issue #319)
 
+* Flush sys.stdout to avoid race conditions with printing. See flake8 bug:
+  https://gitlab.com/pycqa/flake8/issues/17 for more details. (Issue #363)
+
 
 1.5.7 (2014-05-29)
 ------------------

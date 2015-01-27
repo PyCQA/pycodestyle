@@ -1704,6 +1704,14 @@ class StandardReport(BaseReport):
                 print(re.sub(r'\S', ' ', line[:offset]) + '^')
             if self._show_pep8 and doc:
                 print('    ' + doc.strip())
+
+            # stdout is block buffered when not stdout.isatty().
+            # line can be broken where buffer boundary since other processes
+            # write to same file.
+            # flush() after print() to avoid buffer boundary.
+            # Typical buffer size is 8192. line written safely when
+            # len(line) < 8192.
+            sys.stdout.flush()
         return self.file_errors
 
 
