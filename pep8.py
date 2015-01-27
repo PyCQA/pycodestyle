@@ -972,10 +972,14 @@ def explicit_line_join(logical_line, tokens):
     Okay: aaa = [123,\n       123]
     Okay: aaa = ("bbb "\n       "ccc")
     Okay: aaa = "bbb " \\n    "ccc"
+    Okay: aaa = 123  # \\
     """
     prev_start = prev_end = parens = 0
+    comment = False
     for token_type, text, start, end, line in tokens:
-        if start[0] != prev_start and parens and backslash:
+        if token_type == tokenize.COMMENT:
+            comment = True
+        if start[0] != prev_start and parens and backslash and not comment:
             yield backslash, "E502 the backslash is redundant between brackets"
         if end[0] != prev_end:
             if line.rstrip('\r\n').endswith('\\'):

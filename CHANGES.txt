@@ -36,6 +36,8 @@ Changes:
 
 * Allow spaces around the equals sign in an annotated function. (Issue #357)
 
+* Allow trailing backslash if in an inline comment. (Issue #374)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
