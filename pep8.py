@@ -1925,7 +1925,15 @@ def get_parser(prog='pep8', version=__version__):
 
 
 def read_config(options, args, arglist, parser):
-    """Read both user configuration and local configuration."""
+    """Read and parse configurations
+
+    If a config file is specified on the command line with the "--config"
+    option, then only it is used for configuration.
+
+    Otherwise, the user configuration (~/.config/pep8) and any local
+    configurations in the current directory or above will be merged together
+    (in that order) using the read method of ConfigParser.
+    """
     config = RawConfigParser()
 
     cli_conf = options.config
