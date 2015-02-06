@@ -68,12 +68,14 @@ DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704'
 try:
     if sys.platform == 'win32':
-        DEFAULT_CONFIG = os.path.expanduser(r'~\.pep8')
+        USER_CONFIG = os.path.expanduser(r'~\.pep8')
     else:
-        DEFAULT_CONFIG = os.path.join(os.getenv('XDG_CONFIG_HOME') or
-                                      os.path.expanduser('~/.config'), 'pep8')
+        USER_CONFIG = os.path.join(
+            os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),
+            'pep8'
+        )
 except ImportError:
-    DEFAULT_CONFIG = None
+    USER_CONFIG = None
 
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
@@ -1735,13 +1737,11 @@ class StyleGuide(object):
         # build options from the command line
         self.checker_class = kwargs.pop('checker_class', Checker)
         parse_argv = kwargs.pop('parse_argv', False)
-        config_file = kwargs.pop('config_file', None)
         parser = kwargs.pop('parser', None)
         # build options from dict
         options_dict = dict(*args, **kwargs)
         arglist = None if parse_argv else options_dict.get('paths', None)
-        options, self.paths = process_options(
-            arglist, parse_argv, config_file, parser)
+        options, self.paths = process_options(arglist, parse_argv, parser)
         if options_dict:
             options.__dict__.update(options_dict)
             if 'paths' in options_dict:
@@ -1928,17 +1928,22 @@ def read_config(options, args, arglist, parser):
     """Read both user configuration and local configuration."""
     config = RawConfigParser()
 
-    user_conf = options.config
-    if user_conf and os.path.isfile(user_conf):
-        if options.verbose:
-            print('user configuration: %s' % user_conf)
-        config.read(user_conf)
+    cli_conf = options.config
 
+    if cli_conf and os.path.isfile(cli_conf):
+        if options.verbose:
+            print('cli configuration: %s' % cli_conf)
+        config.read(cli_conf)
     else:
+        if USER_CONFIG and os.path.isfile(USER_CONFIG):
+            if options.verbose:
+                print('user configuration: %s' % USER_CONFIG)
+            config.read(USER_CONFIG)
+
         local_dir = os.curdir
         parent = tail = args and os.path.abspath(os.path.commonprefix(args))
         while tail:
-            if config.read([os.path.join(parent, fn) for fn in PROJECT_CONFIG]):
+            if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
                 local_dir = parent
                 if options.verbose:
                     print('local configuration: in %s' % parent)
@@ -1979,21 +1984,18 @@ def read_config(options, args, arglist, parser):
     return options
 
 
-def process_options(arglist=None, parse_argv=False, config_file=None,
-                    parser=None):
+def process_options(arglist=None, parse_argv=False, parser=None):
     """Process options passed either via arglist or via command line args."""
     if not parser:
         parser = get_parser()
     if not parser.has_option('--config'):
-        if config_file is True:
-            config_file = DEFAULT_CONFIG
         group = parser.add_option_group("Configuration", description=(
             "The project options are read from the [%s] section of the "
             "tox.ini file or the setup.cfg file located in any parent folder "
             "of the path(s) being processed.  Allowed options are: %s." %
             (parser.prog, ', '.join(parser.config_options))))
-        group.add_option('--config', metavar='path', default=config_file,
-                         help="user config file location (default: %default)")
+        group.add_option('--config', metavar='path', default=None,
+                         help="user config file location")
     # Don't read the command line if the module is used as a library.
     if not arglist and not parse_argv:
         arglist = []
