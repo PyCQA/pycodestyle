@@ -38,6 +38,9 @@ Changes:
 
 * Allow trailing backslash if in an inline comment. (Issue #374)
 
+* If ``--config`` is used, only that configuration is processed. Otherwise,
+  merge the user and local configurations are merged. (Issue #368 / #369)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
