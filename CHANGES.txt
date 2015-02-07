@@ -5,6 +5,9 @@ Changelog
 1.6.x (unreleased)
 ------------------
 
+Bugs:
+
+* Exception thrown due to unassigned ``local_dir`` variable. (Issue #377)
 
 1.6.0 (2015-02-06)
 ------------------

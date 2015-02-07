@@ -1938,6 +1938,8 @@ def read_config(options, args, arglist, parser):
 
     cli_conf = options.config
 
+    local_dir = os.curdir
+
     if cli_conf and os.path.isfile(cli_conf):
         if options.verbose:
             print('cli configuration: %s' % cli_conf)
@@ -1948,7 +1950,6 @@ def read_config(options, args, arglist, parser):
                 print('user configuration: %s' % USER_CONFIG)
             config.read(USER_CONFIG)
 
-        local_dir = os.curdir
         parent = tail = args and os.path.abspath(os.path.commonprefix(args))
         while tail:
             if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
