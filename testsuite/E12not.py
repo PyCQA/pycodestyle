@@ -1,3 +1,4 @@
+# coding=utf-8
 if (
         x == (
             3
@@ -642,3 +643,16 @@ print dedent(
         # more stuff
     )
 )
+
+some_special_characters = [
+    (('测试一下', 38), [('테스트', 39),
+                        ('тест', 40),
+                        ('test this': 41)])
+]
+
+some_characters = [
+    (
+        ('测试', 38), [
+            ('테트', 39),
+            ('тест', 40)])
+]

@@ -1,3 +1,4 @@
+# coding=utf-8
 #: E121
 print "E121", (
   "dent")
@@ -39,9 +40,11 @@ print "E128", ("visual",
 #: E128
 print "E128", ("under-",
               "under-indent")
-#:
-
-
+#: E128
+some_characters = [
+    (('测试', 38), [('테스트', 39),
+    |             ('тест', 40)])
+]
 #: E126
 my_list = [
     1, 2, 3,
@@ -307,6 +310,11 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
+#: E127
+some_characters = [
+    (('测试', 38), [('테스트', 39),
+                     ('тест', 40)])
+]
 #: E128 E128
 if line_removed:
     self.event(cr, uid,
