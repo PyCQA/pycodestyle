@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+1.6.x (unreleased)
+------------------
+
+Changes:
+
+* Added check for breaking around a binary operator. (Issue #197, Pull #305)
+
+
 1.6.1 (2015-02-08)
 ------------------
 
@@ -12,6 +20,7 @@ Changes:
 Bugs:
 
 * Exception thrown due to unassigned ``local_dir`` variable. (Issue #377)
+
 
 1.6.0 (2015-02-06)
 ------------------
