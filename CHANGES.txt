@@ -5,6 +5,10 @@ Changelog
 1.6.x (unreleased)
 ------------------
 
+Changes:
+
+* Assign variables before referenced. (Issue #287)
+
 Bugs:
 
 * Exception thrown due to unassigned ``local_dir`` variable. (Issue #377)
