@@ -435,6 +435,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     indent_chances = {}
     last_indent = tokens[0][2]
     visual_indent = None
+    last_token_multiline = False
     # for each depth, memorize the visual indent column
     indent = [last_indent[1]]
     if verbose >= 3:
@@ -978,6 +979,7 @@ def explicit_line_join(logical_line, tokens):
     """
     prev_start = prev_end = parens = 0
     comment = False
+    backslash = None
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.COMMENT:
             comment = True
