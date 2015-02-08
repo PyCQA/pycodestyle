@@ -361,7 +361,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E714     | test for object identity should be 'is not'                          |
 +----------+----------------------------------------------------------------------+
-| E721     | do not compare types, use 'isinstance()'                             |
+| E721 (^) | do not compare types, use 'isinstance()'                             |
 +----------+----------------------------------------------------------------------+
 | E731     | do not assign a lambda expression, use a def                         |
 +----------+----------------------------------------------------------------------+
