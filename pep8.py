@@ -515,8 +515,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 yield start, "%s continuation line %s" % error
 
         # look for visual indenting
-        if (parens[row] and token_type not in (tokenize.NL, tokenize.COMMENT)
-                and not indent[depth]):
+        if (parens[row] and
+                token_type not in (tokenize.NL, tokenize.COMMENT) and
+                not indent[depth]):
             indent[depth] = start[1]
             indent_chances[start[1]] = True
             if verbose >= 4:
@@ -1000,6 +1001,45 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
+def break_around_binary_operator(logical_line, tokens):
+    r"""
+    Avoid breaks before binary operators.
+
+    The preferred place to break around a binary operator is after the
+    operator, not before it.
+
+    W503: (width == 0\n + height == 0)
+    W503: (width == 0\n and height == 0)
+
+    Okay: (width == 0 +\n height == 0)
+    Okay: foo(\n    -x)
+    Okay: foo(x\n    [])
+    Okay: x = '''\n''' + ''
+    Okay: foo(x,\n    -y)
+    Okay: foo(x,  # comment\n    -y)
+    """
+    def is_binary_operator(token_type, text):
+        # The % character is strictly speaking a binary operator, but the
+        # common usage seems to be to put it next to the format parameters,
+        # after a line break.
+        return ((token_type == tokenize.OP or text in ['and', 'or']) and
+                text not in "()[]{},:.;@=%")
+
+    line_break = False
+    unary_context = True
+    for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.COMMENT:
+            continue
+        if ('\n' in text or '\r' in text) and token_type != tokenize.STRING:
+            line_break = True
+        else:
+            if (is_binary_operator(token_type, text) and line_break and
+                    not unary_context):
+                yield start, "W503 line break before binary operator"
+            unary_context = text in '([{,;'
+            line_break = False
+
+
 def comparison_to_singleton(logical_line, noqa):
     r"""Comparison to singletons should use "is" or "is not".
 
@@ -1415,8 +1455,8 @@ class Checker(object):
                 (start_row, start_col) = start
                 if prev_row != start_row:    # different row
                     prev_text = self.lines[prev_row - 1][prev_col - 1]
-                    if prev_text == ',' or (prev_text not in '{[('
-                                            and text not in '}])'):
+                    if prev_text == ',' or (prev_text not in '{[(' and
+                                            text not in '}])'):
                         text = ' ' + text
                 elif prev_col != start_col:  # different column
                     text = line[prev_col:start_col] + text
