@@ -62,7 +62,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-__version__ = '1.6.1'
+__version__ = '1.6.2a0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704'
