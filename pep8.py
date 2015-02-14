@@ -1779,11 +1779,13 @@ class StyleGuide(object):
         # build options from the command line
         self.checker_class = kwargs.pop('checker_class', Checker)
         parse_argv = kwargs.pop('parse_argv', False)
+        config_file = kwargs.pop('config_file', False)
         parser = kwargs.pop('parser', None)
         # build options from dict
         options_dict = dict(*args, **kwargs)
         arglist = None if parse_argv else options_dict.get('paths', None)
-        options, self.paths = process_options(arglist, parse_argv, parser)
+        options, self.paths = process_options(
+            arglist, parse_argv, config_file, parser)
         if options_dict:
             options.__dict__.update(options_dict)
             if 'paths' in options_dict:
@@ -2035,8 +2037,13 @@ def read_config(options, args, arglist, parser):
     return options
 
 
-def process_options(arglist=None, parse_argv=False, parser=None):
-    """Process options passed either via arglist or via command line args."""
+def process_options(arglist=None, parse_argv=False, config_file=None,
+                    parser=None):
+    """Process options passed either via arglist or via command line args.
+
+    Passing in the ``config_file`` parameter allows other tools, such as flake8
+    to specify their own options to be processed in pep8.
+    """
     if not parser:
         parser = get_parser()
     if not parser.has_option('--config'):
@@ -2045,7 +2052,7 @@ def process_options(arglist=None, parse_argv=False, parser=None):
             "tox.ini file or the setup.cfg file located in any parent folder "
             "of the path(s) being processed.  Allowed options are: %s." %
             (parser.prog, ', '.join(parser.config_options))))
-        group.add_option('--config', metavar='path', default=None,
+        group.add_option('--config', metavar='path', default=config_file,
                          help="user config file location")
     # Don't read the command line if the module is used as a library.
     if not arglist and not parse_argv:
