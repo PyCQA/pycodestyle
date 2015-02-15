@@ -9,6 +9,10 @@ Changes:
 
 * Added check for breaking around a binary operator. (Issue #197, Pull #305)
 
+Bugs:
+
+* Restored config_file parameter in process_options(). (Issue #380)
+
 
 1.6.1 (2015-02-08)
 ------------------
