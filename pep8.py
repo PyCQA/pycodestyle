@@ -2098,7 +2098,7 @@ def _main():
     except AttributeError:
         pass    # not supported on Windows
 
-    pep8style = StyleGuide(parse_argv=True, config_file=True)
+    pep8style = StyleGuide(parse_argv=True)
     options = pep8style.options
     if options.doctest or options.testsuite:
         from testsuite.support import run_tests
