@@ -1984,24 +1984,24 @@ def read_config(options, args, arglist, parser):
 
     local_dir = os.curdir
 
+    if USER_CONFIG and os.path.isfile(USER_CONFIG):
+        if options.verbose:
+            print('user configuration: %s' % USER_CONFIG)
+        config.read(USER_CONFIG)
+
+    parent = tail = args and os.path.abspath(os.path.commonprefix(args))
+    while tail:
+        if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
+            local_dir = parent
+            if options.verbose:
+                print('local configuration: in %s' % parent)
+            break
+        (parent, tail) = os.path.split(parent)
+
     if cli_conf and os.path.isfile(cli_conf):
         if options.verbose:
             print('cli configuration: %s' % cli_conf)
         config.read(cli_conf)
-    else:
-        if USER_CONFIG and os.path.isfile(USER_CONFIG):
-            if options.verbose:
-                print('user configuration: %s' % USER_CONFIG)
-            config.read(USER_CONFIG)
-
-        parent = tail = args and os.path.abspath(os.path.commonprefix(args))
-        while tail:
-            if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
-                local_dir = parent
-                if options.verbose:
-                    print('local configuration: in %s' % parent)
-                break
-            (parent, tail) = os.path.split(parent)
 
     pep8_section = parser.prog
     if config.has_section(pep8_section):

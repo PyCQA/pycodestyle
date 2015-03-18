@@ -5,6 +5,12 @@ Changelog
 1.6.x (unreleased)
 ------------------
 
+Changes:
+
+* Reverted the fix in #368, "options passed on command line are only ones
+  accepted" feature. This has many unintended consequences in pep8 and flake8
+  and needs to be reworked when I have more time.
+
 1.6.2 (2015-02-15)
 ------------------
 
