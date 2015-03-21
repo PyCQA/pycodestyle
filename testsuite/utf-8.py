@@ -50,3 +50,9 @@ class Rectangle(Blob):
 # 3 narrow chars (Na) + 77 wide chars (W)
 # 情 情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情情
 #
+#: Okay
+_EPSILON = {'pressao': {'psig': 1,
+                        'kPag': 5},
+            'pressão': {'psig': 1,
+                        'kPag': 5},
+            }

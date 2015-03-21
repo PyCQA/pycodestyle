@@ -54,11 +54,13 @@ import time
 import inspect
 import keyword
 import tokenize
+import codecs
+import io
+from io import TextIOWrapper
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
     from configparser import RawConfigParser
-    from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
 
@@ -1171,31 +1173,142 @@ def python_3000_backticks(logical_line):
 ##############################################################################
 
 
-if '' == ''.encode():
-    # Python 2: implicit encoding.
-    def readlines(filename):
-        """Read the source code."""
-        with open(filename, 'rU') as f:
+def detect_encoding(readline):
+    """
+    Copied from python's 3 codecs.detect_encoding
+
+    The detect_encoding() function is used to detect the encoding that should
+    be used to decode a Python source file.  It requires one argument,
+    readline, in the same way as the tokenize() generator.
+
+    It will call readline a maximum of twice, and return the encoding used
+    (as a string) and a list of any lines (left as bytes) it has read in.
+
+    It detects the encoding from the presence of a utf-8 bom or an encoding
+    cookie as specified in pep-0263.  If both a bom and a cookie are present,
+    but disagree, a SyntaxError will be raised.  If the encoding cookie is an
+    invalid charset, raise a SyntaxError.  Note that if a utf-8 bom is found,
+    'utf-8-sig' is returned.
+
+    If no encoding is specified, then the default of 'utf-8' will be returned.
+    """
+    try:
+        filename = readline.__self__.name
+    except AttributeError:
+        filename = None
+    bom_found = False
+    encoding = None
+    default = 'utf-8'
+    BOM_UTF8 = b'\xef\xbb\xbf'
+    blank_re = re.compile(br'^[ \t\f]*(?:[#\r\n]|$)')
+
+    def get_normal_name(orig_enc):
+        """Imitates get_normal_name in tokenizer.c."""
+        # Only care about the first 12 characters.
+        enc = orig_enc[:12].lower().replace("_", "-")
+        if enc == "utf-8" or enc.startswith("utf-8-"):
+            return "utf-8"
+        if enc in ("latin-1", "iso-8859-1", "iso-latin-1") or \
+                enc.startswith(("latin-1-", "iso-8859-1-", "iso-latin-1-")):
+            return "iso-8859-1"
+        return orig_enc
+
+    def read_or_stop():
+        try:
+            return readline()
+        except StopIteration:
+            return b''
+
+    def find_cookie(line):
+        cookie_re = re.compile(r'^[ \t\f]*#.*coding[:=][ \t]*([-\w.]+)')
+
+        try:
+            # Decode as UTF-8. Either the line is an encoding declaration,
+            # in which case it should be pure ASCII, or it must be UTF-8
+            # per default encoding.
+            line_string = line.decode('utf-8')
+        except UnicodeDecodeError:
+            msg = "invalid or missing encoding declaration"
+            if filename is not None:
+                msg = '{} for {!r}'.format(msg, filename)
+            raise SyntaxError(msg)
+
+        match = cookie_re.match(line_string)
+        if not match:
+            return None
+        encoding = get_normal_name(match.group(1))
+        try:
+            codec = codecs.lookup(encoding)
+        except LookupError:
+            # This behaviour mimics the Python interpreter
+            if filename is None:
+                msg = "unknown encoding: " + encoding
+            else:
+                msg = "unknown encoding for {!r}: {}".format(filename,
+                                                             encoding)
+            raise SyntaxError(msg)
+
+        if bom_found:
+            if encoding != 'utf-8':
+                # This behaviour mimics the Python interpreter
+                if filename is None:
+                    msg = 'encoding problem: utf-8'
+                else:
+                    msg = 'encoding problem for {!r}: utf-8'.format(filename)
+                raise SyntaxError(msg)
+            encoding += '-sig'
+        return encoding
+
+    first = read_or_stop()
+    if first.startswith(BOM_UTF8):
+        bom_found = True
+        first = first[3:]
+        default = 'utf-8-sig'
+    if not first:
+        return default, []
+
+    encoding = find_cookie(first)
+    if encoding:
+        return encoding, [first]
+    if not blank_re.match(first):
+        return default, [first]
+
+    second = read_or_stop()
+    if not second:
+        return default, [first]
+
+    encoding = find_cookie(second)
+    if encoding:
+        return encoding, [first, second]
+
+    return default, [first, second]
+
+is_python2 = '' == ''.encode()
+
+
+def readlines(filename):
+    """Read the source code."""
+    try:
+        with io.open(filename, 'rb') as f:
+            (coding, lines) = detect_encoding(f.readline) if is_python2 \
+                else tokenize.detect_encoding(f.readline)
+            f = TextIOWrapper(f, coding, line_buffering=True)
+            return [l.decode(coding) for l in lines] + f.readlines()
+    except (LookupError, SyntaxError, UnicodeError):
+        # Fall back if file encoding is improperly declared
+        with open(filename, 'rU') if is_python2 \
+                else open(filename, encoding='latin-1') as f:
             return f.readlines()
+
+if is_python2:
     isidentifier = re.compile(r'[a-zA-Z_]\w*$').match
     stdin_get_value = sys.stdin.read
 else:
-    # Python 3
-    def readlines(filename):
-        """Read the source code."""
-        try:
-            with open(filename, 'rb') as f:
-                (coding, lines) = tokenize.detect_encoding(f.readline)
-                f = TextIOWrapper(f, coding, line_buffering=True)
-                return [l.decode(coding) for l in lines] + f.readlines()
-        except (LookupError, SyntaxError, UnicodeError):
-            # Fall back if file encoding is improperly declared
-            with open(filename, encoding='latin-1') as f:
-                return f.readlines()
     isidentifier = str.isidentifier
 
     def stdin_get_value():
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+
 noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
 
 
@@ -1378,13 +1491,6 @@ class Checker(object):
                 self.lines = []
         else:
             self.lines = lines
-        if self.lines:
-            ord0 = ord(self.lines[0][0])
-            if ord0 in (0xef, 0xfeff):  # Strip the UTF-8 BOM
-                if ord0 == 0xfeff:
-                    self.lines[0] = self.lines[0][1:]
-                elif self.lines[0][:3] == '\xef\xbb\xbf':
-                    self.lines[0] = self.lines[0][3:]
         self.report = report or options.report
         self.report_error = self.report.error
 
