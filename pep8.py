@@ -55,12 +55,11 @@ import inspect
 import keyword
 import tokenize
 import codecs
-import io
-from io import TextIOWrapper
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
     from configparser import RawConfigParser
+    from io import TextIOWrapper
 except ImportError:
     from ConfigParser import RawConfigParser
 
@@ -1199,8 +1198,8 @@ def detect_encoding(readline):
     bom_found = False
     encoding = None
     default = 'utf-8'
-    BOM_UTF8 = b'\xef\xbb\xbf'
-    blank_re = re.compile(br'^[ \t\f]*(?:[#\r\n]|$)')
+    BOM_UTF8 = '\xef\xbb\xbf'
+    blank_re = re.compile('^[ \\t\\f]*(?:[#\\r\\n]|$)')
 
     def get_normal_name(orig_enc):
         """Imitates get_normal_name in tokenizer.c."""
@@ -1217,7 +1216,7 @@ def detect_encoding(readline):
         try:
             return readline()
         except StopIteration:
-            return b''
+            return ''
 
     def find_cookie(line):
         cookie_re = re.compile(r'^[ \t\f]*#.*coding[:=][ \t]*([-\w.]+)')
@@ -1289,11 +1288,11 @@ is_python2 = '' == ''.encode()
 def readlines(filename):
     """Read the source code."""
     try:
-        with io.open(filename, 'rb') as f:
+        with open(filename, 'rb') as f:
             (coding, lines) = detect_encoding(f.readline) if is_python2 \
                 else tokenize.detect_encoding(f.readline)
-            f = TextIOWrapper(f, coding, line_buffering=True)
-            return [l.decode(coding) for l in lines] + f.readlines()
+            return [l.decode(coding) for l in lines] + \
+                   [l.decode(coding) for l in f.readlines()]
     except (LookupError, SyntaxError, UnicodeError):
         # Fall back if file encoding is improperly declared
         with open(filename, 'rU') if is_python2 \
