@@ -52,6 +52,11 @@ def long_function_name(
         var_one, var_two, var_three,
         var_four):
 	print(var_one)
+#: W191
+if True:
+	print "indent set to tabs"
+foo = long_function_name(var_one, var_two,
+                         var_three, var_four)
 #: E101 W191
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
@@ -93,14 +98,14 @@ if length > options.max_line_length:
 
 
 #
-#: E101 W191 W191
+#: W191 W191
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
 #: W191
 '''
 	multiline string with tab in it'''
-#: E101 W191
+#: W191
 '''multiline string
 	with tabs
    and spaces
@@ -131,6 +136,10 @@ if True:
 	foo(
 		1,
 		2)
+#: W191 W191
+if True:
+	foo(1,
+	    2)
 #: W191 W191 W191 W191 W191
 def test_keys(self):
 	"""areas.json - All regions are accounted for."""

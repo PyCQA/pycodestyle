@@ -56,6 +56,8 @@ import inspect
 import keyword
 import tokenize
 import warnings
+import itertools
+import operator
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -96,6 +98,7 @@ WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
+CLOSING_OPERATORS = {"(": ")", "{": "}", "[": "]"}
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
@@ -128,25 +131,6 @@ COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 ##############################################################################
 # Plugins (check functions) for physical lines
 ##############################################################################
-
-
-def tabs_or_spaces(physical_line, indent_char):
-    r"""Never mix tabs and spaces.
-
-    The most popular way of indenting Python is with spaces only.  The
-    second-most popular way is with tabs only.  Code indented with a mixture
-    of tabs and spaces should be converted to using spaces exclusively.  When
-    invoking the Python command line interpreter with the -t option, it issues
-    warnings about code that illegally mixes tabs and spaces.  When using -tt
-    these warnings become errors.  These options are highly recommended!
-
-    Okay: if a == 0:\n        a = 1\n        b = 1
-    E101: if a == 0:\n        a = 1\n\tb = 1
-    """
-    indent = INDENT_REGEX.match(physical_line).group(1)
-    for offset, char in enumerate(indent):
-        if char != indent_char:
-            return offset, "E101 indentation contains mixed spaces and tabs"
 
 
 def tabs_obsolete(physical_line):
@@ -233,6 +217,94 @@ def maximum_line_length(physical_line, max_line_length, multiline):
 ##############################################################################
 # Plugins (check functions) for logical lines
 ##############################################################################
+
+
+def mixed_tabs_and_spaces(logical_line, tokens, indent_char, indent_level):
+    r"""Never mix tabs and spaces.
+
+    The most popular way of indenting Python is with spaces only.  The
+    second-most popular way is with tabs only.  Code indented with a mixture
+    of tabs and spaces should be converted to using spaces exclusively.  When
+    invoking the Python command line interpreter with the -t option, it issues
+    warnings about code that illegally mixes tabs and spaces.  When using -tt
+    these warnings become errors.  These options are highly recommended!
+
+    Okay: if a == 0:\n        a = 1\n        b = 1
+    E101: if a == 0:\n        a = 1\n\tb = 1
+    """
+    if not indent_char:
+        return
+    elif indent_char == '\t':
+        expected_indent = '\t' * (indent_level // 8)
+    elif indent_char == ' ':
+        expected_indent = ' ' * indent_level
+    # Each element in paired_op_stack is a list of:
+    #
+    #     [closing_token, only_indent_with_indent_char]
+    #
+    # closing_token is the token that ends the pair.
+    # only_indent_with_indent_char is a boolean specifying whether
+    # following lines may introduce additional indent only with
+    # indent_char (True), or with either spaces or tabs (False).
+    # Element 0 of paired_op_stack has None for the closing_token so
+    # that the stack is never empty.
+    #
+    # Stack is necessary because of constructs such as:
+    #
+    #     if True:
+    #         long_function_name(
+    #             "this line should only be indented with indent_char"
+    #             some_func(bar, baz,
+    #                       "this line could be aligned with spaces"),
+    #             "this line should only be indented with indent_char",
+    #         )
+    paired_ops = [[None, True]]
+    for line, line_tokens in itertools.groupby(tokens, operator.itemgetter(4)):
+        line_tokens = list(line_tokens)
+        line_num = line_tokens[0][2][0]
+        line_indent_match = INDENT_REGEX.match(line)
+        line_indent = line_indent_match.group(1) if line_indent_match else ''
+        for col, (expected_ch, line_ch) in enumerate(zip(expected_indent,
+                                                         line_indent), 1):
+            if expected_ch != line_ch:
+                yield (line_num, col), \
+                    'E101 indentation contains mixed spaces and tabs'
+                break
+        if paired_ops[-1][1]:
+            hanging_indent = line_indent[len(expected_indent):]
+            for col, line_ch in enumerate(hanging_indent,
+                                          len(expected_indent)):
+                if line_ch != indent_char:
+                    yield (line_num, col), \
+                        'E101 indentation contains mixed spaces and tabs'
+                    break
+        this_line_depth = 0
+        for token in line_tokens:
+            if token[0] == tokenize.OP and token[1] in "({[":
+                # If we were already permitting indentation with
+                # things other than indent_char then we have to
+                # continue permitting that indentation within this new
+                # pair.  Hence taking only_indent_with_indent_char
+                # from paired_ops[-1].
+                paired_ops.append([CLOSING_OPERATORS[token[1]],
+                                   paired_ops[-1][1]])
+                this_line_depth += 1
+            elif token[0] == tokenize.OP and token[1] == paired_ops[-1][0]:
+                del paired_ops[-1]
+                # We could be closing a pair that was started on
+                # another line, but don't let this_line_depth fall
+                # below zero.
+                if this_line_depth > 0:
+                    this_line_depth -= 1
+            elif (token[0] not in (tokenize.NL, tokenize.COMMENT) and
+                  this_line_depth > 0):
+                # If this_line_depth > 0 then paired_ops[-1] was
+                # pushed onto the stack on this line.  If we're seeing
+                # something other than the end of the line after a
+                # pair has been opened on this line then we must
+                # permit any kind of indentation on the following
+                # line, until the close of this pair.
+                paired_ops[-1][1] = False
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
@@ -1489,8 +1561,6 @@ class Checker(object):
             if result is not None:
                 (offset, text) = result
                 self.report_error(self.line_number, offset, text, check)
-                if text[:4] == 'E101':
-                    self.indent_char = line[0]
 
     def build_tokens_line(self):
         """Build a logical line from tokens."""
@@ -1544,6 +1614,7 @@ class Checker(object):
             if self.verbose >= 4:
                 print('   ' + name)
             self.init_checker_state(name, argument_names)
+            last_e101_token = 0
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
                     for token_offset, pos in mapping:
@@ -1551,6 +1622,15 @@ class Checker(object):
                             break
                     offset = (pos[0], pos[1] + offset - token_offset)
                 self.report_error(offset[0], offset[1], text, check)
+                if text[:4] == 'E101':
+                    assert self.indent_char is not None
+                    for last_e101_token, token in enumerate(
+                            self.tokens[last_e101_token:], last_e101_token):
+                        if token[2][0] == offset[0]:
+                            new_indent_char = token[4][0]
+                            if new_indent_char in " \t":
+                                self.indent_char = new_indent_char
+                            break
         if self.logical_line:
             self.previous_indent_level = self.indent_level
             self.previous_logical = self.logical_line
