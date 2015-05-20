@@ -139,6 +139,7 @@ def long_function_name(
         var_four):
     print(var_one)
 
+
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
     raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
@@ -400,6 +401,7 @@ def unicode2html(s):
                             .replace('"', '&#34;')
                             .replace('\n', '<br>\n'))
 
+
 #
 parser.add_option('--count', action='store_true',
                   help="print total number of errors and warnings "
@@ -615,6 +617,7 @@ def other_example():
         (key, val if val is not None else token.undefined)
         for key, val in node.items()
     ))]
+
 
 foo([
     'bug'
