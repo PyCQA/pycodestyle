@@ -26,6 +26,7 @@ Changes:
 * Added check E275 for whitespace on `from ... import ...` lines; #489 / #491
 * Added W503 to the list of codes ignored by default ignore list; #498
 * Removed use of project level `.pep8` configuration file; #364
+* Added check E305 for two blank lines after toplevel method and toplevel class; #400
 
 Bugs:
 
