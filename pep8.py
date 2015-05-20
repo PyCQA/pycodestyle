@@ -1306,6 +1306,8 @@ def filename_match(filename, patterns, default=True):
 
 def _is_eol_token(token):
     return token[0] in NEWLINE or token[4][token[3][1]:].lstrip() == '\\\n'
+
+
 if COMMENT_WITH_NL:
     def _is_eol_token(token, _eol_token=_is_eol_token):
         return _eol_token(token) or (token[0] == tokenize.COMMENT and
@@ -1345,6 +1347,8 @@ def init_checks_registry():
     mod = inspect.getmodule(register_check)
     for (name, function) in inspect.getmembers(mod, inspect.isfunction):
         register_check(function)
+
+
 init_checks_registry()
 
 
@@ -2123,6 +2127,7 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
+
 
 if __name__ == '__main__':
     _main()
