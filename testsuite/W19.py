@@ -7,26 +7,26 @@ if False:
 #: W191
 y = x == 2 \
 	or x == 3
-#: E101 W191
+#: E101 E129 W191
 if (
         x == (
             3
         ) or
         y == 4):
 	pass
-#: E101 W191
+#: E101 E125 W191
 if x == 2 \
     or y > 1 \
         or x == 3:
 	pass
-#: E101 W191
+#: E101 E125 W191
 if x == 2 \
         or y > 1 \
         or x == 3:
 	pass
 #:
 
-#: E101 W191
+#: E101 E129 W191
 if (foo == bar and
         baz == frop):
 	pass
@@ -38,14 +38,14 @@ if (
 	pass
 #:
 
-#: E101 E101 W191 W191
+#: E101 E101 E129 W191 W191
 if start[1] > end_col and not (
         over_indent == 4 and indent_next):
 	return(0, "E121 continuation line over-"
 	       "indented for visual indent")
 #:
 
-#: E101 W191
+#: E101 E125 W191
 
 
 def long_function_name(
@@ -119,7 +119,7 @@ or long long long long long long long long long long long long long long long lo
 even though the noqa comment is not immediately after the string
 ''' + foo  # noqa
 #
-#: E101 W191
+#: E101 E125 W191
 if foo is None and bar is "frop" and \
         blah == 'yeah':
 	blah = 'yeahnah'
