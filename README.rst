@@ -78,8 +78,8 @@ Or you can display how often each error was found::
 Links
 -----
 
-.. image:: https://api.travis-ci.org/jcrocholl/pep8.png?branch=master
-   :target: https://travis-ci.org/jcrocholl/pep8
+.. image:: https://api.travis-ci.org/PyCQA/pep8.png?branch=master
+   :target: https://travis-ci.org/PyCQA/pep8
    :alt: Build status
 
 .. image:: https://pypip.in/wheel/pep8/badge.png?branch=master
@@ -88,4 +88,4 @@ Links
 
 * `Read the documentation <http://pep8.readthedocs.org/>`_
 
-* `Fork me on GitHub <http://github.com/jcrocholl/pep8>`_
+* `Fork me on GitHub <http://github.com/PyCQA/pep8>`_
