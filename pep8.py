@@ -1328,7 +1328,7 @@ def register_check(check, codes=None):
                 codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
             _add_check(check, args[0], codes, args)
     elif inspect.isclass(check):
-        if sys.version_info[0] >= 3:
+        if sys.version_info >= (3, 3):
             parameters = list(inspect.signature(check.__init__).parameters)
         else:
             parameters = inspect.getargspec(check.__init__)[0]
