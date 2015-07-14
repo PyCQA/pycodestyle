@@ -1,4 +1,5 @@
 language: python
+sudo: false
 python:
   - 2.6
   - 2.7
@@ -15,10 +16,6 @@ script:
   - python pep8.py --statistics pep8.py
   - python pep8.py --doctest
   - python setup.py test
-matrix:
-  allow_failures:
-    - python: pypy
-    - python: pypy3
 
 notifications:
   email:
