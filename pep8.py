@@ -1328,7 +1328,12 @@ def register_check(check, codes=None):
                 codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
             _add_check(check, args[0], codes, args)
     elif inspect.isclass(check):
-        if inspect.getargspec(check.__init__)[0][:2] == ['self', 'tree']:
+        if sys.version_info[0] >= 3:
+            parameters = list(inspect.signature(check.__init__).parameters)
+        else:
+            parameters = inspect.getargspec(check.__init__)[0]
+
+        if parameters[:2] == ['self', 'tree']:
             _add_check(check, 'tree', codes, None)
 
 
@@ -1504,7 +1509,7 @@ class Checker(object):
         """Build the file's AST and run all AST checks."""
         try:
             tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
-        except (SyntaxError, TypeError):
+        except (ValueError, SyntaxError, TypeError):
             return self.report_invalid_syntax()
         for name, cls, __ in self._ast_checks:
             checker = cls(tree, self.filename)

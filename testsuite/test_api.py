@@ -339,6 +339,9 @@ class APITestCase(unittest.TestCase):
         if 'SyntaxError' in stdout:
             # PyPy 2.2 returns a SyntaxError
             expected = "stdin:1:2: E901 SyntaxError"
+        elif 'ValueError' in stdout:
+            # Python 3.5.
+            expected = "stdin:1:1: E901 ValueError"
         else:
             expected = "stdin:1:1: E901 TypeError"
         self.assertTrue(stdout.startswith(expected),
