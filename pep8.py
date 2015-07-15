@@ -1314,6 +1314,13 @@ if COMMENT_WITH_NL:
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 
+def _get_parameters(function):
+    if sys.version_info >= (3, 3):
+        return list(inspect.signature(function).parameters)
+    else:
+        return inspect.getargspec(function)[0]
+
+
 def register_check(check, codes=None):
     """Register a new check object."""
     def _add_check(check, kind, codes, args):
@@ -1322,13 +1329,13 @@ def register_check(check, codes=None):
         else:
             _checks[kind][check] = (codes or [''], args)
     if inspect.isfunction(check):
-        args = inspect.getargspec(check)[0]
+        args = _get_parameters(check)
         if args and args[0] in ('physical_line', 'logical_line'):
             if codes is None:
                 codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
             _add_check(check, args[0], codes, args)
     elif inspect.isclass(check):
-        if inspect.getargspec(check.__init__)[0][:2] == ['self', 'tree']:
+        if _get_parameters(check.__init__)[:2] == ['self', 'tree']:
             _add_check(check, 'tree', codes, None)
 
 
@@ -1504,7 +1511,7 @@ class Checker(object):
         """Build the file's AST and run all AST checks."""
         try:
             tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
-        except (SyntaxError, TypeError):
+        except (ValueError, SyntaxError, TypeError):
             return self.report_invalid_syntax()
         for name, cls, __ in self._ast_checks:
             checker = cls(tree, self.filename)
