@@ -2058,7 +2058,7 @@ def get_parser(prog='pycodestyle', version=__version__):
     parser.add_option('--count', action='store_true',
                       help="print total number of errors and warnings "
                            "to standard error and set exit code to 1 if "
-                           "total is not null")
+                           "total is not zero")
     parser.add_option('--max-line-length', type='int', metavar='n',
                       default=MAX_LINE_LENGTH,
                       help="set maximum allowed line length "
@@ -2246,9 +2246,10 @@ def _main():
     if options.testsuite and not options.quiet:
         report.print_results()
 
+    if options.count:
+        sys.stderr.write(str(report.total_errors) + '\n')
+
     if report.total_errors:
-        if options.count:
-            sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
 
 
