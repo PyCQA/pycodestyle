@@ -6,7 +6,7 @@ print
 class Foo(object):
     
     bang = 12
-#: W291:2:35
+#: E999:1:1 W291:2:35
 '''multiline
 string with trailing whitespace'''   
 #: W292:1:36 noeol

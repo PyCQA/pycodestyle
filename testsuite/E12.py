@@ -357,7 +357,7 @@ for foo in """
     123
     """.strip().split():
     print(foo)
-#: E122:6:5 E122:7:5 E122:8:1
+#: E122:6:5 E122:7:5 E122:8:1 E999:2:5
 print dedent(
     '''
         mkdir -p ./{build}/

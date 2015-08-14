@@ -10,7 +10,7 @@
 
     
     
-#: Okay
+#: E999:1:1
 '''there is nothing wrong
 with a multiline string at EOF
 

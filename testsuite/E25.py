@@ -1,4 +1,4 @@
-#: E251 E251
+#: E251 E251 E999
 def foo(bar = False):
     '''Test function with an error in declaration'''
     pass

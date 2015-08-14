@@ -526,10 +526,10 @@ rv.update(dict.fromkeys(
 def f():
     try:
         if not Debug:
-            print('''
+            print("""
 If you would like to see debugging output,
 try: %s -d5
-''' % sys.argv[0])
+""" % sys.argv[0])
 
 
 d = {  # comment
@@ -634,10 +634,10 @@ some_hash = {
 
 
 print dedent(
-    '''
+    """
         mkdir -p ./{build}/
         mv ./build/ ./{build}/%(revision)s/
-    '''.format(
+    """.format(
         build='build',
         # more stuff
     )

@@ -52,7 +52,7 @@ elif bbb or \
 
 ddd = \
     ccc
-
+#: E999
 ('\
     ' + ' \
 ')
@@ -62,11 +62,11 @@ ddd = \
 #: E501 E225 E226
 very_long_identifiers=and_terrible_whitespace_habits(are_no_excuse+for_long_lines)
 #
-#: E501
+#: E501 E999
 '''multiline string
 with a long long long long long long long long long long long long long long long long line
 '''
-#: E501
+#: E501 E999
 '''same thing, but this time without a terminal newline in the string
 long long long long long long long long long long long long long long long long line'''
 #

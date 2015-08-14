@@ -97,15 +97,15 @@ if length > options.max_line_length:
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
-#: W191
+#: E999 W191
 '''
 	multiline string with tab in it'''
-#: E101 W191
+#: E101 E999 W191
 '''multiline string
 	with tabs
    and spaces
 '''
-#: Okay
+#: E999
 '''sometimes, you just need to go nuts in a multiline string
 	and allow all sorts of crap
   like mixed tabs and spaces
@@ -113,7 +113,7 @@ if os.path.exists(os.path.join(path, PEP8_BIN)):
 or trailing whitespace  
 or long long long long long long long long long long long long long long long long long lines
 '''  # nopep8
-#: Okay
+#: E999
 '''this one
 	will get no warning
 even though the noqa comment is not immediately after the string

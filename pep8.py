@@ -231,6 +231,23 @@ def maximum_line_length(physical_line, max_line_length, multiline):
 ##############################################################################
 # Plugins (check functions) for logical lines
 ##############################################################################
+def triple_quotes(logical_line, tokens):
+    r"""Triple quotes should use double quote characters.
+    Okay: s = ""\"a""\"
+    Okay: s = r""\"a""\"
+    E999: s = '''a'''
+    E999: s = r'''a'''
+    """
+    triple = "'''"
+    for token_type, text, start, end, line in tokens:
+        text = remove_string_prefix(text)
+        if (token_type == tokenize.STRING and
+                text.startswith(triple) and
+                text.endswith(triple) and
+                '"""' not in text):
+            yield start, "E999 triple-quoted strings "\
+                "should use double quote characters"
+            break
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
@@ -855,15 +872,24 @@ def imports_on_separate_lines(logical_line):
             yield found, "E401 multiple imports on one line"
 
 
+def remove_string_prefix(string):
+    r"""Remove string prefix (uUbBrR) of a string."""
+    if string and string[0] in 'uUbB':
+        string = string[1:]
+    if string and string[0] in 'rR':
+        string = string[1:]
+    return string
+
+
 def module_imports_on_top_of_file(
         logical_line, indent_level, checker_state, noqa):
-    r"""Imports are always put at the top of the file, just after any module
+    r'''Imports are always put at the top of the file, just after any module
     comments and docstrings, and before module globals and constants.
 
     Okay: import os
     Okay: # this is a comment\nimport os
-    Okay: '''this is a module docstring'''\nimport os
-    Okay: r'''this is a module docstring'''\nimport os
+    Okay: """this is a module docstring"""\nimport os
+    Okay: r"""this is a module docstring"""\nimport os
     Okay: try:\n    import x\nexcept:\n    pass\nelse:\n    pass\nimport y
     Okay: try:\n    import x\nexcept:\n    pass\nfinally:\n    pass\nimport y
     E402: a=1\nimport os
@@ -871,13 +897,10 @@ def module_imports_on_top_of_file(
     E402: a=1\nfrom sys import x
 
     Okay: if x:\n    import os
-    """
+    '''
     def is_string_literal(line):
-        if line[0] in 'uUbB':
-            line = line[1:]
-        if line and line[0] in 'rR':
-            line = line[1:]
-        return line and (line[0] == '"' or line[0] == "'")
+        line = remove_string_prefix(line)
+        return line and (line[0] in ('"', "'"))
 
     allowed_try_keywords = ('try', 'except', 'else', 'finally')
 
@@ -1014,7 +1037,7 @@ def break_around_binary_operator(logical_line, tokens):
     Okay: (width == 0 +\n height == 0)
     Okay: foo(\n    -x)
     Okay: foo(x\n    [])
-    Okay: x = '''\n''' + ''
+    Okay: x = ""\"\n""\" + ''
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
     """
