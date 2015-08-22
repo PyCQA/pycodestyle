@@ -2081,10 +2081,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
-    options.filename = options.filename and options.filename.split(',')
+    options.filename = _parse_multi_options(options.filename.split(','))
     options.exclude = normalize_paths(options.exclude)
-    options.select = options.select and options.select.split(',')
-    options.ignore = options.ignore and options.ignore.split(',')
+    options.select = _parse_multi_options(options.select.split(','))
+    options.ignore = _parse_multi_options(options.ignore.split(','))
 
     if options.diff:
         options.reporter = DiffReport
@@ -2093,6 +2093,22 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         args = sorted(options.selected_lines)
 
     return options, args
+
+
+def _parse_multi_options(options):
+    r"""Split and strip and discard empties.
+
+    Turns the following:
+
+    A,
+    B,
+
+    into ["A", "B"]
+    """
+    if options:
+        return [o.strip() for o in options if o.strip()]
+    else:
+        return options
 
 
 def _main():
