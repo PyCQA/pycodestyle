@@ -37,18 +37,18 @@ result = [
 
 #: E203:1:10
 if x == 4 :
-    print x, y
+    print(x, y)
     x, y = y, x
-#: E203:2:15 E702:2:16
+#: E203:2:16 E702:2:17
 if x == 4:
-    print x, y ; x, y = y, x
+    print(x, y) ; x, y = y, x
 #: E203:3:13
 if x == 4:
-    print x, y
+    print(x, y)
     x, y = y , x
 #: Okay
 if x == 4:
-    print x, y
+    print(x, y)
     x, y = y, x
 a[b1, :] == a[b1, ...]
 b = a[:, b1]

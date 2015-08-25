@@ -142,7 +142,7 @@ if not -5 < x < +5:
     print >>sys.stderr, "x is out of range."
 print >> sys.stdout, "x is an integer."
 x = x / 2 - 1
-
+#: E901:2:6:python2
 if alpha[:-i]:
     *a, b = (1, 2, 3)
 

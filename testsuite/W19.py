@@ -70,12 +70,12 @@ if bar:
 if ((foo.bar("baz") and
      foo.bar("frop")
      )):
-	print "yes"
+	print("yes")
 #: E101 W191
 # also ok, but starting to look like LISP
 if ((foo.bar("baz") and
      foo.bar("frop"))):
-	print "yes"
+	print("yes")
 #: E101 W191
 if (a == 2 or
     b == "abc def ghi"
@@ -135,8 +135,8 @@ if True:
 def test_keys(self):
 	"""areas.json - All regions are accounted for."""
 	expected = set([
-		u'Norrbotten',
-		u'V\xe4sterbotten',
+		'Norrbotten',
+		'V\xe4sterbotten',
 	])
 #: W191
 x = [

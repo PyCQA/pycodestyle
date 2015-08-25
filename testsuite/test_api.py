@@ -53,7 +53,7 @@ class APITestCase(unittest.TestCase):
 
         options = pep8.StyleGuide().options
         self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.physical_checks))
+                            for func, args in options.physical_checks))
 
     def test_register_logical_check(self):
         def check_dummy(logical_line, tokens):
@@ -74,7 +74,7 @@ class APITestCase(unittest.TestCase):
 
         options = pep8.StyleGuide().options
         self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.logical_checks))
+                            for func, args in options.logical_checks))
 
     def test_register_ast_check(self):
         pep8.register_check(DummyChecker, ['Z701'])
@@ -82,11 +82,11 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(DummyChecker in pep8._checks['tree'])
         codes, args = pep8._checks['tree'][DummyChecker]
         self.assertTrue('Z701' in codes)
-        self.assertTrue(args is None)
+        self.assertEqual(args, ['self', 'tree', 'filename'])
 
         options = pep8.StyleGuide().options
         self.assertTrue(any(cls == DummyChecker
-                            for name, cls, args in options.ast_checks))
+                            for cls, args in options.ast_checks))
 
     def test_register_invalid_check(self):
         class InvalidChecker(DummyChecker):
@@ -124,7 +124,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 17)
+        self.assertEqual(report.total_errors, 18, stdout)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -132,7 +132,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide(paths=[E11]).check_files()
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 17)
+        self.assertEqual(report.total_errors, 18)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -253,40 +253,38 @@ class APITestCase(unittest.TestCase):
         # Default lists of checkers
         self.assertTrue(len(pep8style.options.physical_checks) > 4)
         self.assertTrue(len(pep8style.options.logical_checks) > 10)
-        self.assertEqual(len(pep8style.options.ast_checks), 0)
+        self.assertTrue(len(pep8style.options.ast_checks) > 0)
 
         # Sanity check
-        for name, check, args in pep8style.options.physical_checks:
-            self.assertEqual(check.__name__, name)
+        for check, args in pep8style.options.physical_checks:
             self.assertEqual(args[0], 'physical_line')
-        for name, check, args in pep8style.options.logical_checks:
-            self.assertEqual(check.__name__, name)
+        for check, args in pep8style.options.logical_checks:
             self.assertEqual(args[0], 'logical_line')
 
         # Do run E11 checks
         options = pep8.StyleGuide().options
         self.assertTrue(any(func == pep8.indentation
-                            for name, func, args in options.logical_checks))
+                            for func, args in options.logical_checks))
         options = pep8.StyleGuide(select=['E']).options
         self.assertTrue(any(func == pep8.indentation
-                            for name, func, args in options.logical_checks))
+                            for func, args in options.logical_checks))
         options = pep8.StyleGuide(ignore=['W']).options
         self.assertTrue(any(func == pep8.indentation
-                            for name, func, args in options.logical_checks))
+                            for func, args in options.logical_checks))
         options = pep8.StyleGuide(ignore=['E12']).options
         self.assertTrue(any(func == pep8.indentation
-                            for name, func, args in options.logical_checks))
+                            for func, args in options.logical_checks))
 
         # Do not run E11 checks
         options = pep8.StyleGuide(select=['W']).options
         self.assertFalse(any(func == pep8.indentation
-                             for name, func, args in options.logical_checks))
+                             for func, args in options.logical_checks))
         options = pep8.StyleGuide(ignore=['E']).options
         self.assertFalse(any(func == pep8.indentation
-                             for name, func, args in options.logical_checks))
+                             for func, args in options.logical_checks))
         options = pep8.StyleGuide(ignore=['E11']).options
         self.assertFalse(any(func == pep8.indentation
-                             for name, func, args in options.logical_checks))
+                             for func, args in options.logical_checks))
 
     def test_styleguide_init_report(self):
         pep8style = pep8.StyleGuide(paths=[E11])

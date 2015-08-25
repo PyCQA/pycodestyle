@@ -38,7 +38,7 @@ class TestReport(StandardReport):
         detailed_code = '%s:%s:%s' % (code, line_number, offset + 1)
         # Don't care about expected errors or warnings
         if code in self.expected or detailed_code in self.expected:
-            return
+            return None
         self._deferred_print.append(
             (line_number, offset, detailed_code, text[5:], check.__doc__))
         self.file_errors += 1
@@ -91,7 +91,7 @@ def selftest(options):
     report = BaseReport(options)
     counters = report.counters
     checks = options.physical_checks + options.logical_checks
-    for name, check, argument_names in checks:
+    for check, argument_names in checks:
         for line in check.__doc__.splitlines():
             line = line.lstrip()
             match = SELFTEST_REGEX.match(line)
@@ -162,10 +162,16 @@ def init_tests(pep8style):
             if codes and index:
                 if 'noeol' in codes:
                     testcase[-1] = testcase[-1].rstrip('\n')
-                codes = [c for c in codes
-                         if c not in ('Okay', 'noeol')]
+                expected = []
+                for c in codes:
+                    c, sep, version = c.partition(':python')
+                    if version and str(sys.version_info.major) != version:
+                        continue
+                    if c in ('Okay', 'noeol'):
+                        continue
+                    expected.append(c)
                 # Run the checker
-                runner(filename, testcase, expected=codes,
+                runner(filename, testcase, expected=expected,
                        line_offset=line_offset)
             # output the real line numbers
             line_offset = index + 1
