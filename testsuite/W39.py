@@ -5,7 +5,7 @@
 # Two additional empty lines
 
 
-#: W391:4:1 W293:3:1 W293:4:1 noeol
+#: W391:4:1 W293:3:1 W293:4:1 E901:python2.6 noeol
 # The last lines contain space
 
     

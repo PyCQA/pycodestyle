@@ -1,22 +1,22 @@
 #: E121
-print "E121", (
-  "dent")
+print("E121", (
+  "dent"))
 #: E122
-print "E122", (
-"dent")
+print("E122", (
+"dent"))
 #: E123
 my_list = [
     1, 2, 3,
     4, 5, 6,
     ]
 #: E124
-print "E124", ("visual",
+print("E124", ("visual",
                "indent_two"
-              )
+              ))
 #: E124
-print "E124", ("visual",
+print("E124", ("visual",
                "indent_five"
-)
+))
 #: E124
 a = (123,
 )
@@ -25,20 +25,20 @@ if (row < 0 or self.moduleCount <= row or
     col < 0 or self.moduleCount <= col):
     raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
 #: E126
-print "E126", (
-            "dent")
+print("E126", (
+            "dent"))
 #: E126
-print "E126", (
-        "dent")
+print("E126", (
+        "dent"))
 #: E127
-print "E127", ("over-",
-                  "over-indent")
+print("E127", ("over-",
+                  "over-indent"))
 #: E128
-print "E128", ("visual",
-    "hanging")
+print("E128", ("visual",
+    "hanging"))
 #: E128
-print "E128", ("under-",
-              "under-indent")
+print("E128", ("under-",
+              "under-indent"))
 #:
 
 
@@ -63,11 +63,11 @@ abricot = 3 + \
           4 + \
           5 + 6
 #: E131
-print "hello", (
+print("hello", (
 
     "there",
      # "john",
-    "dude")
+    "dude"))
 #: E126
 part = set_mimetype((
     a.get('mime_type', 'text')),
@@ -100,11 +100,11 @@ if True:
     or another_very_long_variable_name:
         raise Exception()
 #: E122
-dictionary = [
+dictionary = {
     "is": {
     "nested": yes(),
     },
-]
+}
 #: E122
 setup('',
       scripts=[''],
@@ -117,9 +117,9 @@ setup('',
 
 
 #: E123 W291
-print "E123", (   
+print("E123", (   
     "bad", "hanging", "close"
-    )
+    ))
 #
 #: E123 E123 E123
 result = {
@@ -358,7 +358,7 @@ for foo in """
     """.strip().split():
     print(foo)
 #: E122:6:5 E122:7:5 E122:8:1
-print dedent(
+print(dedent(
     '''
         mkdir -p ./{build}/
         mv ./build/ ./{build}/%(revision)s/
@@ -366,8 +366,8 @@ print dedent(
     build='build',
     # more stuff
 )
-)
-#: E701:1:8 E122:2:1 E203:4:8 E128:5:1
+))
+#: E701:1:8 E122:2:1 E203:4:8 E128:5:1 E901:python2
 if True:\
 print(True)
 

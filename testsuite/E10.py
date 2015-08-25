@@ -1,8 +1,8 @@
-#: E101 W191
+#: E101 W191 E901:python3
 for a in 'abc':
     for b in 'xyz':
-        print a  # indented with 8 spaces
-	print b  # indented with 1 tab
+        print(a)  # indented with 8 spaces
+	print(b)  # indented with 1 tab
 #: E101 E122 W191 W191
 if True:
 	pass
@@ -35,7 +35,7 @@ if True:
 def test_keys(self):
     """areas.json - All regions are accounted for."""
     expected = set([
-	u'Norrbotten',
-	u'V\xe4sterbotten',
+	'Norrbotten',
+	'V\xe4sterbotten',
     ])
 #:

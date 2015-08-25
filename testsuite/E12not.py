@@ -46,34 +46,34 @@ if start[1] > end_col and not (
            "indented for visual indent")
 
 
-print "OK", ("visual",
-             "indent")
+print("OK", ("visual",
+             "indent"))
 
-print "Okay", ("visual",
+print("Okay", ("visual",
                "indent_three"
-               )
+               ))
 
-print "a-ok", (
+print("a-ok", (
     "there",
     "dude",
-)
+))
 
-print "hello", (
+print("hello", (
     "there",
-    "dude")
+    "dude"))
 
-print "hello", (
+print("hello", (
 
     "there",
     # "john",
-    "dude")
+    "dude"))
 
-print "hello", (
-    "there", "dude")
+print("hello", (
+    "there", "dude"))
 
-print "hello", (
+print("hello", (
     "there", "dude",
-)
+))
 
 # Aligned with opening delimiter
 foo = long_function_name(var_one, var_two,
@@ -188,12 +188,12 @@ if bar:
 if ((foo.bar("baz") and
      foo.bar("frop")
      )):
-    print "yes"
+    print("yes")
 
 # also ok, but starting to look like LISP
 if ((foo.bar("baz") and
      foo.bar("frop"))):
-    print "yes"
+    print("yes")
 
 if (a == 2 or
     b == "abc def ghi"
@@ -213,12 +213,12 @@ if length > options.max_line_length:
 #
 
 
-print 'l.{line}\t{pos}\t{name}\t{text}'.format(
+print('l.{line}\t{pos}\t{name}\t{text}'.format(
     line=token[2][0],
     pos=pos,
     name=tokenize.tok_name[token[0]],
     text=repr(token[1]),
-)
+))
 
 print('%-7d %s per second (%d total)' % (
       options.counters[key] / elapsed, key,
@@ -429,7 +429,7 @@ help = ("print total number of errors " +
 
 help = "print total number of errors " \
        "to standard error"
-
+#: E901:python3
 help = u"print total number of errors " \
        u"to standard error"
 
@@ -521,8 +521,7 @@ rv.update(dict.fromkeys(
            'reasonComment_de', 'reasonComment_it'),
           '?'), "foo",
           context={'alpha': 4, 'beta': 53242234, 'gamma': 17})
-
-
+#: E901
 def f():
     try:
         if not Debug:

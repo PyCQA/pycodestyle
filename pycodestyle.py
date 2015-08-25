@@ -55,7 +55,7 @@ import time
 import inspect
 import keyword
 import tokenize
-import warnings
+import ast
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -67,7 +67,7 @@ except ImportError:
 __version__ = '2.0.0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
-DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503'
+DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W740,W741'
 try:
     if sys.platform == 'win32':
         USER_CONFIG = os.path.expanduser(r'~\.pep8')
@@ -147,6 +147,7 @@ def tabs_or_spaces(physical_line, indent_char):
     for offset, char in enumerate(indent):
         if char != indent_char:
             return offset, "E101 indentation contains mixed spaces and tabs"
+    return None
 
 
 def tabs_obsolete(physical_line):
@@ -158,6 +159,7 @@ def tabs_obsolete(physical_line):
     indent = INDENT_REGEX.match(physical_line).group(1)
     if '\t' in indent:
         return indent.index('\t'), "W191 indentation contains tabs"
+    return None
 
 
 def trailing_whitespace(physical_line):
@@ -179,6 +181,7 @@ def trailing_whitespace(physical_line):
             return len(stripped), "W291 trailing whitespace"
         else:
             return 0, "W293 blank line contains whitespace"
+    return None
 
 
 def trailing_blank_lines(physical_line, lines, line_number, total_lines):
@@ -195,6 +198,7 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
             return 0, "W391 blank line at end of file"
         if stripped_last_line == physical_line:
             return len(physical_line), "W292 no newline at end of file"
+    return None
 
 
 def maximum_line_length(physical_line, max_line_length, multiline):
@@ -218,7 +222,7 @@ def maximum_line_length(physical_line, max_line_length, multiline):
         if ((len(chunks) == 1 and multiline) or
             (len(chunks) == 2 and chunks[0] == '#')) and \
                 len(line) - len(chunks[-1]) < max_line_length - 7:
-            return
+            return None
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
@@ -228,6 +232,7 @@ def maximum_line_length(physical_line, max_line_length, multiline):
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
+    return None
 
 
 ##############################################################################
@@ -771,17 +776,14 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value.
 
-    Okay: def complex(real, imag=0.0):
-    Okay: return magic(r=real, i=imag)
+    Okay: def complex(real, imag=0.0):\n    return magic(r=real, i=imag)
     Okay: boolean(a == b)
     Okay: boolean(a != b)
     Okay: boolean(a <= b)
     Okay: boolean(a >= b)
-    Okay: def foo(arg: int = 42):
-    Okay: async def foo(arg: int = 42):
 
-    E251: def complex(real, imag = 0.0):
-    E251: return magic(r = real, i = imag)
+    Okay:python3 E901:python2: def foo(arg: int = 42):\n    pass
+    E251: def complex(real, imag = 0.0):\n  return magic(r = real, i = imag)
     """
     parens = 0
     no_space = False
@@ -801,9 +803,9 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 parens += 1
             elif text in ')]':
                 parens -= 1
-            elif in_def and text == ':' and parens == 1:
+            elif parens == 1 and in_def and text == ':':
                 annotated_func_arg = True
-            elif parens and text == ',' and parens == 1:
+            elif parens == 1 and text == ',':
                 annotated_func_arg = False
             elif parens and text == '=' and not annotated_func_arg:
                 no_space = True
@@ -1035,7 +1037,7 @@ def break_around_binary_operator(logical_line, tokens):
 
     Okay: (width == 0 +\n height == 0)
     Okay: foo(\n    -x)
-    Okay: foo(x\n    [])
+    Okay: foo(x,\n    [])
     Okay: x = '''\n''' + ''
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
@@ -1078,11 +1080,11 @@ def comparison_to_singleton(logical_line, noqa):
     Comparisons to singletons like None should always be done
     with "is" or "is not", never the equality operators.
 
-    Okay: if arg is not None:
-    E711: if arg != None:
-    E711: if None == arg:
-    E712: if arg == True:
-    E712: if False == arg:
+    Okay: arg is not None
+    E711: arg != None
+    E711: None == arg
+    E712: arg == True
+    E712: False == arg
 
     Also, beware of writing if x when you really mean if x is not None --
     e.g. when testing whether a variable or argument that defaults to None was
@@ -1132,15 +1134,15 @@ def comparison_type(logical_line, noqa):
 
     Do not compare types directly.
 
-    Okay: if isinstance(obj, int):
-    E721: if type(obj) is type(1):
+    Okay: isinstance(obj, int)
+    E721: type(obj) is type(1)
 
     When checking if an object is a string, keep in mind that it might be a
     unicode string too! In Python 2.3, str and unicode have a common base
     class, basestring, so you can do:
 
-    Okay: if isinstance(obj, basestring):
-    Okay: if type(a1) is type(b1):
+    Okay: isinstance(obj, basestring)
+    Okay: type(a1) is type(b1)
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
@@ -1153,7 +1155,7 @@ def comparison_type(logical_line, noqa):
 def python_3000_has_key(logical_line, noqa):
     r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
 
-    Okay: if "alph" in d:\n    print d["alph"]
+    Okay: "alph" in d
     W601: assert d.has_key('alph')
     """
     pos = logical_line.find('.has_key(')
@@ -1179,8 +1181,8 @@ def python_3000_not_equal(logical_line):
 
     The older syntax is removed in Python 3.
 
-    Okay: if a != 'no':
-    W603: if a <> 'no':
+    Okay: a != 'no'
+    W603: a <> 'no'
     """
     pos = logical_line.find('<>')
     if pos > -1:
@@ -1196,6 +1198,158 @@ def python_3000_backticks(logical_line):
     pos = logical_line.find('`')
     if pos > -1:
         yield pos, "W604 backticks are deprecated, use 'repr()'"
+
+
+class UnconsistentReturns():
+    r"""Check that return statement are consistent.
+
+    Functions should either return an explicit value in all return
+    statements (including the final value-less implicit return if
+    reachable) or in none of them.
+    If a return statement returns an explicit value in a function :
+        * return statements with no explicit values lead to W740.
+        * end of function (if reachable) leads to W741.
+    """
+
+    def __init__(self, tree, filename):
+        r"""Init."""
+        self.tree = tree
+        self.filename = filename
+
+    def run(self):
+        r"""Run the check."""
+        return UnconsistentReturns.check_in_tree(self.tree)
+
+    @staticmethod
+    def check_in_tree(tree):
+        r"""Check for inconsistent returns in tree."""
+        assert isinstance(tree, ast.AST)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                for err in UnconsistentReturns.check_in_func(node):
+                    yield err
+
+    @staticmethod
+    def check_in_func(func_node):
+        r"""Check for inconsistent returns (with or without values) in function.
+        """
+        assert isinstance(func_node, ast.FunctionDef)
+        returns = list(FlowAnalysis.collect_return_nodes(func_node))
+        returns_value = [ret for ret in returns if ret.value is not None]
+        if returns_value:
+            func_name = func_node.name
+            for r in returns:
+                if r.value is None:
+                    yield (r.lineno,
+                           r.col_offset,
+                           "W740 unconsistent return values in %s" % func_name,
+                           "toto")
+            if FlowAnalysis.end_of_block_is_reachable(func_node.body):
+                yield (func_node.lineno,
+                       func_node.col_offset,
+                       "W741 unconsistent return values in %s" % func_name,
+                       "toto")
+
+
+class FlowAnalysis():
+    r"""Class of utility methods to perform flow analysis.
+
+    Class container for various static methods. This class probably
+    shouldn't be a class but a module but it seems like being a single
+    file is one of the pep8 features."""
+
+    @staticmethod
+    def collect_return_nodes(func_node):
+        r"""Collect return nodes from the node describing a function.
+
+        The tricky part is not to get the nodes corresponding to return
+        statements in nested function definitions.
+        Heavily based on the ast.walk() function.
+        """
+        from collections import deque
+        assert isinstance(func_node, ast.FunctionDef)
+        todo = deque(ast.iter_child_nodes(func_node))
+        while todo:
+            node = todo.popleft()
+            if not isinstance(node, ast.FunctionDef):
+                todo.extend(ast.iter_child_nodes(node))
+                if isinstance(node, ast.Return):
+                    yield node
+
+    @staticmethod
+    def end_of_block_is_reachable(tree):
+        r"""Return true if the end of a block is reachable.
+
+        A block can be a single ast.stmt or a list of them.
+        Detecting whether the end of some piece of code is reachable or
+        not corresponds to solving the halting problem which is known to be
+        impossible. However, we could solve a relaxed version of this :
+        indeed, we may assume that:
+         - all code is reachable except for obvious cases.
+         - only a few kind of statements may break the reachable property:
+            * return statements
+            * raise statements
+            * assert with "obviously"-False values.
+        We'll consider the end of block to be reachable if nothing breaks
+        the reachability property.
+        """
+        this_func = FlowAnalysis.end_of_block_is_reachable  # shorter name
+        if isinstance(tree, list):
+            return all(this_func(stmt) for stmt in tree)
+        assert isinstance(tree, ast.stmt)
+        # These stop reachability
+        if isinstance(tree, (ast.Return, ast.Raise)):
+            return False
+        elif isinstance(tree, ast.Assert):
+            return not FlowAnalysis.expression_must_be_false(tree.test)
+        # These propagage reachability
+        elif isinstance(tree, ast.If):
+            branches = []
+            if not FlowAnalysis.expression_must_be_true(tree.test):
+                branches.append(tree.orelse)
+            if not FlowAnalysis.expression_must_be_false(tree.test):
+                branches.append(tree.body)
+            return any(this_func(brch) for brch in branches)
+        elif isinstance(tree, getattr(ast, 'TryFinally', ())):
+            return this_func(tree.finalbody) and this_func(tree.body)
+        elif isinstance(tree, getattr(ast, 'TryExcept', ())):
+            # TODO: orelse ignored at the moment
+            return this_func(tree.body) or \
+                any(this_func(handler.body) for handler in tree.handlers)
+        elif isinstance(tree, getattr(ast, 'Try', ())):
+            if not this_func(tree.finalbody):
+                return False
+            # TODO: orelse ignored at the moment
+            return this_func(tree.body) or \
+                any(this_func(handler.body) for handler in tree.handlers)
+        elif isinstance(tree, ast.With):
+            return this_func(tree.body)
+        # Otherwise, assume reachability hasn't been broken
+        return True
+
+    @staticmethod
+    def expression_must_be_true(tree):
+        assert isinstance(tree, ast.expr)
+        if isinstance(tree, getattr(ast, 'NameConstant', ())):
+            return tree.value
+        elif isinstance(tree, ast.Name):
+            return tree.id == "True"
+        elif isinstance(tree, ast.UnaryOp):
+            if isinstance(tree.op, ast.Not):
+                return FlowAnalysis.expression_must_be_false(tree.operand)
+        return False
+
+    @staticmethod
+    def expression_must_be_false(tree):
+        assert isinstance(tree, ast.expr)
+        if isinstance(tree, getattr(ast, 'NameConstant', ())):
+            return not tree.value
+        elif isinstance(tree, ast.Name):
+            return tree.id == "False"
+        elif isinstance(tree, ast.UnaryOp):
+            if isinstance(tree.op, ast.Not):
+                return FlowAnalysis.expression_must_be_true(tree.operand)
+        return False
 
 
 ##############################################################################
@@ -1355,12 +1509,15 @@ def _get_parameters(function):
                 in inspect.signature(function).parameters.values()
                 if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
     else:
-        return inspect.getargspec(function)[0]
+        getarg = getattr(inspect, 'getfullargspec', inspect.getargspec)
+        return getarg(function).args
 
 
 def register_check(check, codes=None):
     """Register a new check object."""
     def _add_check(check, kind, codes, args):
+        if codes is None:
+            codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
         if check in _checks[kind]:
             _checks[kind][check][0].extend(codes or [])
         else:
@@ -1368,12 +1525,15 @@ def register_check(check, codes=None):
     if inspect.isfunction(check):
         args = _get_parameters(check)
         if args and args[0] in ('physical_line', 'logical_line'):
-            if codes is None:
-                codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
             _add_check(check, args[0], codes, args)
     elif inspect.isclass(check):
-        if _get_parameters(check.__init__)[:2] == ['self', 'tree']:
-            _add_check(check, 'tree', codes, None)
+        init = getattr(check, '__init__', None)
+        # Exclude slot wrappers.
+        # Python 3 uses functions, Python 2 unbound methods.
+        if inspect.isfunction(init) or inspect.ismethod(init):
+            args = _get_parameters(init)
+            if args and args[0] == 'self' and args[1] == 'tree':
+                _add_check(check, args[1], codes, args)
 
 
 def init_checks_registry():
@@ -1384,6 +1544,8 @@ def init_checks_registry():
     mod = inspect.getmodule(register_check)
     for (name, function) in inspect.getmembers(mod, inspect.isfunction):
         register_check(function)
+    for (name, klass) in inspect.getmembers(mod, inspect.isclass):
+        register_check(klass)
 init_checks_registry()
 
 
@@ -1457,21 +1619,16 @@ class Checker(object):
 
     def run_check(self, check, argument_names):
         """Run a check plugin."""
-        arguments = []
-        for name in argument_names:
-            arguments.append(getattr(self, name))
-        return check(*arguments)
-
-    def init_checker_state(self, name, argument_names):
-        """Prepare custom state for the specific checker plugin."""
         if 'checker_state' in argument_names:
-            self.checker_state = self._checker_states.setdefault(name, {})
+            self.checker_state = self._checker_states.setdefault(
+                check.__name__, {})
+        arguments = [getattr(self, name) for name in argument_names]
+        return check(*arguments)
 
     def check_physical(self, line):
         """Run all physical checks on a raw input line."""
         self.physical_line = line
-        for name, check, argument_names in self._physical_checks:
-            self.init_checker_state(name, argument_names)
+        for check, argument_names in self._physical_checks:
             result = self.run_check(check, argument_names)
             if result is not None:
                 (offset, text) = result
@@ -1527,10 +1684,7 @@ class Checker(object):
             self.blank_before = self.blank_lines
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
-        for name, check, argument_names in self._logical_checks:
-            if self.verbose >= 4:
-                print('   ' + name)
-            self.init_checker_state(name, argument_names)
+        for check, argument_names in self._logical_checks:
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
                     for token_offset, pos in mapping:
@@ -1549,8 +1703,9 @@ class Checker(object):
         try:
             tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
         except (ValueError, SyntaxError, TypeError):
-            return self.report_invalid_syntax()
-        for name, cls, __ in self._ast_checks:
+            self.report_invalid_syntax()
+            return
+        for cls, __ in self._ast_checks:
             checker = cls(tree, self.filename)
             for lineno, offset, text, check in checker.run():
                 if not self.lines or not noqa(self.lines[lineno - 1]):
@@ -1693,7 +1848,7 @@ class BaseReport(object):
         """Report an error, according to options."""
         code = text[:4]
         if self._ignore_code(code):
-            return
+            return None
         if code in self.counters:
             self.counters[code] += 1
         else:
@@ -1701,7 +1856,7 @@ class BaseReport(object):
             self.messages[code] = text[5:]
         # Don't care about expected errors or warnings
         if code in self.expected:
-            return
+            return None
         if self.print_filename and not self.file_errors:
             print(self.filename)
         self.file_errors += 1
@@ -1813,7 +1968,7 @@ class DiffReport(StandardReport):
 
     def error(self, line_number, offset, text, check):
         if line_number not in self._selected[self.filename]:
-            return
+            return None
         return super(DiffReport, self).error(line_number, offset, text, check)
 
 
@@ -1892,7 +2047,7 @@ class StyleGuide(object):
         """Check all files in this directory and all subdirectories."""
         dirname = dirname.rstrip('/')
         if self.excluded(dirname):
-            return 0
+            return
         counters = self.options.report.counters
         verbose = self.options.verbose
         filepatterns = self.options.filename
@@ -1932,11 +2087,11 @@ class StyleGuide(object):
         return False.  Else, if 'options.ignore' contains a prefix of
         the error code, return True.
         """
-        if len(code) < 4 and any(s.startswith(code)
-                                 for s in self.options.select):
+        options = self.options
+        if len(code) < 4 and any(s.startswith(code) for s in options.select):
             return False
-        return (code.startswith(self.options.ignore) and
-                not code.startswith(self.options.select))
+        return (code.startswith(options.ignore) and
+                not code.startswith(options.select))
 
     def get_checks(self, argument_name):
         """Get all the checks for this category.
@@ -1944,12 +2099,10 @@ class StyleGuide(object):
         Find all globally visible functions where the first argument name
         starts with argument_name and which contain selected tests.
         """
-        checks = []
-        for check, attrs in _checks[argument_name].items():
-            (codes, args) = attrs
-            if any(not (code and self.ignore_code(code)) for code in codes):
-                checks.append((check.__name__, check, args))
-        return sorted(checks)
+        checks = [(check, args)
+                  for check, (codes, args) in _checks[argument_name].items()
+                  if any(not self.ignore_code(code) for code in codes)]
+        return sorted(checks, key=lambda arg: arg[0].__name__)
 
 
 def get_parser(prog='pep8', version=__version__):
