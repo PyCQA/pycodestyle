@@ -165,7 +165,7 @@ def init_tests(pep8style):
                 expected = []
                 for c in codes:
                     c, sep, version = c.partition(':python')
-                    if version and str(sys.version_info.major) != version:
+                    if not sys.version.startswith(version):
                         continue
                     if c in ('Okay', 'noeol'):
                         continue

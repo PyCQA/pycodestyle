@@ -124,7 +124,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 18, stdout)
+        self.assertEqual(report.total_errors, 17)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -181,7 +181,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(options.select, ())
         self.assertEqual(
             options.ignore,
-            ('E121', 'E123', 'E126', 'E226', 'E24', 'E704')
+            ('E121', 'E123', 'E126', 'E226', 'E24', 'E704', 'W740', 'W741')
         )
 
         options = parse_argv('--doctest').options

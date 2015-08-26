@@ -66,7 +66,7 @@ except ImportError:
 __version__ = '1.6.3a0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
-DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704'
+DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W740,W741'
 try:
     if sys.platform == 'win32':
         USER_CONFIG = os.path.expanduser(r'~\.pep8')
@@ -1279,10 +1279,16 @@ class FlowAnalysis():
             if not FlowAnalysis.expression_must_be_false(tree.test):
                 branches.append(tree.body)
             return any(this_func(brch) for brch in branches)
-        elif isinstance(tree, ast.TryFinally):
+        elif isinstance(tree, getattr(ast, 'TryFinally', ())):
             return this_func(tree.finalbody) and this_func(tree.body)
-        elif isinstance(tree, ast.TryExcept):
-            # TODO: orelse ignore at the moment
+        elif isinstance(tree, getattr(ast, 'TryExcept', ())):
+            # TODO: orelse ignored at the moment
+            return this_func(tree.body) or \
+                any(this_func(handler.body) for handler in tree.handlers)
+        elif isinstance(tree, getattr(ast, 'Try', ())):
+            if not this_func(tree.finalbody):
+                return False
+            # TODO: orelse ignored at the moment
             return this_func(tree.body) or \
                 any(this_func(handler.body) for handler in tree.handlers)
         elif isinstance(tree, ast.With):
@@ -1293,13 +1299,10 @@ class FlowAnalysis():
     @staticmethod
     def expression_must_be_true(tree):
         assert isinstance(tree, ast.expr)
-        try:
-            if isinstance(tree, ast.NameConstant) and tree.value:
-                return True
-        except AttributeError:
-            pass  # NameConstant is from Python 3.4
-        if isinstance(tree, ast.Name) and tree.id == "True":
-            return True
+        if isinstance(tree, getattr(ast, 'NameConstant', ())):
+            return tree.value
+        elif isinstance(tree, ast.Name):
+            return tree.id == "True"
         elif isinstance(tree, ast.UnaryOp):
             if isinstance(tree.op, ast.Not):
                 return FlowAnalysis.expression_must_be_false(tree.operand)
@@ -1308,13 +1311,10 @@ class FlowAnalysis():
     @staticmethod
     def expression_must_be_false(tree):
         assert isinstance(tree, ast.expr)
-        try:
-            if isinstance(tree, ast.NameConstant) and not tree.value:
-                return True
-        except AttributeError:
-            pass  # NameConstant is from Python 3.4
-        if isinstance(tree, ast.Name) and tree.id == "False":
-            return True
+        if isinstance(tree, getattr(ast, 'NameConstant', ())):
+            return not tree.value
+        elif isinstance(tree, ast.Name):
+            return tree.id == "False"
         elif isinstance(tree, ast.UnaryOp):
             if isinstance(tree.op, ast.Not):
                 return FlowAnalysis.expression_must_be_true(tree.operand)

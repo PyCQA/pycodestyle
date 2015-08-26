@@ -75,10 +75,8 @@ class ShellTestCase(unittest.TestCase):
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertEqual(len(stdout), 18)
+        self.assertEqual(len(stdout), 17)
         for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
-            if 'E901' in line:
-                continue
             path, x, y, msg = line.split(':')
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
