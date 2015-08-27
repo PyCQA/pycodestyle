@@ -1811,7 +1811,7 @@ class StyleGuide(object):
             options.ignore = tuple(DEFAULT_IGNORE.split(','))
         else:
             # Ignore all checks which are not explicitly selected
-            options.ignore = ('',) if options.select else tuple(options.ignore)
+            options.ignore = tuple(options.ignore)
         options.benchmark_keys = BENCHMARK_KEYS[:]
         options.ignore_code = self.ignore_code
         options.physical_checks = self.get_checks('physical_line')
@@ -1897,8 +1897,13 @@ class StyleGuide(object):
         if len(code) < 4 and any(s.startswith(code)
                                  for s in self.options.select):
             return False
-        return (code.startswith(self.options.ignore) and
-                not code.startswith(self.options.select))
+
+        if self.options.select:
+            selected = code.startswith(self.options.select)
+            ignored = code.startswith(self.options.ignore)
+            return ignored or not selected
+
+        return code.startswith(self.options.ignore)
 
     def get_checks(self, argument_name):
         """Get all the checks for this category.
