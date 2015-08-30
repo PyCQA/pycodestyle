@@ -81,7 +81,6 @@ def goldbach_conjecture_ko():
             return i
 
 
-# W741:1:1
 def return_finally1():  # return 1
     try:
         return 1

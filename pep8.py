@@ -763,7 +763,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     Okay: boolean(a != b)
     Okay: boolean(a <= b)
     Okay: boolean(a >= b)
-    # Only with Python 3 - Okay: def foo(arg: int = 42):\n    pass
+    Okay:python3 E901:python2: def foo(arg: int = 42):\n    pass
     E251: def complex(real, imag = 0.0):\n  return magic(r = real, i = imag)
     """
     parens = 0
