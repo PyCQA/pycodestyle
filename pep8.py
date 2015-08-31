@@ -1413,6 +1413,23 @@ class Checker(object):
                           'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
                           self.report_invalid_syntax)
 
+    def readline_check_physical(self):
+        """
+        Check and return the next physical line. This method can be
+        used to feed tokenize.generate_tokens.
+        """
+        line = self.readline()
+        def parse_inline_flags(sign):
+           """
+           Parse inline flags in source file.
+            Flags are specified as follows:
+            #:PEP8 +E101 -W603
+           """
+           return set(map(lambda s: s[1:].strip(), filter(lambda s: s.startswith(sign), line.split(" ")[1:])))
+        if line.lstrip().startswith('# :PEP8'):
+           self.report.expected = (set(self.report.expected) | parse_inline_flags('-')) - parse_inline_flags('+')
+        return line
+
     def readline(self):
         """Get the next line from the input buffer."""
         if self.line_number >= self.total_lines:
@@ -1528,7 +1545,7 @@ class Checker(object):
         """Tokenize the file, run physical line checks and yield tokens."""
         if self._io_error:
             self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
-        tokengen = tokenize.generate_tokens(self.readline)
+        tokengen = tokenize.generate_tokens(self.readline_check_physical)
         try:
             for token in tokengen:
                 if token[2][0] > self.total_lines:
