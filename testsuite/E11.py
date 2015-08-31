@@ -10,7 +10,27 @@ print
 #: E113
 print
     print
-#: E111 E113
+#: E114 E116
 mimetype = 'application/x-directory'
      # 'httpd/unix-directory'
 create_date = False
+#: E116 E116 E116
+def start(self):
+    if True:
+        self.master.start()
+        # try:
+            # self.master.start()
+        # except MasterExit:
+            # self.shutdown()
+        # finally:
+            # sys.exit()
+#: E115 E115 E115 E115 E115 E115
+def start(self):
+    if True:
+#       try:
+#           self.master.start()
+#       except MasterExit:
+#           self.shutdown()
+#       finally:
+#           sys.exit()
+        self.master.start()

@@ -46,7 +46,7 @@ class Pep8TestCase(unittest.TestCase):
 
 
 def suite():
-    from testsuite import test_api, test_shell, test_diff
+    from testsuite import test_api, test_shell, test_util
 
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(Pep8TestCase))

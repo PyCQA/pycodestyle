@@ -1,18 +1,23 @@
 language: python
+sudo: false
 python:
   - 2.6
   - 2.7
   - 3.2
   - 3.3
+  - 3.4
+  - nightly
   - pypy
+  - pypy3
 install:
   - pip install -e .
-  - pip freeze
+  - pip list
 script:
   - python pep8.py --testsuite testsuite
   - python pep8.py --statistics pep8.py
   - python pep8.py --doctest
   - python setup.py test
-matrix:
-  allow_failures:
-    - python: pypy
+
+notifications:
+  email:
+    - IanLee1521@gmail.com

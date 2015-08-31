@@ -34,7 +34,6 @@ The :class:`Checker` class can be used to check a single file.
 .. autoclass:: Checker(filename=None, lines=None, report=None, **kwargs)
 
    .. automethod:: readline
-   .. automethod:: readline_check_physical
    .. automethod:: run_check(check, argument_names)
    .. automethod:: check_physical(line)
    .. automethod:: build_tokens_line

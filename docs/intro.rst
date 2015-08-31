@@ -111,6 +111,33 @@ Or you can display how often each error was found::
   612     W601 .has_key() is deprecated, use 'in'
   1188    W602 deprecated form of raising exception
 
+You can also make pep8.py show the error text in different formats by using --format having options default/pylint/custom::
+
+  $ pep8 testsuite/E40.py --format=default
+  testsuite/E40.py:2:10: E401 multiple imports on one line
+
+  $ pep8 testsuite/E40.py --format=pylint
+  testsuite/E40.py:2: [E401] multiple imports on one line
+
+  $ pep8 testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
+  testsuite/E40.py|2|10| E401 multiple imports on one line
+
+Variables in the ``custom`` format option
+
++----------------+------------------+
+|   Variable     |   Significance   |
++================+==================+
+| ``path``       | File name        |
++----------------+------------------+
+| ``row``        | Row number       |
++----------------+------------------+
+| ``col``        | Column number    |
++----------------+------------------+
+| ``code``       | Error code       |
++----------------+------------------+
+| ``text``       | Error text       |
++----------------+------------------+
+
 Quick help is available on the command line::
 
   $ pep8 -h
@@ -156,16 +183,26 @@ Quick help is available on the command line::
 Configuration
 -------------
 
-The behaviour may be configured at two levels.
+The behaviour may be configured at two levels, the user and project levels.
 
-The user settings are read from the ``~/.config/pep8`` file.
+At the user level, settings are read from the following locations:
+
+If on Windows:
+    ``~\.pep8``
+
+Otherwise, if the :envvar:`XDG_CONFIG_HOME` environment variable is defined:
+    ``XDG_CONFIG_HOME/pep8``
+
+Else if :envvar:`XDG_CONFIG_HOME` is not defined:
+    ``~/.config/pep8``
+
 Example::
 
   [pep8]
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project level, a ``tox.ini`` file or a ``setup.cfg`` file is read if
+At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
 present (``.pep8`` file is also supported, but it is deprecated).  If none of
 these files have a ``[pep8]`` section, no project specific configuration is
 loaded.
@@ -193,8 +230,14 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E113     | unexpected indentation                                               |
 +----------+----------------------------------------------------------------------+
+| E114     | indentation is not a multiple of four (comment)                      |
 +----------+----------------------------------------------------------------------+
-| E121 (^) | continuation line under-indented for hanging indent                  |
+| E115     | expected an indented block (comment)                                 |
++----------+----------------------------------------------------------------------+
+| E116     | unexpected indentation (comment)                                     |
++----------+----------------------------------------------------------------------+
++----------+----------------------------------------------------------------------+
+| E121 (*^)| continuation line under-indented for hanging indent                  |
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
@@ -204,7 +247,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E125 (^) | continuation line with same indent as next logical line              |
 +----------+----------------------------------------------------------------------+
-| E126 (^) | continuation line over-indented for hanging indent                   |
+| E126 (*^)| continuation line over-indented for hanging indent                   |
 +----------+----------------------------------------------------------------------+
 | E127 (^) | continuation line over-indented for visual indent                    |
 +----------+----------------------------------------------------------------------+
@@ -246,7 +289,7 @@ This is the current list of error and warning codes:
 | E228     | missing whitespace around modulo operator                            |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E231     | missing whitespace after ','                                         |
+| E231     | missing whitespace after ',', ';', or ':'                            |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | E241 (*) | multiple spaces after ','                                            |
@@ -262,6 +305,8 @@ This is the current list of error and warning codes:
 | E262     | inline comment should start with '# '                                |
 +----------+----------------------------------------------------------------------+
 | E265     | block comment should start with '# '                                 |
++----------+----------------------------------------------------------------------+
+| E266     | too many leading '#' for block comment                               |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | E271     | multiple spaces after keyword                                        |
@@ -288,6 +333,8 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E401     | multiple imports on one line                                         |
 +----------+----------------------------------------------------------------------+
+| E402     | module level import not at top of file                               |
++----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E5**   | *Line length*                                                        |
 +----------+----------------------------------------------------------------------+
@@ -304,6 +351,8 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E703     | statement ends with a semicolon                                      |
 +----------+----------------------------------------------------------------------+
+| E704 (*) | multiple statements on one line (def)                                |
++----------+----------------------------------------------------------------------+
 | E711 (^) | comparison to None should be 'if cond is None:'                      |
 +----------+----------------------------------------------------------------------+
 | E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
@@ -312,7 +361,9 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E714     | test for object identity should be 'is not'                          |
 +----------+----------------------------------------------------------------------+
-| E721     | do not compare types, use 'isinstance()'                             |
+| E721 (^) | do not compare types, use 'isinstance()'                             |
++----------+----------------------------------------------------------------------+
+| E731     | do not assign a lambda expression, use a def                         |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
 | **E9**   | *Runtime*                                                            |
@@ -341,6 +392,11 @@ This is the current list of error and warning codes:
 | W391     | blank line at end of file                                            |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
+| **W5**   | *Line break warning*                                                 |
++----------+----------------------------------------------------------------------+
+| W503     | line break occurred before a binary operator                         |
++----------+----------------------------------------------------------------------+
++----------+----------------------------------------------------------------------+
 | **W6**   | *Deprecation warning*                                                |
 +----------+----------------------------------------------------------------------+
 | W601     | .has_key() is deprecated, use 'in'                                   |
@@ -353,11 +409,11 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 
 
-**(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
-**E241** and **E242** are ignored because they are not rules unanimously
-accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
-exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
-instead of **E123**.
+**(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
+**E133**, **E226**, **E241**, **E242** and **E704** are ignored because they
+are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
+check **E133** is mutually exclusive with check **E123**.  Use switch ``--hang-
+closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
@@ -378,7 +434,7 @@ Related tools
 The `flake8 checker <https://flake8.readthedocs.org>`_ is a wrapper around
 ``pep8`` and similar tools. It supports plugins.
 
-Other tools which use ``pep8`` are referenced in the Wiki: `list of related tools
-<https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
+Other tools which use ``pep8`` are referenced in the Wiki: `list of related
+tools <https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
