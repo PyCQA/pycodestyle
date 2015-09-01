@@ -1422,8 +1422,8 @@ class Checker(object):
         def parse_inline_flags(sign):
            """
            Parse inline flags in source file.
-            Flags are specified as follows:
-            #:PEP8 +E101 -W603
+           Flags are specified as follows:
+           #: PEP8 +E101 -W603
            """
            return set(map(lambda s: s[1:].strip(), filter(lambda s: s.startswith(sign), line.split(" ")[1:])))
         if line.lstrip().startswith('# :PEP8'):
