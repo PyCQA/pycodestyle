@@ -631,4 +631,14 @@ some_hash = {
         999999 if True
         else 0,
 }
-#
+
+
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+        build='build',
+        # more stuff
+    )
+)

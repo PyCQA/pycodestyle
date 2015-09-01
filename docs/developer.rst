@@ -14,7 +14,7 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 * `Source code <https://github.com/jcrocholl/pep8>`_ and
   `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/jcrocholl/pep8>`_ against Python
-  2.5 through 3.3 and PyPy, on `Travis-CI platform
+  2.6 through 3.4 and PyPy, on `Travis-CI platform
   <http://about.travis-ci.org/>`_.
 
 .. _available on GitHub: https://github.com/jcrocholl/pep8
@@ -52,11 +52,18 @@ additional information with extra arguments.  All attributes of the
 * ``lines``: a list of the raw lines from the input file
 * ``tokens``: the tokens that contribute to this logical line
 * ``line_number``: line number in the input file
+* ``total_lines``: number of lines in the input file
 * ``blank_lines``: blank lines before this one
-* ``indent_char``: first indentation character in this file (``" "`` or ``"\t"``)
+* ``indent_char``: indentation character in this file (``" "`` or ``"\t"``)
 * ``indent_level``: indentation (with tabs expanded to multiples of 8)
 * ``previous_indent_level``: indentation on previous line
 * ``previous_logical``: previous logical line
+
+Check plugins can also maintain per-file state. If you need this, declare
+a parameter named ``checker_state``. You will be passed a dict, which will be
+the same one for all lines in the same file but a different one for different
+files. Each check plugin gets its own dict, so you don't need to worry about
+clobbering the state of other plugins.
 
 The docstring of each check function shall be the relevant part of
 text from `PEP 8`_.  It is printed if the user enables ``--show-pep8``.

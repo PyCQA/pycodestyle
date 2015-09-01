@@ -323,14 +323,14 @@ if line_removed:
 rv.update(d=('a', 'b', 'c'),
              e=42)
 #
-#: E127
+#: E127 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=42
                  + 42)
-#: E127
+#: E127 W503
 input1 = {'a': {'calc': 1 + 2}, 'b': 1
                           + 42}
-#: E128
+#: E128 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))
@@ -347,8 +347,30 @@ if True:
                 ),
             dict(name=token.undefined)
         )]
-#: E125
+#: E125:2:5 E125:8:5
 if ("""
     """):
     pass
+
+for foo in """
+    abc
+    123
+    """.strip().split():
+    print(foo)
+#: E122:6:5 E122:7:5 E122:8:1
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+    build='build',
+    # more stuff
+)
+)
+#: E701:1:8 E122:2:1 E203:4:8 E128:5:1
+if True:\
+print(True)
+
+print(a
+, end=' ')
 #:

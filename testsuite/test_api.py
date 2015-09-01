@@ -124,7 +124,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 6)
+        self.assertEqual(report.total_errors, 17)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -132,7 +132,7 @@ class APITestCase(unittest.TestCase):
         report = pep8.StyleGuide(paths=[E11]).check_files()
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 6)
+        self.assertEqual(report.total_errors, 17)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -160,7 +160,8 @@ class APITestCase(unittest.TestCase):
                          ['directories', 'files',
                           'logical lines', 'physical lines'])
         self.assertEqual(pep8style.options.exclude,
-                         ['.svn', 'CVS', '.bzr', '.hg', '.git', '__pycache__'])
+                         ['.svn', 'CVS', '.bzr', '.hg',
+                          '.git', '__pycache__', '.tox'])
         self.assertEqual(pep8style.options.filename, ['*.py'])
         self.assertEqual(pep8style.options.format, 'default')
         self.assertEqual(pep8style.options.select, ())
@@ -178,7 +179,10 @@ class APITestCase(unittest.TestCase):
 
         options = parse_argv('').options
         self.assertEqual(options.select, ())
-        self.assertEqual(options.ignore, ('E123', 'E226', 'E24'))
+        self.assertEqual(
+            options.ignore,
+            ('E121', 'E123', 'E126', 'E226', 'E24', 'E704')
+        )
 
         options = parse_argv('--doctest').options
         self.assertEqual(options.select, ())
@@ -233,6 +237,7 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.excluded('./foo/bar/main.py'))
 
         self.assertTrue(pep8style.excluded('./CVS'))
+        self.assertTrue(pep8style.excluded('./.tox'))
         self.assertTrue(pep8style.excluded('./subdir/CVS'))
         self.assertTrue(pep8style.excluded('__pycache__'))
         self.assertTrue(pep8style.excluded('./__pycache__'))
@@ -246,7 +251,7 @@ class APITestCase(unittest.TestCase):
         pep8style = pep8.StyleGuide(paths=[E11])
 
         # Default lists of checkers
-        self.assertTrue(len(pep8style.options.physical_checks) > 5)
+        self.assertTrue(len(pep8style.options.physical_checks) > 4)
         self.assertTrue(len(pep8style.options.logical_checks) > 10)
         self.assertEqual(len(pep8style.options.ast_checks), 0)
 
@@ -334,6 +339,9 @@ class APITestCase(unittest.TestCase):
         if 'SyntaxError' in stdout:
             # PyPy 2.2 returns a SyntaxError
             expected = "stdin:1:2: E901 SyntaxError"
+        elif 'ValueError' in stdout:
+            # Python 3.5.
+            expected = "stdin:1:1: E901 ValueError"
         else:
             expected = "stdin:1:1: E901 TypeError"
         self.assertTrue(stdout.startswith(expected),
@@ -341,6 +349,44 @@ class APITestCase(unittest.TestCase):
                         (stdout, expected))
         self.assertFalse(sys.stderr)
         self.assertEqual(count_errors, 1)
+
+    def test_styleguide_unmatched_triple_quotes(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+        lines = [
+            'def foo():\n',
+            '    """test docstring""\'\n',
+        ]
+
+        pep8style = pep8.StyleGuide()
+        pep8style.input_file('stdin', lines=lines)
+        stdout = sys.stdout.getvalue()
+
+        expected = 'stdin:2:5: E901 TokenError: EOF in multi-line string'
+        self.assertTrue(expected in stdout)
+
+    def test_styleguide_continuation_line_outdented(self):
+        pep8.register_check(DummyChecker, ['Z701'])
+        lines = [
+            'def foo():\n',
+            '    pass\n',
+            '\n',
+            '\\\n',
+            '\n',
+            'def bar():\n',
+            '    pass\n',
+        ]
+
+        pep8style = pep8.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=lines)
+        self.assertEqual(count_errors, 2)
+        stdout = sys.stdout.getvalue()
+        expected = (
+            'stdin:6:1: '
+            'E122 continuation line missing indentation or outdented'
+        )
+        self.assertTrue(expected in stdout)
+        expected = 'stdin:6:1: E302 expected 2 blank lines, found 1'
+        self.assertTrue(expected in stdout)
 
         # TODO: runner
         # TODO: input_file

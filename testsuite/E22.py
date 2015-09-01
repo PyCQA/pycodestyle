@@ -13,6 +13,10 @@ long_variable = 3
 x = f(x)          + 1
 y = long_variable + 2
 z = x[0]          + 3
+#: E221:3:14
+text = """
+    bar
+    foo %s"""  % rofl
 #: Okay
 x = 1
 y = 2
@@ -85,7 +89,7 @@ c = (a+ b)*(a - b)
 #:
 
 #: E226
-z = 2**30
+z = 2//30
 #: E226 E226
 c = (a+b) * (a-b)
 #: E226
@@ -99,8 +103,8 @@ hypot2 = x*x + y*y
 #: E226
 c = (a + b)*(a - b)
 #: E226
-def squares(n):
-    return (i**2 for i in range(n))
+def halves(n):
+    return (i//2 for i in range(n))
 #: E227
 _1kB = _1MB>>10
 #: E227
@@ -116,7 +120,7 @@ a = b%c
 #: E228
 msg = fmt%(errno, errmsg)
 #: E228
-msg = "Error %d occured"%errno
+msg = "Error %d occurred"%errno
 #:
 
 #: Okay
@@ -125,18 +129,18 @@ submitted += 1
 x = x * 2 - 1
 hypot2 = x * x + y * y
 c = (a + b) * (a - b)
-_1MB = 2 ** 20
+_1MiB = 2 ** 20
+_1TiB = 2**30
 foo(bar, key='word', *args, **kwargs)
 baz(**kwargs)
 negative = -1
 spam(-1)
 -negative
-lambda *args, **kw: (args, kw)
-lambda a, b=h[:], c=0: (a, b, c)
+func1(lambda *args, **kw: (args, kw))
+func2(lambda a, b=h[:], c=0: (a, b, c))
 if not -5 < x < +5:
     print >>sys.stderr, "x is out of range."
 print >> sys.stdout, "x is an integer."
-z = 2 ** 30
 x = x / 2 - 1
 
 if alpha[:-i]:
@@ -144,5 +148,10 @@ if alpha[:-i]:
 
 
 def squares(n):
-    return (i ** 2 for i in range(n))
+    return (i**2 for i in range(n))
+
+ENG_PREFIXES = {
+    -6: "\u03bc",  # Greek letter mu
+    -3: "m",
+}
 #:

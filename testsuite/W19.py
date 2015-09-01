@@ -86,7 +86,7 @@ if (a == 2 or
     b == """abc def ghi
 jkl mno"""):
 	return True
-#: E101 W191
+#: W191:2:1 W191:3:1 E101:3:2
 if length > options.max_line_length:
 	return options.max_line_length, \
 	    "E501 line too long (%d characters)" % length

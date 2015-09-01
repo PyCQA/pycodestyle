@@ -75,16 +75,17 @@ class ShellTestCase(unittest.TestCase):
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertEqual(len(stdout), 6)
+        self.assertEqual(len(stdout), 17)
         for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
             path, x, y, msg = line.split(':')
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
-        # Config file read from the pep8's tox.ini
-        (config_filename,) = self._config_filenames
-        self.assertTrue(config_filename.endswith('tox.ini'))
+        # Config file read from the pep8's setup.cfg
+        config_filenames = [os.path.basename(p)
+                            for p in self._config_filenames]
+        self.assertTrue('setup.cfg' in config_filenames)
 
     def test_check_stdin(self):
         pep8.PROJECT_CONFIG = ()
