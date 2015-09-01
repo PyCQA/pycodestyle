@@ -1,0 +1,15 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
+@@ -19,11 +19,7 @@
+    Hello I am valid
+    Hello I am valid
+
+-   I shoud be minus
+-   I shoud be minus
+-   I shoud be minus
+
+-   I shoud be minus
+
+    Hello I am valid
+    Hello I am valid

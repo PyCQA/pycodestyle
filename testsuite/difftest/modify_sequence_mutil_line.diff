@@ -1,0 +1,18 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
+@@ -1,12 +1,12 @@
+
+
+I am here
+I am here
+I am here
+I am here
+I am here
+-remove me
+-remove me again
++add me
++add me again
+I am here
+I am here
+

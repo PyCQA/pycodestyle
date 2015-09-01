@@ -1,0 +1,22 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
+@@ -7,6 +7,18 @@
+
+ I should be here
+
++
++
++
++
++
++
++
++
++
++
++
++
+Bye
+Bye
+

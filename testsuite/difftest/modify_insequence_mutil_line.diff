@@ -1,0 +1,32 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
+@@ -17,23 +17,23 @@
+
+I am here
+Turn 1
+-dont remove me
++I am back
+
+I am here
+Turn 2
+-dont remove me
++I am back
+
+I am here
+
+I am here
+-dont remove me
++I am back
+
+I am here
+I am here
+I am here
+-dont remove me
++I am back
+I am here
+-dont remove me
++I am back
+I am here
+
+I am here

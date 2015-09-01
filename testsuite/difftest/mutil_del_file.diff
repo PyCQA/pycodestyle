@@ -1,0 +1,47 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+deleted file mode 100644
+index 9ec1d41..0000000
+--- a/testsuite/difftest/Diff_test_1.py
++++ /dev/null
+@@ -1,8 +0,0 @@
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+diff --git a/testsuite/difftest/Diff_test_2.py b/testsuite/difftest/Diff_test_2.py
+deleted file mode 100644
+index 0db0de1..0000000
+--- a/testsuite/difftest/Diff_test_2.py
++++ /dev/null
+@@ -1,16 +0,0 @@
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+diff --git a/testsuite/difftest/Diff_test_3.py b/testsuite/difftest/Diff_test_3.py
+deleted file mode 100644
+index b53c210..0000000
+--- a/testsuite/difftest/Diff_test_3.py
++++ /dev/null
+@@ -1,5 +0,0 @@
+-remove me all
+-remove me all
+-remove me all
+-remove me all
+-remove me all

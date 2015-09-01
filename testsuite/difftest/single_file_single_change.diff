@@ -1,0 +1,17 @@
+diff --git a/testsuite/difftest/Diff_test_1.py b/testsuite/difftest/Diff_test_1.py
+--- a/testsuite/difftest/Diff_test_1.py
++++ b/testsuite/difftest/Diff_test_1.py
+@@ -1,5 +2,9 @@
++add me
++add me
++add me
+
+-remove me
+-remove me
+-remove me
+-remove me
++add me
++add me
++add me
++add me
+\ No newline at end of file

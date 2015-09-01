@@ -17,7 +17,3 @@ script:
   - python pep8.py --statistics pep8.py
   - python pep8.py --doctest
   - python setup.py test
-
-notifications:
-  email:
-    - IanLee1521@gmail.com
