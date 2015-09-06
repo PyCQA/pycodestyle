@@ -200,6 +200,10 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(options.select, ('E',))
         self.assertEqual(options.ignore, ('E24',))
 
+        options = parse_argv('--select E,W --ignore W503').options
+        self.assertEqual(options.select, ('E', 'W'))
+        self.assertEqual(options.ignore, ('W503',))
+
         options = parse_argv('--ignore E --select E24').options
         self.assertEqual(options.select, ('E24',))
         self.assertEqual(options.ignore, ('E',))
@@ -228,6 +232,11 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.ignore_code('F'))
         self.assertFalse(pep8style.ignore_code('F401'))
         self.assertTrue(pep8style.ignore_code('F402'))
+
+        pep8style = pep8.StyleGuide(select=['W', 'E'], ignore=["W503"])
+        self.assertFalse(pep8style.ignore_code('E122'))
+        self.assertFalse(pep8style.ignore_code('W191'))
+        self.assertTrue(pep8style.ignore_code('W503'))
 
     def test_styleguide_excluded(self):
         pep8style = pep8.StyleGuide(paths=[E11])
