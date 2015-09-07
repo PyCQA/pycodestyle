@@ -31,7 +31,7 @@ For usage and a list of options, try this:
 $ python pep8.py -h
 
 This program and its regression test suite live here:
-http://github.com/jcrocholl/pep8
+http://github.com/pycqa/pep8
 
 Groups of errors and warnings:
 E errors
@@ -2116,8 +2116,8 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
-                      help="report only lines changed according to the "
-                           "unified diff received on STDIN")
+                      help="report changes only within line number ranges in "
+                           "the unified diff received on STDIN")
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
@@ -2235,10 +2235,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
-    options.filename = options.filename and options.filename.split(',')
+    options.filename = _parse_multi_options(options.filename.split(','))
     options.exclude = normalize_paths(options.exclude)
-    options.select = options.select and options.select.split(',')
-    options.ignore = options.ignore and options.ignore.split(',')
+    options.select = _parse_multi_options(options.select.split(','))
+    options.ignore = _parse_multi_options(options.ignore.split(','))
 
     if options.diff:
         options.reporter = DiffReport
@@ -2247,6 +2247,22 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         args = sorted(options.selected_lines)
 
     return options, args
+
+
+def _parse_multi_options(options):
+    r"""Split and strip and discard empties.
+
+    Turns the following:
+
+    A,
+    B,
+
+    into ["A", "B"]
+    """
+    if options:
+        return [o.strip() for o in options if o.strip()]
+    else:
+        return options
 
 
 def _main():

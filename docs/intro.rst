@@ -447,6 +447,6 @@ The `flake8 checker <https://flake8.readthedocs.org>`_ is a wrapper around
 ``pep8`` and similar tools. It supports plugins.
 
 Other tools which use ``pep8`` are referenced in the Wiki: `list of related
-tools <https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
+tools <https://github.com/pycqa/pep8/wiki/RelatedTools>`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
