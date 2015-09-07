@@ -42,7 +42,7 @@ Skip file header
 ----------------
 
 Another example is related to the `feature request #143
-<https://github.com/jcrocholl/pep8/issues/143>`_: skip a number of lines
+<https://github.com/pycqa/pep8/issues/143>`_: skip a number of lines
 at the beginning and the end of a file.  This use case is easy to implement
 through a custom wrapper for the PEP 8 library::
 
