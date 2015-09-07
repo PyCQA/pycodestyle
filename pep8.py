@@ -1962,8 +1962,8 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
-                      help="report only lines changed according to the "
-                           "unified diff received on STDIN")
+                      help="report changes only within line number ranges in "
+                           "the unified diff received on STDIN")
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
