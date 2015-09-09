@@ -383,7 +383,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          indent_char, noqa, verbose):
+                          indent_char, noqa, verbose, next_line):
     r"""Continuation lines indentation.
 
     Continuation lines should align wrapped elements either vertically
@@ -420,6 +420,11 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     # indents on the final continuation line; in turn, some other
     # indents are allowed to have an extra 4 spaces.
     indent_next = logical_line.endswith(':')
+
+    if indent_next and next_line:
+        number_indent_next = expand_indent(next_line)
+    else:
+        number_indent_next = None
 
     row = depth = 0
     valid_hangs = (4,) if indent_char != '\t' else (4, 8)
@@ -571,8 +576,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         last_token_multiline = (start[0] != end[0])
         if last_token_multiline:
             rel_indent[end[0] - first_row] = rel_indent[row]
-
-    if indent_next and expand_indent(line) == indent_level + 4:
+    if indent_next and number_indent_next and expand_indent(line) == number_indent_next:
         pos = (start[0], indent[0] + 4)
         if visual_indent:
             code = "E129 visually indented line"
@@ -1482,7 +1486,6 @@ class Checker(object):
 
         if not mapping:
             return
-
         (start_row, start_col) = mapping[0][1]
         start_line = self.lines[start_row - 1]
         self.indent_level = expand_indent(start_line[:start_col])
@@ -1490,6 +1493,12 @@ class Checker(object):
             self.blank_before = self.blank_lines
         if self.verbose >= 2:
             print(self.logical_line[:80].rstrip())
+
+        try:
+            self.next_line = self.lines[mapping[len(mapping) - 1][1][0]]
+        except IndexError:
+            self.next_line = None
+
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
@@ -1570,6 +1579,7 @@ class Checker(object):
         if self._ast_checks:
             self.check_ast()
         self.line_number = 0
+        self.next_line = None
         self.indent_char = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
