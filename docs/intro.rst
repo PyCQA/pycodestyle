@@ -237,7 +237,7 @@ This is the current list of error and warning codes:
 | E116     | unexpected indentation (comment)                                     |
 +----------+----------------------------------------------------------------------+
 +----------+----------------------------------------------------------------------+
-| E121 (*^)| continuation line under-indented for hanging indent                  |
+| E121 (\*^)| continuation line under-indented for hanging indent                 |
 +----------+----------------------------------------------------------------------+
 | E122 (^) | continuation line missing indentation or outdented                   |
 +----------+----------------------------------------------------------------------+
@@ -247,7 +247,7 @@ This is the current list of error and warning codes:
 +----------+----------------------------------------------------------------------+
 | E125 (^) | continuation line with same indent as next logical line              |
 +----------+----------------------------------------------------------------------+
-| E126 (*^)| continuation line over-indented for hanging indent                   |
+| E126 (\*^)| continuation line over-indented for hanging indent                  |
 +----------+----------------------------------------------------------------------+
 | E127 (^) | continuation line over-indented for visual indent                    |
 +----------+----------------------------------------------------------------------+
