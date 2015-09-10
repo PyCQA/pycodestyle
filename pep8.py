@@ -2123,17 +2123,22 @@ def _main():
 
     pep8style = StyleGuide(parse_argv=True)
     options = pep8style.options
+
     if options.doctest or options.testsuite:
         from testsuite.support import run_tests
         report = run_tests(pep8style)
     else:
         report = pep8style.check_files()
+
     if options.statistics:
         report.print_statistics()
+
     if options.benchmark:
         report.print_benchmark()
+
     if options.testsuite and not options.quiet:
         report.print_results()
+
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
