@@ -31,7 +31,7 @@ For usage and a list of options, try this:
 $ python pep8.py -h
 
 This program and its regression test suite live here:
-http://github.com/pycqa/pep8
+https://github.com/pycqa/pep8
 
 Groups of errors and warnings:
 E errors
