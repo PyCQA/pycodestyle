@@ -1263,8 +1263,8 @@ def parse_udiff(diff, patterns=None, parent='.'):
 
         if line[:3] == '@@ ':
             hunk_match = HUNK_REGEX.match(line)
-            (row, nrows) = [int(g or '1') for g in hunk_match.groups()]
-            rv[path].update(range(row, row + nrows))
+            row, nrows = [int(g or '1') for g in hunk_match.groups()]
+            line_num = row - 1
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
             if path[:2] == 'b/':
