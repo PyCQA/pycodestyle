@@ -62,7 +62,8 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-__version__ = '1.6.3a0'
+# Number before '-' is upstream pep8 version, behind is aa inner version.
+__version__ = '1.6.3a0-i01'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704'
