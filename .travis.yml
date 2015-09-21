@@ -6,6 +6,7 @@ python:
   - 3.2
   - 3.3
   - 3.4
+  - 3.5
   - nightly
   - pypy
   - pypy3
@@ -21,3 +22,8 @@ script:
 notifications:
   email:
     - IanLee1521@gmail.com
+  irc:
+    channels:
+      - "irc.freenode.org##python-code-quality"
+    use_notice: true
+    skip_join: true

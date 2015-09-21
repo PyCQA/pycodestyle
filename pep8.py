@@ -31,7 +31,7 @@ For usage and a list of options, try this:
 $ python pep8.py -h
 
 This program and its regression test suite live here:
-http://github.com/pycqa/pep8
+https://github.com/pycqa/pep8
 
 Groups of errors and warnings:
 E errors
@@ -2235,10 +2235,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
-    options.filename = _parse_multi_options(options.filename.split(','))
+    options.filename = _parse_multi_options(options.filename)
     options.exclude = normalize_paths(options.exclude)
-    options.select = _parse_multi_options(options.select.split(','))
-    options.ignore = _parse_multi_options(options.ignore.split(','))
+    options.select = _parse_multi_options(options.select)
+    options.ignore = _parse_multi_options(options.ignore)
 
     if options.diff:
         options.reporter = DiffReport
@@ -2249,7 +2249,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     return options, args
 
 
-def _parse_multi_options(options):
+def _parse_multi_options(options, split_token=','):
     r"""Split and strip and discard empties.
 
     Turns the following:
@@ -2260,7 +2260,7 @@ def _parse_multi_options(options):
     into ["A", "B"]
     """
     if options:
-        return [o.strip() for o in options if o.strip()]
+        return [o.strip() for o in options.split(split_token) if o.strip()]
     else:
         return options
 
@@ -2277,17 +2277,22 @@ def _main():
 
     pep8style = StyleGuide(parse_argv=True)
     options = pep8style.options
+
     if options.doctest or options.testsuite:
         from testsuite.support import run_tests
         report = run_tests(pep8style)
     else:
         report = pep8style.check_files()
+
     if options.statistics:
         report.print_statistics()
+
     if options.benchmark:
         report.print_benchmark()
+
     if options.testsuite and not options.quiet:
         report.print_results()
+
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
