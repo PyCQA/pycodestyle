@@ -1510,7 +1510,9 @@ class Checker(object):
     def check_ast(self):
         """Build the file's AST and run all AST checks."""
         try:
-            tree = compile(''.join(self.lines), '', 'exec', PyCF_ONLY_AST)
+            source = ''.join(self.lines)
+            tree = compile(source, '', 'exec', PyCF_ONLY_AST)
+            tree.source = source
         except (ValueError, SyntaxError, TypeError):
             return self.report_invalid_syntax()
         for name, cls, __ in self._ast_checks:
