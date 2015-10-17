@@ -1318,6 +1318,8 @@ def _get_parameters(function):
     if sys.version_info >= (3, 3):
         return list(inspect.signature(function).parameters)
     else:
+        if hasattr(inspect, 'getfullargspec'):
+            return inspect.getfullargspec(function)[0]
         return inspect.getargspec(function)[0]
 
 
