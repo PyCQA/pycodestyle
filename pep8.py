@@ -234,6 +234,7 @@ def maximum_line_length(physical_line, max_line_length, multiline):
 def triple_quotes(logical_line, tokens):
     r"""Triple quotes should use double quote characters.
     Okay: s = ""\"a""\"
+    Okay: s = ""\"a""\"b""\"
     Okay: s = r""\"a""\"
     E999: s = '''a'''
     E999: s = r'''a'''
