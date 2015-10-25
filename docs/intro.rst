@@ -207,10 +207,6 @@ present (``.pep8`` file is also supported, but it is deprecated).  If none of
 these files have a ``[pep8]`` section, no project specific configuration is
 loaded.
 
-If the ``ignore`` option is not in the configuration and not in the arguments,
-only the error codes ``E123/E133``, ``E226`` and ``E241/E242`` are ignored
-(see below).
-
 
 Error codes
 -----------
