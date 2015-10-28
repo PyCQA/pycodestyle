@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 from setuptools import setup
+import sys
 
 
 def get_version():
@@ -18,6 +19,11 @@ def get_long_description():
     return '\n\n'.join(descr)
 
 
+install_requires = []
+if sys.hexversion < 0x02070000:
+    install_requires.append('argparse')
+
+
 setup(
     name='pep8',
     version=get_version(),
@@ -32,10 +38,7 @@ setup(
     namespace_packages=[],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        # Broken with Python 3: https://github.com/pypa/pip/issues/650
-        # 'setuptools',
-    ],
+    install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'pep8 = pep8:_main',
