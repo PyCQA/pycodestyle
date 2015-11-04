@@ -1316,7 +1316,10 @@ _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 def _get_parameters(function):
     if sys.version_info >= (3, 3):
-        return list(inspect.signature(function).parameters)
+        return [parameter.name
+                for parameter
+                in inspect.signature(function).parameters.values()
+                if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
     else:
         return inspect.getargspec(function)[0]
 
