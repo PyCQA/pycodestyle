@@ -138,8 +138,8 @@ def tabs_or_spaces(physical_line, indent_char):
     warnings about code that illegally mixes tabs and spaces.  When using -tt
     these warnings become errors.  These options are highly recommended!
 
-    Okay: if a == 0:\n        a = 1\n        b = 1
-    E101: if a == 0:\n        a = 1\n\tb = 1
+    Okay: if a == 0:\n    a = 1
+    E101: if a == 0:\n  \ta = 1
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
     for offset, char in enumerate(indent):
@@ -351,8 +351,8 @@ def missing_whitespace(logical_line):
             yield index, "E231 missing whitespace after '%s'" % char
 
 
-def indentation(logical_line, previous_logical, indent_char,
-                indent_level, previous_indent_level):
+def indentation(logical_line, previous_logical, indent_char, initial_indent,
+                indent_level, previous_indent_level, physical_line):
     r"""Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
@@ -370,14 +370,53 @@ def indentation(logical_line, previous_logical, indent_char,
     Okay: a = 1\nb = 2
     E113: a = 1\n    b = 2
     E116: a = 1\n    # b = 2
+
+    Okay: if a == 0:\n    a = 1\nif a == 1:\n    a = 1
+    W191: if a == 0:\n\ta = 1\nif a == 1:\n\ta = 1
+
+    E117: if a == 0:\n\ta = 1\nif a == 1:\n    a = 1
+
+    E118: # if a == 0:\n    a = 1\nif a == 1:\n\ta = 1
+
     """
+
     c = 0 if logical_line else 3
+    indent = INDENT_REGEX.match(physical_line).group(1)
+    tab = "\t"
     tmpl = "E11%d %s" if logical_line else "E11%d %s (comment)"
-    if indent_level % 4:
-        yield 0, tmpl % (1 + c, "indentation is not a multiple of four")
     indent_expect = previous_logical.endswith(':')
+
+    expectedTabs = previous_indent_level // 4 + 1
+    expectedSpaces = previous_indent_level + 4
+    numTabs = indent.count("\t")
+    numSpaces = sum(a.isspace() for a in indent) - numTabs
+
+    if indent_level % 4:
+        yield 0, tmpl % (1 + c, "indentation is not a multiple of 4")
+
     if indent_expect and indent_level <= previous_indent_level:
         yield 0, tmpl % (2 + c, "expected an indented block")
+    elif indent_expect and indent_level > previous_indent_level:
+        if initial_indent == tab:
+            if ' ' in indent:
+                yield 0, tmpl % (7, "TAB ERROR: %d tabs indentation "
+                                 "expected; indentation was %d tabs and "
+                                 "%d spaces" %
+                                 (expectedTabs, numTabs, numSpaces))
+            elif indent_level != previous_indent_level + 4:
+                yield 0, tmpl % (7, "TAB ERROR: %d tabs indentation "
+                                 "expected; indentation was %d tabs" %
+                                 (expectedTabs, numTabs))
+        else:
+            if tab in indent:
+                yield 0, tmpl % (8, "SPACE ERROR: %d spaces indentation "
+                                 "expected; indentation was %d tabs and "
+                                 "%d spaces" %
+                                 (expectedSpaces, numTabs, numSpaces))
+            elif indent_level != previous_indent_level + 4:
+                yield 0, tmpl % (8, "SPACE ERROR: %d SPACES indentation "
+                                 "expected; indentation was %d spaces" %
+                                 (expectedSpaces, indent_level))
     elif not indent_expect and indent_level > previous_indent_level:
         yield 0, tmpl % (3 + c, "unexpected indentation")
 
@@ -1207,18 +1246,18 @@ def expand_indent(line):
     >>> expand_indent('    ')
     4
     >>> expand_indent('\t')
-    8
+    4
     >>> expand_indent('       \t')
     8
     >>> expand_indent('        \t')
-    16
+    12
     """
     if '\t' not in line:
         return len(line) - len(line.lstrip())
     result = 0
     for char in line:
         if char == '\t':
-            result = result // 8 * 8 + 8
+            result = result // 4 * 4 + 4
         elif char == ' ':
             result += 1
         else:
@@ -1316,7 +1355,10 @@ _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 def _get_parameters(function):
     if sys.version_info >= (3, 3):
-        return list(inspect.signature(function).parameters)
+        return [parameter.name
+                for parameter
+                in inspect.signature(function).parameters.values()
+                if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
     else:
         return inspect.getargspec(function)[0]
 
@@ -1416,6 +1458,7 @@ class Checker(object):
         self.line_number += 1
         if self.indent_char is None and line[:1] in WHITESPACE:
             self.indent_char = line[0]
+            self.initial_indent = line[0]
         return line
 
     def run_check(self, check, argument_names):
@@ -1571,6 +1614,7 @@ class Checker(object):
             self.check_ast()
         self.line_number = 0
         self.indent_char = None
+        self.initial_indent = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
         self.tokens = []
