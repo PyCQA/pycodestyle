@@ -14,6 +14,38 @@ class X:
 def foo():
     pass
 #: Okay
+#!python
+# -*- coding: utf-8 -*-
+def a():
+    pass
+#: Okay
+#!python
+# -*- coding: utf-8 -*-
+# A real comment
+def a():
+    pass
+#: Okay
+#!python
+# -*- coding: utf-8 -*-
+
+# A real comment
+def a():
+    pass
+#: Okay
+#!python
+# -*- coding: utf-8 -*-
+
+# A real comment
+
+def a():
+    pass
+#: Okay
+#!python
+
+
+if True:
+    pass
+#: Okay
 class X:
 
     def a():

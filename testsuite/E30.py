@@ -16,11 +16,6 @@ class X:
 #:
 
 
-#: E302:3:1
-#!python
-# -*- coding: utf-8 -*-
-def a():
-    pass
 #: E302:2:1
 """Main module."""
 def _main():
@@ -87,4 +82,19 @@ def function():
 """This class docstring comes on line 5.
 It gives error E303: too many blank lines (3)
 """
+#: E303:6:1
+#!python
+# -*- coding: utf-8 -*-
+
+
+
+def a():
+    pass
+#: E303:5:1
+#!python
+
+
+
+if True:
+    pass
 #:
