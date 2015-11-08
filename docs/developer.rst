@@ -31,6 +31,8 @@ Some high-level aims and directions to bear in mind for contributions:
 * If you want to provide extensibility / plugins,
   please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
   ``pep8`` doesn't want or need a plugin architecture.
+* Python 2.6 support is still deemed important.
+* ``pep8`` aims to have no external dependencies.
 
 
 Contribute
