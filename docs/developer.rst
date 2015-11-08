@@ -20,6 +20,14 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 .. _available on GitHub: https://github.com/jcrocholl/pep8
 
 
+Direction
+~~~~~~~~~
+
+Some high-level aims and directions to bear in mind for contributions:
+
+
+
+
 Contribute
 ~~~~~~~~~~
 
