@@ -20,6 +20,21 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 .. _available on GitHub: https://github.com/pycqa/pep8
 
 
+Direction
+~~~~~~~~~
+
+Some high-level aims and directions to bear in mind for contributions:
+
+* ``pep8`` is intended to be as fast as possible.
+  Using the ``ast`` module defeats that purpose.
+  The `pep8-naming <https://github.com/flintwork/pep8-naming>`_ plugin exists for this sort of functionality.
+* If you want to provide extensibility / plugins,
+  please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
+  ``pep8`` doesn't want or need a plugin architecture.
+* Python 2.6 support is still deemed important.
+* ``pep8`` aims to have no external dependencies.
+
+
 Contribute
 ~~~~~~~~~~
 
