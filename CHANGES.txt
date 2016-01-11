@@ -2,14 +2,24 @@ Changelog
 =========
 
 
-1.6.x (unreleased)
+1.6.3 (unreleased)
 ------------------
+
+Announcements:
+
+* Repository moved to PyCQA Organization on GitHub:
+  https://github.com/pycqa/pep8
 
 Changes:
 
 * Reverted the fix in #368, "options passed on command line are only ones
   accepted" feature. This has many unintended consequences in pep8 and flake8
   and needs to be reworked when I have more time.
+* Added support for Python 3.5. (Issue #420)
+
+Bugs:
+
+* Fixed BytesWarning on Python 3. (Issue #459)
 
 1.6.2 (2015-02-15)
 ------------------
