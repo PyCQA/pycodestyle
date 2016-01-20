@@ -270,7 +270,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
 
 
-def extraneous_whitespace(logical_line):
+def extraneous_whitespace(logical_line, noqa):
     r"""Avoid extraneous whitespace.
 
     Avoid extraneous whitespace in these situations:
@@ -289,6 +289,8 @@ def extraneous_whitespace(logical_line):
     E203: if x == 4: print x, y ; x, y = y, x
     E203: if x == 4 : print x, y; x, y = y, x
     """
+    if noqa:
+        return
     line = logical_line
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
         text = match.group()
