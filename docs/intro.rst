@@ -47,7 +47,7 @@ the ``pep8`` library:
   `pep8-naming extension <https://pypi.python.org/pypi/pep8-naming>`_ to use
   this feature.
 * **docstring conventions**: they are not in the scope of this library;
-  see the `pep257 project <https://github.com/GreenSteam/pep257>`_.
+  see the `pydocstyle project <https://github.com/PyCQA/pydocstyle>`_.
 * **automatic fixing**: see the section *PEP8 Fixers* in the
   :ref:`related tools <related-tools>` page.
 
