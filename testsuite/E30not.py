@@ -132,3 +132,19 @@ def a():
 def b():
 
     pass
+#: Okay
+def func(x,
+         y,
+         z):
+    pass
+#: Okay
+def func(
+        x,
+        y, z):
+    pass
+#: Okay
+def func(
+        x,
+        y,
+        z):
+    pass
