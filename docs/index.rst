@@ -22,7 +22,7 @@ Contents:
    developer
 
 * Online documentation: http://pep8.readthedocs.org/
-* Source code and issue tracker: https://github.com/pycqa/pep8
+* Source code and issue tracker: https://github.com/pycqa/pycodestyle
 
 
 Indices and tables

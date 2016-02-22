@@ -11,13 +11,13 @@ Source code
 The source code is currently `available on GitHub`_ under the terms and
 conditions of the :ref:`Expat license <license>`.  Fork away!
 
-* `Source code <https://github.com/pycqa/pep8>`_ and
-  `issue tracker <https://github.com/pycqa/pep8/issues>`_ on GitHub.
+* `Source code <https://github.com/pycqa/pycodestyle>`_ and
+  `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/pycqa/pep8>`_ against Python
   2.6 through 3.4 and PyPy, on `Travis-CI platform
   <http://about.travis-ci.org/>`_.
 
-.. _available on GitHub: https://github.com/pycqa/pep8
+.. _available on GitHub: https://github.com/pycqa/pycodestyle
 
 
 Direction

@@ -88,4 +88,4 @@ Links
 
 * `Read the documentation <http://pep8.readthedocs.org/>`_
 
-* `Fork me on GitHub <http://github.com/PyCQA/pep8>`_
+* `Fork me on GitHub <http://github.com/PyCQA/pycodestyle>`_
