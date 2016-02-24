@@ -1017,13 +1017,14 @@ def break_around_binary_operator(logical_line, tokens):
     Okay: x = '''\n''' + ''
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
+    Okay: var = (1 &\n       ~2)
     """
     def is_binary_operator(token_type, text):
         # The % character is strictly speaking a binary operator, but the
         # common usage seems to be to put it next to the format parameters,
         # after a line break.
         return ((token_type == tokenize.OP or text in ['and', 'or']) and
-                text not in "()[]{},:.;@=%")
+                text not in "()[]{},:.;@=%~")
 
     line_break = False
     unary_context = True
