@@ -101,7 +101,10 @@ Then be sure to pass the tests::
   $ python pep8.py --doctest
   $ python pep8.py --verbose pep8.py
 
+When contributing to pycodestyle, please observe our `Code of Conduct`_.
+
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+.. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html
 
 
 Changes
