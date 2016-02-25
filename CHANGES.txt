@@ -8,6 +8,16 @@ Changelog
 Announcements:
 
 * Repository renamed to `pycodestyle`; Issue #466 / $481.
+* Added joint Code of Conduct as member of PyCQA; #483
+
+Changes:
+
+* Added tox test support for Python 3.5 and pypy3
+
+Bugs:
+
+* Fixed bug with treating `~` operator as binary; #384
+* Identify binary operators as unary; #484
 
 1.7.0 (2016-01-12)
 ------------------
