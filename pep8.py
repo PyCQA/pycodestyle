@@ -1018,6 +1018,8 @@ def break_around_binary_operator(logical_line, tokens):
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
     Okay: var = (1 &\n       ~2)
+    Okay: var = (1 /\n       -2)
+    Okay: var = (1 +\n       -1 +\n       -2)
     """
     def is_binary_operator(token_type, text):
         # The % character is strictly speaking a binary operator, but the
@@ -1028,6 +1030,9 @@ def break_around_binary_operator(logical_line, tokens):
 
     line_break = False
     unary_context = True
+    # Previous non-newline token types and text
+    previous_token_type = None
+    previous_text = None
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.COMMENT:
             continue
@@ -1035,10 +1040,14 @@ def break_around_binary_operator(logical_line, tokens):
             line_break = True
         else:
             if (is_binary_operator(token_type, text) and line_break and
-                    not unary_context):
+                    not unary_context and
+                    not is_binary_operator(previous_token_type,
+                                           previous_text)):
                 yield start, "W503 line break before binary operator"
             unary_context = text in '([{,;'
             line_break = False
+            previous_token_type = token_type
+            previous_text = text
 
 
 def comparison_to_singleton(logical_line, noqa):
