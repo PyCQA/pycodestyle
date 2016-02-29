@@ -2181,5 +2181,20 @@ def _main():
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
 
+
+def _main_pep8():
+    """Entrypoint for pep8 commandline tool.
+
+    Warn of deprecation and advise users to switch to pycodestyle.
+    """
+    print(
+        'Deprecation Warning:\n'
+        'pep8 has been renamed to pycodestyle and the use of the pep8 '
+        'executable will be removed in a future release. Please use '
+        '`pycodestyle` instead.\n'
+    )
+    _main()
+
+
 if __name__ == '__main__':
     _main()
