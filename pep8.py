@@ -325,6 +325,23 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E271 multiple spaces after keyword"
 
 
+def missing_whitespace_after_import_keyword(logical_line):
+    r"""Multiple imports in form from x import (a, b, c) should have space
+    between import statement and parenthesised name list.
+
+    Okay: from foo import (bar, baz)
+    E275: from foo import(bar, baz)
+    E275: from importable.module import(bar, baz)
+    """
+    line = logical_line
+    indicator = ' import('
+    if line.startswith('from '):
+        found = line.find(indicator)
+        if -1 < found:
+            pos = found + len(indicator) - 1
+            yield pos, "E275 missing whitespace after keyword"
+
+
 def missing_whitespace(logical_line):
     r"""Each comma, semicolon or colon should be followed by whitespace.
 
