@@ -405,6 +405,13 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | W604       | backticks are deprecated, use 'repr()'                               |
 +------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W7**     | *Statement warning*                                                  |
++------------+----------------------------------------------------------------------+
+| W740 (#)   | inconsistent use of return (explicit)                                |
++------------+----------------------------------------------------------------------+
+| W741 (#)   | inconsistent use of return (implicit on reachable end of function)   |
++------------+----------------------------------------------------------------------+
 
 
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
@@ -415,6 +422,11 @@ closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
+
+**(#)** In the default configuration, the checks **W740** and **W741** are
+ignored for performance reasons. Indeed, they rely on an AST tree to be
+built which is a a slower operation.
+
 
   *Special cases aren't special enough to break the rules.*
 

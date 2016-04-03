@@ -8,6 +8,7 @@ def get_version():
         for line in f:
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])
+        return None
 
 
 def get_long_description():
