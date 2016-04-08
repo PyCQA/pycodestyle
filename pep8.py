@@ -794,9 +794,9 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             if start != prev_end:
                 yield (prev_end, message)
         if token_type == tokenize.OP:
-            if text == '(':
+            if text in '([':
                 parens += 1
-            elif text == ')':
+            elif text in ')]':
                 parens -= 1
             elif in_def and text == ':' and parens == 1:
                 annotated_func_arg = True
