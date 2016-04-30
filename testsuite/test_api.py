@@ -194,19 +194,23 @@ class APITestCase(unittest.TestCase):
 
         options = parse_argv('--select E,W').options
         self.assertEqual(options.select, ('E', 'W'))
-        self.assertEqual(options.ignore, ('',))
+        self.assertEqual(options.ignore, ())
 
         options = parse_argv('--select E --ignore E24').options
         self.assertEqual(options.select, ('E',))
-        self.assertEqual(options.ignore, ('',))
+        self.assertEqual(options.ignore, ('E24',))
+
+        options = parse_argv('--select E,W --ignore W503').options
+        self.assertEqual(options.select, ('E', 'W'))
+        self.assertEqual(options.ignore, ('W503',))
 
         options = parse_argv('--ignore E --select E24').options
         self.assertEqual(options.select, ('E24',))
-        self.assertEqual(options.ignore, ('',))
+        self.assertEqual(options.ignore, ('E',))
 
         options = parse_argv('--ignore W --select E24').options
         self.assertEqual(options.select, ('E24',))
-        self.assertEqual(options.ignore, ('',))
+        self.assertEqual(options.ignore, ('W',))
 
         pep8style = pep8.StyleGuide(paths=[E11])
         self.assertFalse(pep8style.ignore_code('E112'))
@@ -216,7 +220,6 @@ class APITestCase(unittest.TestCase):
         pep8style = pep8.StyleGuide(select='E', paths=[E11])
         self.assertFalse(pep8style.ignore_code('E112'))
         self.assertTrue(pep8style.ignore_code('W191'))
-        self.assertFalse(pep8style.ignore_code('E241'))
 
         pep8style = pep8.StyleGuide(select='W', paths=[E11])
         self.assertTrue(pep8style.ignore_code('E112'))
@@ -225,10 +228,15 @@ class APITestCase(unittest.TestCase):
 
         pep8style = pep8.StyleGuide(select=('F401',), paths=[E11])
         self.assertEqual(pep8style.options.select, ('F401',))
-        self.assertEqual(pep8style.options.ignore, ('',))
+        self.assertEqual(pep8style.options.ignore, ('E226', 'E24',))
         self.assertFalse(pep8style.ignore_code('F'))
         self.assertFalse(pep8style.ignore_code('F401'))
         self.assertTrue(pep8style.ignore_code('F402'))
+
+        pep8style = pep8.StyleGuide(select=['W', 'E'], ignore=["W503"])
+        self.assertFalse(pep8style.ignore_code('E122'))
+        self.assertFalse(pep8style.ignore_code('W191'))
+        self.assertTrue(pep8style.ignore_code('W503'))
 
     def test_styleguide_excluded(self):
         pep8style = pep8.StyleGuide(paths=[E11])
