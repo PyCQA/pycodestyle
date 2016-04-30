@@ -1,8 +1,7 @@
 if (
         x == (
             3
-        ) or
-        y == 4):
+        ) or y == 4):
     pass
 
 y = x == 2 \
@@ -19,13 +18,13 @@ if x == 2 \
     pass
 
 
-if (foo == bar and
-        baz == frop):
+if (foo == bar
+        and baz == frop):
     pass
 
 if (
-    foo == bar and
-    baz == frop
+    foo == bar
+    and baz == frop
 ):
     pass
 
