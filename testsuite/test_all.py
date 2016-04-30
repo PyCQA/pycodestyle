@@ -60,5 +60,6 @@ def suite():
 def _main():
     return unittest.TextTestRunner(verbosity=2).run(suite())
 
+
 if __name__ == '__main__':
     sys.exit(not _main())

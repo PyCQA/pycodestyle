@@ -88,3 +88,32 @@ def function():
 It gives error E303: too many blank lines (3)
 """
 #:
+
+#: E305:7:1
+def a():
+    print
+
+    # comment
+
+    # another comment
+a()
+#: E305:8:1
+def a():
+    print
+
+    # comment
+
+    # another comment
+
+try:
+    a()
+except:
+    pass
+#: E305:5:1
+def a():
+    print
+
+# Two spaces before comments, too.
+if a():
+    a()
+#:
