@@ -400,7 +400,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          indent_char, noqa, verbose):
+                          indent_char, valid_hangs, noqa, verbose):
     r"""Continuation lines indentation.
 
     Continuation lines should align wrapped elements either vertically
@@ -439,7 +439,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     indent_next = logical_line.endswith(':')
 
     row = depth = 0
-    valid_hangs = (4,) if indent_char != '\t' else (4, 8)
+    if valid_hangs is None:
+        valid_hangs = (4,) if indent_char != '\t' else (4, 8)
     # remember how many brackets were opened on each line
     parens = [0] * nrows
     # relative indents of physical lines
@@ -1396,6 +1397,11 @@ class Checker(object):
         self.max_line_length = options.max_line_length
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
+        if options.valid_hangs is not None:
+            self.valid_hangs = tuple(int(i.strip())
+                                     for i in options.valid_hangs.split(','))
+        else:
+            self.valid_hangs = None
         self.verbose = options.verbose
         self.filename = filename
         # Dictionary where a checker can store its custom state.
@@ -1949,7 +1955,7 @@ def get_parser(prog='pep8', version=__version__):
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
-        'hang-closing', 'count', 'format', 'quiet', 'show-pep8',
+        'hang-closing', 'valid-hangs', 'count', 'format', 'quiet', 'show-pep8',
         'show-source', 'statistics', 'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
@@ -1989,6 +1995,9 @@ def get_parser(prog='pep8', version=__version__):
     parser.add_option('--hang-closing', action='store_true',
                       help="hang closing bracket instead of matching "
                            "indentation of opening bracket's line")
+    parser.add_option('--valid-hangs', default=None,
+                      help="only accept specified comma-separated indentation "
+                           "size for hanging continuation lines")
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
