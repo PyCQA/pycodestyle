@@ -4,10 +4,10 @@ from setuptools import setup
 
 
 def get_version():
-    with open('pep8.py') as f:
-        for line in f:
-            if line.startswith('__version__'):
-                return eval(line.split('=')[-1])
+    try:
+        return __import__('pep8').__version__
+    except ImportError:
+        return ""
 
 
 def get_long_description():
