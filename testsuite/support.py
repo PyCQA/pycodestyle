@@ -3,7 +3,7 @@ import os.path
 import re
 import sys
 
-from pep8 import Checker, BaseReport, StandardReport, readlines
+from pycodestyle import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
