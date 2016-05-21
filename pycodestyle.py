@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# pep8.py - Check Python source code formatting, according to PEP 8
+# pycodestyle.py - Check Python source code formatting, according to PEP 8
+#
 # Copyright (C) 2006-2009 Johann C. Rocholl <johann@rocholl.net>
 # Copyright (C) 2009-2014 Florent Xicluna <florent.xicluna@gmail.com>
 # Copyright (C) 2014-2016 Ian Lee <ianlee1521@gmail.com>
