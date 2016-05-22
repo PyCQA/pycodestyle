@@ -15,7 +15,7 @@ install:
   - pip list
 script:
   - python pycodestyle.py --testsuite testsuite
-  - python pycodestyle.py --statistics pep8.py
+  - python pycodestyle.py --statistics pycodestyle.py
   - python pycodestyle.py --doctest
   - python setup.py test
 
