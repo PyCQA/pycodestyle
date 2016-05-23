@@ -776,6 +776,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     Okay: boolean(a <= b)
     Okay: boolean(a >= b)
     Okay: def foo(arg: int = 42):
+    Okay: async def foo(arg: int = 42):
 
     E251: def complex(real, imag = 0.0):
     E251: return magic(r = real, i = imag)
@@ -784,7 +785,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     no_space = False
     prev_end = None
     annotated_func_arg = False
-    in_def = logical_line.startswith('def')
+    in_def = logical_line.startswith(('def', 'async def'))
     message = "E251 unexpected spaces around keyword / parameter equals"
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.NL:
