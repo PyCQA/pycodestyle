@@ -8,7 +8,7 @@ Advanced usage
 Automated tests
 ---------------
 
-You can also execute `pep8` tests from Python code.  For example, this
+You can also execute ``pep8`` tests from Python code.  For example, this
 can be highly useful for automated testing of coding style conformance
 in your project::
 
@@ -25,7 +25,7 @@ in your project::
           self.assertEqual(result.total_errors, 0,
                            "Found code style errors (and warnings).")
 
-If you are using `nosetests` for running tests, remove `quiet=True`
+If you are using ``nosetests`` for running tests, remove ``quiet=True``
 since Nose suppresses stdout.
 
 There's also a shortcut for checking a single file::
@@ -38,6 +38,23 @@ There's also a shortcut for checking a single file::
   print("Found %s errors (and warnings)" % file_errors)
 
 
+Configuring tests
+.................
+
+You can configure automated ``pep8`` tests in a variety of ways.
+
+For example, you can pass in a path to a configuration file that ``pep8``
+should use::
+
+  import pep8
+
+  pep8style = pep8.StyleGuide(config_file='/path/to/tox.ini')
+
+You can also set specific options explicitly::
+
+  pep8style = pep8.StyleGuide(ignore=['E501'])
+
+
 Skip file header
 ----------------
 
@@ -46,7 +63,6 @@ Another example is related to the `feature request #143
 at the beginning and the end of a file.  This use case is easy to implement
 through a custom wrapper for the PEP 8 library::
 
-  #!python
   import pep8
 
   LINES_SLICE = slice(14, -20)
