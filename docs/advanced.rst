@@ -39,7 +39,7 @@ There's also a shortcut for checking a single file::
 
 
 Configuring tests
-.................
+-----------------
 
 You can configure automated ``pep8`` tests in a variety of ways.
 
