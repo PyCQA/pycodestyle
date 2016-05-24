@@ -35,3 +35,6 @@ d[type(None)] = _deepcopy_atomic
 def munge(input: AnyStr, sep: AnyStr = None, limit=1000,
           extra: Union[str, dict] = None) -> AnyStr:
     pass
+#: Okay
+async def add(a: int = 0, b: int = 0) -> int:
+    return a + b
