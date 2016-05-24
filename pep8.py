@@ -855,7 +855,7 @@ def whitespace_before_comment(logical_line, tokens):
 
 
 def imports_on_separate_lines(logical_line):
-    r"""Imports should usually be on separate lines.
+    r"""Place imports on separate lines.
 
     Okay: import os\nimport sys
     E401: import sys, os
@@ -875,8 +875,10 @@ def imports_on_separate_lines(logical_line):
 
 def module_imports_on_top_of_file(
         logical_line, indent_level, checker_state, noqa):
-    r"""Imports are always put at the top of the file, just after any module
-    comments and docstrings, and before module globals and constants.
+    r"""Place imports at the top of the file.
+
+    Always put imports at the top of the file, just after any module comments
+    and docstrings, and before module globals and constants.
 
     Okay: import os
     Okay: # this is a comment\nimport os
@@ -1184,7 +1186,7 @@ def python_3000_not_equal(logical_line):
 
 
 def python_3000_backticks(logical_line):
-    r"""Backticks are removed in Python 3: use repr() instead.
+    r"""Use repr() instead of backticks in Python 3.
 
     Okay: val = repr(1 + 2)
     W604: val = `1 + 2`
@@ -1223,7 +1225,9 @@ else:
     isidentifier = str.isidentifier
 
     def stdin_get_value():
+        """Read the value from stdin."""
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+
 noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
 
 
@@ -1457,7 +1461,7 @@ class Checker(object):
         return check(*arguments)
 
     def init_checker_state(self, name, argument_names):
-        """ Prepares a custom state for the specific checker plugin."""
+        """Prepare custom state for the specific checker plugin."""
         if 'checker_state' in argument_names:
             self.checker_state = self._checker_states.setdefault(name, {})
 
@@ -1739,6 +1743,7 @@ class BaseReport(object):
 
 class FileReport(BaseReport):
     """Collect the results of the checks and print only the filenames."""
+
     print_filename = True
 
 
@@ -1946,6 +1951,7 @@ class StyleGuide(object):
 
 
 def get_parser(prog='pep8', version=__version__):
+    """Create the parser for the program."""
     parser = OptionParser(prog=prog, version=version,
                           usage="%prog [options] input ...")
     parser.config_options = [
@@ -2007,7 +2013,7 @@ def get_parser(prog='pep8', version=__version__):
 
 
 def read_config(options, args, arglist, parser):
-    """Read and parse configurations
+    """Read and parse configurations.
 
     If a config file is specified on the command line with the "--config"
     option, then only it is used for configuration.
