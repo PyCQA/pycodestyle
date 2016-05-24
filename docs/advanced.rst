@@ -63,6 +63,7 @@ Another example is related to the `feature request #143
 at the beginning and the end of a file.  This use case is easy to implement
 through a custom wrapper for the PEP 8 library::
 
+  #!python
   import pep8
 
   LINES_SLICE = slice(14, -20)
