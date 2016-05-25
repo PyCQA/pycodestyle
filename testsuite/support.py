@@ -119,7 +119,7 @@ def selftest(options):
                     print("%s: %s" % (code, source))
             else:
                 count_failed += 1
-                print("pep8.py: %s:" % error)
+                print("pycodestyle.py: %s:" % error)
                 for line in checker.lines:
                     print(line.rstrip())
     return count_failed, count_all

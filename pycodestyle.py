@@ -29,7 +29,7 @@ r"""
 Check Python source code formatting, according to PEP 8.
 
 For usage and a list of options, try this:
-$ python pep8.py -h
+$ python pycodestyle.py -h
 
 This program and its regression test suite live here:
 https://github.com/pycqa/pycodestyle
