@@ -350,7 +350,7 @@ Bug fixes:
 
 * Initiate a graceful shutdown on ``Control+C``.
 
-* Allow to change the ``checker_class`` for the ``StyleGuide``.
+* Allow changing the ``checker_class`` for the ``StyleGuide``.
 
 
 1.4.2 (2013-02-10)
@@ -360,7 +360,7 @@ Bug fixes:
 
 * Register new checkers with ``register_check(func_or_cls, codes)``.
 
-* Allow to construct a ``StyleGuide`` with a custom parser.
+* Allow constructing a ``StyleGuide`` with a custom parser.
 
 * Accept visual indentation without parenthesis after the ``if``
   statement. (Issue #151)
@@ -569,7 +569,7 @@ Bug fixes:
   The ``--repeat`` flag becomes obsolete because it is the default
   behaviour. (Issue #6)
 
-* Allow to specify ``--max-line-length``. (Issue #36)
+* Allow specifying ``--max-line-length``. (Issue #36)
 
 * Make the shebang more flexible. (Issue #26)
 
