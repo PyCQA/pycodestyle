@@ -582,7 +582,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                         break
             assert len(indent) == depth + 1
             if start[1] not in indent_chances:
-                # allow to line up tokens
+                # allow lining up tokens
                 indent_chances[start[1]] = text
 
         last_token_multiline = (start[0] != end[0])
