@@ -3,7 +3,7 @@ import os.path
 import sys
 import unittest
 
-import pep8
+import pycodestyle
 from testsuite.support import ROOT_DIR, PseudoFile
 
 
@@ -14,9 +14,9 @@ class ShellTestCase(unittest.TestCase):
         self._saved_argv = sys.argv
         self._saved_stdout = sys.stdout
         self._saved_stderr = sys.stderr
-        self._saved_pconfig = pep8.PROJECT_CONFIG
-        self._saved_cpread = pep8.RawConfigParser._read
-        self._saved_stdin_get_value = pep8.stdin_get_value
+        self._saved_pconfig = pycodestyle.PROJECT_CONFIG
+        self._saved_cpread = pycodestyle.RawConfigParser._read
+        self._saved_stdin_get_value = pycodestyle.stdin_get_value
         self._config_filenames = []
         self.stdin = ''
         sys.argv = ['pep8']
@@ -25,16 +25,16 @@ class ShellTestCase(unittest.TestCase):
 
         def fake_config_parser_read(cp, fp, filename):
             self._config_filenames.append(filename)
-        pep8.RawConfigParser._read = fake_config_parser_read
-        pep8.stdin_get_value = self.stdin_get_value
+        pycodestyle.RawConfigParser._read = fake_config_parser_read
+        pycodestyle.stdin_get_value = self.stdin_get_value
 
     def tearDown(self):
         sys.argv = self._saved_argv
         sys.stdout = self._saved_stdout
         sys.stderr = self._saved_stderr
-        pep8.PROJECT_CONFIG = self._saved_pconfig
-        pep8.RawConfigParser._read = self._saved_cpread
-        pep8.stdin_get_value = self._saved_stdin_get_value
+        pycodestyle.PROJECT_CONFIG = self._saved_pconfig
+        pycodestyle.RawConfigParser._read = self._saved_cpread
+        pycodestyle.stdin_get_value = self._saved_stdin_get_value
 
     def stdin_get_value(self):
         return self.stdin
@@ -43,7 +43,7 @@ class ShellTestCase(unittest.TestCase):
         del sys.stdout[:], sys.stderr[:]
         sys.argv[1:] = args
         try:
-            pep8._main()
+            pycodestyle._main()
             errorcode = None
         except SystemExit:
             errorcode = sys.exc_info()[1].code
@@ -88,7 +88,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertTrue('setup.cfg' in config_filenames)
 
     def test_check_stdin(self):
-        pep8.PROJECT_CONFIG = ()
+        pycodestyle.PROJECT_CONFIG = ()
         stdout, stderr, errcode = self.pep8('-')
         self.assertFalse(errcode)
         self.assertFalse(stderr)
@@ -111,7 +111,7 @@ class ShellTestCase(unittest.TestCase):
 
     def test_check_noarg(self):
         # issue #170: do not read stdin by default
-        pep8.PROJECT_CONFIG = ()
+        pycodestyle.PROJECT_CONFIG = ()
         stdout, stderr, errcode = self.pep8()
         self.assertEqual(errcode, 2)
         self.assertEqual(stderr.splitlines(),
@@ -120,7 +120,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(self._config_filenames)
 
     def test_check_diff(self):
-        pep8.PROJECT_CONFIG = ()
+        pycodestyle.PROJECT_CONFIG = ()
         diff_lines = [
             "--- testsuite/E11.py	2006-06-01 08:49:50 +0500",
             "+++ testsuite/E11.py	2008-04-06 17:36:29 +0500",
