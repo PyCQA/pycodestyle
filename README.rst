@@ -10,7 +10,7 @@ conventions in `PEP 8`_.
 
     This package used to be called ``pep8`` but was renamed to ``pycodestyle``
     to reduce confusion. Further discussion `here
-    <https://github.com/PyCQA/pydocstyle/issues/466>`_.
+    <https://github.com/PyCQA/pycodestyle/issues/466>`_.
 
 Features
 --------
