@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 def get_version():
-    with open('pep8.py') as f:
+    with open('pycodestyle.py') as f:
         for line in f:
             if line.startswith('__version__'):
                 return eval(line.split('=')[-1])
@@ -19,16 +19,16 @@ def get_long_description():
 
 
 setup(
-    name='pep8',
+    name='pycodestyle',
     version=get_version(),
     description="Python style guide checker",
     long_description=get_long_description(),
-    keywords='pep8',
+    keywords='pycodestyle, pep8, PEP 8, PEP-8, PEP8',
     author='Johann C. Rocholl',
     author_email='johann@rocholl.net',
     url='http://pep8.readthedocs.org/',
     license='Expat license',
-    py_modules=['pep8'],
+    py_modules=['pycodestyle'],
     namespace_packages=[],
     include_package_data=True,
     zip_safe=False,
@@ -38,7 +38,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pep8 = pep8:_main',
+            'pycodestyle = pycodestyle:_main',
+            'pep8 = pycodestyle:_main_pep8',
         ],
     },
     classifiers=[

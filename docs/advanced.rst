@@ -13,14 +13,14 @@ can be highly useful for automated testing of coding style conformance
 in your project::
 
   import unittest
-  import pep8
+  import pycodestyle
 
 
   class TestCodeFormat(unittest.TestCase):
 
       def test_pep8_conformance(self):
           """Test that we conform to PEP8."""
-          pep8style = pep8.StyleGuide(quiet=True)
+          pep8style = pycodestyle.StyleGuide(quiet=True)
           result = pep8style.check_files(['file1.py', 'file2.py'])
           self.assertEqual(result.total_errors, 0,
                            "Found code style errors (and warnings).")
@@ -30,9 +30,9 @@ since Nose suppresses stdout.
 
 There's also a shortcut for checking a single file::
 
-  import pep8
+  import pycodestyle
 
-  fchecker = pep8.Checker('testsuite/E27.py', show_source=True)
+  fchecker = pycodestyle.Checker('testsuite/E27.py', show_source=True)
   file_errors = fchecker.check_all()
 
   print("Found %s errors (and warnings)" % file_errors)
@@ -46,13 +46,13 @@ You can configure automated ``pep8`` tests in a variety of ways.
 For example, you can pass in a path to a configuration file that ``pep8``
 should use::
 
-  import pep8
+  import pycodestyle
 
-  pep8style = pep8.StyleGuide(config_file='/path/to/tox.ini')
+  pep8style = pycodestyle.StyleGuide(config_file='/path/to/tox.ini')
 
 You can also set specific options explicitly::
 
-  pep8style = pep8.StyleGuide(ignore=['E501'])
+  pep8style = pycodestyle.StyleGuide(ignore=['E501'])
 
 
 Skip file header
@@ -64,19 +64,19 @@ at the beginning and the end of a file.  This use case is easy to implement
 through a custom wrapper for the PEP 8 library::
 
   #!python
-  import pep8
+  import pycodestyle
 
   LINES_SLICE = slice(14, -20)
 
-  class PEP8(pep8.StyleGuide):
-      """This subclass of pep8.StyleGuide will skip the first and last lines
+  class PEP8(pycodestyle.StyleGuide):
+      """This subclass of pycodestyle.StyleGuide will skip the first and last lines
       of each file."""
 
       def input_file(self, filename, lines=None, expected=None, line_offset=0):
           if lines is None:
               assert line_offset == 0
               line_offset = LINES_SLICE.start or 0
-              lines = pep8.readlines(filename)[LINES_SLICE]
+              lines = pycodestyle.readlines(filename)[LINES_SLICE]
           return super(PEP8, self).input_file(
               filename, lines=lines, expected=expected, line_offset=line_offset)
 

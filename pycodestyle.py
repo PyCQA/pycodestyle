@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# pep8.py - Check Python source code formatting, according to PEP 8
+# pycodestyle.py - Check Python source code formatting, according to PEP 8
+#
 # Copyright (C) 2006-2009 Johann C. Rocholl <johann@rocholl.net>
 # Copyright (C) 2009-2014 Florent Xicluna <florent.xicluna@gmail.com>
 # Copyright (C) 2014-2016 Ian Lee <ianlee1521@gmail.com>
@@ -28,7 +29,7 @@ r"""
 Check Python source code formatting, according to PEP 8.
 
 For usage and a list of options, try this:
-$ python pep8.py -h
+$ python pycodestyle.py -h
 
 This program and its regression test suite live here:
 https://github.com/pycqa/pycodestyle
@@ -2158,14 +2159,14 @@ def _main():
     except AttributeError:
         pass    # not supported on Windows
 
-    pep8style = StyleGuide(parse_argv=True)
-    options = pep8style.options
+    style_guide = StyleGuide(parse_argv=True)
+    options = style_guide.options
 
     if options.doctest or options.testsuite:
         from testsuite.support import run_tests
-        report = run_tests(pep8style)
+        report = run_tests(style_guide)
     else:
-        report = pep8style.check_files()
+        report = style_guide.check_files()
 
     if options.statistics:
         report.print_statistics()
@@ -2180,6 +2181,21 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
+
+
+def _main_pep8():
+    """Entrypoint for pep8 commandline tool.
+
+    Warn of deprecation and advise users to switch to pycodestyle.
+    """
+    print(
+        'Deprecation Warning:\n'
+        'pep8 has been renamed to pycodestyle and the use of the pep8 '
+        'executable will be removed in a future release. Please use '
+        '`pycodestyle` instead.\n'
+    )
+    _main()
+
 
 if __name__ == '__main__':
     _main()

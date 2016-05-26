@@ -14,9 +14,9 @@ install:
   - pip install -e .
   - pip list
 script:
-  - python pep8.py --testsuite testsuite
-  - python pep8.py --statistics pep8.py
-  - python pep8.py --doctest
+  - python pycodestyle.py --testsuite testsuite
+  - python pycodestyle.py --statistics pycodestyle.py
+  - python pycodestyle.py --doctest
   - python setup.py test
 
 notifications:

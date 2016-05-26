@@ -2,14 +2,14 @@ import os
 import tempfile
 import unittest
 
-import pep8
+import pycodestyle
 
 
 def _process_file(contents):
     with tempfile.NamedTemporaryFile(delete=False) as f:
         f.write(contents)
 
-    options, args = pep8.process_options(config_file=f.name)
+    options, args = pycodestyle.process_options(config_file=f.name)
     os.remove(f.name)
 
     return options, args
