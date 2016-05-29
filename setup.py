@@ -26,7 +26,7 @@ setup(
     keywords='pycodestyle, pep8, PEP 8, PEP-8, PEP8',
     author='Johann C. Rocholl',
     author_email='johann@rocholl.net',
-    url='https://pep8.readthedocs.io/',
+    url='https://pycodestyle.readthedocs.io/',
     license='Expat license',
     py_modules=['pycodestyle'],
     namespace_packages=[],
