@@ -429,7 +429,7 @@ Note: most errors can be listed with such one-liner::
 Related tools
 -------------
 
-The `flake8 checker <https://flake8.readthedocs.org>`_ is a wrapper around
+The `flake8 checker <https://flake8.readthedocs.io>`_ is a wrapper around
 ``pep8`` and similar tools. It supports plugins.
 
 Other tools which use ``pep8`` are referenced in the Wiki: `list of related

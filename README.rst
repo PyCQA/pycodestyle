@@ -91,6 +91,6 @@ Links
    :target: https://pypi.python.org/pypi/pycodestyle
    :alt: Wheel Status
 
-* `Read the documentation <http://pycodestyle.readthedocs.org/>`_
+* `Read the documentation <https://pycodestyle.readthedocs.io/>`_
 
 * `Fork me on GitHub <http://github.com/PyCQA/pycodestyle>`_
