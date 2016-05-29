@@ -21,7 +21,7 @@ Contents:
    API <api>
    developer
 
-* Online documentation: http://pep8.readthedocs.org/
+* Online documentation: https://pep8.readthedocs.io/
 * Source code and issue tracker: https://github.com/pycqa/pycodestyle
 
 
