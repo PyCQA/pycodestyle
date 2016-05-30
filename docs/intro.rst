@@ -1,9 +1,9 @@
-.. currentmodule:: pep8
+.. currentmodule:: pycodestyle
 
 Introduction
 ============
 
-pep8 is a tool to check your Python code against some of the style
+pycodestyle is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
 .. contents::
@@ -18,7 +18,7 @@ Features
 * Parseable output: Jump to error location in your editor.
 
 * Small: Just one Python file, requires only stdlib.  You can use just
-  the pep8.py file for this purpose.
+  the pycodestyle.py file for this purpose.
 
 * Comes with a comprehensive test suite.
 
@@ -40,7 +40,7 @@ Always remember this statement from `PEP 8`_:
 
 
 Among other things, these features are currently not in the scope of
-the ``pep8`` library:
+the ``pycodestyle`` library:
 
 * **naming conventions**: this kind of feature is supported through plugins.
   Install `flake8 <https://pypi.python.org/pypi/flake8>`_ and the
@@ -55,16 +55,11 @@ the ``pep8`` library:
 Installation
 ------------
 
-You can install, upgrade, uninstall pep8.py with these commands::
+You can install, upgrade, uninstall pycodestyle.py with these commands::
 
-  $ pip install pep8
-  $ pip install --upgrade pep8
-  $ pip uninstall pep8
-
-There's also a package for Debian/Ubuntu, but it's not always the
-latest version::
-
-  $ sudo apt-get install pep8
+  $ pip install pycodestyle
+  $ pip install --upgrade pycodestyle
+  $ pip uninstall pycodestyle
 
 
 Example usage and output
@@ -72,7 +67,7 @@ Example usage and output
 
 ::
 
-  $ pep8 --first optparse.py
+  $ pycodestyle --first optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -82,10 +77,10 @@ Example usage and output
   optparse.py:472:29: E221 multiple spaces before operator
   optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
-You can also make pep8.py show the source code for each error, and
+You can also make pycodestyle.py show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
   testsuite/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
@@ -97,7 +92,7 @@ even the relevant text from PEP 8::
 
 Or you can display how often each error was found::
 
-  $ pep8 --statistics -qq Python-2.5/Lib
+  $ pycodestyle --statistics -qq Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -111,15 +106,16 @@ Or you can display how often each error was found::
   612     W601 .has_key() is deprecated, use 'in'
   1188    W602 deprecated form of raising exception
 
-You can also make pep8.py show the error text in different formats by using --format having options default/pylint/custom::
+You can also make pycodestyle.py show the error text in different formats by
+using --format having options default/pylint/custom::
 
-  $ pep8 testsuite/E40.py --format=default
+  $ pycodestyle testsuite/E40.py --format=default
   testsuite/E40.py:2:10: E401 multiple imports on one line
 
-  $ pep8 testsuite/E40.py --format=pylint
+  $ pycodestyle testsuite/E40.py --format=pylint
   testsuite/E40.py:2: [E401] multiple imports on one line
 
-  $ pep8 testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
+  $ pycodestyle testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
   testsuite/E40.py|2|10| E401 multiple imports on one line
 
 Variables in the ``custom`` format option
@@ -140,8 +136,8 @@ Variables in the ``custom`` format option
 
 Quick help is available on the command line::
 
-  $ pep8 -h
-  Usage: pep8 [options] input ...
+  $ pycodestyle -h
+  Usage: pycodestyle [options] input ...
 
   Options:
     --version            show program's version number and exit
@@ -421,7 +417,7 @@ special comment.  This possibility should be reserved for special cases.
 
 Note: most errors can be listed with such one-liner::
 
-  $ python pep8.py --first --select E,W testsuite/ --format '%(code)s: %(text)s'
+  $ python pycodestyle.py --first --select E,W testsuite/ --format '%(code)s: %(text)s'
 
 
 .. _related-tools:
@@ -430,9 +426,9 @@ Related tools
 -------------
 
 The `flake8 checker <https://flake8.readthedocs.io>`_ is a wrapper around
-``pep8`` and similar tools. It supports plugins.
+``pycodestyle`` and similar tools. It supports plugins.
 
-Other tools which use ``pep8`` are referenced in the Wiki: `list of related
+Other tools which use ``pycodestyle`` are referenced in the Wiki: `list of related
 tools <https://github.com/pycqa/pycodestyle/wiki/RelatedTools>`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/

@@ -1,12 +1,12 @@
-.. pep8 documentation master file
+.. pycodestyle documentation master file
 
-pep8's documentation
-====================
+pycodestyle's documentation
+===========================
 
 *Python style guide checker*
 
-pep8 is a tool to check your Python code against some of the style
-conventions in `PEP 8`_.
+pycodestyle (formerly pep8) is a tool to check your Python code against some of
+the style conventions in `PEP 8`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
@@ -45,7 +45,7 @@ Maintained by Florent Xicluna and Ian Lee.
 License
 =======
 
-The ``pep8`` library is provided under the terms and conditions of the
+The ``pycodestyle`` library is provided under the terms and conditions of the
 Expat license::
 
   # Permission is hereby granted, free of charge, to any person
