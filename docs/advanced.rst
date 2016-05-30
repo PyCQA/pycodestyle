@@ -1,4 +1,4 @@
-.. currentmodule:: pep8
+.. currentmodule:: pycodestyle
 
 ==============
 Advanced usage
@@ -8,7 +8,7 @@ Advanced usage
 Automated tests
 ---------------
 
-You can also execute ``pep8`` tests from Python code.  For example, this
+You can also execute ``pycodestyle`` tests from Python code.  For example, this
 can be highly useful for automated testing of coding style conformance
 in your project::
 
@@ -18,10 +18,10 @@ in your project::
 
   class TestCodeFormat(unittest.TestCase):
 
-      def test_pep8_conformance(self):
-          """Test that we conform to PEP8."""
-          pep8style = pycodestyle.StyleGuide(quiet=True)
-          result = pep8style.check_files(['file1.py', 'file2.py'])
+      def test_conformance(self):
+          """Test that we conform to PEP-8."""
+          style = pycodestyle.StyleGuide(quiet=True)
+          result = style.check_files(['file1.py', 'file2.py'])
           self.assertEqual(result.total_errors, 0,
                            "Found code style errors (and warnings).")
 
@@ -41,18 +41,18 @@ There's also a shortcut for checking a single file::
 Configuring tests
 -----------------
 
-You can configure automated ``pep8`` tests in a variety of ways.
+You can configure automated ``pycodestyle`` tests in a variety of ways.
 
-For example, you can pass in a path to a configuration file that ``pep8``
+For example, you can pass in a path to a configuration file that ``pycodestyle``
 should use::
 
   import pycodestyle
 
-  pep8style = pycodestyle.StyleGuide(config_file='/path/to/tox.ini')
+  style = pycodestyle.StyleGuide(config_file='/path/to/tox.ini')
 
 You can also set specific options explicitly::
 
-  pep8style = pycodestyle.StyleGuide(ignore=['E501'])
+  style = pycodestyle.StyleGuide(ignore=['E501'])
 
 
 Skip file header
@@ -81,8 +81,8 @@ through a custom wrapper for the PEP 8 library::
               filename, lines=lines, expected=expected, line_offset=line_offset)
 
   if __name__ == '__main__':
-      pep8style = PEP8(parse_argv=True, config_file=True)
-      report = pep8style.check_files()
+      style = PEP8(parse_argv=True, config_file=True)
+      report = style.check_files()
       if report.total_errors:
           raise SystemExit(1)
 
@@ -91,4 +91,4 @@ and 20 lines at the end.  If there's no line to skip at the end, it could be
 changed with ``LINES_SLICE = slice(14, None)`` for example.
 
 You can save it in a file and use it with the same options as the
-original ``pep8``.
+original ``pycodestyle``.
