@@ -55,6 +55,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import warnings
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -2190,10 +2191,11 @@ def _main_pep8():
     """
     print(
         'Deprecation Warning:\n'
-        'pep8 has been renamed to pycodestyle and the use of the pep8 '
-        'executable will be removed in a future release. Please use '
-        '`pycodestyle` instead.\n'
+        'Use of the pep8 tool will be removed in a future release.\n'
+        'Please install and use `pycodestyle` instead.\n'
     )
+    warnings.warn('pep8 has been renamed to pycodestyle (GitHub issue #466)')
+
     _main()
 
 
