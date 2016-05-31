@@ -89,11 +89,11 @@ Several docstrings contain examples directly from the `PEP 8`_ document.
   Okay: spam(ham[1], {eggs: 2})
   E201: spam( ham[1], {eggs: 2})
 
-These examples are verified automatically when pycodestyle.py is run with the
-``--doctest`` option.  You can add examples for your own check functions.
-The format is simple: ``"Okay"`` or error/warning code followed by colon
-and space, the rest of the line is example source code.  If you put ``'r'``
-before the docstring, you can use ``\n`` for newline and ``\t`` for tab.
+These examples are verified automatically when ``pycodestyle.py`` is run with
+the ``--doctest`` option.  You can add examples for your own check functions.
+The format is simple: ``"Okay"`` or error/warning code followed by colon and
+space, the rest of the line is example source code.  If you put ``'r'`` before
+the docstring, you can use ``\n`` for newline and ``\t`` for tab.
 
 Then be sure to pass the tests::
 

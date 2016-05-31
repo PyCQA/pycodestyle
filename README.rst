@@ -20,14 +20,14 @@ Features
 * Parseable output: Jump to error location in your editor.
 
 * Small: Just one Python file, requires only stdlib. You can use just
-  the pycodestyle.py file for this purpose.
+  the ``pycodestyle.py`` file for this purpose.
 
 * Comes with a comprehensive test suite.
 
 Installation
 ------------
 
-You can install, upgrade, uninstall pycodestyle.py with these commands::
+You can install, upgrade, uninstall ``pycodestyle.py`` with these commands::
 
   $ pip install pycodestyle
   $ pip install --upgrade pycodestyle
@@ -51,7 +51,7 @@ Example usage and output
   optparse.py:472:29: E221 multiple spaces before operator
   optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
-You can also make pycodestyle.py show the source code for each error, and
+You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
   $ pycodestyle --show-source --show-pep8 testsuite/E40.py
