@@ -68,7 +68,7 @@ through a custom wrapper for the PEP 8 library::
 
   LINES_SLICE = slice(14, -20)
 
-  class PEP8(pycodestyle.StyleGuide):
+  class StyleGuide(pycodestyle.StyleGuide):
       """This subclass of pycodestyle.StyleGuide will skip the first and last lines
       of each file."""
 
@@ -77,11 +77,11 @@ through a custom wrapper for the PEP 8 library::
               assert line_offset == 0
               line_offset = LINES_SLICE.start or 0
               lines = pycodestyle.readlines(filename)[LINES_SLICE]
-          return super(PEP8, self).input_file(
+          return super(StyleGuide, self).input_file(
               filename, lines=lines, expected=expected, line_offset=line_offset)
 
   if __name__ == '__main__':
-      style = PEP8(parse_argv=True, config_file=True)
+      style = StyleGuide(parse_argv=True, config_file=True)
       report = style.check_files()
       if report.total_errors:
           raise SystemExit(1)
