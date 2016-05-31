@@ -199,9 +199,8 @@ Example::
   max-line-length = 160
 
 At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
-present (``.pep8`` file is also supported, but it is deprecated).  If none of
-these files have a ``[pep8]`` section, no project specific configuration is
-loaded.
+present. If none of these files have a ``[pep8]`` section, no project specific
+configuration is loaded.
 
 
 Error codes

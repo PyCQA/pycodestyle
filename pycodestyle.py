@@ -79,7 +79,7 @@ try:
 except ImportError:
     USER_CONFIG = None
 
-PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pep8')
+PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {

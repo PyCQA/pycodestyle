@@ -15,6 +15,7 @@ Changes:
 * Added tox test support for Python 3.5 and pypy3
 * Added check E275 for whitespace on `from ... import ...` lines; #489 / #491
 * Added W503 to the list of codes ignored by default ignore list; #498
+* Removed use of project level `.pep8` configuration file; #364
 
 Bugs:
 
