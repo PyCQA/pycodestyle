@@ -13,11 +13,13 @@ Announcements:
 Changes:
 
 * Added tox test support for Python 3.5 and pypy3
+* Added check E275 for whitespace on `from ... import ...` lines; #489 / #491
+* Added W503 to the list of codes ignored by default ignore list; #498
 
 Bugs:
 
-* Fixed bug with treating `~` operator as binary; #384
-* Identify binary operators as unary; #484
+* Fixed bug with treating `~` operator as binary; #383 / #384
+* Identify binary operators as unary; #484 / #485
 
 1.7.0 (2016-01-12)
 ------------------
