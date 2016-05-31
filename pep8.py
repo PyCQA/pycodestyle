@@ -54,6 +54,7 @@ import time
 import inspect
 import keyword
 import tokenize
+import warnings
 from optparse import OptionParser
 from fnmatch import fnmatch
 try:
@@ -2146,6 +2147,22 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
+
+
+def _main_pep8():
+    """Entrypoint for pep8 commandline tool.
+
+    Warn of deprecation and advise users to switch to pycodestyle.
+    """
+    print(
+        'Deprecation Warning:\n'
+        'Use of the pep8 tool will be removed in a future release.\n'
+        'Please install and use `pycodestyle` instead.\n'
+    )
+    warnings.warn('pep8 has been renamed to pycodestyle (GitHub issue #466)')
+
+    _main()
+
 
 if __name__ == '__main__':
     _main()
