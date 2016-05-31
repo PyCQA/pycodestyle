@@ -41,7 +41,6 @@ setup(
     entry_points={
         'console_scripts': [
             'pycodestyle = pycodestyle:_main',
-            'pep8 = pycodestyle:_main_pep8',
         ],
     },
     classifiers=[

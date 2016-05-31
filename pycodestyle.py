@@ -64,7 +64,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-__version__ = '2.0.0a1'
+__version__ = '2.0.0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503'
@@ -2182,21 +2182,6 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
-
-
-def _main_pep8():
-    """Entrypoint for pep8 commandline tool.
-
-    Warn of deprecation and advise users to switch to pycodestyle.
-    """
-    print(
-        'Deprecation Warning:\n'
-        'Use of the pep8 tool will be removed in a future release.\n'
-        'Please install and use `pycodestyle` instead.\n'
-    )
-    warnings.warn('pep8 has been renamed to pycodestyle (GitHub issue #466)')
-
-    _main()
 
 
 if __name__ == '__main__':
