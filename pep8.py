@@ -2116,7 +2116,19 @@ def _parse_multi_options(options, split_token=','):
 
 
 def _main():
-    """Parse options and run checks on Python source."""
+    """Parse options and run checks on Python source.
+
+    Warn of deprecation and advise users to switch to pycodestyle.
+    """
+    warnings.warn(
+        '\n\n'
+        'pep8 has been renamed to pycodestyle (GitHub issue #466)\n'
+        'Use of the pep8 tool will be removed in a future release.\n'
+        'Please install and use `pycodestyle` instead.\n\n'
+        '$ pip install pycodestyle\n'
+        '$ pycodestyle ...\n'
+    )
+
     import signal
 
     # Handle "Broken pipe" gracefully
@@ -2147,21 +2159,6 @@ def _main():
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
         sys.exit(1)
-
-
-def _main_pep8():
-    """Entrypoint for pep8 commandline tool.
-
-    Warn of deprecation and advise users to switch to pycodestyle.
-    """
-    print(
-        'Deprecation Warning:\n'
-        'Use of the pep8 tool will be removed in a future release.\n'
-        'Please install and use `pycodestyle` instead.\n'
-    )
-    warnings.warn('pep8 has been renamed to pycodestyle (GitHub issue #466)')
-
-    _main()
 
 
 if __name__ == '__main__':

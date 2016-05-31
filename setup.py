@@ -40,8 +40,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'pycodestyle = pep8:_main',
-            'pep8 = pep8:_main_pep8',
+            'pep8 = pep8:_main',
         ],
     },
     classifiers=[
