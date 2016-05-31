@@ -7,7 +7,7 @@ Changelog
 
 Announcements:
 
-* Repository renamed to `pycodestyle`; Issue #466 / $481.
+* Repository renamed to `pycodestyle`; Issue #466 / #481.
 * Added joint Code of Conduct as member of PyCQA; #483
 
 Changes:
