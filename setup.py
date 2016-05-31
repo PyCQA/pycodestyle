@@ -26,6 +26,8 @@ setup(
     keywords='pep8',
     author='Johann C. Rocholl',
     author_email='johann@rocholl.net',
+    maintainer='Ian Lee',
+    maintainer_email='IanLee1521@gmail.com',
     url='http://pep8.readthedocs.org/',
     license='Expat license',
     py_modules=['pep8'],
