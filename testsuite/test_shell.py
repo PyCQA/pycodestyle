@@ -53,7 +53,8 @@ class ShellTestCase(unittest.TestCase):
         stdout, stderr, errcode = self.pep8('--help')
         self.assertFalse(errcode)
         self.assertFalse(stderr)
-        self.assertTrue(stdout.startswith("Usage: pycodestyle [options] input"))
+        self.assertTrue(stdout.startswith(
+            "Usage: pycodestyle [options] input"))
 
         stdout, stderr, errcode = self.pep8('--version')
         self.assertFalse(errcode)
@@ -178,7 +179,8 @@ class ShellTestCase(unittest.TestCase):
         stdout, stderr, errcode = self.pep8()
         self.assertEqual(errcode, 2)
         self.assertFalse(stdout)
-        self.assertTrue(stderr.startswith('Usage: pep8 [options] input ...'))
+        self.assertTrue(stderr.startswith(
+            'Usage: pycodestyle [options] input ...'))
 
         # no matching file in the diff
         diff_lines[3] = "+++ b/testsuite/lost/E11.py"
