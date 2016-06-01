@@ -48,16 +48,18 @@ W warnings
 """
 from __future__ import with_statement
 
-import os
-import sys
-import re
-import time
 import inspect
 import keyword
+import os
+import re
+import sys
+import time
 import tokenize
 import warnings
-from optparse import OptionParser
+
 from fnmatch import fnmatch
+from optparse import OptionParser
+
 try:
     from configparser import RawConfigParser
     from io import TextIOWrapper
