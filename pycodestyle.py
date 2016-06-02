@@ -1150,6 +1150,37 @@ def comparison_type(logical_line, noqa):
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
 
+def ambiguous_identifier(logical_line, tokens):
+    r"""Never use the characters 'l', 'O', or 'I' as variable names.
+
+    In some fonts, these characters are indistinguishable from the numerals
+    one and zero. When tempted to use 'l', use 'L' instead.
+
+    Okay: L = 0
+    E741: l = 0
+    """
+    idents_to_avoid = ('l', 'O', 'I')
+    prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
+    for token_type, text, start, end, line in tokens[1:]:
+        ident = pos = None
+        # identifiers on the lhs of an assignment operator
+        if token_type == tokenize.OP and '=' in text:
+            if prev_text in idents_to_avoid:
+                ident = prev_text
+                pos = prev_start
+        # identifiers after 'as'
+        if prev_text == 'as':
+            if text in idents_to_avoid:
+                ident = text
+                pos = start
+        if ident:
+            yield pos, "E741 ambiguous variable name '%s'" % ident
+        prev_type = token_type
+        prev_text = text
+        prev_start = start
+        prev_end = end
+
+
 def python_3000_has_key(logical_line, noqa):
     r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
 
