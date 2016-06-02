@@ -958,22 +958,25 @@ def compound_statements(logical_line):
     line = logical_line
     last_char = len(line) - 1
     found = line.find(':')
+    prev_found = 0
+    counts = dict((char, 0) for char in '{}[]()')
     while -1 < found < last_char:
-        before = line[:found]
-        if ((before.count('{') <= before.count('}') and   # {'a': 1} (dict)
-             before.count('[') <= before.count(']') and   # [1:2] (slice)
-             before.count('(') <= before.count(')'))):    # (annotation)
-            lambda_kw = LAMBDA_REGEX.search(before)
+        update_counts(line[prev_found:found], counts)
+        if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
+             counts['['] <= counts[']'] and   # [1:2] (slice)
+             counts['('] <= counts[')'])):    # (annotation)
+            lambda_kw = LAMBDA_REGEX.search(line, 0, found)
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
                 if before[-1:] == '=' and isidentifier(before[:-1].strip()):
                     yield 0, ("E731 do not assign a lambda expression, use a "
                               "def")
                 break
-            if before.startswith('def '):
+            if line.startswith('def '):
                 yield 0, "E704 multiple statements on one line (def)"
             else:
                 yield found, "E701 multiple statements on one line (colon)"
+        prev_found = found
         found = line.find(':', found + 1)
     found = line.find(';')
     while -1 < found:
@@ -1333,8 +1336,18 @@ def filename_match(filename, patterns, default=True):
     return any(fnmatch(filename, pattern) for pattern in patterns)
 
 
+def update_counts(s, counts):
+    r"""Adds one to the counts of each appearence of characters in s,
+        for characters in counts"""
+    for char in s:
+        if char in counts:
+            counts[char] += 1
+
+
 def _is_eol_token(token):
     return token[0] in NEWLINE or token[4][token[3][1]:].lstrip() == '\\\n'
+
+
 if COMMENT_WITH_NL:
     def _is_eol_token(token, _eol_token=_is_eol_token):
         return _eol_token(token) or (token[0] == tokenize.COMMENT and
