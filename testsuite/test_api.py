@@ -393,3 +393,52 @@ class APITestCase(unittest.TestCase):
 
         # TODO: runner
         # TODO: input_file
+
+    def test_styleguides_other_indent_size(self):
+        pycodestyle.register_check(DummyChecker, ['Z701'])
+        lines = [
+            'def foo():\n',
+            '    pass\n',
+            '\n',
+            '\n',
+            'def foo_correct():\n',
+            '   pass\n',
+            '\n',
+            '\n',
+            'def bar():\n',
+            '   [1, 2, 3,\n',
+            '     4, 5, 6,\n',
+            '     ]\n',
+            '\n',
+            '\n',
+            'if (1 in [1, 2, 3]\n',
+            '      and bool(0) is False\n',
+            '     and bool(1) is True):\n',
+            '   pass\n'
+        ]
+
+        pep8style = pycodestyle.StyleGuide()
+        pep8style.options.indent_size = 3
+        count_errors = pep8style.input_file('stdin', lines=lines)
+        stdout = sys.stdout.getvalue()
+        self.assertEqual(count_errors, 4)
+        expected = (
+            'stdin:2:5: '
+            'E111 indentation is not a multiple of 3'
+        )
+        self.assertTrue(expected in stdout)
+        expected = (
+            'stdin:11:6: '
+            'E127 continuation line over-indented for visual indent'
+        )
+        self.assertTrue(expected in stdout)
+        expected = (
+            'stdin:12:6: '
+            'E124 closing bracket does not match visual indentation'
+        )
+        self.assertTrue(expected in stdout)
+        expected = (
+            'stdin:17:6: '
+            'E127 continuation line over-indented for visual indent'
+        )
+        self.assertTrue(expected in stdout)
