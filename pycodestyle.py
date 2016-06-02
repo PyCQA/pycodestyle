@@ -1965,7 +1965,7 @@ class StyleGuide(object):
         return sorted(checks)
 
 
-def get_parser(prog='pep8', version=__version__):
+def get_parser(prog='pycodestyle', version=__version__):
     """Create the parser for the program."""
     parser = OptionParser(prog=prog, version=version,
                           usage="%prog [options] input ...")
