@@ -146,6 +146,19 @@ def init_tests(pep8style):
     report = pep8style.init_report(TestReport)
     runner = pep8style.input_file
 
+    def set_hang_closing_option(pep8style, codes):
+        """Set hang-closing option if present in the test codes.
+
+        (mutates pep8style)
+
+        Usage in test:
+        #: #E133:3:1 --with-hanging
+
+        """
+        pep8style.options.hang_closing = '--hang-closing' in codes
+        codes = [c for c in codes if c != '--hang-closing']
+        return codes
+
     def run_tests(filename):
         """Run all the tests from a file."""
         lines = readlines(filename) + ['#:\n']
@@ -162,6 +175,9 @@ def init_tests(pep8style):
             if codes and index:
                 if 'noeol' in codes:
                     testcase[-1] = testcase[-1].rstrip('\n')
+
+                codes = set_hang_closing_option(pep8style, codes)
+
                 codes = [c for c in codes
                          if c not in ('Okay', 'noeol')]
                 # Run the checker

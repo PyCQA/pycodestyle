@@ -373,4 +373,12 @@ print(True)
 
 print(a
 , end=' ')
+#: E133:3:1 --hang-closing
+a = [
+    12
+]
+#: Okay --hang-closing
+a = [
+    12
+    ]
 #:
