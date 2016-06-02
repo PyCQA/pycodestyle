@@ -1,4 +1,4 @@
-.. currentmodule:: pep8
+.. currentmodule:: pycodestyle
 
 =================
 Developer's notes
@@ -11,13 +11,28 @@ Source code
 The source code is currently `available on GitHub`_ under the terms and
 conditions of the :ref:`Expat license <license>`.  Fork away!
 
-* `Source code <https://github.com/jcrocholl/pep8>`_ and
-  `issue tracker <https://github.com/jcrocholl/pep8/issues>`_ on GitHub.
-* `Continuous tests <http://travis-ci.org/jcrocholl/pep8>`_ against Python
-  2.5 through 3.3 and PyPy, on `Travis-CI platform
+* `Source code <https://github.com/pycqa/pycodestyle>`_ and
+  `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
+* `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
+  2.6 through 3.4 and PyPy, on `Travis-CI platform
   <http://about.travis-ci.org/>`_.
 
-.. _available on GitHub: https://github.com/jcrocholl/pep8
+.. _available on GitHub: https://github.com/pycqa/pycodestyle
+
+
+Direction
+~~~~~~~~~
+
+Some high-level aims and directions to bear in mind for contributions:
+
+* ``pycodestyle`` is intended to be as fast as possible.
+  Using the ``ast`` module defeats that purpose.
+  The `pep8-naming <https://github.com/flintwork/pep8-naming>`_ plugin exists for this sort of functionality.
+* If you want to provide extensibility / plugins,
+  please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
+  ``pycodestyle`` doesn't want or need a plugin architecture.
+* Python 2.6 support is still deemed important.
+* ``pycodestyle`` aims to have no external dependencies.
 
 
 Contribute
@@ -52,11 +67,18 @@ additional information with extra arguments.  All attributes of the
 * ``lines``: a list of the raw lines from the input file
 * ``tokens``: the tokens that contribute to this logical line
 * ``line_number``: line number in the input file
+* ``total_lines``: number of lines in the input file
 * ``blank_lines``: blank lines before this one
-* ``indent_char``: first indentation character in this file (``" "`` or ``"\t"``)
+* ``indent_char``: indentation character in this file (``" "`` or ``"\t"``)
 * ``indent_level``: indentation (with tabs expanded to multiples of 8)
 * ``previous_indent_level``: indentation on previous line
 * ``previous_logical``: previous logical line
+
+Check plugins can also maintain per-file state. If you need this, declare
+a parameter named ``checker_state``. You will be passed a dict, which will be
+the same one for all lines in the same file but a different one for different
+files. Each check plugin gets its own dict, so you don't need to worry about
+clobbering the state of other plugins.
 
 The docstring of each check function shall be the relevant part of
 text from `PEP 8`_.  It is printed if the user enables ``--show-pep8``.
@@ -67,19 +89,22 @@ Several docstrings contain examples directly from the `PEP 8`_ document.
   Okay: spam(ham[1], {eggs: 2})
   E201: spam( ham[1], {eggs: 2})
 
-These examples are verified automatically when pep8.py is run with the
-``--doctest`` option.  You can add examples for your own check functions.
-The format is simple: ``"Okay"`` or error/warning code followed by colon
-and space, the rest of the line is example source code.  If you put ``'r'``
-before the docstring, you can use ``\n`` for newline and ``\t`` for tab.
+These examples are verified automatically when ``pycodestyle.py`` is run with
+the ``--doctest`` option.  You can add examples for your own check functions.
+The format is simple: ``"Okay"`` or error/warning code followed by colon and
+space, the rest of the line is example source code.  If you put ``'r'`` before
+the docstring, you can use ``\n`` for newline and ``\t`` for tab.
 
 Then be sure to pass the tests::
 
-  $ python pep8.py --testsuite testsuite
-  $ python pep8.py --doctest
-  $ python pep8.py --verbose pep8.py
+  $ python pycodestyle.py --testsuite testsuite
+  $ python pycodestyle.py --doctest
+  $ python pycodestyle.py --verbose pycodestyle.py
+
+When contributing to pycodestyle, please observe our `Code of Conduct`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
+.. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html
 
 
 Changes

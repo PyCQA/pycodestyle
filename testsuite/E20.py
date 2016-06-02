@@ -1,19 +1,19 @@
-#: E201
+#: E201:1:6
 spam( ham[1], {eggs: 2})
-#: E201
+#: E201:1:10
 spam(ham[ 1], {eggs: 2})
-#: E201
+#: E201:1:15
 spam(ham[1], { eggs: 2})
 #: Okay
 spam(ham[1], {eggs: 2})
 #:
 
 
-#: E202
+#: E202:1:23
 spam(ham[1], {eggs: 2} )
-#: E202
+#: E202:1:22
 spam(ham[1], {eggs: 2 })
-#: E202
+#: E202:1:11
 spam(ham[1 ], {eggs: 2})
 #: Okay
 spam(ham[1], {eggs: 2})
@@ -35,14 +35,14 @@ result = [
 #:
 
 
-#: E203
+#: E203:1:10
 if x == 4 :
     print x, y
     x, y = y, x
-#: E203 E702
+#: E203:2:15 E702:2:16
 if x == 4:
     print x, y ; x, y = y, x
-#: E203
+#: E203:3:13
 if x == 4:
     print x, y
     x, y = y , x

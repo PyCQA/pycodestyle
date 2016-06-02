@@ -3,7 +3,7 @@ import os.path
 import re
 import sys
 
-from pep8 import Checker, BaseReport, StandardReport, readlines
+from pycodestyle import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -16,6 +16,9 @@ class PseudoFile(list):
     def getvalue(self):
         return ''.join(self)
 
+    def flush(self):
+        pass
+
 
 class TestReport(StandardReport):
     """Collect the results for the tests."""
@@ -25,25 +28,49 @@ class TestReport(StandardReport):
         super(TestReport, self).__init__(options)
         self._verbose = options.verbose
 
+    def error(self, line_number, offset, text, check):
+        """Report an error, according to options."""
+        code = text[:4]
+        if code in self.counters:
+            self.counters[code] += 1
+        else:
+            self.counters[code] = 1
+        detailed_code = '%s:%s:%s' % (code, line_number, offset + 1)
+        # Don't care about expected errors or warnings
+        if code in self.expected or detailed_code in self.expected:
+            return
+        self._deferred_print.append(
+            (line_number, offset, detailed_code, text[5:], check.__doc__))
+        self.file_errors += 1
+        self.total_errors += 1
+        return code
+
     def get_file_results(self):
         # Check if the expected errors were found
         label = '%s:%s:1' % (self.filename, self.line_offset)
-        codes = sorted(self.expected)
-        for code in codes:
+        for extended_code in self.expected:
+            code = extended_code.split(':')[0]
             if not self.counters.get(code):
                 self.file_errors += 1
                 self.total_errors += 1
-                print('%s: error %s not found' % (label, code))
+                print('%s: error %s not found' % (label, extended_code))
+            else:
+                self.counters[code] -= 1
+        for code, extra in sorted(self.counters.items()):
+            if code not in self._benchmark_keys:
+                if extra and code in self.expected:
+                    self.file_errors += 1
+                    self.total_errors += 1
+                    print('%s: error %s found too many times (+%d)' %
+                          (label, code, extra))
+                # Reset counters
+                del self.counters[code]
         if self._verbose and not self.file_errors:
             print('%s: passed (%s)' %
-                  (label, ' '.join(codes) or 'Okay'))
+                  (label, ' '.join(self.expected) or 'Okay'))
         self.counters['test cases'] += 1
         if self.file_errors:
             self.counters['failed tests'] += 1
-        # Reset counters
-        for key in set(self.counters) - set(self._benchmark_keys):
-            del self.counters[key]
-        self.messages = {}
         return super(TestReport, self).get_file_results()
 
     def print_results(self):
@@ -86,14 +113,13 @@ def selftest(options):
             # Keep showing errors for multiple tests
             for key in set(counters) - set(options.benchmark_keys):
                 del counters[key]
-            report.messages = {}
             count_all += 1
             if not error:
                 if options.verbose:
                     print("%s: %s" % (code, source))
             else:
                 count_failed += 1
-                print("pep8.py: %s:" % error)
+                print("pycodestyle.py: %s:" % error)
                 for line in checker.lines:
                     print(line.rstrip())
     return count_failed, count_all
@@ -134,7 +160,10 @@ def init_tests(pep8style):
                     testcase.append(line)
                 continue
             if codes and index:
-                codes = [c for c in codes if c != 'Okay']
+                if 'noeol' in codes:
+                    testcase[-1] = testcase[-1].rstrip('\n')
+                codes = [c for c in codes
+                         if c not in ('Okay', 'noeol')]
                 # Run the checker
                 runner(filename, testcase, expected=codes,
                        line_offset=line_offset)

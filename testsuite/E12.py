@@ -20,7 +20,7 @@ print "E124", ("visual",
 #: E124
 a = (123,
 )
-#: E125
+#: E129
 if (row < 0 or self.moduleCount <= row or
     col < 0 or self.moduleCount <= col):
     raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
@@ -42,7 +42,7 @@ print "E128", ("under-",
 #:
 
 
-#: E121
+#: E126
 my_list = [
     1, 2, 3,
     4, 5, 6,
@@ -52,23 +52,23 @@ result = {
    'key1': 'value',
    'key2': 'value',
 }
-#: E121
+#: E126 E126
 rv.update(dict.fromkeys((
     'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
     'reasonComment_de', 'reasonComment_it'),
           '?'),
           "foo")
-#: E121
+#: E126
 abricot = 3 + \
           4 + \
           5 + 6
-#: E121
+#: E131
 print "hello", (
 
     "there",
      # "john",
     "dude")
-#: E121
+#: E126
 part = set_mimetype((
     a.get('mime_type', 'text')),
                        'default')
@@ -99,6 +99,20 @@ if True:
     if some_very_very_very_long_variable_name or var[0] \
     or another_very_long_variable_name:
         raise Exception()
+#: E122
+dictionary = [
+    "is": {
+    "nested": yes(),
+    },
+]
+#: E122
+setup('',
+      scripts=[''],
+      classifiers=[
+      'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+      ])
 #:
 
 
@@ -107,7 +121,7 @@ print "E123", (
     "bad", "hanging", "close"
     )
 #
-#: E123
+#: E123 E123 E123
 result = {
     'foo': [
         'bar', {
@@ -152,7 +166,7 @@ d = dict('foo',
          help="exclude files or directories which match these "
               "comma separated patterns (default: %s)" % DEFAULT_EXCLUDE
               )
-#: E124 E128
+#: E124 E128 E128
 if line_removed:
     self.event(cr, uid,
         name="Removing the option for contract",
@@ -181,7 +195,7 @@ def qualify_by_address(
     self, cr, uid, ids, context=None,
     params_to_check=frozenset(QUALIF_BY_ADDRESS_PARAM)):
     """ This gets called by the web server """
-#: E125
+#: E129
 if (a == 2 or
     b == "abc def ghi"
     "jkl mno"):
@@ -201,7 +215,7 @@ abris = 3 + \
 #: E126
 fixed = re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] + \
         target[c + 1:]
-#: E126
+#: E126 E126
 rv.update(dict.fromkeys((
             'qualif_nr', 'reasonComment_en', 'reasonComment_fr',
             'reasonComment_de', 'reasonComment_it'),
@@ -228,17 +242,11 @@ if (
     ) or
         y == 4):
     pass
-#: E126
+#: E131
 troublesome_hash = {
     "hash": "value",
     "long": "the quick brown fox jumps over the lazy dog before doing a "
         "somersault",
-}
-#: E126
-# probably not easily fixed, without using 'ast'
-troublesome_hash_ii = {
-    "long key that tends to happen more when you're indented":
-        "stringwithalongtoken you don't want to break",
 }
 #:
 
@@ -299,13 +307,13 @@ foo(1, 2, 3,
 #: E127
 foo(1, 2, 3,
              4, 5, 6)
-#: E128
+#: E128 E128
 if line_removed:
     self.event(cr, uid,
               name="Removing the option for contract",
               description="contract line has been removed",
                )
-#: E124 E127
+#: E124 E127 E127
 if line_removed:
     self.event(cr, uid,
                 name="Removing the option for contract",
@@ -315,15 +323,54 @@ if line_removed:
 rv.update(d=('a', 'b', 'c'),
              e=42)
 #
-#: E127
+#: E127 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=42
                  + 42)
-#: E127
+#: E127 W503
 input1 = {'a': {'calc': 1 + 2}, 'b': 1
                           + 42}
-#: E128
+#: E128 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))
+#: E123
+if True:
+    def example_issue254():
+        return [node.copy(
+            (
+                replacement
+                # First, look at all the node's current children.
+                for child in node.children
+                # Replace them.
+                for replacement in replace(child)
+                ),
+            dict(name=token.undefined)
+        )]
+#: E125:2:5 E125:8:5
+if ("""
+    """):
+    pass
+
+for foo in """
+    abc
+    123
+    """.strip().split():
+    print(foo)
+#: E122:6:5 E122:7:5 E122:8:1
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+    build='build',
+    # more stuff
+)
+)
+#: E701:1:8 E122:2:1 E203:4:8 E128:5:1
+if True:\
+print(True)
+
+print(a
+, end=' ')
 #:

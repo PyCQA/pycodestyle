@@ -1,8 +1,8 @@
-========
-pep8 API
-========
+===============
+pycodestyle API
+===============
 
-.. module:: pep8
+.. module:: pycodestyle
 
 The library provides classes which are usable by third party tools.
 
@@ -34,7 +34,6 @@ The :class:`Checker` class can be used to check a single file.
 .. autoclass:: Checker(filename=None, lines=None, report=None, **kwargs)
 
    .. automethod:: readline
-   .. automethod:: readline_check_physical
    .. automethod:: run_check(check, argument_names)
    .. automethod:: check_physical(line)
    .. automethod:: build_tokens_line
@@ -85,5 +84,5 @@ Utilities
   .. autofunction:: stdin_get_value()
   .. autofunction:: parse_udiff(diff, patterns=None, parent='.')
   .. autofunction:: filename_match(filename, patterns, default=True)
-  .. autofunction:: get_parser(prog='pep8', version=pep8.__version__)
+  .. autofunction:: get_parser(prog='pycodestyle', version=pycodestyle.__version__)
   .. autofunction:: init_checks_registry()

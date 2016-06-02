@@ -1,5 +1,19 @@
 #: E501
 a = '12345678901234567890123456789012345678901234567890123456789012345678901234567890'
+#: E501
+a = '1234567890123456789012345678901234567890123456789012345678901234567890' or \
+    6
+#: E501
+a = 7 or \
+    '1234567890123456789012345678901234567890123456789012345678901234567890' or \
+    6
+#: E501 E501
+a = 7 or \
+    '1234567890123456789012345678901234567890123456789012345678901234567890' or \
+    '1234567890123456789012345678901234567890123456789012345678901234567890' or \
+    6
+#: E501
+a = '1234567890123456789012345678901234567890123456789012345678901234567890'  # \
 #: E502
 a = ('123456789012345678901234567890123456789012345678901234567890123456789'  \
      '01234567890')
@@ -45,3 +59,60 @@ ddd = \
 ('''
     ''' + ' \
 ')
+#: E501 E225 E226
+very_long_identifiers=and_terrible_whitespace_habits(are_no_excuse+for_long_lines)
+#
+#: E501
+'''multiline string
+with a long long long long long long long long long long long long long long long long line
+'''
+#: E501
+'''same thing, but this time without a terminal newline in the string
+long long long long long long long long long long long long long long long long line'''
+#
+# issue 224 (unavoidable long lines in docstrings)
+#: Okay
+"""
+I'm some great documentation.  Because I'm some great documentation, I'm
+going to give you a reference to some valuable information about some API
+that I'm calling:
+
+    http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+"""
+#: E501
+"""
+longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces"""
+#: Okay
+"""
+This
+                                                                       almost_empty_line
+"""
+#: E501
+"""
+This
+                                                                        almost_empty_line
+"""
+#: E501
+# A basic comment
+# with a long long long long long long long long long long long long long long long long line
+
+#
+#: Okay
+# I'm some great comment.  Because I'm so great, I'm going to give you a
+# reference to some valuable information about some API that I'm calling:
+#
+#     http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+
+import this
+
+# longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces
+
+#
+#: Okay
+# This
+#                                                                      almost_empty_line
+
+#
+#: E501
+# This
+#                                                                       almost_empty_line

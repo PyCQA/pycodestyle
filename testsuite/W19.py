@@ -4,7 +4,7 @@ if False:
 #:
 
 
-#: E126 W191
+#: W191
 y = x == 2 \
 	or x == 3
 #: E101 W191
@@ -38,7 +38,7 @@ if (
 	pass
 #:
 
-#: E101 W191
+#: E101 E101 W191 W191
 if start[1] > end_col and not (
         over_indent == 4 and indent_next):
 	return(0, "E121 continuation line over-"
@@ -56,7 +56,7 @@ def long_function_name(
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
 	raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
-#: E101 W191
+#: E101 E101 E101 E101 W191 W191 W191 W191 W191 W191
 if bar:
 	return(
 	    start, 'E121 lines starting with a '
@@ -86,19 +86,60 @@ if (a == 2 or
     b == """abc def ghi
 jkl mno"""):
 	return True
-#: E101 W191
+#: W191:2:1 W191:3:1 E101:3:2
 if length > options.max_line_length:
 	return options.max_line_length, \
 	    "E501 line too long (%d characters)" % length
 
 
 #
-#: E101 W191
+#: E101 W191 W191
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
+#: W191
+'''
+	multiline string with tab in it'''
+#: E101 W191
+'''multiline string
+	with tabs
+   and spaces
+'''
+#: Okay
+'''sometimes, you just need to go nuts in a multiline string
+	and allow all sorts of crap
+  like mixed tabs and spaces
+      
+or trailing whitespace  
+or long long long long long long long long long long long long long long long long long lines
+'''  # nopep8
+#: Okay
+'''this one
+	will get no warning
+even though the noqa comment is not immediately after the string
+''' + foo  # noqa
+#
 #: E101 W191
 if foo is None and bar is "frop" and \
         blah == 'yeah':
 	blah = 'yeahnah'
+
+
+#
+#: W191 W191 W191
+if True:
+	foo(
+		1,
+		2)
+#: W191 W191 W191 W191 W191
+def test_keys(self):
+	"""areas.json - All regions are accounted for."""
+	expected = set([
+		u'Norrbotten',
+		u'V\xe4sterbotten',
+	])
+#: W191
+x = [
+	'abc'
+]
 #:

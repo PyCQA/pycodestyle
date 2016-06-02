@@ -28,3 +28,17 @@ a and	b
 a		and b
 #: E273 E274
 this		and	False
+#: Okay
+from u import (a, b)
+from v import c, d
+#: E271
+from w import  (e, f)
+#: E275
+from w import(e, f)
+#: E275
+from importable.module import(e, f)
+#: E275
+try:
+    from importable.module import(e, f)
+except ImportError:
+    pass

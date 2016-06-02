@@ -128,7 +128,7 @@ part = [-1, (2, 3,
 fnct(1, 2, 3,
      4, 5, 6)
 
-fnct(1, 2, 3
+fnct(1, 2, 3,
      4, 5, 6,
      7, 8, 9,
      10, 11)
@@ -564,4 +564,81 @@ result = some_function_that_takes_arguments('a', 'b', 'c',
                                             'd', 'e', 'f',
                                             )
 
+# issue 203
+dica = {
+    ('abc'
+     'def'): (
+        'abc'),
+}
+
+(abcdef[0]
+       [1]) = (
+    'abc')
+
+('abc'
+ 'def') == (
+    'abc')
+
+# issue 214
+bar(
+    1).zap(
+        2)
+
+bar(
+    1).zap(
+    2)
 #
+if True:
+
+    def example_issue254():
+        return [node.copy(
+            (
+                replacement
+                # First, look at all the node's current children.
+                for child in node.children
+                # Replace them.
+                for replacement in replace(child)
+            ),
+            dict(name=token.undefined)
+        )]
+
+
+def valid_example():
+    return [node.copy(properties=dict(
+            (key, val if val is not None else token.undefined)
+            for key, val in node.items()
+            ))]
+
+
+def other_example():
+    return [node.copy(properties=dict(
+        (key, val if val is not None else token.undefined)
+        for key, val in node.items()
+    ))]
+
+foo([
+    'bug'
+])
+
+# issue 144, finally!
+some_hash = {
+    "long key that tends to happen more when you're indented":
+        "stringwithalongtoken you don't want to break",
+}
+
+{
+    1:
+        999999 if True
+        else 0,
+}
+
+
+print dedent(
+    '''
+        mkdir -p ./{build}/
+        mv ./build/ ./{build}/%(revision)s/
+    '''.format(
+        build='build',
+        # more stuff
+    )
+)

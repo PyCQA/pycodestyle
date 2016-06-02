@@ -4,3 +4,4 @@
 .tox
 dist
 docs/_build
+build/
