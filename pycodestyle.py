@@ -965,8 +965,12 @@ def compound_statements(logical_line):
         if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
              counts['['] <= counts[']'] and   # [1:2] (slice)
              counts['('] <= counts[')'])):    # (annotation)
-            if LAMBDA_REGEX.search(line, 0, found):
-                yield 0, "E731 do not assign a lambda expression, use a def"
+            lambda_kw = LAMBDA_REGEX.search(line, 0, found)
+            if lambda_kw:
+                before = line[:lambda_kw.start()].rstrip()
+                if before[-1:] == '=' and isidentifier(before[:-1].strip()):
+                    yield 0, ("E731 do not assign a lambda expression, use a "
+                              "def")
                 break
             if line.startswith('def '):
                 yield 0, "E704 multiple statements on one line (def)"
