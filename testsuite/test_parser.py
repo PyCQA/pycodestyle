@@ -19,7 +19,7 @@ class ParserTestCase(unittest.TestCase):
 
     def test_vanilla_ignore_parsing(self):
         contents = b"""
-[pep8]
+[pycodestyle]
 ignore = E226,E24
         """
         options, args = _process_file(contents)
@@ -28,7 +28,7 @@ ignore = E226,E24
 
     def test_multiline_ignore_parsing(self):
         contents = b"""
-[pep8]
+[pycodestyle]
 ignore =
     E226,
     E24
@@ -40,7 +40,7 @@ ignore =
 
     def test_trailing_comma_ignore_parsing(self):
         contents = b"""
-[pep8]
+[pycodestyle]
 ignore = E226,
         """
 
@@ -50,7 +50,7 @@ ignore = E226,
 
     def test_multiline_trailing_comma_ignore_parsing(self):
         contents = b"""
-[pep8]
+[pycodestyle]
 ignore =
     E226,
     E24,

@@ -172,7 +172,7 @@ class APITestCase(unittest.TestCase):
     def test_styleguide_ignore_code(self):
         def parse_argv(argstring):
             _saved_argv = sys.argv
-            sys.argv = shlex.split('pep8 %s /dev/null' % argstring)
+            sys.argv = shlex.split('pycodestyle %s /dev/null' % argstring)
             try:
                 return pycodestyle.StyleGuide(parse_argv=True)
             finally:
