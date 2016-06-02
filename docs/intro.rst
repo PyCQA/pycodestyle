@@ -157,6 +157,7 @@ Quick help is available on the command line::
     --count              print total number of errors and warnings to standard
                          error and set exit code to 1 if total is not null
     --max-line-length=n  set maximum allowed line length (default: 79)
+    --indent-size=n      set how many spaces make up an indent (default: 4)
     --hang-closing       hang closing bracket instead of matching indentation of
                          opening bracket's line
     --format=format      set the error format [default|pylint|<custom>]

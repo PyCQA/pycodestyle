@@ -2003,7 +2003,7 @@ def get_parser(prog='pep8', version=__version__):
                            "(default: %default)")
     parser.add_option('--indent-size', type='int', metavar='n',
                       default=INDENT_SIZE,
-                      help="set allowed indent size multiple (tab width) "
+                      help="set how many spaces make up an indent "
                            "(default: %default)")
     parser.add_option('--hang-closing', action='store_true',
                       help="hang closing bracket instead of matching "
