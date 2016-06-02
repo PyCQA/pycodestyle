@@ -7,6 +7,26 @@ import pycodestyle
 from testsuite.support import ROOT_DIR, PseudoFile
 
 
+def safe_line_split(line):
+    """ parses the path, from message details """
+
+    # On certain platforms, the drive notation conflicts
+    # with the message seperator, inducing problems during tuple unpacking.
+
+    split = line.split(':')
+    if 'win' in sys.platform:
+        if len(split) == 5:
+            drive, path, x, y, msg = split
+            path = drive + ':' + path
+        elif len(split) == 4:
+            path, x, y, msg = split
+        else:
+            raise Exception("Unhandled edge case parsing message: " + line)
+    else:
+        path, x, y, msg = split
+    return path, x, y, msg
+
+
 class ShellTestCase(unittest.TestCase):
     """Test the usual CLI options and output."""
 
@@ -77,7 +97,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(stderr)
         self.assertEqual(len(stdout), 17)
         for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
@@ -141,7 +161,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         for line, num, col in zip(stdout, (3, 6), (3, 6)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
@@ -154,7 +174,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         for line, num, col in zip(stdout, (3, 6), (3, 6)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
