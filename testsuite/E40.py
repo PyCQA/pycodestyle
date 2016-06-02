@@ -11,8 +11,16 @@ from foo.bar.yourclass import YourClass
 
 import myclass
 import foo.bar.yourclass
-#: E402
+#: Okay
 __all__ = ['abc']
+
+import foo
+#: Okay
+__version__ = "42"
+
+import foo
+#: Okay
+__author__ = "Simon Gomizelj"
 
 import foo
 #: Okay
