@@ -1317,9 +1317,9 @@ def normalize_paths(value, parent=os.curdir):
     paths = []
     for path in value.split(','):
         path = path.strip()
-        if '/' in path:
+        if os.path.sep in path:
             path = os.path.abspath(os.path.join(parent, path))
-        paths.append(path.rstrip('/'))
+        paths.append(path.rstrip(os.path.sep))
     return paths
 
 
