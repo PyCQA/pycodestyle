@@ -1219,7 +1219,7 @@ else:
             with open(filename, 'rb') as f:
                 (coding, lines) = tokenize.detect_encoding(f.readline)
                 f = TextIOWrapper(f, coding, line_buffering=True)
-                return [l.decode(coding) for l in lines] + f.readlines()
+                return [line.decode(coding) for line in lines] + f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
             # Fall back if file encoding is improperly declared
             with open(filename, encoding='latin-1') as f:
