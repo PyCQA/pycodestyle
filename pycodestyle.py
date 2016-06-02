@@ -1157,7 +1157,19 @@ def ambiguous_identifier(logical_line, tokens):
     one and zero. When tempted to use 'l', use 'L' instead.
 
     Okay: L = 0
+    Okay: o = 123
+    Okay: i = 42
     E741: l = 0
+    E741: O = 123
+    E741: I = 42
+
+    Variables can be bound in other contexts, so identifiers appearing after
+    the 'as' keyword are also reported:
+
+    Okay: except AttributeError as o:
+    Okay: with lock as L:
+    E741: except AttributeError as O:
+    E741: with lock as l:
     """
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
