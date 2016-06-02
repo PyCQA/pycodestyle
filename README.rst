@@ -1,11 +1,16 @@
-pep8 - Python style guide checker
-=================================
+pycodestyle (formerly called pep8) - Python style guide checker
+===============================================================
 
-pep8 is a tool to check your Python code against some of the style
+pycodestyle is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 
+.. note::
+
+    This package used to be called ``pep8`` but was renamed to ``pycodestyle``
+    to reduce confusion. Further discussion `here
+    <https://github.com/PyCQA/pycodestyle/issues/466>`_.
 
 Features
 --------
@@ -15,18 +20,18 @@ Features
 * Parseable output: Jump to error location in your editor.
 
 * Small: Just one Python file, requires only stdlib. You can use just
-  the pep8.py file for this purpose.
+  the ``pycodestyle.py`` file for this purpose.
 
 * Comes with a comprehensive test suite.
 
 Installation
 ------------
 
-You can install, upgrade, uninstall pep8.py with these commands::
+You can install, upgrade, uninstall ``pycodestyle.py`` with these commands::
 
-  $ pip install pep8
-  $ pip install --upgrade pep8
-  $ pip uninstall pep8
+  $ pip install pycodestyle
+  $ pip install --upgrade pycodestyle
+  $ pip uninstall pycodestyle
 
 There's also a package for Debian/Ubuntu, but it's not always the
 latest version.
@@ -36,7 +41,7 @@ Example usage and output
 
 ::
 
-  $ pep8 --first optparse.py
+  $ pycodestyle --first optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -46,10 +51,10 @@ Example usage and output
   optparse.py:472:29: E221 multiple spaces before operator
   optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
-You can also make pep8.py show the source code for each error, and
+You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
   testsuite/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
@@ -61,7 +66,7 @@ even the relevant text from PEP 8::
 
 Or you can display how often each error was found::
 
-  $ pep8 --statistics -qq Python-2.5/Lib
+  $ pycodestyle --statistics -qq Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -78,14 +83,14 @@ Or you can display how often each error was found::
 Links
 -----
 
-.. image:: https://api.travis-ci.org/jcrocholl/pep8.png?branch=master
-   :target: https://travis-ci.org/jcrocholl/pep8
+.. image:: https://api.travis-ci.org/PyCQA/pycodestyle.png?branch=master
+   :target: https://travis-ci.org/PyCQA/pycodestyle
    :alt: Build status
 
-.. image:: https://pypip.in/wheel/pep8/badge.png?branch=master
-   :target: https://pypi.python.org/pypi/pep8
+.. image:: https://pypip.in/wheel/pycodestyle/badge.png?branch=master
+   :target: https://pypi.python.org/pypi/pycodestyle
    :alt: Wheel Status
 
-* `Read the documentation <http://pep8.readthedocs.org/>`_
+* `Read the documentation <https://pycodestyle.readthedocs.io/>`_
 
-* `Fork me on GitHub <http://github.com/jcrocholl/pep8>`_
+* `Fork me on GitHub <http://github.com/PyCQA/pycodestyle>`_

@@ -1,9 +1,9 @@
-.. currentmodule:: pep8
+.. currentmodule:: pycodestyle
 
 Introduction
 ============
 
-pep8 is a tool to check your Python code against some of the style
+pycodestyle is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
 .. contents::
@@ -18,7 +18,7 @@ Features
 * Parseable output: Jump to error location in your editor.
 
 * Small: Just one Python file, requires only stdlib.  You can use just
-  the pep8.py file for this purpose.
+  the ``pycodestyle.py`` file for this purpose.
 
 * Comes with a comprehensive test suite.
 
@@ -40,14 +40,14 @@ Always remember this statement from `PEP 8`_:
 
 
 Among other things, these features are currently not in the scope of
-the ``pep8`` library:
+the ``pycodestyle`` library:
 
 * **naming conventions**: this kind of feature is supported through plugins.
   Install `flake8 <https://pypi.python.org/pypi/flake8>`_ and the
   `pep8-naming extension <https://pypi.python.org/pypi/pep8-naming>`_ to use
   this feature.
 * **docstring conventions**: they are not in the scope of this library;
-  see the `pep257 project <https://github.com/GreenSteam/pep257>`_.
+  see the `pydocstyle project <https://github.com/PyCQA/pydocstyle>`_.
 * **automatic fixing**: see the section *PEP8 Fixers* in the
   :ref:`related tools <related-tools>` page.
 
@@ -55,16 +55,11 @@ the ``pep8`` library:
 Installation
 ------------
 
-You can install, upgrade, uninstall pep8.py with these commands::
+You can install, upgrade, uninstall ``pycodestyle.py`` with these commands::
 
-  $ pip install pep8
-  $ pip install --upgrade pep8
-  $ pip uninstall pep8
-
-There's also a package for Debian/Ubuntu, but it's not always the
-latest version::
-
-  $ sudo apt-get install pep8
+  $ pip install pycodestyle
+  $ pip install --upgrade pycodestyle
+  $ pip uninstall pycodestyle
 
 
 Example usage and output
@@ -72,7 +67,7 @@ Example usage and output
 
 ::
 
-  $ pep8 --first optparse.py
+  $ pycodestyle --first optparse.py
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
@@ -82,10 +77,10 @@ Example usage and output
   optparse.py:472:29: E221 multiple spaces before operator
   optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
-You can also make pep8.py show the source code for each error, and
+You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pep8 --show-source --show-pep8 testsuite/E40.py
+  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
   testsuite/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
@@ -97,7 +92,7 @@ even the relevant text from PEP 8::
 
 Or you can display how often each error was found::
 
-  $ pep8 --statistics -qq Python-2.5/Lib
+  $ pycodestyle --statistics -qq Python-2.5/Lib
   232     E201 whitespace after '['
   599     E202 whitespace before ')'
   631     E203 whitespace before ','
@@ -111,15 +106,16 @@ Or you can display how often each error was found::
   612     W601 .has_key() is deprecated, use 'in'
   1188    W602 deprecated form of raising exception
 
-You can also make pep8.py show the error text in different formats by using --format having options default/pylint/custom::
+You can also make ``pycodestyle.py`` show the error text in different formats by
+using ``--format`` having options default/pylint/custom::
 
-  $ pep8 testsuite/E40.py --format=default
+  $ pycodestyle testsuite/E40.py --format=default
   testsuite/E40.py:2:10: E401 multiple imports on one line
 
-  $ pep8 testsuite/E40.py --format=pylint
+  $ pycodestyle testsuite/E40.py --format=pylint
   testsuite/E40.py:2: [E401] multiple imports on one line
 
-  $ pep8 testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
+  $ pycodestyle testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
   testsuite/E40.py|2|10| E401 multiple imports on one line
 
 Variables in the ``custom`` format option
@@ -140,8 +136,8 @@ Variables in the ``custom`` format option
 
 Quick help is available on the command line::
 
-  $ pep8 -h
-  Usage: pep8 [options] input ...
+  $ pycodestyle -h
+  Usage: pycodestyle [options] input ...
 
   Options:
     --version            show program's version number and exit
@@ -183,24 +179,28 @@ Quick help is available on the command line::
 Configuration
 -------------
 
-The behaviour may be configured at two levels.
+The behaviour may be configured at two levels, the user and project levels.
 
-The user settings are read from the ``~/.config/pep8`` file and
-for Windows from the ``~\.pep8`` file.
+At the user level, settings are read from the following locations:
+
+If on Windows:
+    ``~\.pep8``
+
+Otherwise, if the :envvar:`XDG_CONFIG_HOME` environment variable is defined:
+    ``XDG_CONFIG_HOME/pep8``
+
+Else if :envvar:`XDG_CONFIG_HOME` is not defined:
+    ``~/.config/pep8``
+
 Example::
 
   [pep8]
   ignore = E226,E302,E41
   max-line-length = 160
 
-At the project level, a ``tox.ini`` file or a ``setup.cfg`` file is read if
-present (``.pep8`` file is also supported, but it is deprecated).  If none of
-these files have a ``[pep8]`` section, no project specific configuration is
-loaded.
-
-If the ``ignore`` option is not in the configuration and not in the arguments,
-only the error codes ``E123/E133``, ``E226`` and ``E241/E242`` are ignored
-(see below).
+At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
+present. If none of these files have a ``[pep8]`` section, no project specific
+configuration is loaded.
 
 
 Error codes
@@ -208,198 +208,205 @@ Error codes
 
 This is the current list of error and warning codes:
 
-+----------+----------------------------------------------------------------------+
-| code     | sample message                                                       |
-+==========+======================================================================+
-| **E1**   | *Indentation*                                                        |
-+----------+----------------------------------------------------------------------+
-| E101     | indentation contains mixed spaces and tabs                           |
-+----------+----------------------------------------------------------------------+
-| E111     | indentation is not a multiple of four                                |
-+----------+----------------------------------------------------------------------+
-| E112     | expected an indented block                                           |
-+----------+----------------------------------------------------------------------+
-| E113     | unexpected indentation                                               |
-+----------+----------------------------------------------------------------------+
-| E114     | indentation is not a multiple of four (comment)                      |
-+----------+----------------------------------------------------------------------+
-| E115     | expected an indented block (comment)                                 |
-+----------+----------------------------------------------------------------------+
-| E116     | unexpected indentation (comment)                                     |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E121 (^) | continuation line under-indented for hanging indent                  |
-+----------+----------------------------------------------------------------------+
-| E122 (^) | continuation line missing indentation or outdented                   |
-+----------+----------------------------------------------------------------------+
-| E123 (*) | closing bracket does not match indentation of opening bracket's line |
-+----------+----------------------------------------------------------------------+
-| E124 (^) | closing bracket does not match visual indentation                    |
-+----------+----------------------------------------------------------------------+
-| E125 (^) | continuation line with same indent as next logical line              |
-+----------+----------------------------------------------------------------------+
-| E126 (^) | continuation line over-indented for hanging indent                   |
-+----------+----------------------------------------------------------------------+
-| E127 (^) | continuation line over-indented for visual indent                    |
-+----------+----------------------------------------------------------------------+
-| E128 (^) | continuation line under-indented for visual indent                   |
-+----------+----------------------------------------------------------------------+
-| E129 (^) | visually indented line with same indent as next logical line         |
-+----------+----------------------------------------------------------------------+
-| E131 (^) | continuation line unaligned for hanging indent                       |
-+----------+----------------------------------------------------------------------+
-| E133 (*) | closing bracket is missing indentation                               |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E2**   | *Whitespace*                                                         |
-+----------+----------------------------------------------------------------------+
-| E201     | whitespace after '('                                                 |
-+----------+----------------------------------------------------------------------+
-| E202     | whitespace before ')'                                                |
-+----------+----------------------------------------------------------------------+
-| E203     | whitespace before ':'                                                |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E211     | whitespace before '('                                                |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E221     | multiple spaces before operator                                      |
-+----------+----------------------------------------------------------------------+
-| E222     | multiple spaces after operator                                       |
-+----------+----------------------------------------------------------------------+
-| E223     | tab before operator                                                  |
-+----------+----------------------------------------------------------------------+
-| E224     | tab after operator                                                   |
-+----------+----------------------------------------------------------------------+
-| E225     | missing whitespace around operator                                   |
-+----------+----------------------------------------------------------------------+
-| E226 (*) | missing whitespace around arithmetic operator                        |
-+----------+----------------------------------------------------------------------+
-| E227     | missing whitespace around bitwise or shift operator                  |
-+----------+----------------------------------------------------------------------+
-| E228     | missing whitespace around modulo operator                            |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E231     | missing whitespace after ','                                         |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E241 (*) | multiple spaces after ','                                            |
-+----------+----------------------------------------------------------------------+
-| E242 (*) | tab after ','                                                        |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E251     | unexpected spaces around keyword / parameter equals                  |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E261     | at least two spaces before inline comment                            |
-+----------+----------------------------------------------------------------------+
-| E262     | inline comment should start with '# '                                |
-+----------+----------------------------------------------------------------------+
-| E265     | block comment should start with '# '                                 |
-+----------+----------------------------------------------------------------------+
-| E266     | too many leading '#' for block comment                               |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| E271     | multiple spaces after keyword                                        |
-+----------+----------------------------------------------------------------------+
-| E272     | multiple spaces before keyword                                       |
-+----------+----------------------------------------------------------------------+
-| E273     | tab after keyword                                                    |
-+----------+----------------------------------------------------------------------+
-| E274     | tab before keyword                                                   |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E3**   | *Blank line*                                                         |
-+----------+----------------------------------------------------------------------+
-| E301     | expected 1 blank line, found 0                                       |
-+----------+----------------------------------------------------------------------+
-| E302     | expected 2 blank lines, found 0                                      |
-+----------+----------------------------------------------------------------------+
-| E303     | too many blank lines (3)                                             |
-+----------+----------------------------------------------------------------------+
-| E304     | blank lines found after function decorator                           |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E4**   | *Import*                                                             |
-+----------+----------------------------------------------------------------------+
-| E401     | multiple imports on one line                                         |
-+----------+----------------------------------------------------------------------+
-| E402     | module level import not at top of file                               |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E5**   | *Line length*                                                        |
-+----------+----------------------------------------------------------------------+
-| E501 (^) | line too long (82 > 79 characters)                                   |
-+----------+----------------------------------------------------------------------+
-| E502     | the backslash is redundant between brackets                          |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E7**   | *Statement*                                                          |
-+----------+----------------------------------------------------------------------+
-| E701     | multiple statements on one line (colon)                              |
-+----------+----------------------------------------------------------------------+
-| E702     | multiple statements on one line (semicolon)                          |
-+----------+----------------------------------------------------------------------+
-| E703     | statement ends with a semicolon                                      |
-+----------+----------------------------------------------------------------------+
-| E704 (*) | multiple statements on one line (def)                                |
-+----------+----------------------------------------------------------------------+
-| E711 (^) | comparison to None should be 'if cond is None:'                      |
-+----------+----------------------------------------------------------------------+
-| E712 (^) | comparison to True should be 'if cond is True:' or 'if cond:'        |
-+----------+----------------------------------------------------------------------+
-| E713     | test for membership should be 'not in'                               |
-+----------+----------------------------------------------------------------------+
-| E714     | test for object identity should be 'is not'                          |
-+----------+----------------------------------------------------------------------+
-| E721     | do not compare types, use 'isinstance()'                             |
-+----------+----------------------------------------------------------------------+
-| E731     | do not assign a lambda expression, use a def                         |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **E9**   | *Runtime*                                                            |
-+----------+----------------------------------------------------------------------+
-| E901     | SyntaxError or IndentationError                                      |
-+----------+----------------------------------------------------------------------+
-| E902     | IOError                                                              |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **W1**   | *Indentation warning*                                                |
-+----------+----------------------------------------------------------------------+
-| W191     | indentation contains tabs                                            |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **W2**   | *Whitespace warning*                                                 |
-+----------+----------------------------------------------------------------------+
-| W291     | trailing whitespace                                                  |
-+----------+----------------------------------------------------------------------+
-| W292     | no newline at end of file                                            |
-+----------+----------------------------------------------------------------------+
-| W293     | blank line contains whitespace                                       |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **W3**   | *Blank line warning*                                                 |
-+----------+----------------------------------------------------------------------+
-| W391     | blank line at end of file                                            |
-+----------+----------------------------------------------------------------------+
-+----------+----------------------------------------------------------------------+
-| **W6**   | *Deprecation warning*                                                |
-+----------+----------------------------------------------------------------------+
-| W601     | .has_key() is deprecated, use 'in'                                   |
-+----------+----------------------------------------------------------------------+
-| W602     | deprecated form of raising exception                                 |
-+----------+----------------------------------------------------------------------+
-| W603     | '<>' is deprecated, use '!='                                         |
-+----------+----------------------------------------------------------------------+
-| W604     | backticks are deprecated, use 'repr()'                               |
-+----------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| code       | sample message                                                       |
++============+======================================================================+
+| **E1**     | *Indentation*                                                        |
++------------+----------------------------------------------------------------------+
+| E101       | indentation contains mixed spaces and tabs                           |
++------------+----------------------------------------------------------------------+
+| E111       | indentation is not a multiple of four                                |
++------------+----------------------------------------------------------------------+
+| E112       | expected an indented block                                           |
++------------+----------------------------------------------------------------------+
+| E113       | unexpected indentation                                               |
++------------+----------------------------------------------------------------------+
+| E114       | indentation is not a multiple of four (comment)                      |
++------------+----------------------------------------------------------------------+
+| E115       | expected an indented block (comment)                                 |
++------------+----------------------------------------------------------------------+
+| E116       | unexpected indentation (comment)                                     |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E121 (\*^) | continuation line under-indented for hanging indent                  |
++------------+----------------------------------------------------------------------+
+| E122 (^)   | continuation line missing indentation or outdented                   |
++------------+----------------------------------------------------------------------+
+| E123 (*)   | closing bracket does not match indentation of opening bracket's line |
++------------+----------------------------------------------------------------------+
+| E124 (^)   | closing bracket does not match visual indentation                    |
++------------+----------------------------------------------------------------------+
+| E125 (^)   | continuation line with same indent as next logical line              |
++------------+----------------------------------------------------------------------+
+| E126 (\*^) | continuation line over-indented for hanging indent                   |
++------------+----------------------------------------------------------------------+
+| E127 (^)   | continuation line over-indented for visual indent                    |
++------------+----------------------------------------------------------------------+
+| E128 (^)   | continuation line under-indented for visual indent                   |
++------------+----------------------------------------------------------------------+
+| E129 (^)   | visually indented line with same indent as next logical line         |
++------------+----------------------------------------------------------------------+
+| E131 (^)   | continuation line unaligned for hanging indent                       |
++------------+----------------------------------------------------------------------+
+| E133 (*)   | closing bracket is missing indentation                               |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E2**     | *Whitespace*                                                         |
++------------+----------------------------------------------------------------------+
+| E201       | whitespace after '('                                                 |
++------------+----------------------------------------------------------------------+
+| E202       | whitespace before ')'                                                |
++------------+----------------------------------------------------------------------+
+| E203       | whitespace before ':'                                                |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E211       | whitespace before '('                                                |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E221       | multiple spaces before operator                                      |
++------------+----------------------------------------------------------------------+
+| E222       | multiple spaces after operator                                       |
++------------+----------------------------------------------------------------------+
+| E223       | tab before operator                                                  |
++------------+----------------------------------------------------------------------+
+| E224       | tab after operator                                                   |
++------------+----------------------------------------------------------------------+
+| E225       | missing whitespace around operator                                   |
++------------+----------------------------------------------------------------------+
+| E226 (*)   | missing whitespace around arithmetic operator                        |
++------------+----------------------------------------------------------------------+
+| E227       | missing whitespace around bitwise or shift operator                  |
++------------+----------------------------------------------------------------------+
+| E228       | missing whitespace around modulo operator                            |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E231       | missing whitespace after ',', ';', or ':'                            |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E241 (*)   | multiple spaces after ','                                            |
++------------+----------------------------------------------------------------------+
+| E242 (*)   | tab after ','                                                        |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E251       | unexpected spaces around keyword / parameter equals                  |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E261       | at least two spaces before inline comment                            |
++------------+----------------------------------------------------------------------+
+| E262       | inline comment should start with '# '                                |
++------------+----------------------------------------------------------------------+
+| E265       | block comment should start with '# '                                 |
++------------+----------------------------------------------------------------------+
+| E266       | too many leading '#' for block comment                               |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| E271       | multiple spaces after keyword                                        |
++------------+----------------------------------------------------------------------+
+| E272       | multiple spaces before keyword                                       |
++------------+----------------------------------------------------------------------+
+| E273       | tab after keyword                                                    |
++------------+----------------------------------------------------------------------+
+| E274       | tab before keyword                                                   |
++------------+----------------------------------------------------------------------+
+| E275       | missing whitespace after keyword                                     |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E3**     | *Blank line*                                                         |
++------------+----------------------------------------------------------------------+
+| E301       | expected 1 blank line, found 0                                       |
++------------+----------------------------------------------------------------------+
+| E302       | expected 2 blank lines, found 0                                      |
++------------+----------------------------------------------------------------------+
+| E303       | too many blank lines (3)                                             |
++------------+----------------------------------------------------------------------+
+| E304       | blank lines found after function decorator                           |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E4**     | *Import*                                                             |
++------------+----------------------------------------------------------------------+
+| E401       | multiple imports on one line                                         |
++------------+----------------------------------------------------------------------+
+| E402       | module level import not at top of file                               |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E5**     | *Line length*                                                        |
++------------+----------------------------------------------------------------------+
+| E501 (^)   | line too long (82 > 79 characters)                                   |
++------------+----------------------------------------------------------------------+
+| E502       | the backslash is redundant between brackets                          |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E7**     | *Statement*                                                          |
++------------+----------------------------------------------------------------------+
+| E701       | multiple statements on one line (colon)                              |
++------------+----------------------------------------------------------------------+
+| E702       | multiple statements on one line (semicolon)                          |
++------------+----------------------------------------------------------------------+
+| E703       | statement ends with a semicolon                                      |
++------------+----------------------------------------------------------------------+
+| E704 (*)   | multiple statements on one line (def)                                |
++------------+----------------------------------------------------------------------+
+| E711 (^)   | comparison to None should be 'if cond is None:'                      |
++------------+----------------------------------------------------------------------+
+| E712 (^)   | comparison to True should be 'if cond is True:' or 'if cond:'        |
++------------+----------------------------------------------------------------------+
+| E713       | test for membership should be 'not in'                               |
++------------+----------------------------------------------------------------------+
+| E714       | test for object identity should be 'is not'                          |
++------------+----------------------------------------------------------------------+
+| E721 (^)   | do not compare types, use 'isinstance()'                             |
++------------+----------------------------------------------------------------------+
+| E731       | do not assign a lambda expression, use a def                         |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **E9**     | *Runtime*                                                            |
++------------+----------------------------------------------------------------------+
+| E901       | SyntaxError or IndentationError                                      |
++------------+----------------------------------------------------------------------+
+| E902       | IOError                                                              |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W1**     | *Indentation warning*                                                |
++------------+----------------------------------------------------------------------+
+| W191       | indentation contains tabs                                            |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W2**     | *Whitespace warning*                                                 |
++------------+----------------------------------------------------------------------+
+| W291       | trailing whitespace                                                  |
++------------+----------------------------------------------------------------------+
+| W292       | no newline at end of file                                            |
++------------+----------------------------------------------------------------------+
+| W293       | blank line contains whitespace                                       |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W3**     | *Blank line warning*                                                 |
++------------+----------------------------------------------------------------------+
+| W391       | blank line at end of file                                            |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W5**     | *Line break warning*                                                 |
++------------+----------------------------------------------------------------------+
+| W503 (*)   | line break occurred before a binary operator                         |
++------------+----------------------------------------------------------------------+
++------------+----------------------------------------------------------------------+
+| **W6**     | *Deprecation warning*                                                |
++------------+----------------------------------------------------------------------+
+| W601       | .has_key() is deprecated, use 'in'                                   |
++------------+----------------------------------------------------------------------+
+| W602       | deprecated form of raising exception                                 |
++------------+----------------------------------------------------------------------+
+| W603       | '<>' is deprecated, use '!='                                         |
++------------+----------------------------------------------------------------------+
+| W604       | backticks are deprecated, use 'repr()'                               |
++------------+----------------------------------------------------------------------+
 
 
-**(*)** In the default configuration, the checks **E123**, **E133**, **E226**,
-**E241**, **E242** and **E704** are ignored because they are not rules unanimously
-accepted, and `PEP 8`_ does not enforce them.  The check **E133** is mutually
-exclusive with check **E123**.  Use switch ``--hang-closing`` to report **E133**
-instead of **E123**.
+**(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
+**E133**, **E226**, **E241**, **E242**, **E704** and **W503** are ignored because
+they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
+check **E133** is mutually exclusive with check **E123**.  Use switch ``--hang-
+closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
@@ -409,7 +416,7 @@ special comment.  This possibility should be reserved for special cases.
 
 Note: most errors can be listed with such one-liner::
 
-  $ python pep8.py --first --select E,W testsuite/ --format '%(code)s: %(text)s'
+  $ python pycodestyle.py --first --select E,W testsuite/ --format '%(code)s: %(text)s'
 
 
 .. _related-tools:
@@ -417,10 +424,10 @@ Note: most errors can be listed with such one-liner::
 Related tools
 -------------
 
-The `flake8 checker <https://flake8.readthedocs.org>`_ is a wrapper around
-``pep8`` and similar tools. It supports plugins.
+The `flake8 checker <https://flake8.readthedocs.io>`_ is a wrapper around
+``pycodestyle`` and similar tools. It supports plugins.
 
-Other tools which use ``pep8`` are referenced in the Wiki: `list of related tools
-<https://github.com/jcrocholl/pep8/wiki/RelatedTools>`_.
+Other tools which use ``pycodestyle`` are referenced in the Wiki: `list of related
+tools <https://github.com/pycqa/pycodestyle/wiki/RelatedTools>`_.
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/

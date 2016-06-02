@@ -2,8 +2,73 @@ Changelog
 =========
 
 
-1.x (unreleased)
-----------------
+2.0.0 (2016-05-31)
+------------------
+
+Announcements:
+
+* Repository renamed to `pycodestyle`; Issue #466 / #481.
+* Added joint Code of Conduct as member of PyCQA; #483
+
+Changes:
+
+* Added tox test support for Python 3.5 and pypy3
+* Added check E275 for whitespace on `from ... import ...` lines; #489 / #491
+* Added W503 to the list of codes ignored by default ignore list; #498
+* Removed use of project level `.pep8` configuration file; #364
+
+Bugs:
+
+* Fixed bug with treating `~` operator as binary; #383 / #384
+* Identify binary operators as unary; #484 / #485
+
+1.7.0 (2016-01-12)
+------------------
+
+Announcements:
+
+* Repository moved to PyCQA Organization on GitHub:
+  https://github.com/pycqa/pep8
+
+Changes:
+
+* Reverted the fix in #368, "options passed on command line are only ones
+  accepted" feature. This has many unintended consequences in pep8 and flake8
+  and needs to be reworked when I have more time.
+* Added support for Python 3.5. (Issue #420 & #459)
+* Added support for multi-line config_file option parsing. (Issue #429)
+* Improved parameter parsing. (Issues #420 & #456)
+
+Bugs:
+
+* Fixed BytesWarning on Python 3. (Issue #459)
+
+1.6.2 (2015-02-15)
+------------------
+
+Changes:
+
+* Added check for breaking around a binary operator. (Issue #197, Pull #305)
+
+Bugs:
+
+* Restored config_file parameter in process_options(). (Issue #380)
+
+
+1.6.1 (2015-02-08)
+------------------
+
+Changes:
+
+* Assign variables before referenced. (Issue #287)
+
+Bugs:
+
+* Exception thrown due to unassigned ``local_dir`` variable. (Issue #377)
+
+
+1.6.0 (2015-02-06)
+------------------
 
 News:
 
@@ -32,6 +97,15 @@ Changes:
 
 * Add ``.tox/`` to default excludes. (Issue #335)
 
+* Do not report E121 or E126 in the default configuration. (Issues #256 / #316)
+
+* Allow spaces around the equals sign in an annotated function. (Issue #357)
+
+* Allow trailing backslash if in an inline comment. (Issue #374)
+
+* If ``--config`` is used, only that configuration is processed. Otherwise,
+  merge the user and local configurations are merged. (Issue #368 / #369)
+
 Bug fixes:
 
 * Don't crash if Checker.build_tokens_line() returns None. (Issue #306)
@@ -42,6 +116,11 @@ Bug fixes:
   (Issue #323)
 
 * Fix false positive E711/E712/E713. (Issues #330 and #336)
+
+* Do not skip physical checks if the newline is escaped. (Issue #319)
+
+* Flush sys.stdout to avoid race conditions with printing. See flake8 bug:
+  https://gitlab.com/pycqa/flake8/issues/17 for more details. (Issue #363)
 
 
 1.5.7 (2014-05-29)
@@ -274,7 +353,7 @@ Bug fixes:
 
 * Initiate a graceful shutdown on ``Control+C``.
 
-* Allow to change the ``checker_class`` for the ``StyleGuide``.
+* Allow changing the ``checker_class`` for the ``StyleGuide``.
 
 
 1.4.2 (2013-02-10)
@@ -284,7 +363,7 @@ Bug fixes:
 
 * Register new checkers with ``register_check(func_or_cls, codes)``.
 
-* Allow to construct a ``StyleGuide`` with a custom parser.
+* Allow constructing a ``StyleGuide`` with a custom parser.
 
 * Accept visual indentation without parenthesis after the ``if``
   statement. (Issue #151)
@@ -330,7 +409,7 @@ Bug fixes:
   (Issue #93 and #141)
 
 * Add the Sphinx-based documentation, and publish it
-  on http://pep8.readthedocs.org/. (Issue #105)
+  on https://pycodestyle.readthedocs.io/. (Issue #105)
 
 
 1.3.4 (2012-12-18)
@@ -493,7 +572,7 @@ Bug fixes:
   The ``--repeat`` flag becomes obsolete because it is the default
   behaviour. (Issue #6)
 
-* Allow to specify ``--max-line-length``. (Issue #36)
+* Allow specifying ``--max-line-length``. (Issue #36)
 
 * Make the shebang more flexible. (Issue #26)
 

@@ -323,14 +323,14 @@ if line_removed:
 rv.update(d=('a', 'b', 'c'),
              e=42)
 #
-#: E127
+#: E127 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=42
                  + 42)
-#: E127
+#: E127 W503
 input1 = {'a': {'calc': 1 + 2}, 'b': 1
                           + 42}
-#: E128
+#: E128 W503
 rv.update(d=('a' + 'b', 'c'),
           e=42, f=(42
                  + 42))

@@ -4,7 +4,7 @@ import shlex
 import sys
 import unittest
 
-import pep8
+import pycodestyle
 from testsuite.support import ROOT_DIR, PseudoFile
 
 E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
@@ -25,17 +25,18 @@ class APITestCase(unittest.TestCase):
     def setUp(self):
         self._saved_stdout = sys.stdout
         self._saved_stderr = sys.stderr
-        self._saved_checks = pep8._checks
+        self._saved_checks = pycodestyle._checks
         sys.stdout = PseudoFile()
         sys.stderr = PseudoFile()
-        pep8._checks = dict((k, dict((f, (vals[0][:], vals[1]))
-                                     for (f, vals) in v.items()))
-                            for (k, v) in self._saved_checks.items())
+        pycodestyle._checks = dict(
+            (k, dict((f, (vals[0][:], vals[1])) for (f, vals) in v.items()))
+            for (k, v) in self._saved_checks.items()
+        )
 
     def tearDown(self):
         sys.stdout = self._saved_stdout
         sys.stderr = self._saved_stderr
-        pep8._checks = self._saved_checks
+        pycodestyle._checks = self._saved_checks
 
     def reset(self):
         del sys.stdout[:], sys.stderr[:]
@@ -44,14 +45,14 @@ class APITestCase(unittest.TestCase):
         def check_dummy(physical_line, line_number):
             if False:
                 yield
-        pep8.register_check(check_dummy, ['Z001'])
+        pycodestyle.register_check(check_dummy, ['Z001'])
 
-        self.assertTrue(check_dummy in pep8._checks['physical_line'])
-        codes, args = pep8._checks['physical_line'][check_dummy]
+        self.assertTrue(check_dummy in pycodestyle._checks['physical_line'])
+        codes, args = pycodestyle._checks['physical_line'][check_dummy]
         self.assertTrue('Z001' in codes)
         self.assertEqual(args, ['physical_line', 'line_number'])
 
-        options = pep8.StyleGuide().options
+        options = pycodestyle.StyleGuide().options
         self.assertTrue(any(func == check_dummy
                             for name, func, args in options.physical_checks))
 
@@ -59,32 +60,32 @@ class APITestCase(unittest.TestCase):
         def check_dummy(logical_line, tokens):
             if False:
                 yield
-        pep8.register_check(check_dummy, ['Z401'])
+        pycodestyle.register_check(check_dummy, ['Z401'])
 
-        self.assertTrue(check_dummy in pep8._checks['logical_line'])
-        codes, args = pep8._checks['logical_line'][check_dummy]
+        self.assertTrue(check_dummy in pycodestyle._checks['logical_line'])
+        codes, args = pycodestyle._checks['logical_line'][check_dummy]
         self.assertTrue('Z401' in codes)
         self.assertEqual(args, ['logical_line', 'tokens'])
 
-        pep8.register_check(check_dummy, [])
-        pep8.register_check(check_dummy, ['Z402', 'Z403'])
-        codes, args = pep8._checks['logical_line'][check_dummy]
+        pycodestyle.register_check(check_dummy, [])
+        pycodestyle.register_check(check_dummy, ['Z402', 'Z403'])
+        codes, args = pycodestyle._checks['logical_line'][check_dummy]
         self.assertEqual(codes, ['Z401', 'Z402', 'Z403'])
         self.assertEqual(args, ['logical_line', 'tokens'])
 
-        options = pep8.StyleGuide().options
+        options = pycodestyle.StyleGuide().options
         self.assertTrue(any(func == check_dummy
                             for name, func, args in options.logical_checks))
 
     def test_register_ast_check(self):
-        pep8.register_check(DummyChecker, ['Z701'])
+        pycodestyle.register_check(DummyChecker, ['Z701'])
 
-        self.assertTrue(DummyChecker in pep8._checks['tree'])
-        codes, args = pep8._checks['tree'][DummyChecker]
+        self.assertTrue(DummyChecker in pycodestyle._checks['tree'])
+        codes, args = pycodestyle._checks['tree'][DummyChecker]
         self.assertTrue('Z701' in codes)
         self.assertTrue(args is None)
 
-        options = pep8.StyleGuide().options
+        options = pycodestyle.StyleGuide().options
         self.assertTrue(any(cls == DummyChecker
                             for name, cls, args in options.ast_checks))
 
@@ -96,23 +97,23 @@ class APITestCase(unittest.TestCase):
         def check_dummy(logical, tokens):
             if False:
                 yield
-        pep8.register_check(InvalidChecker, ['Z741'])
-        pep8.register_check(check_dummy, ['Z441'])
+        pycodestyle.register_check(InvalidChecker, ['Z741'])
+        pycodestyle.register_check(check_dummy, ['Z441'])
 
-        for checkers in pep8._checks.values():
+        for checkers in pycodestyle._checks.values():
             self.assertTrue(DummyChecker not in checkers)
             self.assertTrue(check_dummy not in checkers)
 
-        self.assertRaises(TypeError, pep8.register_check)
+        self.assertRaises(TypeError, pycodestyle.register_check)
 
     def test_styleguide(self):
-        report = pep8.StyleGuide().check_files()
+        report = pycodestyle.StyleGuide().check_files()
         self.assertEqual(report.total_errors, 0)
         self.assertFalse(sys.stdout)
         self.assertFalse(sys.stderr)
         self.reset()
 
-        report = pep8.StyleGuide().check_files(['missing-file'])
+        report = pycodestyle.StyleGuide().check_files(['missing-file'])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 1)
@@ -121,7 +122,7 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(sys.stderr)
         self.reset()
 
-        report = pep8.StyleGuide().check_files([E11])
+        report = pycodestyle.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 17)
@@ -129,7 +130,7 @@ class APITestCase(unittest.TestCase):
         self.reset()
 
         # Passing the paths in the constructor gives same result
-        report = pep8.StyleGuide(paths=[E11]).check_files()
+        report = pycodestyle.StyleGuide(paths=[E11]).check_files()
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 17)
@@ -138,10 +139,10 @@ class APITestCase(unittest.TestCase):
 
     def test_styleguide_options(self):
         # Instanciate a simple checker
-        pep8style = pep8.StyleGuide(paths=[E11])
+        pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         # Check style's attributes
-        self.assertEqual(pep8style.checker_class, pep8.Checker)
+        self.assertEqual(pep8style.checker_class, pycodestyle.Checker)
         self.assertEqual(pep8style.paths, [E11])
         self.assertEqual(pep8style.runner, pep8style.input_file)
         self.assertEqual(pep8style.options.ignore_code, pep8style.ignore_code)
@@ -173,13 +174,16 @@ class APITestCase(unittest.TestCase):
             _saved_argv = sys.argv
             sys.argv = shlex.split('pep8 %s /dev/null' % argstring)
             try:
-                return pep8.StyleGuide(parse_argv=True)
+                return pycodestyle.StyleGuide(parse_argv=True)
             finally:
                 sys.argv = _saved_argv
 
         options = parse_argv('').options
         self.assertEqual(options.select, ())
-        self.assertEqual(options.ignore, ('E123', 'E226', 'E24', 'E704'))
+        self.assertEqual(
+            options.ignore,
+            ('E121', 'E123', 'E126', 'E226', 'E24', 'E704', 'W503')
+        )
 
         options = parse_argv('--doctest').options
         self.assertEqual(options.select, ())
@@ -205,22 +209,22 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(options.select, ('E24',))
         self.assertEqual(options.ignore, ('',))
 
-        pep8style = pep8.StyleGuide(paths=[E11])
+        pep8style = pycodestyle.StyleGuide(paths=[E11])
         self.assertFalse(pep8style.ignore_code('E112'))
         self.assertFalse(pep8style.ignore_code('W191'))
         self.assertTrue(pep8style.ignore_code('E241'))
 
-        pep8style = pep8.StyleGuide(select='E', paths=[E11])
+        pep8style = pycodestyle.StyleGuide(select='E', paths=[E11])
         self.assertFalse(pep8style.ignore_code('E112'))
         self.assertTrue(pep8style.ignore_code('W191'))
         self.assertFalse(pep8style.ignore_code('E241'))
 
-        pep8style = pep8.StyleGuide(select='W', paths=[E11])
+        pep8style = pycodestyle.StyleGuide(select='W', paths=[E11])
         self.assertTrue(pep8style.ignore_code('E112'))
         self.assertFalse(pep8style.ignore_code('W191'))
         self.assertTrue(pep8style.ignore_code('E241'))
 
-        pep8style = pep8.StyleGuide(select=('F401',), paths=[E11])
+        pep8style = pycodestyle.StyleGuide(select=('F401',), paths=[E11])
         self.assertEqual(pep8style.options.select, ('F401',))
         self.assertEqual(pep8style.options.ignore, ('',))
         self.assertFalse(pep8style.ignore_code('F'))
@@ -228,7 +232,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(pep8style.ignore_code('F402'))
 
     def test_styleguide_excluded(self):
-        pep8style = pep8.StyleGuide(paths=[E11])
+        pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         self.assertFalse(pep8style.excluded('./foo/bar'))
         self.assertFalse(pep8style.excluded('./foo/bar/main.py'))
@@ -245,7 +249,7 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.excluded('./CVS/subdir'))
 
     def test_styleguide_checks(self):
-        pep8style = pep8.StyleGuide(paths=[E11])
+        pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         # Default lists of checkers
         self.assertTrue(len(pep8style.options.physical_checks) > 4)
@@ -261,49 +265,51 @@ class APITestCase(unittest.TestCase):
             self.assertEqual(args[0], 'logical_line')
 
         # Do run E11 checks
-        options = pep8.StyleGuide().options
-        self.assertTrue(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide().options
+        self.assertTrue(any(func == pycodestyle.indentation
                             for name, func, args in options.logical_checks))
-        options = pep8.StyleGuide(select=['E']).options
-        self.assertTrue(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(select=['E']).options
+        self.assertTrue(any(func == pycodestyle.indentation
                             for name, func, args in options.logical_checks))
-        options = pep8.StyleGuide(ignore=['W']).options
-        self.assertTrue(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(ignore=['W']).options
+        self.assertTrue(any(func == pycodestyle.indentation
                             for name, func, args in options.logical_checks))
-        options = pep8.StyleGuide(ignore=['E12']).options
-        self.assertTrue(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(ignore=['E12']).options
+        self.assertTrue(any(func == pycodestyle.indentation
                             for name, func, args in options.logical_checks))
 
         # Do not run E11 checks
-        options = pep8.StyleGuide(select=['W']).options
-        self.assertFalse(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(select=['W']).options
+        self.assertFalse(any(func == pycodestyle.indentation
                              for name, func, args in options.logical_checks))
-        options = pep8.StyleGuide(ignore=['E']).options
-        self.assertFalse(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(ignore=['E']).options
+        self.assertFalse(any(func == pycodestyle.indentation
                              for name, func, args in options.logical_checks))
-        options = pep8.StyleGuide(ignore=['E11']).options
-        self.assertFalse(any(func == pep8.indentation
+        options = pycodestyle.StyleGuide(ignore=['E11']).options
+        self.assertFalse(any(func == pycodestyle.indentation
                              for name, func, args in options.logical_checks))
 
     def test_styleguide_init_report(self):
-        pep8style = pep8.StyleGuide(paths=[E11])
+        style = pycodestyle.StyleGuide(paths=[E11])
 
-        self.assertEqual(pep8style.options.reporter, pep8.StandardReport)
-        self.assertEqual(type(pep8style.options.report), pep8.StandardReport)
+        standard_report = pycodestyle.StandardReport
 
-        class MinorityReport(pep8.BaseReport):
+        self.assertEqual(style.options.reporter, standard_report)
+        self.assertEqual(type(style.options.report), standard_report)
+
+        class MinorityReport(pycodestyle.BaseReport):
             pass
 
-        report = pep8style.init_report(MinorityReport)
-        self.assertEqual(pep8style.options.report, report)
+        report = style.init_report(MinorityReport)
+        self.assertEqual(style.options.report, report)
         self.assertEqual(type(report), MinorityReport)
 
-        pep8style = pep8.StyleGuide(paths=[E11], reporter=MinorityReport)
-        self.assertEqual(type(pep8style.options.report), MinorityReport)
-        self.assertEqual(pep8style.options.reporter, MinorityReport)
+        style = pycodestyle.StyleGuide(paths=[E11], reporter=MinorityReport)
+        self.assertEqual(type(style.options.report), MinorityReport)
+        self.assertEqual(style.options.reporter, MinorityReport)
 
     def test_styleguide_check_files(self):
-        pep8style = pep8.StyleGuide(paths=[E11])
+        pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         report = pep8style.check_files()
         self.assertTrue(report.total_errors)
@@ -314,12 +320,12 @@ class APITestCase(unittest.TestCase):
 
     def test_check_unicode(self):
         # Do not crash if lines are Unicode (Python 2.x)
-        pep8.register_check(DummyChecker, ['Z701'])
+        pycodestyle.register_check(DummyChecker, ['Z701'])
         source = '#\n'
         if hasattr(source, 'decode'):
             source = source.decode('ascii')
 
-        pep8style = pep8.StyleGuide()
+        pep8style = pycodestyle.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=[source])
 
         self.assertFalse(sys.stdout)
@@ -327,15 +333,18 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(count_errors, 0)
 
     def test_check_nullbytes(self):
-        pep8.register_check(DummyChecker, ['Z701'])
+        pycodestyle.register_check(DummyChecker, ['Z701'])
 
-        pep8style = pep8.StyleGuide()
+        pep8style = pycodestyle.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
         if 'SyntaxError' in stdout:
             # PyPy 2.2 returns a SyntaxError
             expected = "stdin:1:2: E901 SyntaxError"
+        elif 'ValueError' in stdout:
+            # Python 3.5.
+            expected = "stdin:1:1: E901 ValueError"
         else:
             expected = "stdin:1:1: E901 TypeError"
         self.assertTrue(stdout.startswith(expected),
@@ -345,13 +354,13 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(count_errors, 1)
 
     def test_styleguide_unmatched_triple_quotes(self):
-        pep8.register_check(DummyChecker, ['Z701'])
+        pycodestyle.register_check(DummyChecker, ['Z701'])
         lines = [
             'def foo():\n',
             '    """test docstring""\'\n',
         ]
 
-        pep8style = pep8.StyleGuide()
+        pep8style = pycodestyle.StyleGuide()
         pep8style.input_file('stdin', lines=lines)
         stdout = sys.stdout.getvalue()
 
@@ -359,7 +368,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(expected in stdout)
 
     def test_styleguide_continuation_line_outdented(self):
-        pep8.register_check(DummyChecker, ['Z701'])
+        pycodestyle.register_check(DummyChecker, ['Z701'])
         lines = [
             'def foo():\n',
             '    pass\n',
@@ -370,7 +379,7 @@ class APITestCase(unittest.TestCase):
             '    pass\n',
         ]
 
-        pep8style = pep8.StyleGuide()
+        pep8style = pycodestyle.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=lines)
         self.assertEqual(count_errors, 2)
         stdout = sys.stdout.getvalue()

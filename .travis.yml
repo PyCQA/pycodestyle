@@ -1,25 +1,29 @@
 language: python
+sudo: false
 python:
   - 2.6
   - 2.7
   - 3.2
   - 3.3
   - 3.4
+  - 3.5
+  - nightly
   - pypy
   - pypy3
 install:
   - pip install -e .
   - pip list
 script:
-  - python pep8.py --testsuite testsuite
-  - python pep8.py --statistics pep8.py
-  - python pep8.py --doctest
+  - python pycodestyle.py --testsuite testsuite
+  - python pycodestyle.py --statistics pycodestyle.py
+  - python pycodestyle.py --doctest
   - python setup.py test
-matrix:
-  allow_failures:
-    - python: pypy
-    - python: pypy3
 
 notifications:
   email:
     - IanLee1521@gmail.com
+  irc:
+    channels:
+      - "irc.freenode.org##python-code-quality"
+    use_notice: true
+    skip_join: true

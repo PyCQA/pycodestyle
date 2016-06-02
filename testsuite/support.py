@@ -3,7 +3,7 @@ import os.path
 import re
 import sys
 
-from pep8 import Checker, BaseReport, StandardReport, readlines
+from pycodestyle import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -15,6 +15,9 @@ class PseudoFile(list):
 
     def getvalue(self):
         return ''.join(self)
+
+    def flush(self):
+        pass
 
 
 class TestReport(StandardReport):
@@ -116,7 +119,7 @@ def selftest(options):
                     print("%s: %s" % (code, source))
             else:
                 count_failed += 1
-                print("pep8.py: %s:" % error)
+                print("pycodestyle.py: %s:" % error)
                 for line in checker.lines:
                     print(line.rstrip())
     return count_failed, count_all
