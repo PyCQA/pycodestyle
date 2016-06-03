@@ -3,6 +3,11 @@ for a in 'abc':
     for b in 'xyz':
         print a  # indented with 8 spaces
 	print b  # indented with 1 tab
+#: E101:4:2 W191 W191 W191
+if True:
+	foo(
+		bar(baz),
+	        eek)
 #: E101 E122 W191 W191
 if True:
 	pass
@@ -25,12 +30,7 @@ class TestP4Poller(unittest.TestCase):
 
     def tearDown(self):
         pass
-
 #
-#: E101 W191 W191
-if True:
-	foo(1,
-	    2)
 #: E101 E101 W191 W191
 def test_keys(self):
     """areas.json - All regions are accounted for."""
