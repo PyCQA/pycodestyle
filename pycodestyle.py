@@ -120,7 +120,7 @@ OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 
-# Work around Python < 2.6 behaviour, which does not generate NL after
+# Work around Python < 2.6 behavior, which does not generate NL after
 # a comment which is on a line by itself.
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
@@ -1337,7 +1337,7 @@ def filename_match(filename, patterns, default=True):
 
 
 def update_counts(s, counts):
-    r"""Adds one to the counts of each appearence of characters in s,
+    r"""Adds one to the counts of each appearance of characters in s,
         for characters in counts"""
     for char in s:
         if char in counts:
