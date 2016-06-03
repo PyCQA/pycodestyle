@@ -138,7 +138,7 @@ class APITestCase(unittest.TestCase):
         self.reset()
 
     def test_styleguide_options(self):
-        # Instanciate a simple checker
+        # Instanstiate a simple checker
         pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         # Check style's attributes
