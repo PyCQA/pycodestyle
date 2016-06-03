@@ -103,6 +103,13 @@ Then be sure to pass the tests::
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.
 
+To run the Travis CI tests, you'll have to create a build the pycodestyle package using tox:
+
+   $ pip install -r test-requirements.txt
+   $ tox
+
+All the tests should pass.
+
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 .. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html
 
