@@ -152,7 +152,9 @@ def init_tests(pep8style):
         (mutates pep8style)
 
         Usage in test:
-        #: #E133:3:1 --with-hanging
+        #: E133:3:1 --hang-closing
+        or
+        #: Okay --hang-closing
 
         """
         pep8style.options.hang_closing = '--hang-closing' in codes
