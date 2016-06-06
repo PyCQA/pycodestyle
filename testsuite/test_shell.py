@@ -19,7 +19,7 @@ class ShellTestCase(unittest.TestCase):
         self._saved_stdin_get_value = pycodestyle.stdin_get_value
         self._config_filenames = []
         self.stdin = ''
-        sys.argv = ['pep8']
+        sys.argv = ['pycodestyle']
         sys.stdout = PseudoFile()
         sys.stderr = PseudoFile()
 
@@ -39,7 +39,7 @@ class ShellTestCase(unittest.TestCase):
     def stdin_get_value(self):
         return self.stdin
 
-    def pep8(self, *args):
+    def pycodestyle(self, *args):
         del sys.stdout[:], sys.stderr[:]
         sys.argv[1:] = args
         try:
@@ -50,28 +50,30 @@ class ShellTestCase(unittest.TestCase):
         return sys.stdout.getvalue(), sys.stderr.getvalue(), errorcode
 
     def test_print_usage(self):
-        stdout, stderr, errcode = self.pep8('--help')
+        stdout, stderr, errcode = self.pycodestyle('--help')
         self.assertFalse(errcode)
         self.assertFalse(stderr)
-        self.assertTrue(stdout.startswith("Usage: pep8 [options] input"))
+        self.assertTrue(stdout.startswith(
+            "Usage: pycodestyle [options] input"
+        ))
 
-        stdout, stderr, errcode = self.pep8('--version')
+        stdout, stderr, errcode = self.pycodestyle('--version')
         self.assertFalse(errcode)
         self.assertFalse(stderr)
         self.assertEqual(stdout.count('\n'), 1)
 
-        stdout, stderr, errcode = self.pep8('--obfuscated')
+        stdout, stderr, errcode = self.pycodestyle('--obfuscated')
         self.assertEqual(errcode, 2)
         self.assertEqual(stderr.splitlines(),
-                         ["Usage: pep8 [options] input ...", "",
-                          "pep8: error: no such option: --obfuscated"])
+                         ["Usage: pycodestyle [options] input ...", "",
+                          "pycodestyle: error: no such option: --obfuscated"])
         self.assertFalse(stdout)
 
         self.assertFalse(self._config_filenames)
 
     def test_check_simple(self):
         E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
-        stdout, stderr, errcode = self.pep8(E11)
+        stdout, stderr, errcode = self.pycodestyle(E11)
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -82,20 +84,20 @@ class ShellTestCase(unittest.TestCase):
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
-        # Config file read from the pep8's setup.cfg
+        # Config file read from the pycodestyle's setup.cfg
         config_filenames = [os.path.basename(p)
                             for p in self._config_filenames]
         self.assertTrue('setup.cfg' in config_filenames)
 
     def test_check_stdin(self):
         pycodestyle.PROJECT_CONFIG = ()
-        stdout, stderr, errcode = self.pep8('-')
+        stdout, stderr, errcode = self.pycodestyle('-')
         self.assertFalse(errcode)
         self.assertFalse(stderr)
         self.assertFalse(stdout)
 
         self.stdin = 'import os, sys\n'
-        stdout, stderr, errcode = self.pep8('-')
+        stdout, stderr, errcode = self.pycodestyle('-')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -104,7 +106,7 @@ class ShellTestCase(unittest.TestCase):
 
     def test_check_non_existent(self):
         self.stdin = 'import os, sys\n'
-        stdout, stderr, errcode = self.pep8('fictitious.py')
+        stdout, stderr, errcode = self.pycodestyle('fictitious.py')
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         self.assertTrue(stdout.startswith('fictitious.py:1:1: E902 '))
@@ -112,11 +114,11 @@ class ShellTestCase(unittest.TestCase):
     def test_check_noarg(self):
         # issue #170: do not read stdin by default
         pycodestyle.PROJECT_CONFIG = ()
-        stdout, stderr, errcode = self.pep8()
+        stdout, stderr, errcode = self.pycodestyle()
         self.assertEqual(errcode, 2)
         self.assertEqual(stderr.splitlines(),
-                         ["Usage: pep8 [options] input ...", "",
-                          "pep8: error: input not specified"])
+                         ["Usage: pycodestyle [options] input ...", "",
+                          "pycodestyle: error: input not specified"])
         self.assertFalse(self._config_filenames)
 
     def test_check_diff(self):
@@ -136,7 +138,7 @@ class ShellTestCase(unittest.TestCase):
         ]
 
         self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8('--diff')
+        stdout, stderr, errcode = self.pycodestyle('--diff')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -149,7 +151,7 @@ class ShellTestCase(unittest.TestCase):
         diff_lines[:2] = ["--- a/testsuite/E11.py	2006-06-01 08:49 +0400",
                           "+++ b/testsuite/E11.py	2008-04-06 17:36 +0400"]
         self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8('--diff')
+        stdout, stderr, errcode = self.pycodestyle('--diff')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -167,7 +169,7 @@ class ShellTestCase(unittest.TestCase):
                            "@@ -5,0 +6 @@ if True:",
                            "+     print"]
         self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8('--diff')
+        stdout, stderr, errcode = self.pycodestyle('--diff')
         (stdout,) = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
@@ -175,15 +177,17 @@ class ShellTestCase(unittest.TestCase):
 
         # missing '--diff'
         self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8()
+        stdout, stderr, errcode = self.pycodestyle()
         self.assertEqual(errcode, 2)
         self.assertFalse(stdout)
-        self.assertTrue(stderr.startswith('Usage: pep8 [options] input ...'))
+        self.assertTrue(stderr.startswith(
+            'Usage: pycodestyle [options] input ...'
+        ))
 
         # no matching file in the diff
         diff_lines[3] = "+++ b/testsuite/lost/E11.py"
         self.stdin = '\n'.join(diff_lines)
-        stdout, stderr, errcode = self.pep8('--diff')
+        stdout, stderr, errcode = self.pycodestyle('--diff')
         self.assertFalse(errcode)
         self.assertFalse(stdout)
         self.assertFalse(stderr)

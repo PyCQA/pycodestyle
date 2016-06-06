@@ -70,11 +70,11 @@ DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503'
 try:
     if sys.platform == 'win32':
-        USER_CONFIG = os.path.expanduser(r'~\.pep8')
+        USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
     else:
         USER_CONFIG = os.path.join(
             os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),
-            'pep8'
+            'pycodestyle'
         )
 except ImportError:
     USER_CONFIG = None
@@ -1965,7 +1965,7 @@ class StyleGuide(object):
         return sorted(checks)
 
 
-def get_parser(prog='pep8', version=__version__):
+def get_parser(prog='pycodestyle', version=__version__):
     """Create the parser for the program."""
     parser = OptionParser(prog=prog, version=version,
                           usage="%prog [options] input ...")
@@ -2033,7 +2033,7 @@ def read_config(options, args, arglist, parser):
     If a config file is specified on the command line with the "--config"
     option, then only it is used for configuration.
 
-    Otherwise, the user configuration (~/.config/pep8) and any local
+    Otherwise, the user configuration (~/.config/pycodestyle) and any local
     configurations in the current directory or above will be merged together
     (in that order) using the read method of ConfigParser.
     """
@@ -2101,7 +2101,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     """Process options passed either via arglist or via command line args.
 
     Passing in the ``config_file`` parameter allows other tools, such as flake8
-    to specify their own options to be processed in pep8.
+    to specify their own options to be processed in pycodestyle.
     """
     if not parser:
         parser = get_parser()
