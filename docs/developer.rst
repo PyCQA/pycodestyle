@@ -15,7 +15,7 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
   `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
   2.6 through 3.5 as well as the nightly Python build and PyPy, on `Travis-CI
-  platform <http://about.travis-ci.org/>`_.
+  platform <https://docs.travis-ci.com//>`_.
 
 .. _available on GitHub: https://github.com/pycqa/pycodestyle
 
