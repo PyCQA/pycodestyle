@@ -55,7 +55,6 @@ import re
 import sys
 import time
 import tokenize
-import warnings
 
 from fnmatch import fnmatch
 from optparse import OptionParser
@@ -1203,10 +1202,8 @@ def ambiguous_identifier(logical_line, tokens):
                 yield start, "E743 ambiguous function definition '%s'" % text
         if ident:
             yield pos, "E741 ambiguous variable name '%s'" % ident
-        prev_type = token_type
         prev_text = text
         prev_start = start
-        prev_end = end
 
 
 def python_3000_has_key(logical_line, noqa):
