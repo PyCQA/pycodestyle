@@ -1155,6 +1155,60 @@ def comparison_type(logical_line, noqa):
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
 
+def ambiguous_identifier(logical_line, tokens):
+    r"""Never use the characters 'l', 'O', or 'I' as variable names.
+
+    In some fonts, these characters are indistinguishable from the numerals
+    one and zero. When tempted to use 'l', use 'L' instead.
+
+    Okay: L = 0
+    Okay: o = 123
+    Okay: i = 42
+    E741: l = 0
+    E741: O = 123
+    E741: I = 42
+
+    Variables can be bound in several other contexts, including class and
+    function definitions, 'global' and 'nonlocal' statements, exception
+    handlers, and 'with' statements.
+
+    Okay: except AttributeError as o:
+    Okay: with lock as L:
+    E741: except AttributeError as O:
+    E741: with lock as l:
+    E741: global I
+    E741: nonlocal l
+    E742: class I(object):
+    E743: def l(x):
+    """
+    idents_to_avoid = ('l', 'O', 'I')
+    prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
+    for token_type, text, start, end, line in tokens[1:]:
+        ident = pos = None
+        # identifiers on the lhs of an assignment operator
+        if token_type == tokenize.OP and '=' in text:
+            if prev_text in idents_to_avoid:
+                ident = prev_text
+                pos = prev_start
+        # identifiers bound to a value with 'as', 'global', or 'nonlocal'
+        if prev_text in ('as', 'global', 'nonlocal'):
+            if text in idents_to_avoid:
+                ident = text
+                pos = start
+        if prev_text == 'class':
+            if text in idents_to_avoid:
+                yield start, "E742 ambiguous class definition '%s'" % text
+        if prev_text == 'def':
+            if text in idents_to_avoid:
+                yield start, "E743 ambiguous function definition '%s'" % text
+        if ident:
+            yield pos, "E741 ambiguous variable name '%s'" % ident
+        prev_type = token_type
+        prev_text = text
+        prev_start = start
+        prev_end = end
+
+
 def python_3000_has_key(logical_line, noqa):
     r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
 
@@ -1224,7 +1278,7 @@ else:
             with open(filename, 'rb') as f:
                 (coding, lines) = tokenize.detect_encoding(f.readline)
                 f = TextIOWrapper(f, coding, line_buffering=True)
-                return [l.decode(coding) for l in lines] + f.readlines()
+                return [line.decode(coding) for line in lines] + f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
             # Fall back if file encoding is improperly declared
             with open(filename, encoding='latin-1') as f:
