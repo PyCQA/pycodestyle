@@ -198,7 +198,7 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
             return len(physical_line), "W292 no newline at end of file"
 
 
-def maximum_line_length(physical_line, max_line_length, multiline):
+def maximum_line_length(physical_line, max_line_length, multiline, noqa):
     r"""Limit all lines to a maximum of 79 characters.
 
     There are still many devices around that are limited to 80 character
@@ -212,7 +212,7 @@ def maximum_line_length(physical_line, max_line_length, multiline):
     """
     line = physical_line.rstrip()
     length = len(line)
-    if length > max_line_length and not noqa(line):
+    if length > max_line_length and not noqa:
         # Special case for long URLs in multi-line docstrings or comments,
         # but still report the error when the 72 first chars are whitespaces.
         chunks = line.split()
@@ -1497,6 +1497,7 @@ class Checker(object):
                     self.lines[0] = self.lines[0][3:]
         self.report = report or options.report
         self.report_error = self.report.error
+        self.noqa = False
 
     def report_invalid_syntax(self):
         """Check if the syntax is valid."""
@@ -1631,6 +1632,7 @@ class Checker(object):
             for token in tokengen:
                 if token[2][0] > self.total_lines:
                     return
+                self.noqa = token[4] and noqa(token[4])
                 self.maybe_check_physical(token)
                 yield token
         except (SyntaxError, tokenize.TokenError):
