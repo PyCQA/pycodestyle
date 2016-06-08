@@ -7,6 +7,7 @@ Changelog
 Changes:
 
 * Added check E74x for using variables named 'l', 'O', or 'I'; #341
+* Using the ``--count`` flag now always prints a value (defaults to zero); #425
 
 
 2.0.0 (2016-05-31)
