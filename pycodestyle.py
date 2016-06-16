@@ -60,10 +60,10 @@ from fnmatch import fnmatch
 from optparse import OptionParser
 
 try:
-    from configparser import RawConfigParser
+    import configparser
     from io import TextIOWrapper
 except ImportError:
-    from ConfigParser import RawConfigParser
+    import ConfigParser as configparser
 
 __version__ = '2.1.0.dev0'
 
@@ -2092,7 +2092,7 @@ def read_config(options, args, arglist, parser):
     configurations in the current directory or above will be merged together
     (in that order) using the read method of ConfigParser.
     """
-    config = RawConfigParser()
+    config = configparser.RawConfigParser()
 
     cli_conf = options.config
 
@@ -2105,7 +2105,16 @@ def read_config(options, args, arglist, parser):
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
-        if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
+        try:
+            files_read = config.read(os.path.join(parent, fn)
+                                     for fn in PROJECT_CONFIG)
+        except configparser.ParsingError:
+            if options.verbose:
+                print('failed to read local configuration files due to a '
+                      'parsing error')
+            files_read = []
+
+        if files_read:
             local_dir = parent
             if options.verbose:
                 print('local configuration: in %s' % parent)

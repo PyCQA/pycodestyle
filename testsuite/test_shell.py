@@ -11,11 +11,12 @@ class ShellTestCase(unittest.TestCase):
     """Test the usual CLI options and output."""
 
     def setUp(self):
+        self._RawConfigParser = pycodestyle.configparser.RawConfigParser
         self._saved_argv = sys.argv
         self._saved_stdout = sys.stdout
         self._saved_stderr = sys.stderr
         self._saved_pconfig = pycodestyle.PROJECT_CONFIG
-        self._saved_cpread = pycodestyle.RawConfigParser._read
+        self._saved_cpread = self._RawConfigParser._read
         self._saved_stdin_get_value = pycodestyle.stdin_get_value
         self._config_filenames = []
         self.stdin = ''
@@ -25,7 +26,7 @@ class ShellTestCase(unittest.TestCase):
 
         def fake_config_parser_read(cp, fp, filename):
             self._config_filenames.append(filename)
-        pycodestyle.RawConfigParser._read = fake_config_parser_read
+        self._RawConfigParser._read = fake_config_parser_read
         pycodestyle.stdin_get_value = self.stdin_get_value
 
     def tearDown(self):
@@ -33,7 +34,7 @@ class ShellTestCase(unittest.TestCase):
         sys.stdout = self._saved_stdout
         sys.stderr = self._saved_stderr
         pycodestyle.PROJECT_CONFIG = self._saved_pconfig
-        pycodestyle.RawConfigParser._read = self._saved_cpread
+        self._RawConfigParser._read = self._saved_cpread
         pycodestyle.stdin_get_value = self._saved_stdin_get_value
 
     def stdin_get_value(self):
