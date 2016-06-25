@@ -7,6 +7,9 @@ Changelog
 Changes:
 
 * Added check E74x for using variables named 'l', 'O', or 'I'; #341
+* Improved performance of `compound_statements` check; #314 / #522
+* Fixed remaining references to `pep8`; #518 / #530
+* Added `noqa` support for `maximum_line_length` check; #538
 
 
 2.0.0 (2016-05-31)
