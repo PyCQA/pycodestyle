@@ -117,3 +117,14 @@ def a():
 if a():
     a()
 #:
+
+#: E305:8:1
+# Example from https://github.com/PyCQA/pycodestyle/issues/400
+import stuff
+
+
+def main():
+    blah, blah
+
+if __name__ == '__main__':
+    main()
