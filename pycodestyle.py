@@ -237,8 +237,8 @@ def maximum_line_length(physical_line, max_line_length, multiline, noqa):
 
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
-                blank_before, previous_logical, previous_logical_toplevel,
-                previous_indent_level):
+                blank_before, previous_logical,
+                previous_unindented_logical_line, previous_indent_level):
     r"""Separate top-level function and class definitions with two blank lines.
 
     Method definitions inside a class are separated by a single blank line.
@@ -274,7 +274,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         elif blank_before != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
     elif (logical_line and not indent_level and blank_before != 2 and
-          previous_logical_toplevel.startswith(('def', 'class'))):
+          previous_unindented_logical_line.startswith(('def', 'class'))):
         yield 0, "E305 expected 2 blank lines after " \
             "class or function definition, found %d" % blank_before
 
@@ -1617,7 +1617,7 @@ class Checker(object):
             self.previous_indent_level = self.indent_level
             self.previous_logical = self.logical_line
             if not self.indent_level:
-                self.previous_logical_toplevel = self.logical_line
+                self.previous_unindented_logical_line = self.logical_line
         self.blank_lines = 0
         self.tokens = []
 
@@ -1688,7 +1688,7 @@ class Checker(object):
         self.indent_char = None
         self.indent_level = self.previous_indent_level = 0
         self.previous_logical = ''
-        self.previous_logical_toplevel = ''
+        self.previous_unindented_logical_line = ''
         self.tokens = []
         self.blank_lines = self.blank_before = 0
         parens = 0
