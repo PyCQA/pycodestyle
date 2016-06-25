@@ -83,11 +83,11 @@ Or you can display how often each error was found::
 Links
 -----
 
-.. image:: https://api.travis-ci.org/PyCQA/pycodestyle.png?branch=master
+.. image:: https://img.shields.io/travis/PyCQA/pycodestyle.svg
    :target: https://travis-ci.org/PyCQA/pycodestyle
    :alt: Build status
 
-.. image:: https://pypip.in/wheel/pycodestyle/badge.png?branch=master
+.. image:: https://img.shields.io/pypi/wheel/pycodestyle.svg
    :target: https://pypi.python.org/pypi/pycodestyle
    :alt: Wheel Status
 
