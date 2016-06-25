@@ -10,6 +10,7 @@ Changes:
 * Improved performance of `compound_statements` check; #314 / #522
 * Fixed remaining references to `pep8`; #518 / #530
 * Added `noqa` support for `maximum_line_length` check; #538
+* Added check E305 for two blank lines after toplevel methods and classes; #400
 
 
 2.0.0 (2016-05-31)
