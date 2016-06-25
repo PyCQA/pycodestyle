@@ -132,3 +132,22 @@ def a():
 def b():
 
     pass
+#: Okay
+def foo():
+    pass
+
+
+def bar():
+    pass
+
+
+class Foo(object):
+    pass
+
+
+class Bar(object):
+    pass
+
+
+if __name__ == '__main__':
+    foo()
