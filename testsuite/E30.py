@@ -118,6 +118,28 @@ if a():
     a()
 #:
 
+#: E306:3:5
+def a():
+    x = 1
+    def b():
+        pass
+#: E306:3:5 E306:5:9
+def a():
+    x = 2
+    def b():
+        x = 1
+        def c():
+            pass
+#: E306:3:5 E306:6:5
+def a():
+    x = 1
+    class C:
+        pass
+    x = 2
+    def b():
+        pass
+#:
+
 #: E305:8:1
 # Example from https://github.com/PyCQA/pycodestyle/issues/400
 import stuff
