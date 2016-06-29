@@ -273,6 +273,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                     DOCSTRING_REGEX.match(previous_logical)):
                 ancestor_level = indent_level
                 nested = False
+                # Search backwards for a def ancestor or tree root (top level).
                 for line in lines[line_number - 2::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
@@ -280,8 +281,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                         if nested or ancestor_level == 0:
                             break
                 if nested:
-                    yield 0, "E306 expected 1 blank line, found 0" \
-                        " (nested definition)"
+                    yield 0, "E306 expected 1 blank line before a " \
+                        "nested definition, found 0"
                 else:
                     yield 0, "E301 expected 1 blank line, found 0"
         elif blank_before != 2:
