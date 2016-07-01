@@ -44,7 +44,13 @@ def a():
 def b():
     pass
 #:
+#: E302:4:1
+def a():
+    pass
 
+async def b():
+    pass
+#:
 
 #: E303:5:1
 print
