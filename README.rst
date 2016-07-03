@@ -1,6 +1,10 @@
 pycodestyle (formerly called pep8) - Python style guide checker
 ===============================================================
 
+.. image:: https://badges.gitter.im/PyCQA/pycodestyle.svg
+   :alt: Join the chat at https://gitter.im/PyCQA/pycodestyle
+   :target: https://gitter.im/PyCQA/pycodestyle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 pycodestyle is a tool to check your Python code against some of the style
 conventions in `PEP 8`_.
 
