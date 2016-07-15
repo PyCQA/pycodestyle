@@ -1996,7 +1996,18 @@ class StyleGuide(object):
 
         Check if 'options.exclude' contains a pattern that matches filename.
         """
-        if not self.options.exclude:
+        result = self._excluded(filename, parent=parent)
+        if result and self.options.verbose:
+            print('ignoring excluded file: %s' % filename)
+        return result
+
+    def _excluded(self, filename, parent=None):
+        """Actual workhorse of the `.excluded()` method above.
+
+        See its docstring.
+        """
+        patterns = self.options.exclude
+        if not patterns:
             return False
         basename = os.path.basename(filename)
         if filename_match(basename, self.options.exclude):
