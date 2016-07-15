@@ -1952,7 +1952,15 @@ class StyleGuide(object):
         report.start()
         try:
             for path in paths:
-                if os.path.isdir(path):
+                if path == "-":
+                    # STDIN
+                    path = self.options.stdin_name
+                    # if no ersatz filename for STDIN, assume not excluded
+                    excluded = path and self.excluded(path)
+                    if not excluded:
+                        runner(path or "stdin",
+                               lines=stdin_get_value().splitlines(True))
+                elif os.path.isdir(path):
                     self.input_dir(path)
                 elif not self.excluded(path):
                     runner(path)
@@ -2010,12 +2018,12 @@ class StyleGuide(object):
         if not patterns:
             return False
         basename = os.path.basename(filename)
-        if filename_match(basename, self.options.exclude):
+        if filename_match(basename, patterns):
             return True
         if parent:
             filename = os.path.join(parent, filename)
         filename = os.path.abspath(filename)
-        return filename_match(filename, self.options.exclude)
+        return filename_match(filename, patterns)
 
     def ignore_code(self, code):
         """Check if the error code should be ignored.
@@ -2095,6 +2103,9 @@ def get_parser(prog='pycodestyle', version=__version__):
     parser.add_option('--diff', action='store_true',
                       help="report changes only within line number ranges in "
                            "the unified diff received on STDIN")
+    parser.add_option('--stdin-name', metavar='FILE', default=None,
+                      help='File name to assume for when the file to check is'
+                           ' "-" (e.g. STDIN)')
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
