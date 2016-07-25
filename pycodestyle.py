@@ -2149,13 +2149,12 @@ def read_config(options, args, arglist, parser):
             opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):
                 value = config.getint(pep8_section, opt)
-            elif opt_type == 'string':
+            elif opt_type in ('store_true', 'store_false'):
+                value = config.getboolean(pep8_section, opt)
+            else:
                 value = config.get(pep8_section, opt)
                 if normalized_opt == 'exclude':
                     value = normalize_paths(value, local_dir)
-            else:
-                assert opt_type in ('store_true', 'store_false')
-                value = config.getboolean(pep8_section, opt)
             setattr(new_options, normalized_opt, value)
 
         # Third, overwrite with the command-line options
