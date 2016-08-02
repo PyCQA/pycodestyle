@@ -1,16 +1,16 @@
 Contributing to pycodestyle
-===============================
+===========================
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.
 
 Step 1: Forking pycodestyle for editing
 ---------------------------------------
 
-Fork the pycodestyle repository on github. This will add
-pycodestyle to your github account. You will push your changes to your
+Fork the pycodestyle repository on GitHub. This will add
+pycodestyle to your GitHub account. You will push your changes to your
 fork and then make pull requests into the official pycodestyle repository.
 
-Github has an excellent `guide`_ that has screenshots on how to do this.
+GitHub has an excellent `guide`_ that has screenshots on how to do this.
 
 Next, clone your fork of the pycodestyle repository to your system for
 editing::
@@ -22,7 +22,7 @@ edits.  Next we will setup `virtualenv`_ which will help create an isolated
 environment to manage dependancies.
 
 
-Step 3: Use virtualenv when developing
+Step 2: Use virtualenv when developing
 --------------------------------------
 
 `virtualenv`_ is a tool to create isolated python environments.
@@ -48,7 +48,7 @@ To deactivate the virtualenv you can type::
 For more information see `virtualenv`_'s documentation.
 
 
-Step 4: Run tests
+Step 3: Run tests
 -----------------
 
 Before creating a pull request you should run the tests to make sure that the
@@ -64,7 +64,7 @@ All the tests should pass for all available interpreters, with the summary of::
 
 At this point you can create a pull request back to the official pycodestyles
 repository for review! For more information on how to make a pull request,
-github has an excellent `guide`_.
+GitHub has an excellent `guide`_.
 
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 .. _guide: https://guides.github.com/activities/forking/
