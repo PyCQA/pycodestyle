@@ -443,6 +443,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     if noqa or nrows == 1:
         return
 
+    # Make sure verbose is recieved as an integer
+    verbose = int(verbose)
+
     # indent_next tells us whether the next block is indented; assuming
     # that it is indented by 4 spaces, then we should not allow 4-space
     # indents on the final continuation line; in turn, some other
