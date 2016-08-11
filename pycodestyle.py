@@ -238,7 +238,8 @@ def maximum_line_length(physical_line, max_line_length, multiline, noqa):
 
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 blank_before, previous_logical,
-                previous_unindented_logical_line, previous_indent_level):
+                previous_unindented_logical_line, previous_indent_level,
+                lines):
     r"""Separate top-level function and class definitions with two blank lines.
 
     Method definitions inside a class are separated by a single blank line.
@@ -272,7 +273,20 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         if indent_level:
             if not (blank_before or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
-                yield 0, "E301 expected 1 blank line, found 0"
+                ancestor_level = indent_level
+                nested = False
+                # Search backwards for a def ancestor or tree root (top level).
+                for line in lines[line_number - 2::-1]:
+                    if line.strip() and expand_indent(line) < ancestor_level:
+                        ancestor_level = expand_indent(line)
+                        nested = line.lstrip().startswith('def ')
+                        if nested or ancestor_level == 0:
+                            break
+                if nested:
+                    yield 0, "E306 expected 1 blank line before a " \
+                        "nested definition, found 0"
+                else:
+                    yield 0, "E301 expected 1 blank line, found 0"
         elif blank_before != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
     elif (logical_line and not indent_level and blank_before != 2 and
