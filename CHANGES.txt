@@ -11,7 +11,7 @@ Announcements:
 Changes:
 
 * Report E302 for blank lines before an "async def"; #556
-* Update our list of tested and supported Python versions which are 2.6 through 3.5 as well as the nightly Python build and PyPy.
+* Update our list of tested and supported Python versions which are 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5 as well as the nightly Python build and PyPy.
 * Report E742 and E743 for functions and classes badly named 'l', 'O', or 'I'.
 * Report E741 on 'global' and 'nonlocal' statements, as well as prohibited single-letter variables.
 
