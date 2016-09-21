@@ -4,14 +4,22 @@ Changelog
 2.1.0 (unreleased)
 ------------------
 
+Announcements:
+
+* Change all references to the pep8 project to say pycodestyle; #530
+
 Changes:
 
-* Added check E74x for using variables named 'l', 'O', or 'I'; #341
-* Improved performance of `compound_statements` check; #314 / #522
-* Fixed remaining references to `pep8`; #518 / #530
-* Added `noqa` support for `maximum_line_length` check; #538
-* Added check E305 for two blank lines after toplevel methods and classes; #400
+* Report E302 for blank lines before an "async def"; #556
+* Update our list of tested and supported Python versions which are 2.6, 2.7, 3.2, 3.3, 3.4 and 3.5 as well as the nightly Python build and PyPy.
+* Report E742 and E743 for functions and classes badly named 'l', 'O', or 'I'.
+* Report E741 on 'global' and 'nonlocal' statements, as well as prohibited single-letter variables.
 
+Bugs:
+
+* Fix opt_type AssertionError when using Flake8 2.6.2 and pycodestyle 2.0.0; #561
+* Require two blank lines after toplevel def, class; #536
+* Remove accidentally quadratic computation based on the number of colons. This will make pycodestyle faster in some cases; #314
 
 2.0.0 (2016-05-31)
 ------------------
