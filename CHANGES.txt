@@ -10,27 +10,16 @@ Announcements:
 
 Changes:
 
-* Add Gitter badge; #557
 * Report E302 for blank lines before an "async def"; #556
-* Updated tox to do same tests as Travis CI (`setup.py test`).
-* Updated to use sheilds.io badges.
-* Updated text about running tests with tox; #552
-* Update maximum_line_length to use Checker.noqa; 538
-* Updated Travis CI doc link.
-* Updated docs related to tested Python versions.
-* Added skip missing interpreters flag to tox config.
-* Add test-requirements.txt with basic test packages.
-* Report E742 and E743 for badly named functions and classes.
-* Also report E741 on 'global' and 'nonlocal' statements.
-* Report E741 for prohibited single-letter variables.
-* Added venv/ (virtualenv) to list of git ignored filename patterns.
+* Update our list of tested and supported Python versions which are 2.6 through 3.5 as well as the nightly Python build and PyPy.
+* Report E742 and E743 for functions and classes badly named 'l', 'O', or 'I'.
+* Report E741 on 'global' and 'nonlocal' statements, as well as prohibited single-letter variables.
 
 Bugs:
 
-* Stop checking for string option type; #561
+* Fix opt_type AssertionError when using Flake8 2.6.2 and pycodestyle 2.0.0; #561
 * Require two blank lines after toplevel def, class; #536
-* Badly named single-letter variable names are not detected; #341
-* Fixing compound_statement not to be quadratic in # of :s; #314
+* Remove accidentally quadratic computation based on the number of colons. This will make pycodestyle faster in some cases; #314
 
 2.0.0 (2016-05-31)
 ------------------
