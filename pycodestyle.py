@@ -290,7 +290,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         elif blank_before != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
     elif (logical_line and not indent_level and blank_before != 2 and
-          previous_unindented_logical_line.startswith(('def', 'class'))):
+          previous_unindented_logical_line.startswith(('def ', 'class '))):
         yield 0, "E305 expected 2 blank lines after " \
             "class or function definition, found %d" % blank_before
 
