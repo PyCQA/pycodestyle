@@ -1306,6 +1306,7 @@ else:
 
     def stdin_get_value():
         """Read the value from stdin."""
+        sys.stdin.seek(0)
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 
 noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
