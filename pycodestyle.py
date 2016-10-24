@@ -1991,8 +1991,10 @@ class StyleGuide(object):
         counters = self.options.report.counters
         verbose = self.options.verbose
         filepatterns = self.options.filename
+        follow_links = self.options.follow_links
         runner = self.runner
-        for root, dirs, files in os.walk(dirname):
+
+        for root, dirs, files in os.walk(dirname, followlinks=follow_links):
             if verbose:
                 print('directory ' + root)
             counters['directories'] += 1
@@ -2054,7 +2056,7 @@ def get_parser(prog='pycodestyle', version=__version__):
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
         'hang-closing', 'count', 'format', 'quiet', 'show-pep8',
-        'show-source', 'statistics', 'verbose']
+        'show-source', 'statistics', 'verbose', 'follow-links']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
     parser.add_option('-q', '--quiet', default=0, action='count',
@@ -2098,6 +2100,9 @@ def get_parser(prog='pycodestyle', version=__version__):
     parser.add_option('--diff', action='store_true',
                       help="report changes only within line number ranges in "
                            "the unified diff received on STDIN")
+    parser.add_option('--follow-links', default=False, action='store_true',
+                      help="follow symbolic links when "
+                           "walking the specified paths")
     group = parser.add_option_group("Testing Options")
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',

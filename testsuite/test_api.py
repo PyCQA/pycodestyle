@@ -168,6 +168,20 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(pep8style.options.select, ())
         self.assertEqual(pep8style.options.ignore, ('E226', 'E24'))
         self.assertEqual(pep8style.options.max_line_length, 79)
+        self.assertFalse(pep8style.options.follow_links)
+
+        # Check follow_links parameter
+        pep8style = pycodestyle.StyleGuide(follow_links=True, paths=[E11])
+        self.assertTrue(pep8style.options.follow_links)
+
+        pep8style = pycodestyle.StyleGuide(follow_links="", paths=[E11])
+        self.assertFalse(pep8style.options.follow_links)
+
+        pep8style = pycodestyle.StyleGuide(follow_links=None, paths=[E11])
+        self.assertFalse(pep8style.options.follow_links)
+
+        pep8style = pycodestyle.StyleGuide(follow_links="True", paths=[E11])
+        self.assertTrue(pep8style.options.follow_links)
 
     def test_styleguide_ignore_code(self):
         def parse_argv(argstring):
