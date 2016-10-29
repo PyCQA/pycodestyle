@@ -3,6 +3,16 @@
 pep8's documentation
 ====================
 
+.. note::
+
+    This package used to be called ``pep8`` but was renamed to ``pycodestyle``
+    to reduce confusion. Further discussion can be found `in the issue where
+    Guido requested this
+    change <https://github.com/PyCQA/pycodestyle/issues/466>`_, or in the
+    lightning talk at PyCon 2016 by @IanLee1521:
+    `slides <https://speakerdeck.com/ianlee1521/pep8-vs-pep-8>`_
+    `video <https://youtu.be/PulzIT8KYLk?t=36m>`_.
+
 *Python style guide checker*
 
 pep8 is a tool to check your Python code against some of the style
