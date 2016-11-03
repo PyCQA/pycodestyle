@@ -55,6 +55,7 @@ import re
 import sys
 import time
 import tokenize
+import warnings
 
 from fnmatch import fnmatch
 from optparse import OptionParser
@@ -2144,8 +2145,14 @@ def read_config(options, args, arglist, parser):
             print('cli configuration: %s' % cli_conf)
         config.read(cli_conf)
 
-    pep8_section = parser.prog
-    if config.has_section(pep8_section):
+    pycodestyle_section = None
+    if config.has_section(parser.prog):
+        pycodestyle_section = parser.prog
+    elif config.has_section('pep8'):
+        pycodestyle_section = 'pep8'  # Deprecated
+        warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')
+
+    if pycodestyle_section:
         option_list = dict([(o.dest, o.type or o.action)
                             for o in parser.option_list])
 
@@ -2153,20 +2160,21 @@ def read_config(options, args, arglist, parser):
         (new_options, __) = parser.parse_args([])
 
         # Second, parse the configuration
-        for opt in config.options(pep8_section):
+        for opt in config.options(pycodestyle_section):
             if opt.replace('_', '-') not in parser.config_options:
                 print("  unknown option '%s' ignored" % opt)
                 continue
             if options.verbose > 1:
-                print("  %s = %s" % (opt, config.get(pep8_section, opt)))
+                print("  %s = %s" % (opt,
+                                     config.get(pycodestyle_section, opt)))
             normalized_opt = opt.replace('-', '_')
             opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):
-                value = config.getint(pep8_section, opt)
+                value = config.getint(pycodestyle_section, opt)
             elif opt_type in ('store_true', 'store_false'):
-                value = config.getboolean(pep8_section, opt)
+                value = config.getboolean(pycodestyle_section, opt)
             else:
-                value = config.get(pep8_section, opt)
+                value = config.get(pycodestyle_section, opt)
                 if normalized_opt == 'exclude':
                     value = normalize_paths(value, local_dir)
             setattr(new_options, normalized_opt, value)
