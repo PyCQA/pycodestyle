@@ -5,6 +5,10 @@ pycodestyle (formerly called pep8) - Python style guide checker
    :target: https://travis-ci.org/PyCQA/pycodestyle
    :alt: Build status
 
+.. image:: https://readthedocs.org/projects/pycodestyle/badge/?version=latest
+    :target: http://pycodestyle.readthedocs.io/en/latest/
+    :alt: Documentation Status
+
 .. image:: https://img.shields.io/pypi/wheel/pycodestyle.svg
    :target: https://pypi.python.org/pypi/pycodestyle
    :alt: Wheel Status
