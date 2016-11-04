@@ -16,6 +16,7 @@ Changes:
 * Report E742 and E743 for functions and classes badly named 'l', 'O', or 'I'.
 * Report E741 on 'global' and 'nonlocal' statements, as well as prohibited
   single-letter variables.
+* Deprecated use of `[pep8]` section name in favor of `[pycodestyle]`; #591
 
 Bugs:
 
