@@ -254,6 +254,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     Okay: def a():\n    pass\n\n\ndef b():\n    pass
     Okay: def a():\n    pass\n\n\nasync def b():\n    pass
     Okay: def a():\n    pass\n\n\n# Foo\n# Bar\n\ndef b():\n    pass
+    Okay: default = 1\nfoo = 1
+    Okay: classify = 1\nfoo = 1
 
     E301: class Foo:\n    b = 0\n    def bar():\n        pass
     E302: def a():\n    pass\n\ndef b(n):\n    pass
@@ -291,7 +293,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         elif blank_before != 2:
             yield 0, "E302 expected 2 blank lines, found %d" % blank_before
     elif (logical_line and not indent_level and blank_before != 2 and
-          previous_unindented_logical_line.startswith(('def', 'class'))):
+          previous_unindented_logical_line.startswith(('def ', 'class '))):
         yield 0, "E305 expected 2 blank lines after " \
             "class or function definition, found %d" % blank_before
 
