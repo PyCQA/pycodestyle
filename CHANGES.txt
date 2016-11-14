@@ -1,6 +1,17 @@
 Changelog
 =========
 
+2.2.0 (2016-11-14)
+------------------
+
+Announcements:
+
+* Added Make target to obtain proper tarball file permissions; #599
+
+Bugs:
+
+* Fixed E305 regression caused by #400; #593
+
 2.1.0 (2016-11-04)
 ------------------
 
