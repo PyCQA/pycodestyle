@@ -151,3 +151,7 @@ class Bar(object):
 
 if __name__ == '__main__':
     foo()
+#: Okay
+classification_errors = None
+#: Okay
+defined_properly = True
