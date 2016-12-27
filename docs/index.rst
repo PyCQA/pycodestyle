@@ -5,7 +5,8 @@ pep8's documentation
 
 .. note::
 
-    This package used to be called ``pep8`` but was renamed to ``pycodestyle``
+    This package used to be called `pep8 <https://pypi.python.org/pypi/pep8/1.7.0>`_ 
+    but was renamed to `pycodestyle <https://pypi.python.org/pypi/pycodestyle/2.2.0>`_
     to reduce confusion. Further discussion can be found `in the issue where
     Guido requested this
     change <https://github.com/PyCQA/pycodestyle/issues/466>`_, or in the
