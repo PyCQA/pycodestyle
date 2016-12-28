@@ -113,7 +113,7 @@ def a():
 
 try:
     a()
-except:
+except Exception:
     pass
 #: E305:5:1
 def a():
