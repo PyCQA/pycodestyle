@@ -121,6 +121,7 @@ KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
+DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -941,6 +942,8 @@ def module_imports_on_top_of_file(
     if line.startswith('import ') or line.startswith('from '):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
+    elif re.match(DUNDER_REGEX, line):
+        return
     elif any(line.startswith(kw) for kw in allowed_try_keywords):
         # Allow try, except, else, finally keywords intermixed with imports in
         # order to support conditional importing
