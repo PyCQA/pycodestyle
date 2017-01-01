@@ -912,8 +912,10 @@ def module_imports_on_top_of_file(
     Okay: # this is a comment\nimport os
     Okay: '''this is a module docstring'''\nimport os
     Okay: r'''this is a module docstring'''\nimport os
-    Okay: try:\n    import x\nexcept:\n    pass\nelse:\n    pass\nimport y
-    Okay: try:\n    import x\nexcept:\n    pass\nfinally:\n    pass\nimport y
+    Okay:
+    try:\n\timport x\nexcept ImportError:\n\tpass\nelse:\n\tpass\nimport y
+    Okay:
+    try:\n\timport x\nexcept ImportError:\n\tpass\nfinally:\n\tpass\nimport y
     E402: a=1\nimport os
     E402: 'One string'\n"Two string"\nimport os
     E402: a=1\nfrom sys import x
@@ -1177,6 +1179,22 @@ def comparison_type(logical_line, noqa):
         if inst and isidentifier(inst) and inst not in SINGLETONS:
             return  # Allow comparison for types which are not obvious
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
+
+
+def bare_except(logical_line, noqa):
+    r"""When catching exceptions, mention specific exceptions whenever possible.
+
+    Okay: except Exception:
+    Okay: except BaseException:
+    E722: except:
+    """
+    if noqa:
+        return
+
+    regex = re.compile(r"except\s*:")
+    match = regex.match(logical_line)
+    if match:
+        yield match.start(), "E722 do not use bare except'"
 
 
 def ambiguous_identifier(logical_line, tokens):

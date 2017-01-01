@@ -49,3 +49,31 @@ if isinstance(res, types.MethodType):
     pass
 if type(a) != type(b) or type(a) == type(ccc):
     pass
+#: E722
+try:
+    pass
+except:
+    pass
+#: E722
+try:
+    pass
+except Exception:
+    pass
+except:
+    pass
+#: E722 E203 E271
+try:
+    pass
+except  :
+    pass
+#: Okay
+fake_code = """"
+try:
+    do_something()
+except:
+    pass
+"""
+try:
+    pass
+except Exception:
+    pass

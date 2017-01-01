@@ -361,6 +361,8 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | E721 (^)   | do not compare types, use 'isinstance()'                             |
 +------------+----------------------------------------------------------------------+
+| E722       | do not use bare except, specify exception instead                    |
++------------+----------------------------------------------------------------------+
 | E731       | do not assign a lambda expression, use a def                         |
 +------------+----------------------------------------------------------------------+
 | E741       | do not use variables named 'l', 'O', or 'I'                          |

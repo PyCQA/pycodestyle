@@ -18,7 +18,7 @@ import foo
 #: Okay
 try:
     import foo
-except:
+except ImportError:
     pass
 else:
     print('imported foo')
