@@ -1000,7 +1000,7 @@ def compound_statements(logical_line):
                     yield 0, ("E731 do not assign a lambda expression, use a "
                               "def")
                 break
-            if line.startswith('def '):
+            if line.startswith(('async def', 'def ')):
                 yield 0, "E704 multiple statements on one line (def)"
             else:
                 yield found, "E701 multiple statements on one line (colon)"
