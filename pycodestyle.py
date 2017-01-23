@@ -123,6 +123,17 @@ LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def|def|class|@)')
+STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
+    r'^\s*({0})'.format('|'.join(s.replace(' ', '\s+') for s in (
+        'def', 'async def',
+        'for', 'async for',
+        'if', 'elif', 'else',
+        'try', 'except', 'finally',
+        'with', 'async with',
+        'class',
+        'while',
+    )))
+)
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -1004,7 +1015,7 @@ def compound_statements(logical_line):
                 break
             if STARTSWITH_DEF_REGEX.match(line):
                 yield 0, "E704 multiple statements on one line (def)"
-            else:
+            elif STARTSWITH_INDENT_STATEMENT_REGEX.match(line):
                 yield found, "E701 multiple statements on one line (colon)"
         prev_found = found
         found = line.find(':', found + 1)
