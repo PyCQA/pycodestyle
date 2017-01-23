@@ -14,6 +14,8 @@ del a[:]; a.append(42);
 def f(x): return 2
 #: E704:1:1
 async def f(x): return 2
+#: E704:1:1 E272:1:6
+async  def f(x): return 2
 #: E704:1:1 E226:1:19
 def f(x): return 2*x
 #: E704:2:5 E226:2:23

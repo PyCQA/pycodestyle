@@ -156,3 +156,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+# Previously just E272:1:6 E272:4:6
+#: E302:4:1 E272:1:6 E272:4:6
+async  def x():
+    pass
+
+async  def x(y: int = 1):
+    pass
