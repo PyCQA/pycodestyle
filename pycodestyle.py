@@ -121,6 +121,8 @@ KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
+STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)')
+STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def|def|class|@)')
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -272,7 +274,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             yield 0, "E304 blank lines found after function decorator"
     elif blank_lines > 2 or (indent_level and blank_lines == 2):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
-    elif logical_line.startswith(('def ', 'async def', 'class ', '@')):
+    elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
         if indent_level:
             if not (blank_before or previous_indent_level < indent_level or
                     DOCSTRING_REGEX.match(previous_logical)):
@@ -813,7 +815,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     no_space = False
     prev_end = None
     annotated_func_arg = False
-    in_def = logical_line.startswith(('def', 'async def'))
+    in_def = bool(STARTSWITH_DEF_REGEX.match(logical_line))
     message = "E251 unexpected spaces around keyword / parameter equals"
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.NL:
@@ -1000,7 +1002,7 @@ def compound_statements(logical_line):
                     yield 0, ("E731 do not assign a lambda expression, use a "
                               "def")
                 break
-            if line.startswith('def '):
+            if STARTSWITH_DEF_REGEX.match(line):
                 yield 0, "E704 multiple statements on one line (def)"
             else:
                 yield found, "E701 multiple statements on one line (colon)"
