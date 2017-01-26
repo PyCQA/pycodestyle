@@ -56,6 +56,24 @@ if not X in Y and Z == "zero":
 #: E713
 if X == "zero" or not Y in Z:
     pass
+#: E713
+if not f(1, 2, 3) in Z:
+    pass
+#: E713
+if not X['a'] in Y:
+    pass
+#: E713
+if not X[Y] in Z:
+    pass
+#: E713
+if not X[f(1, 2, 3)] in Y:
+    pass
+#: E713
+if not f(X[1], X[2], X[3]) in Y:
+    pass
+#: E713
+if not f(X['1'], X['2'], X['3']) in Y:
+    pass
 
 #
 #: E714
@@ -68,6 +86,27 @@ if not X.B is Y:
 #
 #: Okay
 if x not in y:
+    pass
+
+if (not x) in y:
+    pass
+
+if (not f(1, 2, 3)) in y:
+    pass
+
+if (not X['a']) in Y:
+    pass
+
+if (not X[Y]) in Z:
+    pass
+
+if (not X[f(1, 2, 3)]) in Y:
+    pass
+
+if (not f(X[1], X[2], X[3])) in Y:
+    pass
+
+if (not f(X['1'], X['2'], X['3'])) in Y:
     pass
 
 if not (X in Y or X is Z):
