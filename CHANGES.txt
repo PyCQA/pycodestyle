@@ -1,6 +1,22 @@
 Changelog
 =========
 
+2.3.0 (2017-01-30)
+------------------
+
+New Checks:
+
+* Add E722 warning for bare ``except`` clauses
+* Report E704 for async function definitions (``async def``)
+
+Bugs:
+
+* Fix another E305 false positive for variables beginning with "class" or
+  "def"
+* Fix detection of multiple spaces betwen ``async`` and ``def``
+* Fix handling of variable annotations. Stop reporting E701 on Python 3.6 for
+  variable annotations.
+
 2.2.0 (2016-11-14)
 ------------------
 
