@@ -158,3 +158,7 @@ defined_properly = True
 #: Okay
 defaults = {}
 defaults.update({})
+#: Okay
+def foo(x):
+    classification = x
+    definitely = not classification
