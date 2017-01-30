@@ -122,7 +122,7 @@ OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)')
-STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def|def|class|@)')
+STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def |def |class |@)')
 STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
     r'^\s*({0})'.format('|'.join(s.replace(' ', '\s+') for s in (
         'def', 'async def',
