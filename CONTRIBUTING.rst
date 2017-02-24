@@ -19,7 +19,7 @@ editing::
 
 Now you have a copy of the pycodestyle codebase that is almost ready for
 edits.  Next we will setup `virtualenv`_ which will help create an isolated
-environment to manage dependancies.
+environment to manage dependencies.
 
 
 Step 2: Use virtualenv when developing
