@@ -640,6 +640,220 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             code = "E125 continuation line"
         yield pos, "%s with same indent as next logical line" % code
 
+def non_hanging_indentation(logical_line, tokens, indent_level, hang_closing,
+                          indent_char, noqa, verbose):
+	if(logical_line):
+		row1 = tokens[0][4].strip('\n')
+		if(row1.count('(') > row1.count(')') and not row1.endswith(')')):
+			if(row1.endswith('(')):#hanging indent
+				continued_indentation(logical_line, tokens, indent_level, hang_closing,
+	                        	indent_char, noqa, verbose)
+			else:
+				yield(0, "Not hanging indent")
+
+# def non_hanging_indentation(logical_line, tokens, indent_level, hang_closing,
+#                           indent_char, noqa, verbose):
+#     r"""Continuation lines indentation.
+
+#     Continuation lines should align wrapped elements either vertically
+#     using Python's implicit line joining inside parentheses, brackets
+#     and braces, or using a hanging indent.
+
+#     When using a hanging indent these considerations should be applied:
+#     - there should be no arguments on the first line, and
+#     - further indentation should be used to clearly distinguish itself as a
+#       continuation line.
+
+#     Okay: a = (\n)
+#     E123: a = (\n    )
+
+#     Okay: a = (\n    42)
+#     E121: a = (\n   42)
+#     E122: a = (\n42)
+#     E123: a = (\n    42\n    )
+#     E124: a = (24,\n     42\n)
+#     E125: if (\n    b):\n    pass
+#     E126: a = (\n        42)
+#     E127: a = (24,\n      42)
+#     E128: a = (24,\n    42)
+#     E129: if (a or\n    b):\n    pass
+#     E131: a = (\n    42\n 24)
+#     """
+#     first_row = tokens[0][2][0]
+#     nrows = 1 + tokens[-1][2][0] - first_row
+#     if noqa or nrows == 1:
+#         return
+
+#     # indent_next tells us whether the next block is indented; assuming
+#     # that it is indented by 4 spaces, then we should not allow 4-space
+#     # indents on the final continuation line; in turn, some other
+#     # indents are allowed to have an extra 4 spaces.
+#     indent_next = logical_line.endswith(':')
+
+#     row = depth = 0
+#     valid_hangs = (4,) if indent_char != '\t' else (4, 8)
+#     # remember how many brackets were opened on each line
+#     parens = [0] * nrows
+#     # relative indents of physical lines
+#     rel_indent = [0] * nrows
+#     # for each depth, collect a list of opening rows
+#     open_rows = [[0]]
+#     # for each depth, memorize the hanging indentation
+#     hangs = [None]
+#     # visual indents
+#     indent_chances = {}
+#     last_indent = tokens[0][2]
+#     visual_indent = None
+#     last_token_multiline = False
+#     # for each depth, memorize the visual indent column
+#     indent = [last_indent[1]]
+#     if verbose >= 3:
+#         print(">>> " + tokens[0][4].rstrip())
+
+#     for token_type, text, start, end, line in tokens:
+
+#         newline = row < start[0] - first_row
+#         if newline:
+#             row = start[0] - first_row
+#             newline = not last_token_multiline and token_type not in NEWLINE
+
+#         if newline:
+#             # this is the beginning of a continuation line.
+#             last_indent = start
+#             if verbose >= 3:
+#                 print("... " + line.rstrip())
+
+#             # record the initial indent.
+#             rel_indent[row] = expand_indent(line) - indent_level
+
+#             # identify closing bracket
+#             close_bracket = (token_type == tokenize.OP and text in ']})')
+
+#             # is the indent relative to an opening bracket line?
+#             for open_row in reversed(open_rows[depth]):
+#                 hang = rel_indent[row] - rel_indent[open_row]
+#                 hanging_indent = hang in valid_hangs
+#                 if hanging_indent:
+#                     break
+#             if hangs[depth]:
+#                 hanging_indent = (hang == hangs[depth])
+#             # is there any chance of visual indent?
+#             visual_indent = (not close_bracket and hang > 0 and
+#                              indent_chances.get(start[1]))
+
+#             # if(visual_indent):
+#             	# yield (start, "1: Not hanging indent")
+
+#             if close_bracket and indent[depth]:
+#                 # closing bracket for visual indent
+#                 if start[1] != indent[depth]:
+#                 	# yield (start, "1: Not hanging indent")
+#                     yield (start, "E124 closing bracket does not match "
+#                            "visual indentation")
+#             elif close_bracket and not hang:
+#                 # closing bracket matches indentation of opening bracket's line
+#                 if hang_closing:
+#                     yield start, "E133 closing bracket is missing indentation"
+#             elif indent[depth] and start[1] < indent[depth]:
+#                 if visual_indent is not True:
+#                     # visual indent is broken
+#                     yield (start, "E128 continuation line "
+#                            "under-indented for visual indent")
+#             elif hanging_indent or (indent_next and rel_indent[row] == 8):
+#                 # hanging indent is verified
+#                 if close_bracket and not hang_closing:
+#                     yield (start, "E123 closing bracket does not match "
+#                            "indentation of opening bracket's line")
+#                 hangs[depth] = hang
+#             elif visual_indent is True:
+#                 # visual indent is verified
+#                 indent[depth] = start[1]
+#                 yield start, "1: Not hanging indent"
+#             elif visual_indent in (text, str):
+#                 # ignore token lined up with matching one from a previous line
+#                 pass
+#             else:
+#                 # indent is broken
+#                 if hang <= 0:
+#                     error = "E122", "missing indentation or outdented"
+#                 elif indent[depth]:
+#                     error = "E127", "over-indented for visual indent"
+#                 elif not close_bracket and hangs[depth]:
+#                     error = "E131", "unaligned for hanging indent"
+#                 else:
+#                     hangs[depth] = hang
+#                     if hang > 4:
+#                         error = "E126", "over-indented for hanging indent"
+#                     else:
+#                         error = "E121", "under-indented for hanging indent"
+#                 yield start, "%s continuation line %s" % error
+
+#         # look for visual indenting
+#         if (parens[row] and
+#                 token_type not in (tokenize.NL, tokenize.COMMENT) and
+#                 not indent[depth]):
+#             indent[depth] = start[1]
+#             indent_chances[start[1]] = True
+#             if verbose >= 4:
+#                 print("bracket depth %s indent to %s" % (depth, start[1]))
+#         # deal with implicit string concatenation
+#         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
+#               text in ('u', 'ur', 'b', 'br')):
+#             indent_chances[start[1]] = str
+#         # special case for the "if" statement because len("if (") == 4
+#         elif not indent_chances and not row and not depth and text == 'if':
+#             indent_chances[end[1] + 1] = True
+#         elif text == ':' and line[end[1]:].isspace():
+#             open_rows[depth].append(row)
+
+#         # keep track of bracket depth
+#         if token_type == tokenize.OP:
+#             if text in '([{':
+#                 depth += 1
+#                 indent.append(0)
+#                 hangs.append(None)
+#                 if len(open_rows) == depth:
+#                     open_rows.append([])
+#                 open_rows[depth].append(row)
+#                 parens[row] += 1
+#                 if verbose >= 4:
+#                     print("bracket depth %s seen, col %s, visual min = %s" %
+#                           (depth, start[1], indent[depth]))
+#             elif text in ')]}' and depth > 0:
+#                 # parent indents should not be more than this one
+#                 prev_indent = indent.pop() or last_indent[1]
+#                 hangs.pop()
+#                 for d in range(depth):
+#                     if indent[d] > prev_indent:
+#                         indent[d] = 0
+#                 for ind in list(indent_chances):
+#                     if ind >= prev_indent:
+#                         del indent_chances[ind]
+#                 del open_rows[depth + 1:]
+#                 depth -= 1
+#                 if depth:
+#                     indent_chances[indent[depth]] = True
+#                 for idx in range(row, -1, -1):
+#                     if parens[idx]:
+#                         parens[idx] -= 1
+#                         break
+#             assert len(indent) == depth + 1
+#             if start[1] not in indent_chances:
+#                 # allow lining up tokens
+#                 indent_chances[start[1]] = text
+
+#         last_token_multiline = (start[0] != end[0])
+#         if last_token_multiline:
+#             rel_indent[end[0] - first_row] = rel_indent[row]
+
+#     if indent_next and expand_indent(line) == indent_level + 4:
+#         pos = (start[0], indent[0] + 4)
+#         if visual_indent:
+#             code = "E129 visually indented line: Not hanging indent"
+#         else:
+#             code = "E125 continuation line"
+#         yield pos, "%s with same indent as next logical line" % code
+
 
 def whitespace_before_parameters(logical_line, tokens):
     r"""Avoid extraneous whitespace.
