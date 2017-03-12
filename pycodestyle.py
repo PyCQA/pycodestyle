@@ -668,9 +668,11 @@ def non_hanging_indentation(logical_line, tokens):
                 break
 
             for index, bracket in enumerate(opening_brackets):
-                if(prev_line.rfind(bracket) > prev_line.rfind(closing_brackets[index])): #unbalanced opening bracket
-                    if(prev_line.endswith(bracket)): #hanging indent
-                        break #check allignment for hanging indent
+                # unbalanced opening bracket
+                if(prev_line.rfind(bracket) > prev_line.rfind(closing_brackets[index])):
+                    if(prev_line.endswith(bracket)):
+                    # hanging indent
+                        break  # check allignment for hanging indent
                     else:
                         yield(0, "E134 Not hanging indent")
 
