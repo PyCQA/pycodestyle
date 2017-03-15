@@ -1199,7 +1199,7 @@ def comparison_type(logical_line, noqa):
 
 
 def bare_except(logical_line, noqa):
-    r"""When catching exceptions, mention specific exceptions whenever possible.
+    r"""When catching exceptions, mention specific exceptions when possible.
 
     Okay: except Exception:
     Okay: except BaseException:
@@ -1727,7 +1727,9 @@ class Checker(object):
                 return
             self.multiline = True
             self.line_number = token[2][0]
-            for line in token[1].split('\n')[:-1]:
+            _, src, (_, offset), _, _ = token
+            src = self.lines[self.line_number - 1][:offset] + src
+            for line in src.split('\n')[:-1]:
                 self.check_physical(line + '\n')
                 self.line_number += 1
             self.multiline = False
