@@ -691,7 +691,7 @@ def non_hanging_indentation(logical_line, tokens):
                     last_index = last_index - 1  # valid hanging indent
                 elif (token_vals[end-1][1] != element[1] and
                       token_vals[element[0]-1][0] != tokenize.OP):
-                    yield(0, "E134 Not hanging indent")
+                    yield(0, "E134 not valid hanging indent")
                     break
 
             start = end + 1
