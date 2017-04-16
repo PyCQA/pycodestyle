@@ -62,12 +62,6 @@ rv.update(dict.fromkeys((
 abricot = 3 + \
           4 + \
           5 + 6
-#: E131
-print "hello", (
-
-    "there",
-     # "john",
-    "dude")
 #: E126
 part = set_mimetype((
     a.get('mime_type', 'text')),
