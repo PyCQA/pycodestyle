@@ -56,6 +56,19 @@ You can install, upgrade, and uninstall ``pycodestyle.py`` with these commands::
 There's also a package for Debian/Ubuntu, but it's not always the
 latest version.
 
+Developing
+----------
+
+Developing is fairly easy. First, make sure to check out the code from
+Github_. Modify the code as you want. Then, then run the test suites by
+issuing::
+
+  $ python pep8.py --testsuite testsuite
+  $ python pep8.py --statistics pep8.py
+  $ python pip8.py --doctests
+
+.. _Github: https://github.com/jcrocholl/pep8
+
 Example usage and output
 ------------------------
 
