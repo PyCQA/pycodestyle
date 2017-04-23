@@ -641,6 +641,42 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         yield pos, "%s with same indent as next logical line" % code
 
 
+def non_hanging_indentation(logical_line, tokens):
+    r"""Check for hanging indentation
+
+    Raises error whenever indent is vertical indent and not in proper hanging indent format.
+    When using a hanging indent these considerations should be applied:
+    - there should be no arguments on the first line, and
+    - further indentation should be used to clearly distinguish itself as a
+      continuation line.
+
+    This method checks the first condition, the second will be automatically 
+    checked by continued_indentation.
+
+    Okay: foo = long_function_name(\n    var_one, var_two,\n    var_three, var_four)
+    E134: foo = long_function_name(var_one, var_two,\n    var_three, var_four)
+    """
+    if(logical_line):
+        opening_brackets = '({['
+        closing_brackets = ')}]'
+        prev_line = ""
+        for token_type, text, start, end, line in tokens:
+            line = line.rstrip('\n')
+            if(line != prev_line):
+                prev_line = line
+            else:
+                break
+
+            for index, bracket in enumerate(opening_brackets):
+                # unbalanced opening bracket
+                if(prev_line.rfind(bracket) > prev_line.rfind(closing_brackets[index])):
+                    if(prev_line.endswith(bracket)):
+                    # hanging indent
+                        break  # check allignment for hanging indent
+                    else:
+                        yield(0, "E134 Not hanging indent")
+
+
 def whitespace_before_parameters(logical_line, tokens):
     r"""Avoid extraneous whitespace.
 
