@@ -69,7 +69,7 @@ except ImportError:
 __version__ = '2.3.1'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
-DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503'
+DEFAULT_IGNORE = 'E121,E123,E126,E134,E226,E24,E704,W503'
 try:
     if sys.platform == 'win32':
         USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
@@ -639,6 +639,62 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         else:
             code = "E125 continuation line"
         yield pos, "%s with same indent as next logical line" % code
+
+
+def non_hanging_indentation(logical_line, tokens):
+    r"""Check for hanging indentation
+
+    Raises error whenever indent is vertical indent
+    and not in proper hanging indent format.
+    When using a hanging indent these considerations should be applied:
+    - there should be no arguments on the first line, and
+    - further indentation should be used to clearly distinguish itself as a
+      continuation line.
+
+    This method checks the first condition, the second will be automatically
+    checked by continued_indentation.
+
+    Okay: foo = long_function_name(\n    var_one, var_two,\n    var_three)
+    E134: foo = long_function_name(var_one, var_two,\n    var_three)
+    """
+    if (logical_line):
+        opening_brackets = '({['
+        closing_brackets = ')}]'
+        reverse = {')': '(', ']': '[', '}': '{'}
+        token_vals = [[token_type, text]
+                      for token_type, text, start, end, line in tokens]
+        newline = [index for index, a in enumerate(token_vals) if a[1] == '\n']
+
+        n_tokens = len(token_vals)
+        if ((not len(newline)) or (newline[-1] != n_tokens-1)):
+            newline.append(n_tokens-1)
+
+        start = 0
+        # iterate over each line and get the unbalanced paranthesis
+        for index, end in enumerate(newline):
+            queue = []
+            last_index = end-1
+            for j in range(start, end):
+                if(token_vals[j][1]):
+                    # append unbalanced opening brackets
+                    if (token_vals[j][1] in opening_brackets):
+                        queue.append([j, token_vals[j][1]])
+                    elif (token_vals[j][1] in closing_brackets):
+                        if (len(queue)):
+                            bracket = queue.pop()
+                            if(reverse[token_vals[j][1]] != bracket[1]):
+                                queue.append(bracket)  # not matching brackets
+
+            while (len(queue)):  # unbalanced paranthesis
+                element = queue.pop()
+                if (token_vals[last_index][1] == element[1]):
+                    last_index = last_index - 1  # valid hanging indent
+                elif (token_vals[end-1][1] != element[1] and
+                      token_vals[element[0]-1][0] != tokenize.OP):
+                    yield(0, "E134 not valid hanging indent")
+                    break
+
+            start = end + 1
 
 
 def whitespace_before_parameters(logical_line, tokens):
