@@ -159,6 +159,7 @@ Quick help is available on the command line::
     --max-line-length=n  set maximum allowed line length (default: 79)
     --hang-closing       hang closing bracket instead of matching indentation of
                          opening bracket's line
+    --no-visual          force hanging indentation
     --format=format      set the error format [default|pylint|<custom>]
     --diff               report only lines changed according to the unified diff
                          received on STDIN
