@@ -497,7 +497,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 @register_check
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          indent_char, noqa, verbose):
+                          indent_char, noqa, verbose, no_visual):
     r"""Continuation lines indentation.
 
     Continuation lines should align wrapped elements either vertically
@@ -595,7 +595,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # closing bracket matches indentation of opening bracket's line
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
-            elif indent[depth] and start[1] < indent[depth]:
+            elif indent[depth] and start[1] < indent[depth] and not no_visual:
                 if visual_indent is not True:
                     # visual indent is broken
                     yield (start, "E128 continuation line "
@@ -606,7 +606,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     yield (start, "E123 closing bracket does not match "
                            "indentation of opening bracket's line")
                 hangs[depth] = hang
-            elif visual_indent is True:
+            elif visual_indent is True and not no_visual:
                 # visual indent is verified
                 indent[depth] = start[1]
             elif visual_indent in (text, str):
@@ -616,7 +616,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # indent is broken
                 if hang <= 0:
                     error = "E122", "missing indentation or outdented"
-                elif indent[depth]:
+                elif indent[depth] and not no_visual:
                     error = "E127", "over-indented for visual indent"
                 elif not close_bracket and hangs[depth]:
                     error = "E131", "unaligned for hanging indent"
@@ -1561,6 +1561,7 @@ class Checker(object):
         self.max_line_length = options.max_line_length
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
+        self.no_visual = options.no_visual
         self.verbose = options.verbose
         self.filename = filename
         # Dictionary where a checker can store its custom state.
@@ -2124,7 +2125,7 @@ def get_parser(prog='pycodestyle', version=__version__):
                           usage="%prog [options] input ...")
     parser.config_options = [
         'exclude', 'filename', 'select', 'ignore', 'max-line-length',
-        'hang-closing', 'count', 'format', 'quiet', 'show-pep8',
+        'hang-closing', 'no-visual', 'count', 'format', 'quiet', 'show-pep8',
         'show-source', 'statistics', 'verbose']
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help="print status messages, or debug with -vv")
@@ -2164,6 +2165,8 @@ def get_parser(prog='pycodestyle', version=__version__):
     parser.add_option('--hang-closing', action='store_true',
                       help="hang closing bracket instead of matching "
                            "indentation of opening bracket's line")
+    parser.add_option('--no-visual', action='store_true',
+                      help="force hanging indentation")
     parser.add_option('--format', metavar='format', default='default',
                       help="set the error format [default|pylint|<custom>]")
     parser.add_option('--diff', action='store_true',
