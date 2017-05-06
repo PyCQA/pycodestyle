@@ -56,6 +56,7 @@ import sys
 import time
 import tokenize
 import warnings
+import bisect
 
 from fnmatch import fnmatch
 from optparse import OptionParser
@@ -1664,10 +1665,10 @@ class Checker(object):
         """Build a line from tokens and run all logical checks on it."""
         self.report.increment_logical_line()
         mapping = self.build_tokens_line()
-
         if not mapping:
             return
 
+        mapping_offsets = [offset for offset, _ in mapping]
         (start_row, start_col) = mapping[0][1]
         start_line = self.lines[start_row - 1]
         self.indent_level = expand_indent(start_line[:start_col])
@@ -1681,9 +1682,10 @@ class Checker(object):
             self.init_checker_state(name, argument_names)
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
-                    for token_offset, pos in mapping:
-                        if offset <= token_offset:
-                            break
+                    # As mappings are ordered, bisecting is a fast way
+                    # to find a given offset in them.
+                    token_offset, pos = mapping[bisect.bisect_left(
+                        mapping_offsets, offset)]
                     offset = (pos[0], pos[1] + offset - token_offset)
                 self.report_error(offset[0], offset[1], text, check)
         if self.logical_line:
