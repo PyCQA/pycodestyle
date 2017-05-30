@@ -138,7 +138,7 @@ class APITestCase(unittest.TestCase):
         self.reset()
 
     def test_styleguide_options(self):
-        # Instanciate a simple checker
+        # Instantiate a simple checker
         pep8style = pycodestyle.StyleGuide(paths=[E11])
 
         # Check style's attributes
@@ -172,7 +172,7 @@ class APITestCase(unittest.TestCase):
     def test_styleguide_ignore_code(self):
         def parse_argv(argstring):
             _saved_argv = sys.argv
-            sys.argv = shlex.split('pep8 %s /dev/null' % argstring)
+            sys.argv = shlex.split('pycodestyle %s /dev/null' % argstring)
             try:
                 return pycodestyle.StyleGuide(parse_argv=True)
             finally:

@@ -14,8 +14,8 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 * `Source code <https://github.com/pycqa/pycodestyle>`_ and
   `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
-  2.6 through 3.4 and PyPy, on `Travis-CI platform
-  <http://about.travis-ci.org/>`_.
+  2.6 through 3.5 as well as the nightly Python build and PyPy, on `Travis-CI
+  platform <https://docs.travis-ci.com//>`_.
 
 .. _available on GitHub: https://github.com/pycqa/pycodestyle
 
@@ -27,7 +27,8 @@ Some high-level aims and directions to bear in mind for contributions:
 
 * ``pycodestyle`` is intended to be as fast as possible.
   Using the ``ast`` module defeats that purpose.
-  The `pep8-naming <https://github.com/flintwork/pep8-naming>`_ plugin exists for this sort of functionality.
+  The `pep8-naming <https://github.com/flintwork/pep8-naming>`_ plugin exists
+  for this sort of functionality.
 * If you want to provide extensibility / plugins,
   please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
   ``pycodestyle`` doesn't want or need a plugin architecture.
@@ -102,6 +103,15 @@ Then be sure to pass the tests::
   $ python pycodestyle.py --verbose pycodestyle.py
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.
+
+To run the tests, the core developer team and Travis-CI use tox::
+
+    $ pip install -r dev-requirements.txt
+    $ tox
+
+All the tests should pass for all available interpreters, with the summary of::
+
+    congratulations :)
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 .. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html

@@ -167,13 +167,14 @@ Quick help is available on the command line::
       --benchmark        measure processing speed
 
     Configuration:
-      The project options are read from the [pep8] section of the tox.ini
-      file or the setup.cfg file located in any parent folder of the path(s)
-      being processed.  Allowed options are: exclude, filename, select,
+      The project options are read from the [pycodestyle] section of the
+      tox.ini file or the setup.cfg file located in any parent folder of the
+      path(s) being processed.  Allowed options are: exclude, filename, select,
       ignore, max-line-length, hang-closing, count, format, quiet, show-pep8,
       show-source, statistics, verbose.
 
-      --config=path      user config file location (default: ~/.config/pep8)
+      --config=path      user config file location
+      (default: ~/.config/pycodestyle)
 
 
 Configuration
@@ -184,23 +185,23 @@ The behaviour may be configured at two levels, the user and project levels.
 At the user level, settings are read from the following locations:
 
 If on Windows:
-    ``~\.pep8``
+    ``~\.pycodestyle``
 
 Otherwise, if the :envvar:`XDG_CONFIG_HOME` environment variable is defined:
-    ``XDG_CONFIG_HOME/pep8``
+    ``XDG_CONFIG_HOME/pycodestyle``
 
 Else if :envvar:`XDG_CONFIG_HOME` is not defined:
-    ``~/.config/pep8``
+    ``~/.config/pycodestyle``
 
 Example::
 
-  [pep8]
+  [pycodestyle]
   ignore = E226,E302,E41
   max-line-length = 160
 
 At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
-present. If none of these files have a ``[pep8]`` section, no project specific
-configuration is loaded.
+present. If none of these files have a ``[pycodestyle]`` section, no project
+specific configuration is loaded.
 
 
 Error codes
@@ -321,6 +322,10 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | E304       | blank lines found after function decorator                           |
 +------------+----------------------------------------------------------------------+
+| E305       | expected 2 blank lines after end of function or class                |
++------------+----------------------------------------------------------------------+
+| E306       | expected 1 blank line before a nested definition                     |
++------------+----------------------------------------------------------------------+
 +------------+----------------------------------------------------------------------+
 | **E4**     | *Import*                                                             |
 +------------+----------------------------------------------------------------------+
@@ -356,7 +361,15 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | E721 (^)   | do not compare types, use 'isinstance()'                             |
 +------------+----------------------------------------------------------------------+
+| E722       | do not use bare except, specify exception instead                    |
++------------+----------------------------------------------------------------------+
 | E731       | do not assign a lambda expression, use a def                         |
++------------+----------------------------------------------------------------------+
+| E741       | do not use variables named 'l', 'O', or 'I'                          |
++------------+----------------------------------------------------------------------+
+| E742       | do not define classes named 'l', 'O', or 'I'                         |
++------------+----------------------------------------------------------------------+
+| E743       | do not define functions named 'l', 'O', or 'I'                       |
 +------------+----------------------------------------------------------------------+
 +------------+----------------------------------------------------------------------+
 | **E9**     | *Runtime*                                                            |

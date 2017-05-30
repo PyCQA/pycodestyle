@@ -82,6 +82,11 @@ that I'm calling:
 #: E501
 """
 longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaces"""
+#: E501
+# Regression test for #622
+def foo():
+    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pulvinar vitae
+    """
 #: Okay
 """
 This

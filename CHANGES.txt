@@ -1,6 +1,64 @@
 Changelog
 =========
 
+2.3.1 (2017-01-31)
+------------------
+
+Bugs:
+
+* Fix regression in detection of E302 and E306; #618, #620
+
+2.3.0 (2017-01-30)
+------------------
+
+New Checks:
+
+* Add E722 warning for bare ``except`` clauses
+* Report E704 for async function definitions (``async def``)
+
+Bugs:
+
+* Fix another E305 false positive for variables beginning with "class" or
+  "def"
+* Fix detection of multiple spaces between ``async`` and ``def``
+* Fix handling of variable annotations. Stop reporting E701 on Python 3.6 for
+  variable annotations.
+
+2.2.0 (2016-11-14)
+------------------
+
+Announcements:
+
+* Added Make target to obtain proper tarball file permissions; #599
+
+Bugs:
+
+* Fixed E305 regression caused by #400; #593
+
+2.1.0 (2016-11-04)
+------------------
+
+Announcements:
+
+* Change all references to the pep8 project to say pycodestyle; #530
+
+Changes:
+
+* Report E302 for blank lines before an "async def"; #556
+* Update our list of tested and supported Python versions which are 2.6, 2.7,
+  3.2, 3.3, 3.4 and 3.5 as well as the nightly Python build and PyPy.
+* Report E742 and E743 for functions and classes badly named 'l', 'O', or 'I'.
+* Report E741 on 'global' and 'nonlocal' statements, as well as prohibited
+  single-letter variables.
+* Deprecated use of `[pep8]` section name in favor of `[pycodestyle]`; #591
+* Report E722 when bare except clause is used; #579
+
+Bugs:
+
+* Fix opt_type AssertionError when using Flake8 2.6.2 and pycodestyle; #561
+* Require two blank lines after toplevel def, class; #536
+* Remove accidentally quadratic computation based on the number of colons. This
+  will make pycodestyle faster in some cases; #314
 
 2.0.0 (2016-05-31)
 ------------------

@@ -38,4 +38,8 @@ def test_keys(self):
 	u'Norrbotten',
 	u'V\xe4sterbotten',
     ])
-#:
+#: E101 W191
+if True:
+    print("""
+	tab at start of this line
+""")
