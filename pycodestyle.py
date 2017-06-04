@@ -58,6 +58,16 @@ import tokenize
 import warnings
 import bisect
 
+try:
+    from functools import lru_cache
+except ImportError:
+    def lru_cache(maxsize=128):  # noqa as it's a fake implementation.
+        """Does not really need a real a lru_cache, it's just optimization, so
+        let's just do nothing here. Python 3.2+ will just get better
+        performances, time to upgrade?
+        """
+        return lambda function: function
+
 from fnmatch import fnmatch
 from optparse import OptionParser
 
@@ -1410,7 +1420,7 @@ else:
         """Read the value from stdin."""
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 
-noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
+noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)\b', re.I).search)
 
 
 def expand_indent(line):
