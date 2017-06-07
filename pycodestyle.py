@@ -2063,7 +2063,7 @@ class StyleGuide(object):
         verbose = self.options.verbose
         filepatterns = self.options.filename
         runner = self.runner
-        for root, dirs, files in os.walk(dirname):
+        for root, dirs, files in os.walk(dirname, followlinks=True):
             if verbose:
                 print('directory ' + root)
             counters['directories'] += 1
