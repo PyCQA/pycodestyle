@@ -56,6 +56,17 @@ import sys
 import time
 import tokenize
 import warnings
+import bisect
+
+try:
+    from functools import lru_cache
+except ImportError:
+    def lru_cache(maxsize=128):  # noqa as it's a fake implementation.
+        """Does not really need a real a lru_cache, it's just optimization, so
+        let's just do nothing here. Python 3.2+ will just get better
+        performances, time to upgrade?
+        """
+        return lambda function: function
 
 from fnmatch import fnmatch
 from optparse import OptionParser
@@ -124,7 +135,7 @@ HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)\b')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def\s+|def\s+|class\s+|@)')
 STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
-    r'^\s*({0})\b'.format('|'.join(s.replace(' ', '\s+') for s in (
+    r'^\s*({0})\b'.format('|'.join(s.replace(' ', r'\s+') for s in (
         'def', 'async def',
         'for', 'async for',
         'if', 'elif', 'else',
@@ -141,11 +152,43 @@ DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
 COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
 
 
+_checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
+
+
+def _get_parameters(function):
+    if sys.version_info >= (3, 3):
+        return [parameter.name
+                for parameter
+                in inspect.signature(function).parameters.values()
+                if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
+    else:
+        return inspect.getargspec(function)[0]
+
+
+def register_check(check, codes=None):
+    """Register a new check object."""
+    def _add_check(check, kind, codes, args):
+        if check in _checks[kind]:
+            _checks[kind][check][0].extend(codes or [])
+        else:
+            _checks[kind][check] = (codes or [''], args)
+    if inspect.isfunction(check):
+        args = _get_parameters(check)
+        if args and args[0] in ('physical_line', 'logical_line'):
+            if codes is None:
+                codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
+            _add_check(check, args[0], codes, args)
+    elif inspect.isclass(check):
+        if _get_parameters(check.__init__)[:2] == ['self', 'tree']:
+            _add_check(check, 'tree', codes, None)
+    return check
+
+
 ##############################################################################
 # Plugins (check functions) for physical lines
 ##############################################################################
 
-
+@register_check
 def tabs_or_spaces(physical_line, indent_char):
     r"""Never mix tabs and spaces.
 
@@ -165,6 +208,7 @@ def tabs_or_spaces(physical_line, indent_char):
             return offset, "E101 indentation contains mixed spaces and tabs"
 
 
+@register_check
 def tabs_obsolete(physical_line):
     r"""For new projects, spaces-only are strongly recommended over tabs.
 
@@ -176,6 +220,7 @@ def tabs_obsolete(physical_line):
         return indent.index('\t'), "W191 indentation contains tabs"
 
 
+@register_check
 def trailing_whitespace(physical_line):
     r"""Trailing whitespace is superfluous.
 
@@ -197,6 +242,7 @@ def trailing_whitespace(physical_line):
             return 0, "W293 blank line contains whitespace"
 
 
+@register_check
 def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     r"""Trailing blank lines are superfluous.
 
@@ -213,6 +259,7 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
             return len(physical_line), "W292 no newline at end of file"
 
 
+@register_check
 def maximum_line_length(physical_line, max_line_length, multiline, noqa):
     r"""Limit all lines to a maximum of 79 characters.
 
@@ -251,6 +298,7 @@ def maximum_line_length(physical_line, max_line_length, multiline, noqa):
 ##############################################################################
 
 
+@register_check
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 blank_before, previous_logical,
                 previous_unindented_logical_line, previous_indent_level,
@@ -313,6 +361,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             "class or function definition, found %d" % blank_before
 
 
+@register_check
 def extraneous_whitespace(logical_line):
     r"""Avoid extraneous whitespace.
 
@@ -345,6 +394,7 @@ def extraneous_whitespace(logical_line):
             yield found, "%s whitespace before '%s'" % (code, char)
 
 
+@register_check
 def whitespace_around_keywords(logical_line):
     r"""Avoid extraneous whitespace around keywords.
 
@@ -368,6 +418,7 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E271 multiple spaces after keyword"
 
 
+@register_check
 def missing_whitespace_after_import_keyword(logical_line):
     r"""Multiple imports in form from x import (a, b, c) should have space
     between import statement and parenthesised name list.
@@ -385,6 +436,7 @@ def missing_whitespace_after_import_keyword(logical_line):
             yield pos, "E275 missing whitespace after keyword"
 
 
+@register_check
 def missing_whitespace(logical_line):
     r"""Each comma, semicolon or colon should be followed by whitespace.
 
@@ -411,6 +463,7 @@ def missing_whitespace(logical_line):
             yield index, "E231 missing whitespace after '%s'" % char
 
 
+@register_check
 def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level):
     r"""Use 4 spaces per indentation level.
@@ -442,6 +495,7 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, tmpl % (3 + c, "unexpected indentation")
 
 
+@register_check
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                           indent_char, noqa, verbose):
     r"""Continuation lines indentation.
@@ -641,6 +695,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         yield pos, "%s with same indent as next logical line" % code
 
 
+@register_check
 def whitespace_before_parameters(logical_line, tokens):
     r"""Avoid extraneous whitespace.
 
@@ -673,6 +728,7 @@ def whitespace_before_parameters(logical_line, tokens):
         prev_end = end
 
 
+@register_check
 def whitespace_around_operator(logical_line):
     r"""Avoid extraneous whitespace around an operator.
 
@@ -696,6 +752,7 @@ def whitespace_around_operator(logical_line):
             yield match.start(2), "E222 multiple spaces after operator"
 
 
+@register_check
 def missing_whitespace_around_operator(logical_line, tokens):
     r"""Surround operators with a single space on either side.
 
@@ -788,6 +845,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
         prev_end = end
 
 
+@register_check
 def whitespace_around_comma(logical_line):
     r"""Avoid extraneous whitespace after a comma or a colon.
 
@@ -806,6 +864,7 @@ def whitespace_around_comma(logical_line):
             yield found, "E241 multiple spaces after '%s'" % m.group()[0]
 
 
+@register_check
 def whitespace_around_named_parameter_equals(logical_line, tokens):
     r"""Don't use spaces around the '=' sign in function arguments.
 
@@ -856,6 +915,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
         prev_end = end
 
 
+@register_check
 def whitespace_before_comment(logical_line, tokens):
     r"""Separate inline comments by at least two spaces.
 
@@ -897,6 +957,7 @@ def whitespace_before_comment(logical_line, tokens):
             prev_end = end
 
 
+@register_check
 def imports_on_separate_lines(logical_line):
     r"""Place imports on separate lines.
 
@@ -916,6 +977,7 @@ def imports_on_separate_lines(logical_line):
             yield found, "E401 multiple imports on one line"
 
 
+@register_check
 def module_imports_on_top_of_file(
         logical_line, indent_level, checker_state, noqa):
     r"""Place imports at the top of the file.
@@ -972,6 +1034,7 @@ def module_imports_on_top_of_file(
         checker_state['seen_non_imports'] = True
 
 
+@register_check
 def compound_statements(logical_line):
     r"""Compound statements (on the same line) are generally discouraged.
 
@@ -1032,6 +1095,7 @@ def compound_statements(logical_line):
         found = line.find(';', found + 1)
 
 
+@register_check
 def explicit_line_join(logical_line, tokens):
     r"""Avoid explicit line join between brackets.
 
@@ -1071,6 +1135,7 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
+@register_check
 def break_around_binary_operator(logical_line, tokens):
     r"""
     Avoid breaks before binary operators.
@@ -1120,6 +1185,7 @@ def break_around_binary_operator(logical_line, tokens):
             previous_text = text
 
 
+@register_check
 def comparison_to_singleton(logical_line, noqa):
     r"""Comparison to singletons should use "is" or "is not".
 
@@ -1154,6 +1220,7 @@ def comparison_to_singleton(logical_line, noqa):
                                (code, singleton, msg))
 
 
+@register_check
 def comparison_negative(logical_line):
     r"""Negative comparison should be done using "not in" and "is not".
 
@@ -1175,6 +1242,7 @@ def comparison_negative(logical_line):
             yield pos, "E714 test for object identity should be 'is not'"
 
 
+@register_check
 def comparison_type(logical_line, noqa):
     r"""Object type comparisons should always use isinstance().
 
@@ -1198,8 +1266,9 @@ def comparison_type(logical_line, noqa):
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
 
+@register_check
 def bare_except(logical_line, noqa):
-    r"""When catching exceptions, mention specific exceptions whenever possible.
+    r"""When catching exceptions, mention specific exceptions when possible.
 
     Okay: except Exception:
     Okay: except BaseException:
@@ -1214,6 +1283,7 @@ def bare_except(logical_line, noqa):
         yield match.start(), "E722 do not use bare except'"
 
 
+@register_check
 def ambiguous_identifier(logical_line, tokens):
     r"""Never use the characters 'l', 'O', or 'I' as variable names.
 
@@ -1266,6 +1336,7 @@ def ambiguous_identifier(logical_line, tokens):
         prev_start = start
 
 
+@register_check
 def python_3000_has_key(logical_line, noqa):
     r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
 
@@ -1277,6 +1348,7 @@ def python_3000_has_key(logical_line, noqa):
         yield pos, "W601 .has_key() is deprecated, use 'in'"
 
 
+@register_check
 def python_3000_raise_comma(logical_line):
     r"""When raising an exception, use "raise ValueError('message')".
 
@@ -1290,6 +1362,7 @@ def python_3000_raise_comma(logical_line):
         yield match.end() - 1, "W602 deprecated form of raising exception"
 
 
+@register_check
 def python_3000_not_equal(logical_line):
     r"""New code should always use != instead of <>.
 
@@ -1303,6 +1376,7 @@ def python_3000_not_equal(logical_line):
         yield pos, "W603 '<>' is deprecated, use '!='"
 
 
+@register_check
 def python_3000_backticks(logical_line):
     r"""Use repr() instead of backticks in Python 3.
 
@@ -1346,7 +1420,7 @@ else:
         """Read the value from stdin."""
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 
-noqa = re.compile(r'# no(?:qa|pep8)\b', re.I).search
+noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)\b', re.I).search)
 
 
 def expand_indent(line):
@@ -1469,50 +1543,6 @@ if COMMENT_WITH_NL:
 ##############################################################################
 # Framework to run all checks
 ##############################################################################
-
-
-_checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
-
-
-def _get_parameters(function):
-    if sys.version_info >= (3, 3):
-        return [parameter.name
-                for parameter
-                in inspect.signature(function).parameters.values()
-                if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
-    else:
-        return inspect.getargspec(function)[0]
-
-
-def register_check(check, codes=None):
-    """Register a new check object."""
-    def _add_check(check, kind, codes, args):
-        if check in _checks[kind]:
-            _checks[kind][check][0].extend(codes or [])
-        else:
-            _checks[kind][check] = (codes or [''], args)
-    if inspect.isfunction(check):
-        args = _get_parameters(check)
-        if args and args[0] in ('physical_line', 'logical_line'):
-            if codes is None:
-                codes = ERRORCODE_REGEX.findall(check.__doc__ or '')
-            _add_check(check, args[0], codes, args)
-    elif inspect.isclass(check):
-        if _get_parameters(check.__init__)[:2] == ['self', 'tree']:
-            _add_check(check, 'tree', codes, None)
-
-
-def init_checks_registry():
-    """Register all globally visible functions.
-
-    The first argument name is either 'physical_line' or 'logical_line'.
-    """
-    mod = inspect.getmodule(register_check)
-    for (name, function) in inspect.getmembers(mod, inspect.isfunction):
-        register_check(function)
-
-
-init_checks_registry()
 
 
 class Checker(object):
@@ -1645,10 +1675,10 @@ class Checker(object):
         """Build a line from tokens and run all logical checks on it."""
         self.report.increment_logical_line()
         mapping = self.build_tokens_line()
-
         if not mapping:
             return
 
+        mapping_offsets = [offset for offset, _ in mapping]
         (start_row, start_col) = mapping[0][1]
         start_line = self.lines[start_row - 1]
         self.indent_level = expand_indent(start_line[:start_col])
@@ -1662,9 +1692,10 @@ class Checker(object):
             self.init_checker_state(name, argument_names)
             for offset, text in self.run_check(check, argument_names) or ():
                 if not isinstance(offset, tuple):
-                    for token_offset, pos in mapping:
-                        if offset <= token_offset:
-                            break
+                    # As mappings are ordered, bisecting is a fast way
+                    # to find a given offset in them.
+                    token_offset, pos = mapping[bisect.bisect_left(
+                        mapping_offsets, offset)]
                     offset = (pos[0], pos[1] + offset - token_offset)
                 self.report_error(offset[0], offset[1], text, check)
         if self.logical_line:
@@ -1727,7 +1758,9 @@ class Checker(object):
                 return
             self.multiline = True
             self.line_number = token[2][0]
-            for line in token[1].split('\n')[:-1]:
+            _, src, (_, offset), _, _ = token
+            src = self.lines[self.line_number - 1][:offset] + src
+            for line in src.split('\n')[:-1]:
                 self.check_physical(line + '\n')
                 self.line_number += 1
             self.multiline = False
