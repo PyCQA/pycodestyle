@@ -13,6 +13,16 @@ CONST: int = 42
 
 class Class:
     cls_var: ClassVar[str]
+    ifx: bool
+    elifx: str
+    else_y: str
+    for_a: int
+    while_b: int
+    tryx: int
+    except_x: str
+    finallyx: str
+    with_x: int
+    class_x: int
 
     def m(self):
         xs: List[int] = []
