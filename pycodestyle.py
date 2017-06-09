@@ -135,11 +135,11 @@ HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def\s+|def\s+|class\s+|@)')
 STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
-    r'^\s*({0})'.format('|'.join(s.replace(' ', r'\s+') for s in (
+    r'^\s*({0})'.format('|'.join((s + ' ').replace(' ', r'\s+') for s in (
         'def', 'async def',
         'for', 'async for',
-        'if', 'elif', 'else',
-        'try', 'except', 'finally',
+        'if', 'elif', 'else:',
+        'try:', 'except', 'finally:',
         'with', 'async with',
         'class',
         'while',
