@@ -1,6 +1,6 @@
 #: W601
 if a.has_key("b"):
-    print a
+    print(a)
 #: W602
 raise DummyError, "Message"
 #: W602

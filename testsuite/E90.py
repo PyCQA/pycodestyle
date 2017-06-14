@@ -1,14 +1,18 @@
 #: E901
+# Potential second E901
 }
 #: E901
+# Potential second E901
 = [x
 #: E901 E101 W191
+# Potential second E901
 while True:
     try:
 	    pass
 	except:
 		print 'Whoops'
 #: E122 E225 E251 E251
+# Potential E901
 
 # Do not crash if code is invalid
 if msg:

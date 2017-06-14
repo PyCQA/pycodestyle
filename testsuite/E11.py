@@ -1,13 +1,15 @@
 #: E111
 if x > 2:
-  print x
+  print(x)
 #: E111
 if True:
      print
 #: E112
+# Potential E901
 if False:
 print
 #: E113
+# Potential E901
 print
     print
 #: E114 E116
