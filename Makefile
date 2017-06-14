@@ -1,11 +1,14 @@
+release:
+	umask 022 && chmod -R a+rX . && python setup.py sdist bdist_wheel
+
 test :
-	python pep8.py --testsuite testsuite
+	python pycodestyle.py --testsuite testsuite
 
 selftest :
-	python pep8.py --statistics pep8.py
+	python pycodestyle.py --statistics pycodestyle.py
 
 doctest :
-	python pep8.py --doctest
+	python pycodestyle.py --doctest
 
 unittest :
 	python -m testsuite.test_all

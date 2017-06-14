@@ -132,3 +132,33 @@ def a():
 def b():
 
     pass
+#: Okay
+def foo():
+    pass
+
+
+def bar():
+    pass
+
+
+class Foo(object):
+    pass
+
+
+class Bar(object):
+    pass
+
+
+if __name__ == '__main__':
+    foo()
+#: Okay
+classification_errors = None
+#: Okay
+defined_properly = True
+#: Okay
+defaults = {}
+defaults.update({})
+#: Okay
+def foo(x):
+    classification = x
+    definitely = not classification

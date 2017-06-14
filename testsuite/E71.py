@@ -10,6 +10,18 @@ if None == res:
 #: E711
 if None != res:
     pass
+#: E711
+if res[1] == None:
+    pass
+#: E711
+if res[1] != None:
+    pass
+#: E711
+if None != res[1]:
+    pass
+#: E711
+if None == res[1]:
+    pass
 
 #
 #: E712
@@ -23,6 +35,12 @@ if True != res:
     pass
 #: E712
 if False == res:
+    pass
+#: E712
+if res[1] == True:
+    pass
+#: E712
+if res[1] != False:
     pass
 
 #
