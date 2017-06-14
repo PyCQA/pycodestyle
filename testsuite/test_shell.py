@@ -78,7 +78,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         self.assertEqual(len(stdout), 17)
-        for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
+        for line, num, col in zip(stdout, (3, 6, 10, 14), (3, 6, 1, 5)):
             path, x, y, msg = line.split(':')
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
