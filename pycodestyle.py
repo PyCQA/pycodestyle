@@ -1420,7 +1420,7 @@ else:
         """Read the value from stdin."""
         return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 
-noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)\b', re.I).search)
+noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)(?!:)\b', re.I).search)
 
 
 def expand_indent(line):
