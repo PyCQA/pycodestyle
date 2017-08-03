@@ -92,7 +92,7 @@ try:
 except ImportError:
     USER_CONFIG = None
 
-PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
+PROJECT_CONFIG = ('setup.cfg', 'tox.ini', '.pycodestyle', '.pycodestylerc')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 REPORT_FORMAT = {
