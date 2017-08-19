@@ -13,3 +13,19 @@ if x <> 0:
     x = 0
 #: W604
 val = `1 + 2`
+#: W605
+regex = '\.png$'
+#: W605
+regex = '''
+\.png$
+'''
+#: Okay
+regex = r'\.png$'
+regex = '\\.png$'
+regex = r'''
+\.png$
+'''
+regex = r'''
+\\.png$
+'''
+s = '\\'
