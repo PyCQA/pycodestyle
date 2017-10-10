@@ -1,4 +1,4 @@
-Contributing to ``pep8``
-========================
+Contributing to ``pycodestyle``
+===============================
 
 Please see the `developer notes <https://pep8.readthedocs.org/en/latest/developer.html>`_
