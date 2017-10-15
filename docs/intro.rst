@@ -198,6 +198,8 @@ Example::
   [pycodestyle]
   ignore = E226,E302,E41
   max-line-length = 160
+  statistics = True
+  count = False
 
 At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
 present. If none of these files have a ``[pycodestyle]`` section, no project
