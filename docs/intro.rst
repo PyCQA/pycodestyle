@@ -196,8 +196,10 @@ Else if :envvar:`XDG_CONFIG_HOME` is not defined:
 Example::
 
   [pycodestyle]
+  count = False
   ignore = E226,E302,E41
   max-line-length = 160
+  statistics = True
 
 At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
 present. If none of these files have a ``[pycodestyle]`` section, no project
