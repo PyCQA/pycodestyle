@@ -2,6 +2,14 @@
 from __future__ import with_statement
 from setuptools import setup
 
+import warnings
+
+warnings.warn('pep8 has been renamed to pycodestyle. '
+              'Please uninstall pep8 and install pycodestyle. '
+              'More info: '
+              'https://github.com/PyCQA/pycodestyle/issues/466',
+              UserWarning)
+
 
 def get_version():
     with open('pep8.py') as f:

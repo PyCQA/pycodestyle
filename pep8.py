@@ -65,6 +65,14 @@ except ImportError:
 
 __version__ = '1.7.1'
 
+
+warnings.warn('pep8 has been renamed to pycodestyle. '
+              'Please uninstall pep8 and install pycodestyle. '
+              'More info: '
+              'https://github.com/PyCQA/pycodestyle/issues/466',
+              UserWarning)
+
+
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704'
 try:
