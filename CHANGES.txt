@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.7.1 (2017-10-22)
+------------------
+
+Changes:
+
+* Prominently note via warning message that the tool is no longer released as
+  ``pep8`` and will only be fixed in the ``pycodestyle`` package
 
 1.7.0 (2016-01-12)
 ------------------
