@@ -1995,7 +1995,7 @@ class StyleGuide(object):
         # build options from dict
         options_dict = dict(*args, **kwargs)
         arglist = None if parse_argv else options_dict.get('paths', None)
-        verbose = options_dict.get('verbose', 0)
+        verbose = options_dict.get('verbose', None)
         options, self.paths = process_options(
             arglist, parse_argv, config_file, parser, verbose)
         if options_dict:
