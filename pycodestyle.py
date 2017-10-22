@@ -2257,7 +2257,7 @@ def read_config(options, args, arglist, parser):
 
 
 def process_options(arglist=None, parse_argv=False, config_file=None,
-                    parser=None, verbose=0):
+                    parser=None, verbose=None):
     """Process options passed either via arglist or via command line args.
 
     Passing in the ``config_file`` parameter allows other tools, such as flake8
@@ -2281,7 +2281,8 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     (options, args) = parser.parse_args(arglist)
     options.reporter = None
 
-    if verbose:  # If specified verbose, continue on verbosity
+    # If explicity specified verbosity, override any `-v` CLI flag
+    if verbose is not None:
         options.verbose = verbose
 
     if options.ensure_value('testsuite', False):
