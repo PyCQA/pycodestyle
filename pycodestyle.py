@@ -1995,7 +1995,7 @@ class StyleGuide(object):
         # build options from dict
         options_dict = dict(*args, **kwargs)
         arglist = None if parse_argv else options_dict.get('paths', None)
-        verbose = options_dict.get('verbose', False)
+        verbose = options_dict.get('verbose', 0)
         options, self.paths = process_options(
             arglist, parse_argv, config_file, parser, verbose)
         if options_dict:
@@ -2257,7 +2257,7 @@ def read_config(options, args, arglist, parser):
 
 
 def process_options(arglist=None, parse_argv=False, config_file=None,
-                    parser=None, verbose=False):
+                    parser=None, verbose=0):
     """Process options passed either via arglist or via command line args.
 
     Passing in the ``config_file`` parameter allows other tools, such as flake8
