@@ -1280,7 +1280,7 @@ def bare_except(logical_line, noqa):
     regex = re.compile(r"except\s*:")
     match = regex.match(logical_line)
     if match:
-        yield match.start(), "E722 do not use bare except'"
+        yield match.start(), "E722 do not use bare 'except'"
 
 
 @register_check
