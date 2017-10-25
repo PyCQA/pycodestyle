@@ -422,8 +422,8 @@ This is the current list of error and warning codes:
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
 **E133**, **E226**, **E241**, **E242**, **E704** and **W503** are ignored because
 they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
-check **E133** is mutually exclusive with check **E123**.  Use switch ``--hang-
-closing`` to report **E133** instead of **E123**.
+check **E133** is mutually exclusive with check **E123**.  Use switch
+``--hang-closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
