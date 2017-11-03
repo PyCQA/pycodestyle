@@ -121,3 +121,8 @@ import this
 #: E501
 # This
 #                                                                       almost_empty_line
+#: E501 E226
+#!/usr/bin/env python3
+
+verylong = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+double = verylong+verylong
