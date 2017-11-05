@@ -2,7 +2,7 @@
 }
 #: E901
 = [x
-#: E901 E101 W191
+#: E901 E101 E117 W191
 while True:
     try:
 	    pass

@@ -7,6 +7,7 @@ UNRELEASED / 3.0.0
 Changes:
 
 * Remove support for EOL Python 2.6 and 3.3. PR #720.
+* Add E117 error for over-indented code blocks.
 
 2.4.0 (2018-04-10)
 ------------------
