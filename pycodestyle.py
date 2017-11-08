@@ -124,7 +124,9 @@ DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[[({] | []}),;:]')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
-                                     r'\s*(?(1)|(None|False|True))\b')
+                                     r'\s*(?(1)|(None|False|True))\b'
+                                     r'|(\bFalse|\bTrue)?\s(is|is not)'
+                                     r'\s*(?(4)|(False|True))\b')
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
                                 r'|\s*\(\s*([^)]*[^ )])\s*\))')
@@ -1193,10 +1195,13 @@ def comparison_to_singleton(logical_line, noqa):
     with "is" or "is not", never the equality operators.
 
     Okay: if arg is not None:
+    Okay: if None is arg
     E711: if arg != None:
     E711: if None == arg:
     E712: if arg == True:
-    E712: if False == arg:
+    E712: if False != arg:
+    E712: if arg is True:
+    E712: if False is not arg:
 
     Also, beware of writing if x when you really mean if x is not None --
     e.g. when testing whether a variable or argument that defaults to None was
@@ -1205,17 +1210,18 @@ def comparison_to_singleton(logical_line, noqa):
     """
     match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
     if match:
-        singleton = match.group(1) or match.group(3)
-        same = (match.group(2) == '==')
+        singleton = match.group(1) or match.group(3) or \
+            match.group(4) or match.group(6)
+        same = (match.group(2) == '==') or (match.group(5) == 'is')
 
-        msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
         if singleton in ('None',):
+            msg = "'if cond is %s:'" % (('' if same else 'not ') + singleton)
             code = 'E711'
         else:
             code = 'E712'
             nonzero = ((singleton == 'True' and same) or
                        (singleton == 'False' and not same))
-            msg += " or 'if %scond:'" % ('' if nonzero else 'not ')
+            msg = "'if %scond:'" % ('' if nonzero else 'not ')
         yield match.start(2), ("%s comparison to %s should be %s" %
                                (code, singleton, msg))
 
