@@ -146,6 +146,11 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
     )))
 )
 DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
+AMBIGUOUS_IDENTIFIER_REGEX = re.compile(
+    r'^\s*(?:for (?P<forident>l|I|O) in [^:]+|'
+    r'with .+ as (?P<withident>l|I|O)|'
+    r'(?:async )?def [^(]+\([^)]*\b(?P<defident>l|I|O)\b.*\)):'
+)
 
 # Work around Python < 2.6 behaviour, which does not generate NL after
 # a comment which is on a line by itself.
@@ -1303,13 +1308,23 @@ def ambiguous_identifier(logical_line, tokens):
 
     Okay: except AttributeError as o:
     Okay: with lock as L:
+    Okay: foo(l=12)
     E741: except AttributeError as O:
     E741: with lock as l:
     E741: global I
     E741: nonlocal l
+    E741: def foo(l):
+    E741: for I in range(10,\n               step=2):
+    E741: for O in range(10, step=2):
     E742: class I(object):
     E743: def l(x):
     """
+    match = AMBIGUOUS_IDENTIFIER_REGEX.match(logical_line)
+    if match:
+        idents = match.groupdict()
+        ident = (idents['withident'] or idents['forident'] or
+                 idents['defident'])
+        yield match.start(), "E741 ambiguous variable name '%s'" % ident
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
     for token_type, text, start, end, line in tokens[1:]:
