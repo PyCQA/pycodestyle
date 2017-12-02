@@ -281,7 +281,7 @@ def maximum_line_length(physical_line, max_line_length, multiline, noqa):
         if ((len(chunks) == 1 and multiline) or
             (len(chunks) == 2 and chunks[0] == '#')) and \
                 len(line) - len(chunks[-1]) < max_line_length - 7:
-            return
+            return None
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
@@ -493,6 +493,58 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, tmpl % (2 + c, "expected an indented block")
     elif not indent_expect and indent_level > previous_indent_level:
         yield 0, tmpl % (3 + c, "unexpected indentation")
+
+
+@register_check
+def returns(logical_line, indent_level, previous_logical, checker_state):
+    r"""Be consistent in return statements.
+
+    Either all return statements in a function should return an expression, or
+    none of them should. If any return statement returns an expression, any
+    return statements where no value is returned should explicitly state this
+    as return None, [and an explicit return statement should be present at the
+    end of the function (if reachable).]
+
+    The reachability constraint is not implemented due to its complexity.
+
+    Okay: def a():\n    return 1
+    Okay: def a():\n    return 1\n    return 2
+    Okay: def a():\n    return
+    Okay: def a():\n    return\n    return
+    Okay: def a():\n    def b():\n        return\n    return b
+    Okay: def a():\n    def b():\n        return 2\n    return
+
+    E750: def a():\n    return\n    return 2
+    E750: def a():\n    return 4\n    return
+    """
+    functions_stack = checker_state.setdefault('functions_stack', [])
+    # a stack of functions, containing:
+    #   indent_level, return_without_value, return_with_value
+    INDENT, RETURN_NO_VALUE, RETURN_VALUE = 0, 1, 2
+    if STARTSWITH_DEF_REGEX.match(previous_logical):
+        functions_stack.append([indent_level, False, False])
+
+    if functions_stack and indent_level < functions_stack[-1][INDENT]:
+        functions_stack.pop()
+
+    if logical_line.startswith('return'):
+        try:
+            last_fun_record = functions_stack[-1]
+        except IndexError:
+            # ignore return statements outside of functions (this happens in
+            # pycodestyle unit tests only)
+            return
+
+        if logical_line == 'return':
+            if last_fun_record[RETURN_VALUE]:
+                yield 0, "E750 'return' without expression used in the same " \
+                         "method as 'return' with expression"
+            last_fun_record[RETURN_NO_VALUE] = True
+        else:
+            if last_fun_record[RETURN_NO_VALUE]:
+                yield 0, "E750 'return' with expression used in the same " \
+                         "method as 'return' without expression"
+            last_fun_record[RETURN_VALUE] = True
 
 
 @register_check
@@ -1910,7 +1962,7 @@ class BaseReport(object):
         """Report an error, according to options."""
         code = text[:4]
         if self._ignore_code(code):
-            return
+            return None
         if code in self.counters:
             self.counters[code] += 1
         else:
@@ -1918,7 +1970,7 @@ class BaseReport(object):
             self.messages[code] = text[5:]
         # Don't care about expected errors or warnings
         if code in self.expected:
-            return
+            return None
         if self.print_filename and not self.file_errors:
             print(self.filename)
         self.file_errors += 1
@@ -2030,7 +2082,7 @@ class DiffReport(StandardReport):
 
     def error(self, line_number, offset, text, check):
         if line_number not in self._selected[self.filename]:
-            return
+            return None
         return super(DiffReport, self).error(line_number, offset, text, check)
 
 
