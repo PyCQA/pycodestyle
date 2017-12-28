@@ -191,3 +191,13 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(errcode)
         self.assertFalse(stdout)
         self.assertFalse(stderr)
+
+        for index, diff_line in enumerate(diff_lines, 0):
+            diff_line = diff_line.replace('a/', 'i/')
+            diff_lines[index] = diff_line.replace('b/', 'w/')
+
+        self.stdin = '\n'.join(diff_lines)
+        stdout, stderr, errcode = self.pycodestyle('--diff')
+        self.assertFalse(errcode)
+        self.assertFalse(stdout)
+        self.assertFalse(stderr)

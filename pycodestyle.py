@@ -1538,7 +1538,9 @@ def parse_udiff(diff, patterns=None, parent='.'):
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
-            if path[:2] == 'b/':
+            # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
+            # instead of a/b/c/d as prefixes for patches
+            if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
     return dict([(os.path.join(parent, path), rows)
