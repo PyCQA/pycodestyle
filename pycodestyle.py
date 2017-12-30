@@ -894,7 +894,6 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     in_def = bool(STARTSWITH_DEF_REGEX.match(logical_line))
     extra_message = "E251 unexpected spaces around keyword / parameter equals"
     missing_message = "E225 missing whitespace around operator"
-
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.NL:
             continue
