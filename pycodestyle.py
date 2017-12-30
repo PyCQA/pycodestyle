@@ -866,7 +866,7 @@ def whitespace_around_comma(logical_line):
 
 @register_check
 def whitespace_around_named_parameter_equals(logical_line, tokens):
-    r"""Check white space around the '=' sign in function arguments.
+    r"""Check spaces around the '=' sign in function arguments.
 
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value in unannotated arguments.
