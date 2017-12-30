@@ -903,7 +903,6 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             space_req = None
             if (start == prev_end) == req:
                 yield (prev_end, message)
-
         if token_type == tokenize.OP:
             if text in '([':
                 parens += 1
@@ -922,7 +921,6 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                     space_req = (False, extra_message)
                     if start != prev_end:
                         yield (prev_end, extra_message)
-
             if not parens:
                 annotated_func_arg = False
 
