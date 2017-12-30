@@ -866,10 +866,13 @@ def whitespace_around_comma(logical_line):
 
 @register_check
 def whitespace_around_named_parameter_equals(logical_line, tokens):
-    r"""Don't use spaces around the '=' sign in function arguments.
+    r"""Check white space around the '=' sign in function arguments.
 
     Don't use spaces around the '=' sign when used to indicate a
-    keyword argument or a default parameter value.
+    keyword argument or a default parameter value in unannotated arguments.
+
+    Do use spaces around the '=' sign when used to indicate a default
+    parameter value in annotated arguments.
 
     Okay: def complex(real, imag=0.0):
     Okay: return magic(r=real, i=imag)
@@ -882,20 +885,25 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
 
     E251: def complex(real, imag = 0.0):
     E251: return magic(r = real, i = imag)
+    E225: def complex(i: int=42)
     """
     parens = 0
-    no_space = False
+    space_req = None
     prev_end = None
     annotated_func_arg = False
     in_def = bool(STARTSWITH_DEF_REGEX.match(logical_line))
-    message = "E251 unexpected spaces around keyword / parameter equals"
+    extra_message = "E251 unexpected spaces around keyword / parameter equals"
+    missing_message = "E225 missing whitespace around operator"
+
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.NL:
             continue
-        if no_space:
-            no_space = False
-            if start != prev_end:
+        if space_req:
+            (req, message) = space_req
+            space_req = None
+            if (start == prev_end) == req:
                 yield (prev_end, message)
+
         if token_type == tokenize.OP:
             if text in '([':
                 parens += 1
@@ -905,10 +913,16 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 annotated_func_arg = True
             elif parens and text == ',' and parens == 1:
                 annotated_func_arg = False
-            elif parens and text == '=' and not annotated_func_arg:
-                no_space = True
-                if start != prev_end:
-                    yield (prev_end, message)
+            elif parens and text == '=':
+                if annotated_func_arg:
+                    space_req = (True, missing_message)
+                    if start == prev_end:
+                        yield (prev_end, missing_message)
+                else:
+                    space_req = (False, extra_message)
+                    if start != prev_end:
+                        yield (prev_end, extra_message)
+
             if not parens:
                 annotated_func_arg = False
 
