@@ -871,17 +871,15 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     Don't use spaces around the '=' sign when used to indicate a
     keyword argument or a default parameter value.
 
-    Okay: def complex(real, imag=0.0):
-    Okay: return magic(r=real, i=imag)
+    Okay: def complex(real, imag=0.0):\n    return magic(r=real, i=imag)
     Okay: boolean(a == b)
     Okay: boolean(a != b)
     Okay: boolean(a <= b)
     Okay: boolean(a >= b)
-    Okay: def foo(arg: int = 42):
-    Okay: async def foo(arg: int = 42):
+    Okay: def foo(arg: int = 42):\n    pass
+    Okay: async def foo(arg: int = 42):\n    pass
 
-    E251: def complex(real, imag = 0.0):
-    E251: return magic(r = real, i = imag)
+    E251: def complex(real, imag = 0.0):\n   return magic(r = real, i = imag)
     """
     parens = 0
     no_space = False
@@ -1148,7 +1146,7 @@ def break_around_binary_operator(logical_line, tokens):
 
     Okay: (width == 0 +\n height == 0)
     Okay: foo(\n    -x)
-    Okay: foo(x\n    [])
+    Okay: foo(x,\n    [])
     Okay: x = '''\n''' + ''
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
@@ -1192,11 +1190,11 @@ def comparison_to_singleton(logical_line, noqa):
     Comparisons to singletons like None should always be done
     with "is" or "is not", never the equality operators.
 
-    Okay: if arg is not None:
-    E711: if arg != None:
-    E711: if None == arg:
-    E712: if arg == True:
-    E712: if False == arg:
+    Okay: arg is not None
+    E711: arg != None
+    E711: None == arg
+    E712: arg == True
+    E712: False == arg
 
     Also, beware of writing if x when you really mean if x is not None --
     e.g. when testing whether a variable or argument that defaults to None was
@@ -1248,15 +1246,15 @@ def comparison_type(logical_line, noqa):
 
     Do not compare types directly.
 
-    Okay: if isinstance(obj, int):
-    E721: if type(obj) is type(1):
+    Okay: isinstance(obj, int)
+    E721: type(obj) is type(1)
 
     When checking if an object is a string, keep in mind that it might be a
     unicode string too! In Python 2.3, str and unicode have a common base
     class, basestring, so you can do:
 
-    Okay: if isinstance(obj, basestring):
-    Okay: if type(a1) is type(b1):
+    Okay: isinstance(obj, basestring)
+    Okay: type(a1) is type(b1)
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
@@ -1270,9 +1268,9 @@ def comparison_type(logical_line, noqa):
 def bare_except(logical_line, noqa):
     r"""When catching exceptions, mention specific exceptions when possible.
 
-    Okay: except Exception:
-    Okay: except BaseException:
-    E722: except:
+    Okay: try:\n    pass\nexcept Exception:\n    pass
+    Okay: try:\n    pass\nexcept BaseException:\n    pass
+    E722: try:\n    pass\nexcept:\n    pass
     """
     if noqa:
         return
@@ -1301,10 +1299,10 @@ def ambiguous_identifier(logical_line, tokens):
     function definitions, 'global' and 'nonlocal' statements, exception
     handlers, and 'with' statements.
 
-    Okay: except AttributeError as o:
-    Okay: with lock as L:
-    E741: except AttributeError as O:
-    E741: with lock as l:
+    Okay: try:\n    pass\nexcept AttributeError as o:\n    pass
+    Okay: with lock as L:\n    pass
+    E741: try:\n    pass\nexcept AttributeError as O:\n    pass
+    E741: with lock as l:\n    pass
     E741: global I
     E741: nonlocal l
     E742: class I(object):
@@ -1340,7 +1338,7 @@ def ambiguous_identifier(logical_line, tokens):
 def python_3000_has_key(logical_line, noqa):
     r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
 
-    Okay: if "alph" in d:\n    print d["alph"]
+    Okay: "alph" in d
     W601: assert d.has_key('alph')
     """
     pos = logical_line.find('.has_key(')
@@ -1368,8 +1366,8 @@ def python_3000_not_equal(logical_line):
 
     The older syntax is removed in Python 3.
 
-    Okay: if a != 'no':
-    W603: if a <> 'no':
+    Okay: a != 'no'
+    W603: a <> 'no'
     """
     pos = logical_line.find('<>')
     if pos > -1:
