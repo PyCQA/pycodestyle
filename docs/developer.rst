@@ -14,7 +14,7 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 * `Source code <https://github.com/pycqa/pycodestyle>`_ and
   `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
 * `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
-  2.6 through 3.6 as well as the nightly Python build and PyPy, on `Travis CI
+  2.7 and 3.4+ as well as the nightly Python build and PyPy, on `Travis CI
   platform <https://docs.travis-ci.com//>`_.
 
 .. _available on GitHub: https://github.com/pycqa/pycodestyle
@@ -32,7 +32,6 @@ Some high-level aims and directions to bear in mind for contributions:
 * If you want to provide extensibility / plugins,
   please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
   ``pycodestyle`` doesn't want or need a plugin architecture.
-* Python 2.6 support is still deemed important.
 * ``pycodestyle`` aims to have no external dependencies.
 
 

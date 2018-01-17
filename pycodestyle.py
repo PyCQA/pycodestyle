@@ -156,11 +156,6 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 )
 DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
 
-# Work around Python < 2.6 behaviour, which does not generate NL after
-# a comment which is on a line by itself.
-COMMENT_WITH_NL = tokenize.generate_tokens(['#\n'].pop).send(None)[1] == '#\n'
-
-
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 
@@ -1118,7 +1113,7 @@ def compound_statements(logical_line):
     last_char = len(line) - 1
     found = line.find(':')
     prev_found = 0
-    counts = dict((char, 0) for char in '{}[]()')
+    counts = {char: 0 for char in '{}[]()'}
     while -1 < found < last_char:
         update_counts(line[prev_found:found], counts)
         if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
@@ -1762,9 +1757,11 @@ def parse_udiff(diff, patterns=None, parent='.'):
             if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
-    return dict([(os.path.join(parent, filepath), rows)
-                 for (filepath, rows) in rv.items()
-                 if rows and filename_match(filepath, patterns)])
+    return {
+        os.path.join(parent, filepath): rows
+        for (filepath, rows) in rv.items()
+        if rows and filename_match(filepath, patterns)
+    }
 
 
 def normalize_paths(value, parent=os.curdir):
@@ -1806,11 +1803,6 @@ def update_counts(s, counts):
 def _is_eol_token(token):
     return token[0] in NEWLINE or token[4][token[3][1]:].lstrip() == '\\\n'
 
-
-if COMMENT_WITH_NL:
-    def _is_eol_token(token, _eol_token=_is_eol_token):
-        return _eol_token(token) or (token[0] == tokenize.COMMENT and
-                                     token[1] == token[4])
 
 ########################################################################
 # Framework to run all checks
@@ -2079,14 +2071,6 @@ class Checker(object):
                         del self.tokens[0]
                     else:
                         self.check_logical()
-                elif COMMENT_WITH_NL and token_type == tokenize.COMMENT:
-                    if len(self.tokens) == 1:
-                        # The comment also ends a physical line
-                        token = list(token)
-                        token[1] = text.rstrip('\r\n')
-                        token[3] = (token[2][0], token[2][1] + len(token[1]))
-                        self.tokens = [tuple(token)]
-                        self.check_logical()
         if self.tokens:
             self.check_physical(self.lines[-1])
             self.check_logical()
@@ -2154,8 +2138,8 @@ class BaseReport(object):
 
     def get_count(self, prefix=''):
         """Return the total count of errors and warnings."""
-        return sum([self.counters[key]
-                    for key in self.messages if key.startswith(prefix)])
+        return sum(self.counters[key]
+                   for key in self.messages if key.startswith(prefix))
 
     def get_statistics(self, prefix=''):
         """Get statistics for message codes that start with the prefix.
@@ -2503,8 +2487,7 @@ def read_config(options, args, arglist, parser):
         warnings.warn('[pep8] section is deprecated. Use [pycodestyle].')
 
     if pycodestyle_section:
-        option_list = dict([(o.dest, o.type or o.action)
-                            for o in parser.option_list])
+        option_list = {o.dest: o.type or o.action for o in parser.option_list}
 
         # First, read the default values
         (new_options, __) = parser.parse_args([])
