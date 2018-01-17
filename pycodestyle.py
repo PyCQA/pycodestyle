@@ -619,7 +619,11 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 elif indent[depth]:
                     error = "E127", "over-indented for visual indent"
                 elif not close_bracket and hangs[depth]:
-                    error = "E131", "unaligned for hanging indent"
+                    if token_type == tokenize.OP and text == '.':
+                        # Allow indenting chained method calls.
+                        continue
+                    else:
+                        error = "E131", "unaligned for hanging indent"
                 else:
                     hangs[depth] = hang
                     if hang > 4:

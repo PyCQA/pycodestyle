@@ -373,4 +373,13 @@ print(True)
 
 print(a
 , end=' ')
-#:
+#: Okay
+qs = (
+    User.objects
+        .filter(username='alice')
+        .exclude(username='bob'))
+qs = (
+    User.objects
+        .filter(username='bob')
+        .exclude(username='alice')
+)
