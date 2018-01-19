@@ -1209,8 +1209,8 @@ def break_after_binary_operator(logical_line, tokens):
     r"""
     Avoid breaks after binary operators.
 
-    The preferred place to break around a binary operator is after the
-    operator, not before it.
+    The preferred place to break around a binary operator is before the
+    operator, not after it.
 
     W504: (width == 0 +\n height == 0)
     W504: (width == 0 and\n height == 0)
