@@ -6,7 +6,7 @@ UNRELEASED
 
 New checks:
 
-* Add W504 warning for checking that a break doesn't happen after a binar
+* Add W504 warning for checking that a break doesn't happen after a binary
   operator. This check is ignored by default
 * Add W605 warning for invalid escape sequences in string literals
 
