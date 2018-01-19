@@ -7,7 +7,7 @@ if False:
 #: W191
 y = x == 2 \
 	or x == 3
-#: E101 W191
+#: E101 W191 W504
 if (
         x == (
             3
@@ -26,11 +26,11 @@ if x == 2 \
 	pass
 #:
 
-#: E101 W191
+#: E101 W191 W504
 if (foo == bar and
         baz == frop):
 	pass
-#: E101 W191
+#: E101 W191 W504
 if (
     foo == bar and
     baz == frop
@@ -52,7 +52,7 @@ def long_function_name(
         var_one, var_two, var_three,
         var_four):
 	print(var_one)
-#: E101 W191
+#: E101 W191 W504
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
 	raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
@@ -65,23 +65,23 @@ if bar:
 	    "bracket's line"
 	)
 #
-#: E101 W191
+#: E101 W191 W504
 # you want vertical alignment, so use a parens
 if ((foo.bar("baz") and
      foo.bar("frop")
      )):
 	print "yes"
-#: E101 W191
+#: E101 W191 W504
 # also ok, but starting to look like LISP
 if ((foo.bar("baz") and
      foo.bar("frop"))):
 	print "yes"
-#: E101 W191
+#: E101 W191 W504
 if (a == 2 or
     b == "abc def ghi"
          "jkl mno"):
 	return True
-#: E101 W191
+#: E101 W191 W504
 if (a == 2 or
     b == """abc def ghi
 jkl mno"""):
@@ -93,7 +93,7 @@ if length > options.max_line_length:
 
 
 #
-#: E101 W191 W191
+#: E101 W191 W191 W504
 if os.path.exists(os.path.join(path, PEP8_BIN)):
 	cmd = ([os.path.join(path, PEP8_BIN)] +
 	       self._pep8_options(targetfile))
