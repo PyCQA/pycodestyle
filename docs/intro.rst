@@ -402,7 +402,9 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | **W5**     | *Line break warning*                                                 |
 +------------+----------------------------------------------------------------------+
-| W503 (*)   | line break occurred before a binary operator                         |
+| W503 (*)   | line break before binary operator                                    |
++------------+----------------------------------------------------------------------+
+| W504 (*)   | line break after binary operator                                     |
 +------------+----------------------------------------------------------------------+
 +------------+----------------------------------------------------------------------+
 | **W6**     | *Deprecation warning*                                                |
@@ -420,9 +422,10 @@ This is the current list of error and warning codes:
 
 
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
-**E133**, **E226**, **E241**, **E242**, **E704** and **W503** are ignored because
-they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
-check **E133** is mutually exclusive with check **E123**.  Use switch
+**E133**, **E226**, **E241**, **E242**, **E704**, **W503** and **W504** are ignored
+because they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.
+The check **W503** is mutually exclusive with check **W504**.
+The check **E133** is mutually exclusive with check **E123**.  Use switch
 ``--hang-closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
