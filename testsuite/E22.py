@@ -155,4 +155,7 @@ ENG_PREFIXES = {
     -6: "\u03bc",  # Greek letter mu
     -3: "m",
 }
-#:
+# Function annotations
+#: E225:1:17 E225:1:18
+def foo(bar: int=42):
+    pass
