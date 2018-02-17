@@ -419,6 +419,8 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | W605       | invalid escape sequence '\x'                                         |
 +------------+----------------------------------------------------------------------+
+| W606       | 'async' and 'await' are reserved keywords starting with Python 3.7   |
++------------+----------------------------------------------------------------------+
 
 
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,

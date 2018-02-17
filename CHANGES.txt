@@ -9,6 +9,8 @@ New checks:
 * Add W504 warning for checking that a break doesn't happen after a binary
   operator. This check is ignored by default
 * Add W605 warning for invalid escape sequences in string literals
+* Add W606 warning for 'async' and 'await' reserved keywords being introduced
+  in Python 3.7
 
 2.3.1 (2017-01-31)
 ------------------
