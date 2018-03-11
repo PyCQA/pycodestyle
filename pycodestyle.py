@@ -328,12 +328,18 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     E305: def a():\n    pass\na()
     E306: def a():\n    def b():\n        pass\n    def c():\n        pass
     """
+    top_level_lines = 3
+    method_lines = 2
+
     if line_number < 3 and not previous_logical:
         return  # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
-    elif blank_lines > 2 or (indent_level and blank_lines == 2):
+    elif (
+        blank_lines > method_lines + 1 or
+        (indent_level and blank_lines == method_lines + 1)
+            ):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
         if indent_level:
@@ -353,12 +359,18 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                         "nested definition, found 0"
                 else:
                     yield 0, "E301 expected 1 blank line, found 0"
-        elif blank_before != 2:
-            yield 0, "E302 expected 2 blank lines, found %d" % blank_before
-    elif (logical_line and not indent_level and blank_before != 2 and
-          previous_unindented_logical_line.startswith(('def ', 'class '))):
-        yield 0, "E305 expected 2 blank lines after " \
-            "class or function definition, found %d" % blank_before
+        elif blank_before != top_level_lines:
+            yield 0, "E302 expected %s blank lines, found %d" % (
+                top_level_lines, blank_before)
+    elif (
+        logical_line and
+        not indent_level and
+        blank_before != top_level_lines and
+        previous_unindented_logical_line.startswith(('def ', 'class '))
+            ):
+        yield 0, "E305 expected %s blank lines after " \
+            "class or function definition, found %d" % (
+                top_level_lines, blank_before)
 
 
 @register_check
