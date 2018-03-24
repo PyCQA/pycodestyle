@@ -39,7 +39,7 @@ def munge(input: AnyStr, sep: AnyStr = None, limit=1000,
 async def add(a: int = 0, b: int = 0) -> int:
     return a + b
 # Previously E251 four times
-#: E272:1:6
+#: E271:1:6
 async  def add(a: int = 0, b: int = 0) -> int:
     return a + b
 #: E252:1:15 E252:1:16 E252:1:27 E252:1:36
