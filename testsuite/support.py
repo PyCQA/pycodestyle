@@ -83,6 +83,25 @@ class TestReport(StandardReport):
         print("Test failed." if self.total_errors else "Test passed.")
 
 
+class InMemoryReport(BaseReport):
+    """
+    Collect the results in memory, without printing anything.
+    """
+
+    def __init__(self, options):
+        BaseReport.__init__(self, options)
+        self.in_memory_errors = []
+
+    def error(self, line_number, offset, text, check):
+        """
+        Report an error, according to options.
+        """
+        code = text[:4]
+        self.in_memory_errors.append('%s:%s:%s' % (
+            code, line_number, offset + 1))
+        return BaseReport.error(self, line_number, offset, text, check)
+
+
 def selftest(options):
     """
     Test all check functions with test cases in docstrings.

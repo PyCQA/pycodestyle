@@ -338,12 +338,12 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     top_level_lines = BLANK_LINES_CONFIG['top_level']
     method_lines = BLANK_LINES_CONFIG['method']
 
-    if line_number < 3 and not previous_logical:
+    if line_number < top_level_lines + 1 and not previous_logical:
         return  # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
-    elif (blank_lines > method_lines + 1 or
+    elif (blank_lines > top_level_lines or
             (indent_level and blank_lines == method_lines + 1)
           ):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
@@ -354,7 +354,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 ancestor_level = indent_level
                 nested = False
                 # Search backwards for a def ancestor or tree root (top level).
-                for line in lines[line_number - 2::-1]:
+                for line in lines[line_number - top_level_lines::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
                         nested = line.lstrip().startswith('def ')
@@ -1682,8 +1682,8 @@ def parse_udiff(diff, patterns=None, parent='.'):
             if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
-    return dict([(os.path.join(parent, path), rows)
-                 for (path, rows) in rv.items()
+    return dict([(os.path.join(parent, child), rows)
+                 for (child, rows) in rv.items()
                  if rows and filename_match(path, patterns)])
 
 
