@@ -102,7 +102,7 @@ REPORT_FORMAT = {
 
 PyCF_ONLY_AST = 1024
 SINGLETONS = frozenset(['False', 'None', 'True'])
-KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
+KEYWORDS = frozenset(keyword.kwlist + ['print', 'async']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
