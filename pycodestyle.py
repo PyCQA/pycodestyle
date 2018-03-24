@@ -413,7 +413,7 @@ def whitespace_around_keywords(logical_line):
             yield match.start(1), "E272 multiple spaces before keyword"
 
         if '\t' in after:
-            yield match.start(2), "E273  tab after keyword"
+            yield match.start(2), "E273 tab after keyword"
         elif len(after) > 1:
             yield match.start(2), "E271 multiple spaces after keyword"
 
