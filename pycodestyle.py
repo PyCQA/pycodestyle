@@ -1682,8 +1682,8 @@ def parse_udiff(diff, patterns=None, parent='.'):
             if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
-    return dict([(os.path.join(parent, child), rows)
-                 for (child, rows) in rv.items()
+    return dict([(os.path.join(parent, path), rows)
+                 for (path, rows) in rv.items()
                  if rows and filename_match(path, patterns)])
 
 

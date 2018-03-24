@@ -6,5 +6,3 @@ dist
 docs/_build
 build/
 venv/
-.coverage
-coverage.xml
