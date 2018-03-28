@@ -260,7 +260,8 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
 
 
 @register_check
-def maximum_line_length(physical_line, max_line_length, multiline, noqa):
+def maximum_line_length(physical_line, max_line_length, multiline,
+                        line_number, noqa):
     r"""Limit all lines to a maximum of 79 characters.
 
     There are still many devices around that are limited to 80 character
@@ -275,6 +276,9 @@ def maximum_line_length(physical_line, max_line_length, multiline, noqa):
     line = physical_line.rstrip()
     length = len(line)
     if length > max_line_length and not noqa:
+        # Special case: ignore long shebang lines.
+        if line_number == 1 and length > 1 and line[:2] == '#!':
+            return
         # Special case for long URLs in multi-line docstrings or comments,
         # but still report the error when the 72 first chars are whitespaces.
         chunks = line.split()
