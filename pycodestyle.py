@@ -277,7 +277,7 @@ def maximum_line_length(physical_line, max_line_length, multiline,
     length = len(line)
     if length > max_line_length and not noqa:
         # Special case: ignore long shebang lines.
-        if line_number == 1 and length > 1 and line[:2] == '#!':
+        if line_number == 1 and line.startswith('#!'):
             return
         # Special case for long URLs in multi-line docstrings or comments,
         # but still report the error when the 72 first chars are whitespaces.
