@@ -89,7 +89,7 @@ class InMemoryReport(BaseReport):
     """
 
     def __init__(self, options):
-        BaseReport.__init__(self, options)
+        super(InMemoryReport, self).__init__(options)
         self.in_memory_errors = []
 
     def error(self, line_number, offset, text, check):
@@ -99,7 +99,8 @@ class InMemoryReport(BaseReport):
         code = text[:4]
         self.in_memory_errors.append('%s:%s:%s' % (
             code, line_number, offset + 1))
-        return BaseReport.error(self, line_number, offset, text, check)
+        return super(InMemoryReport, self).error(
+            line_number, offset, text, check)
 
 
 def selftest(options):
