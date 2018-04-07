@@ -349,8 +349,10 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
         if indent_level:
-            if not (blank_before or previous_indent_level < indent_level or
-                    DOCSTRING_REGEX.match(previous_logical)):
+            if not (blank_before == method_lines or
+                    previous_indent_level < indent_level or
+                    DOCSTRING_REGEX.match(previous_logical)
+                    ):
                 ancestor_level = indent_level
                 nested = False
                 # Search backwards for a def ancestor or tree root (top level).
@@ -361,10 +363,11 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                         if nested or ancestor_level == 0:
                             break
                 if nested:
-                    yield 0, "E306 expected 1 blank line before a " \
-                        "nested definition, found 0"
+                    yield 0, "E306 expected %s blank line before a " \
+                        "nested definition, found 0" % (method_lines,)
                 else:
-                    yield 0, "E301 expected 1 blank line, found 0"
+                    yield 0, "E301 expected %s blank line, found 0" % (
+                        method_lines,)
         elif blank_before != top_level_lines:
             yield 0, "E302 expected %s blank lines, found %d" % (
                 top_level_lines, blank_before)
