@@ -95,6 +95,13 @@ except ImportError:
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
+# Number of blank lines between various code parts.
+BLANK_LINES_CONFIG = {
+    # Top level class and function.
+    'top_level': 2,
+    # Methods and nested class and function.
+    'method': 1,
+}
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
@@ -332,37 +339,50 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     E305: def a():\n    pass\na()
     E306: def a():\n    def b():\n        pass\n    def c():\n        pass
     """
-    if line_number < 3 and not previous_logical:
+    top_level_lines = BLANK_LINES_CONFIG['top_level']
+    method_lines = BLANK_LINES_CONFIG['method']
+
+    if line_number < top_level_lines + 1 and not previous_logical:
         return  # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
-    elif blank_lines > 2 or (indent_level and blank_lines == 2):
+    elif (blank_lines > top_level_lines or
+            (indent_level and blank_lines == method_lines + 1)
+          ):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
         if indent_level:
-            if not (blank_before or previous_indent_level < indent_level or
-                    DOCSTRING_REGEX.match(previous_logical)):
+            if not (blank_before == method_lines or
+                    previous_indent_level < indent_level or
+                    DOCSTRING_REGEX.match(previous_logical)
+                    ):
                 ancestor_level = indent_level
                 nested = False
                 # Search backwards for a def ancestor or tree root (top level).
-                for line in lines[line_number - 2::-1]:
+                for line in lines[line_number - top_level_lines::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
                         nested = line.lstrip().startswith('def ')
                         if nested or ancestor_level == 0:
                             break
                 if nested:
-                    yield 0, "E306 expected 1 blank line before a " \
-                        "nested definition, found 0"
+                    yield 0, "E306 expected %s blank line before a " \
+                        "nested definition, found 0" % (method_lines,)
                 else:
-                    yield 0, "E301 expected 1 blank line, found 0"
-        elif blank_before != 2:
-            yield 0, "E302 expected 2 blank lines, found %d" % blank_before
-    elif (logical_line and not indent_level and blank_before != 2 and
-          previous_unindented_logical_line.startswith(('def ', 'class '))):
-        yield 0, "E305 expected 2 blank lines after " \
-            "class or function definition, found %d" % blank_before
+                    yield 0, "E301 expected %s blank line, found 0" % (
+                        method_lines,)
+        elif blank_before != top_level_lines:
+            yield 0, "E302 expected %s blank lines, found %d" % (
+                top_level_lines, blank_before)
+    elif (logical_line and
+            not indent_level and
+            blank_before != top_level_lines and
+            previous_unindented_logical_line.startswith(('def ', 'class '))
+          ):
+        yield 0, "E305 expected %s blank lines after " \
+            "class or function definition, found %d" % (
+                top_level_lines, blank_before)
 
 
 @register_check

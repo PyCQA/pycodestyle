@@ -48,11 +48,19 @@ class PycodestyleTestCase(unittest.TestCase):
 
 
 def suite():
-    from testsuite import test_api, test_parser, test_shell, test_util
+    from testsuite import (
+        test_api,
+        test_blank_lines,
+        test_parser,
+        test_shell,
+        test_util,
+    )
 
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(PycodestyleTestCase))
     suite.addTest(unittest.makeSuite(test_api.APITestCase))
+    suite.addTest(unittest.makeSuite(test_blank_lines.TestBlankLinesDefault))
+    suite.addTest(unittest.makeSuite(test_blank_lines.TestBlankLinesTwisted))
     suite.addTest(unittest.makeSuite(test_parser.ParserTestCase))
     suite.addTest(unittest.makeSuite(test_shell.ShellTestCase))
     suite.addTest(unittest.makeSuite(test_util.UtilTestCase))
