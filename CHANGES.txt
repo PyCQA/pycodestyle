@@ -7,10 +7,46 @@ UNRELEASED
 New checks:
 
 * Add W504 warning for checking that a break doesn't happen after a binary
-  operator. This check is ignored by default
-* Add W605 warning for invalid escape sequences in string literals
+  operator. This check is ignored by default. PR #502.
+* Add W605 warning for invalid escape sequences in string literals. PR #676.
 * Add W606 warning for 'async' and 'await' reserved keywords being introduced
-  in Python 3.7
+  in Python 3.7. PR #684.
+* Add E252 error for missing whitespace around equal sign in type annotated
+  function arguments with defaults values. PR #717.
+
+Changes:
+
+* An internal bisect search has replaced a linear search in order to improve
+  efficiency. PR #648.
+* pycodestyle now uses PyPI trove classifiers in order to document supported
+  python versions on PyPI. PR #654.
+* 'setup.cfg' '[wheel]' section has been renamed to '[bdist_wheel]', as
+  the former is legacy. PR #653.
+* pycodestyle now handles very long lines much more efficiently for python
+  3.2+. Fixes #643. PR #644.
+* You can now write 'pycodestyle.StyleGuide(verbose=True)' instead of
+  'pycodestyle.StyleGuide(verbose=True, paths=['-v'])' in order to achieve
+  verbosity. PR #663.
+* The distribution of pycodestyle now includes the license text in order to
+  comply with open source licenses which require this. PR #694.
+* 'maximum_line_length' now ignores shebang ('#!') lines. PR #736.
+* Add configuration option for the allowed number of blank lines. It is
+  implemented as a top level dictionary which can be easily overwritten. Fixes
+  #732. PR #733.
+
+Bugs:
+
+* Prevent a 'DeprecationWarning', and a 'SyntaxError' in future python, caused
+  by an invalid escape sequence. PR #625.
+* Correctly report E501 when the first line of a docstring is too long.
+  Resolves #622. PR #630.
+* Support variable annotation when variable start by a keyword, such as class
+  variable type annotations in python 3.6. PR #640.
+* pycodestyle internals have been changed in order to allow 'python3 -m
+  cProfile' to report correct metrics. PR #647.
+* Fix a spelling mistake in the description of E722. PR #697.
+* 'pycodestyle --diff' now does not break if your 'gitconfig' enables
+  'mnemonicprefix'. PR #706.
 
 2.3.1 (2017-01-31)
 ------------------
