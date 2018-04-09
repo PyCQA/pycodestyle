@@ -27,7 +27,7 @@ Changes:
 * You can now write 'pycodestyle.StyleGuide(verbose=True)' instead of
   'pycodestyle.StyleGuide(verbose=True, paths=['-v'])' in order to achieve
   verbosity.
-* The distribution of pycodestyle now includes the licence text in order to
+* The distribution of pycodestyle now includes the license text in order to
   comply with open source licenses which require this.
 * 'maximum_line_length' now ignores shebang ('#!') lines.
 * Add configuration option for the allowed number of blank lines. It is
