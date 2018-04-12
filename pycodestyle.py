@@ -1524,7 +1524,7 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
                     pos += 1
                     if string[pos] not in valid:
                         yield (
-                            pos,
+                            line.lstrip().find(text),
                             "W605 invalid escape sequence '\\%s'" %
                             string[pos],
                         )
