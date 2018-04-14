@@ -1266,7 +1266,7 @@ def break_after_binary_operator(logical_line, tokens):
     Okay: var = (1 /\n       -2)
     Okay: var = (1 +\n       -1 +\n       -2)
     """
-    old_start = None
+    prev_start = None
     for context in _break_around_binary_operators(tokens):
         (token_type, text, previous_token_type, previous_text,
          line_break, unary_context, start) = context
@@ -1274,8 +1274,8 @@ def break_after_binary_operator(logical_line, tokens):
                 line_break and
                 not unary_context and
                 not _is_binary_operator(token_type, text)):
-            yield old_start, "W504 line break after binary operator"
-        old_start = start
+            yield prev_start, "W504 line break after binary operator"
+        prev_start = start
 
 
 @register_check
