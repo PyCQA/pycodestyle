@@ -1770,6 +1770,8 @@ class Checker(object):
         self.filename = filename
         # Dictionary where a checker can store its custom state.
         self._checker_states = {}
+        self.checker_state = self._checker_states.setdefault(
+            'module_imports_on_top_of_file', {})
         if filename is None:
             self.filename = 'stdin'
             self.lines = lines or []
@@ -1819,16 +1821,10 @@ class Checker(object):
             self.indent_char = line[0]
         return line
 
-    def init_checker_state(self, name, argument_names):
-        """Prepare custom state for the specific checker plugin."""
-        if 'checker_state' in argument_names:
-            self.checker_state = self._checker_states.setdefault(name, {})
-
     def check_physical(self, line):
         """Run all physical checks on a raw input line."""
         self.physical_line = line
         for name, check, argument_names in self._physical_checks:
-            self.init_checker_state(name, argument_names)
             result = check(self)
             if result is not None:
                 (offset, text) = result
@@ -1887,7 +1883,6 @@ class Checker(object):
         for name, check, argument_names in self._logical_checks:
             if self.verbose >= 4:
                 print('   ' + name)
-            self.init_checker_state(name, argument_names)
             for offset, text in check(self) or ():
                 if not isinstance(offset, tuple):
                     # As mappings are ordered, bisecting is a fast way
