@@ -111,7 +111,7 @@ def selftest(options):
     report = BaseReport(options)
     counters = report.counters
     checks = options.physical_checks + options.logical_checks
-    for name, check, argument_names in checks:
+    for name, check in checks:
         for line in check.__doc__.splitlines():
             line = line.lstrip()
             match = SELFTEST_REGEX.match(line)

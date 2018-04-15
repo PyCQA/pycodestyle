@@ -29,8 +29,8 @@ class APITestCase(unittest.TestCase):
         sys.stdout = PseudoFile()
         sys.stderr = PseudoFile()
         pycodestyle._checks = dict(
-            (k, dict((f, (vals[0][:], vals[1])) for (f, vals) in v.items()))
-            for (k, v) in self._saved_checks.items()
+            (kind, dict((f, val) for (f, val) in checks.items()))
+            for (kind, checks) in self._saved_checks.items()
         )
 
     def tearDown(self):
@@ -45,52 +45,48 @@ class APITestCase(unittest.TestCase):
         def check_dummy(self):
             if False:
                 yield
-        pycodestyle.register_check("physical_line", "line_number")(
+        pycodestyle.register_check("physical_line")(
             check_dummy, ['Z001'])
 
         self.assertTrue(check_dummy in pycodestyle._checks['physical_line'])
-        codes, args = pycodestyle._checks['physical_line'][check_dummy]
+        codes = pycodestyle._checks['physical_line'][check_dummy]
         self.assertTrue('Z001' in codes)
-        self.assertEqual(args, ('physical_line', 'line_number'))
 
         options = pycodestyle.StyleGuide().options
         self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.physical_checks))
+                            for name, func in options.physical_checks))
 
     def test_register_logical_check(self):
         def check_dummy(self):
             if False:
                 yield
-        pycodestyle.register_check("logical_line", "tokens")(
+        pycodestyle.register_check("logical_line")(
             check_dummy, ['Z401'])
 
         self.assertTrue(check_dummy in pycodestyle._checks['logical_line'])
-        codes, args = pycodestyle._checks['logical_line'][check_dummy]
+        codes = pycodestyle._checks['logical_line'][check_dummy]
         self.assertTrue('Z401' in codes)
-        self.assertEqual(args, ('logical_line', 'tokens'))
 
-        pycodestyle.register_check("logical_line", "tokens")(check_dummy, [])
-        pycodestyle.register_check("logical_line", "tokens")(
+        pycodestyle.register_check("logical_line")(check_dummy, [])
+        pycodestyle.register_check("logical_line")(
             check_dummy, ['Z402', 'Z403'])
-        codes, args = pycodestyle._checks['logical_line'][check_dummy]
+        codes = pycodestyle._checks['logical_line'][check_dummy]
         self.assertEqual(codes, ['Z401', 'Z402', 'Z403'])
-        self.assertEqual(args, ('logical_line', 'tokens'))
 
         options = pycodestyle.StyleGuide().options
         self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.logical_checks))
+                            for name, func in options.logical_checks))
 
     def test_register_ast_check(self):
-        pycodestyle.register_check("tree", "filename")(DummyChecker, ['Z701'])
+        pycodestyle.register_check("tree")(DummyChecker, ['Z701'])
 
         self.assertTrue(DummyChecker in pycodestyle._checks['tree'])
-        codes, args = pycodestyle._checks['tree'][DummyChecker]
+        codes = pycodestyle._checks['tree'][DummyChecker]
         self.assertTrue('Z701' in codes)
-        self.assertTrue(args is None)
 
         options = pycodestyle.StyleGuide().options
         self.assertTrue(any(cls == DummyChecker
-                            for name, cls, args in options.ast_checks))
+                            for name, cls in options.ast_checks))
 
     def test_register_invalid_check(self):
         class InvalidChecker(DummyChecker):
@@ -260,37 +256,35 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(len(pep8style.options.ast_checks), 0)
 
         # Sanity check
-        for name, check, args in pep8style.options.physical_checks:
+        for name, check in pep8style.options.physical_checks:
             self.assertEqual(check.__name__, name)
-            self.assertEqual(args[0], 'physical_line')
-        for name, check, args in pep8style.options.logical_checks:
+        for name, check in pep8style.options.logical_checks:
             self.assertEqual(check.__name__, name)
-            self.assertEqual(args[0], 'logical_line')
 
         # Do run E11 checks
         options = pycodestyle.StyleGuide().options
         self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+                            for name, func in options.logical_checks))
         options = pycodestyle.StyleGuide(select=['E']).options
         self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+                            for name, func in options.logical_checks))
         options = pycodestyle.StyleGuide(ignore=['W']).options
         self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+                            for name, func in options.logical_checks))
         options = pycodestyle.StyleGuide(ignore=['E12']).options
         self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+                            for name, func in options.logical_checks))
 
         # Do not run E11 checks
         options = pycodestyle.StyleGuide(select=['W']).options
         self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+                             for name, func in options.logical_checks))
         options = pycodestyle.StyleGuide(ignore=['E']).options
         self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+                             for name, func in options.logical_checks))
         options = pycodestyle.StyleGuide(ignore=['E11']).options
         self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+                             for name, func in options.logical_checks))
 
     def test_styleguide_init_report(self):
         style = pycodestyle.StyleGuide(paths=[E11])
@@ -323,7 +317,7 @@ class APITestCase(unittest.TestCase):
 
     def test_check_unicode(self):
         # Do not crash if lines are Unicode (Python 2.x)
-        pycodestyle.register_check("tree", "filename")(DummyChecker, ['Z701'])
+        pycodestyle.register_check("tree")(DummyChecker, ['Z701'])
         source = '#\n'
         if hasattr(source, 'decode'):
             source = source.decode('ascii')
@@ -336,7 +330,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(count_errors, 0)
 
     def test_check_nullbytes(self):
-        pycodestyle.register_check("tree", "filename")(DummyChecker, ['Z701'])
+        pycodestyle.register_check("tree")(DummyChecker, ['Z701'])
 
         pep8style = pycodestyle.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
@@ -357,7 +351,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(count_errors, 1)
 
     def test_styleguide_unmatched_triple_quotes(self):
-        pycodestyle.register_check("tree", "filename")(DummyChecker, ['Z701'])
+        pycodestyle.register_check("tree")(DummyChecker, ['Z701'])
         lines = [
             'def foo():\n',
             '    """test docstring""\'\n',
@@ -371,7 +365,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(expected in stdout)
 
     def test_styleguide_continuation_line_outdented(self):
-        pycodestyle.register_check("tree", "filename")(DummyChecker, ['Z701'])
+        pycodestyle.register_check("tree")(DummyChecker, ['Z701'])
         lines = [
             'def foo():\n',
             '    pass\n',
