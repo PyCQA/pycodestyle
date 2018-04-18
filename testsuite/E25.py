@@ -45,3 +45,6 @@ async  def add(a: int = 0, b: int = 0) -> int:
 #: E252:1:15 E252:1:16 E252:1:27 E252:1:36
 def add(a: int=0, b: int =0, c: int= 0) -> int:
     return a + b + c
+#: Okay
+def add(a: int = _default(name='f')):
+    return a
