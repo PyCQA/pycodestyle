@@ -937,17 +937,17 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 parens -= 1
             elif in_def and text == ':' and parens == 1:
                 annotated_func_arg = True
-            elif parens and text == ',' and parens == 1:
+            elif parens == 1 and text == ',':
                 annotated_func_arg = False
             elif parens and text == '=':
-                if not annotated_func_arg:
-                    no_space = True
-                    if start != prev_end:
-                        yield (prev_end, message)
-                else:
+                if annotated_func_arg and parens == 1:
                     require_space = True
                     if start == prev_end:
                         yield (prev_end, missing_message)
+                else:
+                    no_space = True
+                    if start != prev_end:
+                        yield (prev_end, message)
             if not parens:
                 annotated_func_arg = False
 
