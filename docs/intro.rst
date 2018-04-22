@@ -426,7 +426,8 @@ This is the current list of error and warning codes:
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
 **E133**, **E226**, **E241**, **E242**, **E704**, **W503** and **W504** are ignored
 because they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.
-Please note that if the option **--ignore=errors** is used, the default configuration will be overridden and ignore only the check(s) you want to skip.
+Please note that if the option **--ignore=errors** is used,
+the default configuration will be overridden and ignore only the check(s) you skip.
 The check **W503** is mutually exclusive with check **W504**.
 The check **E133** is mutually exclusive with check **E123**.  Use switch
 ``--hang-closing`` to report **E133** instead of **E123**.
