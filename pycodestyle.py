@@ -1487,6 +1487,13 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
     Okay: regex = r'\.png$'
     W605: regex = '\.png$'
     """
+    if (2, 6) < sys.version_info <= (2, 7):
+        # NOTE(sigmavirus24): There's a bug on 2.6
+        # (https://bugs.python.org/issue15054) that prevents the tokenizer
+        # from handling bytestrings appropriately. That means this check
+        # produces false-positives. Instead, let's simply skip this.
+        return
+
     # https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     valid = [
         '\n',
