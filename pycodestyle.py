@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# pycodestyle.py - Check Python source code formatting, according to PEP 8
+# pycodestyle.py - Check Python source code formatting, according to
+# PEP 8
 #
 # Copyright (C) 2006-2009 Johann C. Rocholl <johann@rocholl.net>
 # Copyright (C) 2009-2014 Florent Xicluna <florent.xicluna@gmail.com>
@@ -62,9 +63,9 @@ try:
     from functools import lru_cache
 except ImportError:
     def lru_cache(maxsize=128):  # noqa as it's a fake implementation.
-        """Does not really need a real a lru_cache, it's just optimization, so
-        let's just do nothing here. Python 3.2+ will just get better
-        performances, time to upgrade?
+        """Does not really need a real a lru_cache, it's just
+        optimization, so let's just do nothing here. Python 3.2+ will
+        just get better performances, time to upgrade?
         """
         return lambda function: function
 
@@ -192,20 +193,21 @@ def register_check(check, codes=None):
     return check
 
 
-##############################################################################
+########################################################################
 # Plugins (check functions) for physical lines
-##############################################################################
+########################################################################
 
 @register_check
 def tabs_or_spaces(physical_line, indent_char):
     r"""Never mix tabs and spaces.
 
     The most popular way of indenting Python is with spaces only.  The
-    second-most popular way is with tabs only.  Code indented with a mixture
-    of tabs and spaces should be converted to using spaces exclusively.  When
-    invoking the Python command line interpreter with the -t option, it issues
-    warnings about code that illegally mixes tabs and spaces.  When using -tt
-    these warnings become errors.  These options are highly recommended!
+    second-most popular way is with tabs only.  Code indented with a
+    mixture of tabs and spaces should be converted to using spaces
+    exclusively.  When invoking the Python command line interpreter with
+    the -t option, it issues warnings about code that illegally mixes
+    tabs and spaces.  When using -tt these warnings become errors.
+    These options are highly recommended!
 
     Okay: if a == 0:\n        a = 1\n        b = 1
     E101: if a == 0:\n        a = 1\n\tb = 1
@@ -218,7 +220,7 @@ def tabs_or_spaces(physical_line, indent_char):
 
 @register_check
 def tabs_obsolete(physical_line):
-    r"""For new projects, spaces-only are strongly recommended over tabs.
+    r"""On new projects, spaces-only are strongly recommended over tabs.
 
     Okay: if True:\n    return
     W191: if True:\n\treturn
@@ -232,8 +234,8 @@ def tabs_obsolete(physical_line):
 def trailing_whitespace(physical_line):
     r"""Trailing whitespace is superfluous.
 
-    The warning returned varies on whether the line itself is blank, for easier
-    filtering for those who want to indent their blank lines.
+    The warning returned varies on whether the line itself is blank,
+    for easier filtering for those who want to indent their blank lines.
 
     Okay: spam(1)\n#
     W291: spam(1) \n#
@@ -273,11 +275,11 @@ def maximum_line_length(physical_line, max_line_length, multiline,
     r"""Limit all lines to a maximum of 79 characters.
 
     There are still many devices around that are limited to 80 character
-    lines; plus, limiting windows to 80 characters makes it possible to have
-    several windows side-by-side.  The default wrapping on such devices looks
-    ugly.  Therefore, please limit all lines to a maximum of 79 characters.
-    For flowing long blocks of text (docstrings or comments), limiting the
-    length to 72 characters is recommended.
+    lines; plus, limiting windows to 80 characters makes it possible to
+    have several windows side-by-side.  The default wrapping on such
+    devices looks ugly.  Therefore, please limit all lines to a maximum
+    of 79 characters. For flowing long blocks of text (docstrings or
+    comments), limiting the length to 72 characters is recommended.
 
     Reports error E501.
     """
@@ -287,8 +289,9 @@ def maximum_line_length(physical_line, max_line_length, multiline,
         # Special case: ignore long shebang lines.
         if line_number == 1 and line.startswith('#!'):
             return
-        # Special case for long URLs in multi-line docstrings or comments,
-        # but still report the error when the 72 first chars are whitespaces.
+        # Special case for long URLs in multi-line docstrings or
+        # comments, but still report the error when the 72 first chars
+        # are whitespaces.
         chunks = line.split()
         if ((len(chunks) == 1 and multiline) or
             (len(chunks) == 2 and chunks[0] == '#')) and \
@@ -305,9 +308,9 @@ def maximum_line_length(physical_line, max_line_length, multiline,
                     "(%d > %d characters)" % (length, max_line_length))
 
 
-##############################################################################
+########################################################################
 # Plugins (check functions) for logical lines
-##############################################################################
+########################################################################
 
 
 @register_check
@@ -315,15 +318,18 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 blank_before, previous_logical,
                 previous_unindented_logical_line, previous_indent_level,
                 lines):
-    r"""Separate top-level function and class definitions with two blank lines.
+    r"""Separate top-level function and class definitions with two blank
+    lines.
 
-    Method definitions inside a class are separated by a single blank line.
+    Method definitions inside a class are separated by a single blank
+    line.
 
-    Extra blank lines may be used (sparingly) to separate groups of related
-    functions.  Blank lines may be omitted between a bunch of related
-    one-liners (e.g. a set of dummy implementations).
+    Extra blank lines may be used (sparingly) to separate groups of
+    related functions.  Blank lines may be omitted between a bunch of
+    related one-liners (e.g. a set of dummy implementations).
 
-    Use blank lines in functions, sparingly, to indicate logical sections.
+    Use blank lines in functions, sparingly, to indicate logical
+    sections.
 
     Okay: def a():\n    pass\n\n\ndef b():\n    pass
     Okay: def a():\n    pass\n\n\nasync def b():\n    pass
@@ -339,7 +345,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     E304: @decorator\n\ndef a():\n    pass
     E305: def a():\n    pass\na()
     E306: def a():\n    def b():\n        pass\n    def c():\n        pass
-    """
+    """  # noqa
     top_level_lines = BLANK_LINES_CONFIG['top_level']
     method_lines = BLANK_LINES_CONFIG['method']
 
@@ -360,7 +366,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                     ):
                 ancestor_level = indent_level
                 nested = False
-                # Search backwards for a def ancestor or tree root (top level).
+                # Search backwards for a def ancestor or tree root
+                # (top level).
                 for line in lines[line_number - top_level_lines::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
@@ -445,8 +452,8 @@ def whitespace_around_keywords(logical_line):
 
 @register_check
 def missing_whitespace_after_import_keyword(logical_line):
-    r"""Multiple imports in form from x import (a, b, c) should have space
-    between import statement and parenthesised name list.
+    r"""Multiple imports in form from x import (a, b, c) should have
+    space between import statement and parenthesised name list.
 
     Okay: from foo import (bar, baz)
     E275: from foo import(bar, baz)
@@ -493,8 +500,8 @@ def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level):
     r"""Use 4 spaces per indentation level.
 
-    For really old code that you don't want to mess up, you can continue to
-    use 8-space tabs.
+    For really old code that you don't want to mess up, you can continue
+    to use 8-space tabs.
 
     Okay: a = 1
     Okay: if a == 0:\n    a = 1
@@ -531,8 +538,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
 
     When using a hanging indent these considerations should be applied:
     - there should be no arguments on the first line, and
-    - further indentation should be used to clearly distinguish itself as a
-      continuation line.
+    - further indentation should be used to clearly distinguish itself
+      as a continuation line.
 
     Okay: a = (\n)
     E123: a = (\n    )
@@ -617,7 +624,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     yield (start, "E124 closing bracket does not match "
                            "visual indentation")
             elif close_bracket and not hang:
-                # closing bracket matches indentation of opening bracket's line
+                # closing bracket matches indentation of opening
+                # bracket's line
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
             elif indent[depth] and start[1] < indent[depth]:
@@ -635,7 +643,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # visual indent is verified
                 indent[depth] = start[1]
             elif visual_indent in (text, str):
-                # ignore token lined up with matching one from a previous line
+                # ignore token lined up with matching one from a
+                # previous line
                 pass
             else:
                 # indent is broken
@@ -848,7 +857,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
             elif text in WS_NEEDED_OPERATORS:
                 need_space = True
             elif text in UNARY_OPERATORS:
-                # Check if the operator is being used as a binary operator
+                # Check if the operator is used as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
                 if (prev_text in '}])' if prev_type == tokenize.OP
@@ -894,8 +903,8 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     r"""Don't use spaces around the '=' sign in function arguments.
 
     Don't use spaces around the '=' sign when used to indicate a
-    keyword argument or a default parameter value, except when using a type
-    annotation.
+    keyword argument or a default parameter value, except when
+    using a type annotation.
 
     Okay: def complex(real, imag=0.0):
     Okay: return magic(r=real, i=imag)
@@ -959,9 +968,9 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
 def whitespace_before_comment(logical_line, tokens):
     r"""Separate inline comments by at least two spaces.
 
-    An inline comment is a comment on the same line as a statement.  Inline
-    comments should be separated by at least two spaces from the statement.
-    They should start with a # and a single space.
+    An inline comment is a comment on the same line as a statement.
+    Inline comments should be separated by at least two spaces from the
+    statement. They should start with a # and a single space.
 
     Each line of a block comment starts with a # and a single space
     (unless it is indented text inside the comment).
@@ -1022,8 +1031,8 @@ def module_imports_on_top_of_file(
         logical_line, indent_level, checker_state, noqa):
     r"""Place imports at the top of the file.
 
-    Always put imports at the top of the file, just after any module comments
-    and docstrings, and before module globals and constants.
+    Always put imports at the top of the file, just after any module
+    comments and docstrings, and before module globals and constants.
 
     Okay: import os
     Okay: # this is a comment\nimport os
@@ -1038,7 +1047,7 @@ def module_imports_on_top_of_file(
     E402: a=1\nfrom sys import x
 
     Okay: if x:\n    import os
-    """
+    """  # noqa
     def is_string_literal(line):
         if line[0] in 'uUbB':
             line = line[1:]
@@ -1048,7 +1057,7 @@ def module_imports_on_top_of_file(
 
     allowed_try_keywords = ('try', 'except', 'else', 'finally')
 
-    if indent_level:  # Allow imports in conditional statements or functions
+    if indent_level:  # Allow imports in conditional statement/function
         return
     if not logical_line:  # Allow empty lines or comments
         return
@@ -1061,11 +1070,12 @@ def module_imports_on_top_of_file(
     elif re.match(DUNDER_REGEX, line):
         return
     elif any(line.startswith(kw) for kw in allowed_try_keywords):
-        # Allow try, except, else, finally keywords intermixed with imports in
-        # order to support conditional importing
+        # Allow try, except, else, finally keywords intermixed with
+        # imports in order to support conditional importing
         return
     elif is_string_literal(line):
-        # The first literal is a docstring, allow it. Otherwise, report error.
+        # The first literal is a docstring, allow it. Otherwise, report
+        # error.
         if checker_state.get('seen_docstring', False):
             checker_state['seen_non_imports'] = True
         else:
@@ -1076,7 +1086,8 @@ def module_imports_on_top_of_file(
 
 @register_check
 def compound_statements(logical_line):
-    r"""Compound statements (on the same line) are generally discouraged.
+    r"""Compound statements (on the same line) are generally
+    discouraged.
 
     While sometimes it's okay to put an if/for/while with a small body
     on the same line, never do this for multi-clause statements.
@@ -1139,10 +1150,11 @@ def compound_statements(logical_line):
 def explicit_line_join(logical_line, tokens):
     r"""Avoid explicit line join between brackets.
 
-    The preferred way of wrapping long lines is by using Python's implied line
-    continuation inside parentheses, brackets and braces.  Long lines can be
-    broken over multiple lines by wrapping expressions in parentheses.  These
-    should be used in preference to using a backslash for line continuation.
+    The preferred way of wrapping long lines is by using Python's
+    implied line continuation inside parentheses, brackets and braces.
+    Long lines can be broken over multiple lines by wrapping expressions
+    in parentheses.  These should be used in preference to using a
+    backslash for line continuation.
 
     E502: aaa = [123, \\n       123]
     E502: aaa = ("bbb " \\n       "ccc")
@@ -1179,8 +1191,8 @@ def _is_binary_operator(token_type, text):
     is_op_token = token_type == tokenize.OP
     is_conjunction = text in ['and', 'or']
     # NOTE(sigmavirus24): Previously the not_a_symbol check was executed
-    # conditionally. Since it is now *always* executed, text may be None.
-    # In that case we get a TypeError for `text not in str`.
+    # conditionally. Since it is now *always* executed, text may be
+    # None. In that case we get a TypeError for `text not in str`.
     not_a_symbol = text and text not in "()[]{},:.;@=%~"
     # The % character is strictly speaking a binary operator, but the
     # common usage seems to be to put it next to the format parameters,
@@ -1291,10 +1303,10 @@ def comparison_to_singleton(logical_line, noqa):
     E712: if arg == True:
     E712: if False == arg:
 
-    Also, beware of writing if x when you really mean if x is not None --
-    e.g. when testing whether a variable or argument that defaults to None was
-    set to some other value.  The other value might have a type (such as a
-    container) that could be false in a boolean context!
+    Also, beware of writing if x when you really mean if x is not None
+    -- e.g. when testing whether a variable or argument that defaults to
+    None was set to some other value.  The other value might have a type
+    (such as a container) that could be false in a boolean context!
     """
     match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
     if match:
@@ -1344,9 +1356,9 @@ def comparison_type(logical_line, noqa):
     Okay: if isinstance(obj, int):
     E721: if type(obj) is type(1):
 
-    When checking if an object is a string, keep in mind that it might be a
-    unicode string too! In Python 2.3, str and unicode have a common base
-    class, basestring, so you can do:
+    When checking if an object is a string, keep in mind that it might
+    be a unicode string too! In Python 2.3, str and unicode have a
+    common base class, basestring, so you can do:
 
     Okay: if isinstance(obj, basestring):
     Okay: if type(a1) is type(b1):
@@ -1361,7 +1373,8 @@ def comparison_type(logical_line, noqa):
 
 @register_check
 def bare_except(logical_line, noqa):
-    r"""When catching exceptions, mention specific exceptions when possible.
+    r"""When catching exceptions, mention specific exceptions when
+    possible.
 
     Okay: except Exception:
     Okay: except BaseException:
@@ -1380,8 +1393,8 @@ def bare_except(logical_line, noqa):
 def ambiguous_identifier(logical_line, tokens):
     r"""Never use the characters 'l', 'O', or 'I' as variable names.
 
-    In some fonts, these characters are indistinguishable from the numerals
-    one and zero. When tempted to use 'l', use 'L' instead.
+    In some fonts, these characters are indistinguishable from the
+    numerals one and zero. When tempted to use 'l', use 'L' instead.
 
     Okay: L = 0
     Okay: o = 123
@@ -1390,9 +1403,9 @@ def ambiguous_identifier(logical_line, tokens):
     E741: O = 123
     E741: I = 42
 
-    Variables can be bound in several other contexts, including class and
-    function definitions, 'global' and 'nonlocal' statements, exception
-    handlers, and 'with' statements.
+    Variables can be bound in several other contexts, including class
+    and function definitions, 'global' and 'nonlocal' statements,
+    exception handlers, and 'with' statements.
 
     Okay: except AttributeError as o:
     Okay: with lock as L:
@@ -1412,7 +1425,7 @@ def ambiguous_identifier(logical_line, tokens):
             if prev_text in idents_to_avoid:
                 ident = prev_text
                 pos = prev_start
-        # identifiers bound to a value with 'as', 'global', or 'nonlocal'
+        # identifiers bound to values with 'as', 'global', or 'nonlocal'
         if prev_text in ('as', 'global', 'nonlocal'):
             if text in idents_to_avoid:
                 ident = text
@@ -1431,7 +1444,8 @@ def ambiguous_identifier(logical_line, tokens):
 
 @register_check
 def python_3000_has_key(logical_line, noqa):
-    r"""The {}.has_key() method is removed in Python 3: use the 'in' operator.
+    r"""The {}.has_key() method is removed in Python 3: use the 'in'
+    operator.
 
     Okay: if "alph" in d:\n    print d["alph"]
     W601: assert d.has_key('alph')
@@ -1534,15 +1548,16 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
 
 @register_check
 def python_3000_async_await_keywords(logical_line, tokens):
-    """'async' and 'await' are reserved keywords starting with Python 3.7
+    """'async' and 'await' are reserved keywords starting at Python 3.7.
 
     W606: async = 42
     W606: await = 42
-    Okay: async def read_data(db):\n    data = await db.fetch('SELECT ...')
+    Okay: async def read(db):\n    data = await db.fetch('SELECT ...')
     """
-    # The Python tokenize library before Python 3.5 recognizes async/await as a
-    # NAME token. Therefore, use a state machine to look for the possible
-    # async/await constructs as defined by the Python grammar:
+    # The Python tokenize library before Python 3.5 recognizes
+    # async/await as a NAME token. Therefore, use a state machine to
+    # look for the possible async/await constructs as defined by the
+    # Python grammar:
     # https://docs.python.org/3/reference/grammar.html
 
     state = None
@@ -1557,14 +1572,15 @@ def python_3000_async_await_keywords(logical_line, tokens):
                     state = ('await', start)
         elif state[0] == 'async_stmt':
             if token_type == tokenize.NAME and text in ('def', 'with', 'for'):
-                # One of funcdef, with_stmt, or for_stmt. Return to looking
-                # for async/await names.
+                # One of funcdef, with_stmt, or for_stmt. Return to
+                # looking for async/await names.
                 state = None
             else:
                 error = True
         elif state[0] == 'await':
             if token_type in (tokenize.NAME, tokenize.NUMBER, tokenize.STRING):
-                # An await expression. Return to looking for async/await names.
+                # An await expression. Return to looking for async/await
+                # names.
                 state = None
             else:
                 error = True
@@ -1740,8 +1756,8 @@ def parse_udiff(diff, patterns=None, parent='.'):
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
-            # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
-            # instead of a/b/c/d as prefixes for patches
+            # Git diff will use (i)ndex, (w)ork tree, (c)ommit and
+            # (o)bject instead of a/b/c/d as prefixes for patches
             if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
@@ -1795,9 +1811,9 @@ if COMMENT_WITH_NL:
         return _eol_token(token) or (token[0] == tokenize.COMMENT and
                                      token[1] == token[4])
 
-##############################################################################
+########################################################################
 # Framework to run all checks
-##############################################################################
+########################################################################
 
 
 class Checker(object):
@@ -1975,7 +1991,7 @@ class Checker(object):
                     self.report_error(lineno, offset, text, check)
 
     def generate_tokens(self):
-        """Tokenize the file, run physical line checks and yield tokens."""
+        """Tokenize file, run physical line checks and yield tokens."""
         if self._io_error:
             self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
         tokengen = tokenize.generate_tokens(self.readline)
@@ -1990,7 +2006,7 @@ class Checker(object):
             self.report_invalid_syntax()
 
     def maybe_check_physical(self, token):
-        """If appropriate (based on token), check current physical line(s)."""
+        """If appropriate for token, check current physical line(s)."""
         # Called after every token, but act only on end of line.
         if _is_eol_token(token):
             # Obviously, a newline token ends a single physical line.
@@ -1998,15 +2014,16 @@ class Checker(object):
         elif token[0] == tokenize.STRING and '\n' in token[1]:
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal
-            # newlines backslash-escaped. Check every physical line in the
-            # string *except* for the last one: its newline is outside of
-            # the multiline string, so we consider it a regular physical
-            # line, and will check it like any other physical line.
+            # newlines backslash-escaped. Check every physical line in
+            # the string *except* for the last one: its newline is
+            # outside of the multiline string, so we consider it a
+            # regular physical line, and will check it like any other
+            # physical line.
             #
             # Subtleties:
-            # - we don't *completely* ignore the last line; if it contains
-            #   the magical "# noqa" comment, we disable all physical
-            #   checks for the entire multiline string
+            # - we don't *completely* ignore the last line; if it
+            #   contains the magical "# noqa" comment, we disable all
+            #   physical checks for the entire multiline string
             # - have to wind self.line_number back because initially it
             #   points to the last line of the string, and we want
             #   check_physical() to give accurate feedback
@@ -2166,7 +2183,7 @@ class BaseReport(object):
 
 
 class FileReport(BaseReport):
-    """Collect the results of the checks and print only the filenames."""
+    """Collect the results of the checks and print the filenames."""
 
     print_filename = True
 
@@ -2198,7 +2215,7 @@ class StandardReport(BaseReport):
         return code
 
     def get_file_results(self):
-        """Print the result and return the overall count for this file."""
+        """Print results and return the overall count for this file."""
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
             print(self._fmt % {
@@ -2217,8 +2234,8 @@ class StandardReport(BaseReport):
                 print('    ' + doc.strip())
 
             # stdout is block buffered when not stdout.isatty().
-            # line can be broken where buffer boundary since other processes
-            # write to same file.
+            # line can be broken where buffer boundary since other
+            # processes write to same file.
             # flush() after print() to avoid buffer boundary.
             # Typical buffer size is 8192. line written safely when
             # len(line) < 8192.
@@ -2336,7 +2353,7 @@ class StyleGuide(object):
     def excluded(self, filename, parent=None):
         """Check if the file should be excluded.
 
-        Check if 'options.exclude' contains a pattern that matches filename.
+        Check if 'options.exclude' contains a pattern matching filename.
         """
         if not self.options.exclude:
             return False
@@ -2364,8 +2381,8 @@ class StyleGuide(object):
     def get_checks(self, argument_name):
         """Get all the checks for this category.
 
-        Find all globally visible functions where the first argument name
-        starts with argument_name and which contain selected tests.
+        Find all globally visible functions where the first argument
+        name starts with argument_name and which contain selected tests.
         """
         checks = []
         for check, attrs in _checks[argument_name].items():
@@ -2444,12 +2461,13 @@ def get_parser(prog='pycodestyle', version=__version__):
 def read_config(options, args, arglist, parser):
     """Read and parse configurations.
 
-    If a config file is specified on the command line with the "--config"
-    option, then only it is used for configuration.
+    If a config file is specified on the command line with the
+    "--config" option, then only it is used for configuration.
 
-    Otherwise, the user configuration (~/.config/pycodestyle) and any local
-    configurations in the current directory or above will be merged together
-    (in that order) using the read method of ConfigParser.
+    Otherwise, the user configuration (~/.config/pycodestyle) and any
+    local configurations in the current directory or above will be
+    merged together (in that order) using the read method of
+    ConfigParser.
     """
     config = RawConfigParser()
 
@@ -2518,10 +2536,10 @@ def read_config(options, args, arglist, parser):
 
 def process_options(arglist=None, parse_argv=False, config_file=None,
                     parser=None, verbose=None):
-    """Process options passed either via arglist or via command line args.
+    """Process options passed either via arglist or command line args.
 
-    Passing in the ``config_file`` parameter allows other tools, such as flake8
-    to specify their own options to be processed in pycodestyle.
+    Passing in the ``config_file`` parameter allows other tools, such as
+    flake8 to specify their own options to be processed in pycodestyle.
     """
     if not parser:
         parser = get_parser()

@@ -35,8 +35,8 @@ class BlankLinesTestCase(unittest.TestCase):
 
 class TestBlankLinesDefault(BlankLinesTestCase):
     """
-    Tests for default blank with 2 blank lines for top level and 1 blank line
-    for methods.
+    Tests for default blank with 2 blank lines for top level and 1
+    blank line for methods.
     """
 
     def test_initial_no_blank(self):
@@ -51,8 +51,8 @@ class TestBlankLinesDefault(BlankLinesTestCase):
 
     def test_initial_lines_one_blank(self):
         """
-        It will accept 1 blank lines before the first line of actual code,
-        even if in other places it asks for 2
+        It will accept 1 blank lines before the first line of actual
+        code, even if in other places it asks for 2
         """
         result = self.check("""
 def some_function():
@@ -63,8 +63,8 @@ def some_function():
 
     def test_initial_lines_two_blanks(self):
         """
-        It will accept 2 blank lines before the first line of actual code,
-        as normal.
+        It will accept 2 blank lines before the first line of actual
+        code, as normal.
         """
         result = self.check("""
 
@@ -76,8 +76,8 @@ def some_function():
 
     def test_method_less_blank_lines(self):
         """
-        It will trigger an error when less than 1 blank lin is found before
-        method definitions.
+        It will trigger an error when less than 1 blank lin is found
+        before method definitions.
         """
         result = self.check("""# First comment line.
 class X:
@@ -93,8 +93,8 @@ class X:
 
     def test_method_less_blank_lines_comment(self):
         """
-        It will trigger an error when less than 1 blank lin is found before
-        method definition, ignoring comments.
+        It will trigger an error when less than 1 blank lin is found
+        before method definition, ignoring comments.
         """
         result = self.check("""# First comment line.
 class X:
@@ -111,8 +111,8 @@ class X:
 
     def test_top_level_fewer_blank_lines(self):
         """
-        It will trigger an error when less 2 blank lines are found before top
-        level definitions.
+        It will trigger an error when less 2 blank lines are found
+        before top level definitions.
         """
         result = self.check("""# First comment line.
 # Second line of comment.
@@ -146,8 +146,8 @@ class AFarEnoughClass(object):
 
     def test_top_level_more_blank_lines(self):
         """
-        It will trigger an error when more 2 blank lines are found before top
-        level definitions.
+        It will trigger an error when more 2 blank lines are found
+        before top level definitions.
         """
         result = self.check("""# First comment line.
 # Second line of comment.
@@ -177,8 +177,8 @@ class AFarEnoughClass(object):
 
     def test_method_more_blank_lines(self):
         """
-        It will trigger an error when more than 1 blank line is found before
-        method definition
+        It will trigger an error when more than 1 blank line is found
+        before method definition
         """
         result = self.check("""# First comment line.
 
@@ -209,8 +209,8 @@ class SomeCloseClass(object):
 
     def test_initial_lines_more_blank(self):
         """
-        It will trigger an error for more than 2 blank lines before the first
-        line of actual code.
+        It will trigger an error for more than 2 blank lines before the
+        first line of actual code.
         """
         result = self.check("""
 
@@ -222,8 +222,8 @@ def some_function():
 
     def test_blank_line_between_decorator(self):
         """
-        It will trigger an error when the decorator is followed by a blank
-        line.
+        It will trigger an error when the decorator is followed by a
+        blank line.
         """
         result = self.check("""# First line.
 
@@ -245,8 +245,8 @@ class SomeClass(object):
 
     def test_blank_line_decorator(self):
         """
-        It will accept the decorators which are adjacent to the function and
-        method definition.
+        It will accept the decorators which are adjacent to the function
+        and method definition.
         """
         result = self.check("""# First line.
 
@@ -340,7 +340,8 @@ def a():
     def test_method_nested_fewer_follow_lines(self):
         """
         It will trigger an error when less than 1 blank line is
-        found between a method and previous definitions, even when nested.
+        found between a method and previous definitions, even when
+        nested.
         """
         result = self.check("""
 def a():
@@ -374,7 +375,8 @@ def a():
     def test_method_nested_ok(self):
         """
         Will not trigger an error when 1 blank line is found
-        found between a method and previous definitions, even when nested.
+        found between a method and previous definitions, even when
+        nested.
         """
         result = self.check("""
 def a():
@@ -394,8 +396,8 @@ def a():
 
 class TestBlankLinesTwisted(BlankLinesTestCase):
     """
-    Tests for blank_lines with 3 blank lines for top level and 2 blank line
-    for methods as used by the Twisted coding style.
+    Tests for blank_lines with 3 blank lines for top level and 2 blank
+    line for methods as used by the Twisted coding style.
     """
 
     def setUp(self):
@@ -408,8 +410,8 @@ class TestBlankLinesTwisted(BlankLinesTestCase):
 
     def test_initial_lines_one_blanks(self):
         """
-        It will accept less than 3 blank lines before the first line of actual
-        code.
+        It will accept less than 3 blank lines before the first line of
+        actual code.
         """
         result = self.check("""
 
@@ -422,8 +424,8 @@ def some_function():
 
     def test_initial_lines_tree_blanks(self):
         """
-        It will accept 3 blank lines before the first line of actual code,
-        as normal.
+        It will accept 3 blank lines before the first line of actual
+        code, as normal.
         """
         result = self.check("""
 
@@ -436,8 +438,8 @@ def some_function():
 
     def test_top_level_fewer_blank_lines(self):
         """
-        It will trigger an error when less 2 blank lines are found before top
-        level definitions.
+        It will trigger an error when less 2 blank lines are found
+        before top level definitions.
         """
         result = self.check("""# First comment line.
 # Second line of comment.
@@ -476,8 +478,8 @@ class AFarEnoughClass(object):
 
     def test_top_level_more_blank_lines(self):
         """
-        It will trigger an error when more 2 blank lines are found before top
-        level definitions.
+        It will trigger an error when more 2 blank lines are found
+        before top level definitions.
         """
         result = self.check("""# First comment line.
 # Second line of comment.
