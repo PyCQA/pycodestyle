@@ -151,11 +151,11 @@ def init_tests(pep8style):
 
     A test file can provide many tests.  Each test starts with a
     declaration.  This declaration is a single line starting with '#:'.
-    It declares codes of expected failures, separated by spaces or 'Okay'
-    if no failure is expected.
+    It declares codes of expected failures, separated by spaces or
+    'Okay' if no failure is expected.
     If the file does not contain such declaration, it should pass all
-    tests.  If the declaration is empty, following lines are not checked,
-    until next declaration.
+    tests.  If the declaration is empty, following lines are not
+    checked, until next declaration.
 
     Examples:
 
