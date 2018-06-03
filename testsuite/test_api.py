@@ -28,10 +28,10 @@ class APITestCase(unittest.TestCase):
         self._saved_checks = pycodestyle._checks
         sys.stdout = PseudoFile()
         sys.stderr = PseudoFile()
-        pycodestyle._checks = dict(
-            (k, dict((f, (vals[0][:], vals[1])) for (f, vals) in v.items()))
-            for (k, v) in self._saved_checks.items()
-        )
+        pycodestyle._checks = {
+            k: {f: (vals[0][:], vals[1]) for (f, vals) in v.items()}
+            for k, v in self._saved_checks.items()
+        }
 
     def tearDown(self):
         sys.stdout = self._saved_stdout
