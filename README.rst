@@ -10,7 +10,7 @@ pycodestyle (formerly called pep8) - Python style guide checker
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/pypi/wheel/pycodestyle.svg
-   :target: https://pypi.python.org/pypi/pycodestyle
+   :target: https://pypi.org/project/pycodestyle/
    :alt: Wheel Status
 
 .. image:: https://badges.gitter.im/PyCQA/pycodestyle.svg
