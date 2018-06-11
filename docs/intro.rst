@@ -43,8 +43,8 @@ Among other things, these features are currently not in the scope of
 the ``pycodestyle`` library:
 
 * **naming conventions**: this kind of feature is supported through plugins.
-  Install `flake8 <https://pypi.python.org/pypi/flake8>`_ and the
-  `pep8-naming extension <https://pypi.python.org/pypi/pep8-naming>`_ to use
+  Install `flake8 <https://pypi.org/project/flake8/>`_ and the
+  `pep8-naming extension <https://pypi.org/project/pep8-naming/>`_ to use
   this feature.
 * **docstring conventions**: they are not in the scope of this library;
   see the `pydocstyle project <https://github.com/PyCQA/pydocstyle>`_.
