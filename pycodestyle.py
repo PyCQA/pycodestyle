@@ -2543,7 +2543,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     (options, args) = parser.parse_args(arglist)
     options.reporter = None
 
-    # If explicity specified verbosity, override any `-v` CLI flag
+    # If explicitly specified verbosity, override any `-v` CLI flag
     if verbose is not None:
         options.verbose = verbose
 
