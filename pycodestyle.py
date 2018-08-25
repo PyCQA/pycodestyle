@@ -130,7 +130,12 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,.*,\s*\w+\s*$')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;:]')
+with warnings.catch_warnings():
+    # in py37 this emits a spurious
+    # `FutureWarning: Possible nested set at position 1`
+    warnings.filterwarnings(action="ignore")
+    EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;:]')
+
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
