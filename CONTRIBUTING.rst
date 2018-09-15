@@ -69,7 +69,6 @@ GitHub has an excellent `guide`_.
 The current tests are written in 2 styles:
 
 * standard xUnit based only on stdlib unittest
-  (can be executed with nose)
 * functional test using a custom framework and executed by the
   pycodestyle itself when installed in dev mode.
 
@@ -77,19 +76,12 @@ The current tests are written in 2 styles:
 Running unittest
 ~~~~~~~~~~~~~~~~
 
-While the tests are writted using stdlib `unittest` module, the existing
-test include unit, integration and functional tests.
+The tests are writted using stdlib `unittest` module, the existing test
+include unit, integration and functional tests.
 
-There are a couple of ways to run the tests::
+To run the tests::
 
     $ python setup.py test
-    $ # Use nose to run specific test
-    $ nosetests \
-    >    testsuite.test_blank_lines:TestBlankLinesDefault.test_initial_no_blank
-    $ # Use nose to run a subset and check coverage, and check the resulting
-    $ $ cover/pycodestyle_py.html in your browser
-    $ nosetests --with-coverage --cover-html -s testsuite.test_blank_lines
-
 
 Running functional
 ~~~~~~~~~~~~~~~~~~

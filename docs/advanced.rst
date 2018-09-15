@@ -25,9 +25,6 @@ in your project::
           self.assertEqual(result.total_errors, 0,
                            "Found code style errors (and warnings).")
 
-If you are using ``nosetests`` for running tests, remove ``quiet=True``
-since Nose suppresses stdout.
-
 There's also a shortcut for checking a single file::
 
   import pycodestyle
