@@ -76,7 +76,7 @@ The current tests are written in 2 styles:
 Running unittest
 ~~~~~~~~~~~~~~~~
 
-The tests are writted using stdlib `unittest` module, the existing test
+The tests are written using stdlib `unittest` module, the existing tests
 include unit, integration and functional tests.
 
 To run the tests::
