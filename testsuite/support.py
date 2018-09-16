@@ -215,7 +215,3 @@ def run_tests(style):
     if options.testsuite:
         init_tests(style)
     return style.check_files()
-
-
-# nose should not collect these functions
-init_tests.__test__ = run_tests.__test__ = False
