@@ -258,10 +258,10 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     """
     if line_number == total_lines:
         stripped_last_line = physical_line.rstrip()
-        if not stripped_last_line:
+        if physical_line and not stripped_last_line:
             return 0, "W391 blank line at end of file"
         if stripped_last_line == physical_line:
-            return len(physical_line), "W292 no newline at end of file"
+            return len(lines[-1]), "W292 no newline at end of file"
 
 
 @register_check
