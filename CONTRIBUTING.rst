@@ -62,7 +62,7 @@ All the tests should pass for all available interpreters, with the summary of::
 
     congratulations :)
 
-At this point you can create a pull request back to the official pycodestyles
+At this point you can create a pull request back to the official pycodestyle
 repository for review! For more information on how to make a pull request,
 GitHub has an excellent `guide`_.
 

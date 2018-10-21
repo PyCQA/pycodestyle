@@ -19,6 +19,10 @@ regex = '\.png$'
 regex = '''
 \.png$
 '''
+#: W605:2:5
+f(
+    '\_'
+)
 #: Okay
 regex = r'\.png$'
 regex = '\\.png$'
