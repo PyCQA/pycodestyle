@@ -48,3 +48,7 @@ def add(a: int=0, b: int =0, c: int= 0) -> int:
 #: Okay
 def add(a: int = _default(name='f')):
     return a
+#: E225
+def foo(a, b)->int:
+#: Okay
+def foo(a, b) -> int:

@@ -42,7 +42,3 @@ try:
     from importable.module import(e, f)
 except ImportError:
     pass
-#: E275
-def foo(a, b)->int:
-#: Okay
-def foo(a, b) -> int:
