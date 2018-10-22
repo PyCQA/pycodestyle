@@ -117,7 +117,7 @@ ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
-    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
+    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=', '->'])
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
