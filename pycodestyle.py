@@ -1522,7 +1522,7 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
 
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.STRING:
-            orig_start = start
+            start_line, start_col = start
             quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
             # Extract string modifiers (e.g. u or r)
             quote_pos = text.index(quote)
@@ -1535,8 +1535,13 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
                 while pos >= 0:
                     pos += 1
                     if string[pos] not in valid:
+                        line = start_line + string[:pos].count('\n')
+                        if line == start_line:
+                            col = start_col + len(prefix) + len(quote) + pos
+                        else:
+                            col = pos - string.rfind('\n', 0, pos) - 1
                         yield (
-                            orig_start,
+                            (line, col - 1),
                             "W605 invalid escape sequence '\\%s'" %
                             string[pos],
                         )
