@@ -1535,7 +1535,7 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
                 while pos >= 0:
                     pos += 1
                     if string[pos] not in valid:
-                        line = start_line + string[:pos].count('\n')
+                        line = start_line + string.count('\n', 0, pos)
                         if line == start_line:
                             col = start_col + len(prefix) + len(quote) + pos
                         else:
