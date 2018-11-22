@@ -13,16 +13,23 @@ if x <> 0:
     x = 0
 #: W604
 val = `1 + 2`
-#: W605:1:9
+#: W605:1:10
 regex = '\.png$'
-#: W605:1:9
+#: W605:2:1
 regex = '''
 \.png$
 '''
-#: W605:2:5
+#: W605:2:6
 f(
     '\_'
 )
+#: W605:4:6
+"""
+multi-line
+literal
+with \_ somewhere
+in the middle
+"""
 #: Okay
 regex = r'\.png$'
 regex = '\\.png$'
