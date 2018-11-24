@@ -85,3 +85,6 @@ await foo() + await bar()
 (await foo()) + (await bar())
 -await foo()
 -(await foo())
+(await
+ foo())
+await(await foo())

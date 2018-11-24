@@ -1566,12 +1566,19 @@ def python_3000_async_await_keywords(logical_line, tokens):
     for token_type, text, start, end, line in tokens:
         error = False
 
+        if token_type == tokenize.NL:
+            continue
+
         if state is None:
             if token_type == tokenize.NAME:
                 if text == 'async':
                     state = ('async_stmt', start)
                 elif text == 'await':
                     state = ('await', start)
+                elif (token_type == tokenize.NAME and
+                      text in ('def', 'for')):
+                    state = ('define', start)
+
         elif state[0] == 'async_stmt':
             if token_type == tokenize.NAME and text in ('def', 'with', 'for'):
                 # One of funcdef, with_stmt, or for_stmt. Return to
@@ -1584,8 +1591,15 @@ def python_3000_async_await_keywords(logical_line, tokens):
                 # An await expression. Return to looking for async/await
                 # names.
                 state = None
+            elif token_type == tokenize.OP and text == '(':
+                state = None
             else:
                 error = True
+        elif state[0] == 'define':
+            if token_type == tokenize.NAME and text in ('async', 'await'):
+                error = True
+            else:
+                state = None
 
         if error:
             yield (
