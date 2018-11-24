@@ -45,6 +45,10 @@ async = 42
 #: W606
 await = 42
 #: W606
+await 42
+#: W606
+await 'test'
+#: W606
 def async():
     pass
 #: W606
