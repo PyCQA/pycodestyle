@@ -163,3 +163,21 @@ async  def x():
 
 async  def x(y: int = 1):
     pass
+#: E704:3:1 E302:3:1
+def bar():
+    pass
+def baz(): pass
+#: E704:1:1 E302:2:1
+def bar(): pass
+def baz():
+    pass
+#: E704:4:5 E306:4:5
+def foo():
+    def bar():
+        pass
+    def baz(): pass
+#: E704:2:5 E306:3:5
+def foo():
+    def bar(): pass
+    def baz():
+        pass

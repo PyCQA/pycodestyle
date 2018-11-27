@@ -162,3 +162,14 @@ defaults.update({})
 def foo(x):
     classification = x
     definitely = not classification
+#: E704:3:1 E704:4:1
+# This emits the (ignored-by-default) E704, but here we're testing
+# for no E30x being emitted.
+def bar(): pass
+def baz(): pass
+#: E704:4:5 E704:5:5
+def foo():
+    # This emits the (ignored-by-default) E704, but here we're testing
+    # for no E30x being emitted.
+    def bar(): pass
+    def baz(): pass
