@@ -1580,7 +1580,7 @@ def python_3000_async_await_keywords(logical_line, tokens):
             else:
                 error = True
         elif state[0] == 'await':
-            if token_type in (tokenize.NAME, tokenize.NUMBER, tokenize.STRING):
+            if token_type == tokenize.NAME:
                 # An await expression. Return to looking for async/await
                 # names.
                 state = None
