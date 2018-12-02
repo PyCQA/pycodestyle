@@ -802,7 +802,6 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: alpha[:-i]
 
     E225: i=i+1
-    E225: def foo(a, b)->int:
     E225: submitted +=1
     E225: x = x /2 - 1
     E225: z = x **y
