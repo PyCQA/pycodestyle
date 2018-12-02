@@ -37,7 +37,7 @@ class Class:
 
     def m(self):
         xs: List[int] = []
-#: E227
+#: E225
 def bar(a, b)->int:
     pass
 #: Okay
