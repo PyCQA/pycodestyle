@@ -171,7 +171,8 @@ def init_tests(pep8style):
         # Skip tests meant for higher versions of python
         ver_match = re.search(r'python(\d)(\d)?\.py$', filename)
         if ver_match:
-            test_against_version = tuple(int(val or 0) for val in ver_match.groups())
+            test_against_version = tuple(int(val or 0)
+                                         for val in ver_match.groups())
             if sys.version_info < test_against_version:
                 return
         lines = readlines(filename) + ['#:\n']
