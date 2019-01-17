@@ -76,7 +76,7 @@ The current tests are written in 2 styles:
 Running unittest
 ~~~~~~~~~~~~~~~~
 
-The tests are written using stdlib `unittest` module, the existing tests
+The tests are written using stdlib ``unittest`` module, the existing tests
 include unit, integration and functional tests.
 
 To run the tests::
@@ -86,8 +86,8 @@ To run the tests::
 Running functional
 ~~~~~~~~~~~~~~~~~~
 
-When installed in dev mode, pycodestyle will have the `--testsuite`
-option which can be used to run the tests::
+When installed in dev mode, pycodestyle will have the ``--testsuite`` option
+which can be used to run the tests::
 
     $ pip install -e .
     $ # Run all tests.
