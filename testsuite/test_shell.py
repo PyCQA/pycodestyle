@@ -7,6 +7,46 @@ import pycodestyle
 from testsuite.support import ROOT_DIR, PseudoFile
 
 
+def safe_line_split(line):
+    r"""Parses output lines of the form
+
+    [location & file]:[row]:[column]:[message]
+
+    and returns a tuple of the form
+
+    (path, row, column, message)
+
+    This function handles the OS-issues related to a ":" appearing in some
+    Windows paths.
+
+    In Windows, the location is usually denoted as "[DriveLetter]:[location]".
+    On all other platforms, there is no colon in the location.
+
+    The majority of time on windows, the line will look like:
+    C:\projects\pycodestyle\testsuite\E11.py:3:3: E111 indentation is ...
+
+    Or if somebody is using a networked location
+    \\projects\pycodestyle\testsuite\E11.py:3:3: E111 indentation is ...
+
+    On non-windows, the same line would looke like:
+    /home/projects/pycodestyle/testsuite/E11.py:3:3: E111 indentation is ...
+    """
+
+    split = line.split(':')
+
+    if sys.platform == 'win32':  # Note, even 64 bit platforms return 'win32'
+        if len(split) == 5:      # This will be the most common
+            drive, path, x, y, msg = split
+            path = drive + ':' + path
+        elif len(split) == 4:    # If the location is a network share
+            path, x, y, msg = split
+        else:
+            raise Exception("Unhandled edge case parsing message: " + line)
+    else:
+        path, x, y, msg = split
+    return path, x, y, msg
+
+
 class ShellTestCase(unittest.TestCase):
     """Test the usual CLI options and output."""
 
@@ -79,7 +119,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(stderr)
         self.assertEqual(len(stdout), 17)
         for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
@@ -143,7 +183,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         for line, num, col in zip(stdout, (3, 6), (3, 6)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
@@ -156,7 +196,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
         for line, num, col in zip(stdout, (3, 6), (3, 6)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = safe_line_split(line)
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
