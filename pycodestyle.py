@@ -357,6 +357,16 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
           ):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
+        # If this is a one-liner (i.e. the next line is not more
+        # indented), and the previous line is also not deeper
+        # (it would be better to check if the previous line is part
+        # of another def/class at the same level), don't require blank
+        # lines around this.
+        prev_line = lines[line_number - 2] if line_number >= 2 else ''
+        next_line = lines[line_number] if line_number < len(lines) else ''
+        if (expand_indent(prev_line) <= indent_level and
+                expand_indent(next_line) <= indent_level):
+            return
         if indent_level:
             if not (blank_before == method_lines or
                     previous_indent_level < indent_level or
