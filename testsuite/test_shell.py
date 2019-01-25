@@ -77,8 +77,8 @@ class ShellTestCase(unittest.TestCase):
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertEqual(len(stdout), 17)
-        for line, num, col in zip(stdout, (3, 6, 9, 12), (3, 6, 1, 5)):
+        self.assertEqual(len(stdout), 20)
+        for line, num, col in zip(stdout, (3, 6, 6, 9, 12), (3, 6, 6, 1, 5)):
             path, x, y, msg = line.split(':')
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
@@ -170,10 +170,11 @@ class ShellTestCase(unittest.TestCase):
                            "+     print"]
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pycodestyle('--diff')
-        (stdout,) = stdout.splitlines()
+        stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertTrue('testsuite/E11.py:6:6: E111 ' in stdout)
+        self.assertTrue('testsuite/E11.py:6:6: E111 ' in stdout[0])
+        self.assertTrue('testsuite/E11.py:6:6: E117 ' in stdout[1])
 
         # missing '--diff'
         self.stdin = '\n'.join(diff_lines)

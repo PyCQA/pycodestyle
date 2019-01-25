@@ -207,7 +207,7 @@ def tabs_or_spaces(physical_line, indent_char):
     tabs and spaces.  When using -tt these warnings become errors.
     These options are highly recommended!
 
-    Okay: if a == 0:\n        a = 1\n        b = 1
+    Okay: if a == 0:\n    a = 1\n    b = 1
     E101: if a == 0:\n        a = 1\n\tb = 1
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
@@ -533,6 +533,10 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, tmpl % (2 + c, "expected an indented block")
     elif not indent_expect and indent_level > previous_indent_level:
         yield 0, tmpl % (3 + c, "unexpected indentation")
+
+    expected_indent_level = previous_indent_level + 4
+    if indent_expect and indent_level > expected_indent_level:
+        yield 0, tmpl % (7, 'over-indented')
 
 
 @register_check

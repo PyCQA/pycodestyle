@@ -1,7 +1,7 @@
 #: E111
 if x > 2:
   print x
-#: E111
+#: E111 E117
 if True:
      print
 #: E112
@@ -34,3 +34,6 @@ def start(self):
 #       finally:
 #           sys.exit()
         self.master.start()
+#: E117
+def start():
+        print
