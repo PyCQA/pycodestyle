@@ -40,6 +40,10 @@ regex = r'''
 \\.png$
 '''
 s = '\\'
+regex = '\w'  # noqa
+regex = '''
+\w
+'''  # noqa
 #: W606
 async = 42
 #: W606

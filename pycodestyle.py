@@ -1509,12 +1509,15 @@ def python_3000_backticks(logical_line):
 
 
 @register_check
-def python_3000_invalid_escape_sequence(logical_line, tokens):
+def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
     r"""Invalid escape sequences are deprecated in Python 3.6.
 
     Okay: regex = r'\.png$'
     W605: regex = '\.png$'
     """
+    if noqa:
+        return
+
     # https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     valid = [
         '\n',
