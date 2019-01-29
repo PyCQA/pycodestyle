@@ -1,13 +1,29 @@
 Changelog
 =========
 
-UNRELEASED / 3.0.0
+2.5.0 (2019-01-29)
 ------------------
+
+New checks:
+
+* E117: Over-indented code blocks
+* W505: Maximum doc-string length only when configured with --max-doc-length
 
 Changes:
 
 * Remove support for EOL Python 2.6 and 3.3. PR #720.
 * Add E117 error for over-indented code blocks.
+* Allow W605 to be silenced by `# noqa` and fix the position reported by W605
+* Allow users to omit blank lines around one-liner definitions of classes and
+  functions
+* Include the function return annotation (``->``) as requiring surrounding
+  whitespace only on Python 3
+* Verify that only names can follow ``await``. Previously we allowed numbers
+  and strings.
+* Add support for Python 3.7
+* Fix detection of annotated argument defaults for E252
+* Cprrect the position reported by W504
+
 
 2.4.0 (2018-04-10)
 ------------------
