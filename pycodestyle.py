@@ -1067,7 +1067,8 @@ def module_imports_on_top_of_file(
             line = line[1:]
         return line and (line[0] == '"' or line[0] == "'")
 
-    allowed_keywords = ('try', 'except', 'else', 'finally', 'with')
+    allowed_keywords = (
+        'try', 'except', 'else', 'finally', 'with', 'if')
 
     if indent_level:  # Allow imports in conditional statement/function
         return

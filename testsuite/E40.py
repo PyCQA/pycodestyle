@@ -40,6 +40,11 @@ with warnings.catch_warnings():
     import foo
 
 import bar
+#: Okay
+if False:
+    import foo
+
+import bar
 #: E402
 VERSION = '1.2.3'
 
