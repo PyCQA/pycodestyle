@@ -34,6 +34,12 @@ finally:
     print('made attempt to import foo')
 
 import bar
+#: Okay
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", DeprecationWarning)
+    import foo
+
+import bar
 #: E402
 VERSION = '1.2.3'
 
