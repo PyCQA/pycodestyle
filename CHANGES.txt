@@ -22,7 +22,7 @@ Changes:
   and strings.
 * Add support for Python 3.7
 * Fix detection of annotated argument defaults for E252
-* Cprrect the position reported by W504
+* Correct the position reported by W504
 
 
 2.4.0 (2018-04-10)
