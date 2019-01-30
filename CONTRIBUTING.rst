@@ -34,8 +34,10 @@ Next, ``cd`` to the pycodestyle repository that you cloned earlier and
 create, then activate a virtualenv::
 
     $ cd pycodestyle
-    $ virtualenv pycodestyle-venv
-    $ source pycodestyle-venv/bin/activate
+    $ virtualenv venv-pycodestyle
+    $ source venv-pycodestyle/bin/activate
+
+Note that ``venv*/`` is ignored via ``.gitignore``.
 
 Now you can install the pycodestyle requirements::
 
