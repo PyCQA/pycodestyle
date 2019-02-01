@@ -125,7 +125,7 @@ class APITestCase(unittest.TestCase):
         report = pycodestyle.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 20)
+        self.assertEqual(report.total_errors, 24)
         self.assertFalse(sys.stderr)
         self.reset()
 
@@ -133,7 +133,7 @@ class APITestCase(unittest.TestCase):
         report = pycodestyle.StyleGuide(paths=[E11]).check_files()
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
-        self.assertEqual(report.total_errors, 20)
+        self.assertEqual(report.total_errors, 24)
         self.assertFalse(sys.stderr)
         self.reset()
 

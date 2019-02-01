@@ -37,3 +37,6 @@ def start(self):
 #: E117
 def start():
         print
+#: E117 W191
+def start():
+		print
