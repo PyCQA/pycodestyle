@@ -534,9 +534,11 @@ def indentation(logical_line, previous_logical, indent_char,
     elif not indent_expect and indent_level > previous_indent_level:
         yield 0, tmpl % (3 + c, "unexpected indentation")
 
-    expected_indent_level = previous_indent_level + 4
-    if indent_expect and indent_level > expected_indent_level:
-        yield 0, tmpl % (7, 'over-indented')
+    if indent_expect:
+        expected_indent_amount = 8 if indent_char == '\t' else 4
+        expected_indent_level = previous_indent_level + expected_indent_amount
+        if indent_level > expected_indent_level:
+            yield 0, tmpl % (7, 'over-indented')
 
 
 @register_check
