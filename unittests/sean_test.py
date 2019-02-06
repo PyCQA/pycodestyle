@@ -5,9 +5,9 @@ class testlines(unittest.TestCase):
         s = "mkmmkmkmmkmkmkmkmkmkkkmkmkmkmkmkmkmmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkmkkkmkmkmkmkmkmkm"
         m = "poop"
         assert(len(s) > 79)
-        self.assertTrue(maximum_line_length(s, 79, 0, 0,0))
+        self.assertTrue(pycodestyle.maximum_line_length(s, 79, 0, 0,0))
         assert(len(m) < 79)
-        self.assertFalse(maximum_line_length(m, 79,0,0,0))
+        self.assertFalse(pycodestyle.maximum_line_length(m, 79,0,0,0))
     def test_tabs(self):
         g = "wuddlewuddle"
         p = " wuddlewuddle"
@@ -16,9 +16,9 @@ class testlines(unittest.TestCase):
         h = tab + g
         z = h + p
         assert m == ' '
-        self.assertFalse(tabs_or_spaces(p, m))
-        self.assertFalse(tabs_or_spaces(h, chr(9)))
-        self.assertTrue(tabs_or_spaces(z,m ))
+        self.assertFalse(pycodestyle.tabs_or_spaces(p, m))
+        self.assertFalse(pycodestyle.tabs_or_spaces(h, chr(9)))
+        self.assertTrue(pycodestyle.tabs_or_spaces(z,m ))
 
 if __name__ == '__main__':
     unittest.main()

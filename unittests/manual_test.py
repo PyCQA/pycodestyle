@@ -20,16 +20,38 @@ class ManualTester(unittest.TestCase):
             for res in pycodestyle.extraneous_whitespace(case):
                 self.assertTrue(res != "")
 
+    def test_whitespace_around_keywords(self):
+        passes = [
+            "True and False"
+        ]
+
+        fails = [
+            "True and  False",
+            "True  and False",
+            "True and\tFalse",
+            "True\tand False"
+        ]
+
+        test_func = pycodestyle.whitespace_around_keywords
+
+        for case in passes:
+            for res in test_func(case):
+                self.assertEqual(res, "")
+
+        for case in fails:
+            for res in test_func(case):
+                self.assertNotEqual(res, "")
+
     def test_trailing_blank(self):
         passes = ["i=0\n"]
-        noNewLine = ["i=0",""]
+        noNewLine = ["i=0","def foo()"]
         blankLine = [" ", "\n"]
         lines = ["test\n","test\n",passes[0]]
         self.assertEqual(pycodestyle.trailing_blank_lines(passes[0], lines, 3, 3), None)
         lines = ["test\n","test\n",noNewLine[0]]
         self.assertEqual(pycodestyle.trailing_blank_lines(noNewLine[0], lines, 3, 3), (3, 'W292 no newline at end of file'))
         lines = ["test\n","test\n",noNewLine[1]]
-        self.assertEqual(pycodestyle.trailing_blank_lines(noNewLine[1], lines, 3, 3), (0, 'W292 no newline at end of file'))
+        self.assertEqual(pycodestyle.trailing_blank_lines(noNewLine[1], lines, 3, 3), (9, 'W292 no newline at end of file'))
         lines = ["test\n","test\n",blankLine[0]]
         self.assertEqual(pycodestyle.trailing_blank_lines(blankLine[0], lines, 3, 3), (0, 'W391 blank line at end of file'))
         lines = ["test\n","test\n",blankLine[1]]
