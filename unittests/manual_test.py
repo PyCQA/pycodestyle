@@ -20,5 +20,27 @@ class ManualTester(unittest.TestCase):
             for res in pycodestyle.extraneous_whitespace(case):
                 self.assertTrue(res != "")
 
+    def test_trailing_blank(self):
+        passes = ["i=0\n"]
+        noNewLine = ["i=0",""]
+        blankLine = [" ", "\n"]
+        lines = ["test\n","test\n",passes[0]]
+        self.assertEqual(pycodestyle.trailing_blank_lines(passes[0], lines, 3, 3), None)
+        lines = ["test\n","test\n",noNewLine[0]]
+        self.assertEqual(pycodestyle.trailing_blank_lines(noNewLine[0], lines, 3, 3), (3, 'W292 no newline at end of file'))
+        lines = ["test\n","test\n",noNewLine[1]]
+        self.assertEqual(pycodestyle.trailing_blank_lines(noNewLine[1], lines, 3, 3), (0, 'W292 no newline at end of file'))
+        lines = ["test\n","test\n",blankLine[0]]
+        self.assertEqual(pycodestyle.trailing_blank_lines(blankLine[0], lines, 3, 3), (0, 'W391 blank line at end of file'))
+        lines = ["test\n","test\n",blankLine[1]]
+        self.assertEqual(pycodestyle.trailing_blank_lines(blankLine[1], lines, 3, 3), (0, 'W391 blank line at end of file'))
+
+    def test_trailing_white(self):
+        passes = ["i=0\n"]
+        fails = ["i=0 "," "]
+        self.assertEqual(pycodestyle.trailing_whitespace(passes[0]), None)
+        self.assertEqual(pycodestyle.trailing_whitespace(fails[0]), (3, 'W291 trailing whitespace'))
+        self.assertEqual(pycodestyle.trailing_whitespace(fails[1]), (0, 'W293 blank line contains whitespace'))
+
 if __name__ == '__main__':
     unittest.main()
