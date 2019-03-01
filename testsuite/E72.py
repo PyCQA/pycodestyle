@@ -49,6 +49,9 @@ if isinstance(res, types.MethodType):
     pass
 if type(a) != type(b) or type(a) == type(ccc):
     pass
+#: Okay
+def func_histype(a, b, c):
+    pass
 #: E722
 try:
     pass
