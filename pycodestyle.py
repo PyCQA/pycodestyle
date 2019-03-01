@@ -119,7 +119,8 @@ WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
 FUNCTION_RETURN_ANNOTATION_OP = ['->'] if sys.version_info >= (3, 5) else []
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
-    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='] +
+    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
+    'and', 'in', 'is', 'or'] +
     FUNCTION_RETURN_ANNOTATION_OP)
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
@@ -824,6 +825,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     E225: submitted +=1
     E225: x = x /2 - 1
     E225: z = x **y
+    E225: z = 1and 1
     E226: c = (a+b) * (a-b)
     E226: hypot2 = x*x + y*y
     E227: c = a|b
@@ -833,6 +835,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     need_space = False
     prev_type = tokenize.OP
     prev_text = prev_end = None
+    operator_types = (tokenize.OP, tokenize.NAME)
     for token_type, text, start, end, line in tokens:
         if token_type in SKIP_COMMENTS:
             continue
@@ -864,7 +867,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     yield (need_space[0], "%s missing whitespace "
                            "around %s operator" % (code, optype))
                 need_space = False
-        elif token_type == tokenize.OP and prev_end is not None:
+        elif token_type in operator_types and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
