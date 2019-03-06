@@ -2167,7 +2167,6 @@ class BaseReport(object):
             self.counters[code] += 1
         else:
             self.counters[code] = 1
-            #self.messages[code] = text[5:]
             self.messages.append((line_number, offset, code, text[5:]))
         # Don't care about expected errors or warnings
         if code in self.expected:
