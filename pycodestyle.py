@@ -1451,10 +1451,12 @@ def ambiguous_identifier(logical_line, tokens):
         if prev_text == 'def':
             is_func_def = True
         # update parameter parentheses level
-        if parameter_parentheses_level == 0 and prev_type == tokenize.NAME and \
+        if parameter_parentheses_level == 0 and \
+                prev_type == tokenize.NAME and \
                 token_type == tokenize.OP and text == '(':
             parameter_parentheses_level = 1
-        elif parameter_parentheses_level > 0 and token_type == tokenize.OP:
+        elif parameter_parentheses_level > 0 and \
+                token_type == tokenize.OP:
             if text == '(':
                 parameter_parentheses_level += 1
             elif text == ')':
