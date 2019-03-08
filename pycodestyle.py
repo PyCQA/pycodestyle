@@ -1423,28 +1423,55 @@ def ambiguous_identifier(logical_line, tokens):
 
     Variables can be bound in several other contexts, including class
     and function definitions, 'global' and 'nonlocal' statements,
-    exception handlers, and 'with' statements.
+    exception handlers, and 'with' and 'for' statements.
+    In addition, we have a special handling for function parameters.
 
     Okay: except AttributeError as o:
     Okay: with lock as L:
+    Okay: foo(l=12)
+    Okay: for a in foo(l=12):
     E741: except AttributeError as O:
     E741: with lock as l:
     E741: global I
     E741: nonlocal l
+    E741: def foo(l):
+    E741: def foo(l=12):
+    E741: l = foo(l=12)
+    E741: for l in range(10):
     E742: class I(object):
     E743: def l(x):
     """
+    is_func_def = False  # Set to true if 'def' is found
+    parameter_parentheses_level = 0
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
     for token_type, text, start, end, line in tokens[1:]:
         ident = pos = None
+        # find function definitions
+        if prev_text == 'def':
+            is_func_def = True
+        # update parameter parentheses level
+        if parameter_parentheses_level == 0 and prev_type == tokenize.NAME and \
+                token_type == tokenize.OP and text == '(':
+            parameter_parentheses_level = 1
+        elif parameter_parentheses_level > 0 and token_type == tokenize.OP:
+            if text == '(':
+                parameter_parentheses_level += 1
+            elif text == ')':
+                parameter_parentheses_level -= 1
         # identifiers on the lhs of an assignment operator
-        if token_type == tokenize.OP and '=' in text:
+        if token_type == tokenize.OP and '=' in text and \
+                parameter_parentheses_level == 0:
             if prev_text in idents_to_avoid:
                 ident = prev_text
                 pos = prev_start
-        # identifiers bound to values with 'as', 'global', or 'nonlocal'
-        if prev_text in ('as', 'global', 'nonlocal'):
+        # identifiers bound to values with 'as', 'for', 'global', or 'nonlocal'
+        if prev_text in ('as', 'for', 'global', 'nonlocal'):
+            if text in idents_to_avoid:
+                ident = text
+                pos = start
+        # function parameter definitions
+        if is_func_def:
             if text in idents_to_avoid:
                 ident = text
                 pos = start
@@ -1456,6 +1483,7 @@ def ambiguous_identifier(logical_line, tokens):
                 yield start, "E743 ambiguous function definition '%s'" % text
         if ident:
             yield pos, "E741 ambiguous variable name '%s'" % ident
+        prev_type = token_type
         prev_text = text
         prev_start = start
 
