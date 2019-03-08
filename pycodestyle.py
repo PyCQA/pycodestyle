@@ -1467,7 +1467,8 @@ def ambiguous_identifier(logical_line, tokens):
             if prev_text in idents_to_avoid:
                 ident = prev_text
                 pos = prev_start
-        # identifiers bound to values with 'as', 'for', 'global', or 'nonlocal'
+        # identifiers bound to values with 'as', 'for',
+        # 'global', or 'nonlocal'
         if prev_text in ('as', 'for', 'global', 'nonlocal'):
             if text in idents_to_avoid:
                 ident = text
