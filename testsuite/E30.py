@@ -181,3 +181,11 @@ def foo():
     def bar(): pass
     def baz():
         pass
+#: E302:5:1
+def f():
+    pass
+
+# wat
+@hi
+def g():
+    pass
