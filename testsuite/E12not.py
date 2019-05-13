@@ -639,3 +639,7 @@ print dedent(
         # more stuff
     )
 )
+#: W503
+sorted(obj for obj in []
+       if True
+          and False)
