@@ -49,6 +49,7 @@ W warnings
 """
 from __future__ import with_statement
 
+import bisect
 import inspect
 import keyword
 import os
@@ -56,8 +57,8 @@ import re
 import sys
 import time
 import tokenize
+import unicodedata
 import warnings
-import bisect
 
 try:
     from functools import lru_cache
@@ -283,7 +284,8 @@ def maximum_line_length(physical_line, max_line_length, multiline,
     Reports error E501.
     """
     line = physical_line.rstrip()
-    length = len(line)
+    # compute length ignoring combining diacritics
+    length = sum(not unicodedata.combining(c) for c in line)
     if length > max_line_length and not noqa:
         # Special case: ignore long shebang lines.
         if line_number == 1 and line.startswith('#!'):
@@ -299,7 +301,8 @@ def maximum_line_length(physical_line, max_line_length, multiline,
         if hasattr(line, 'decode'):   # Python 2
             # The line could contain multi-byte characters
             try:
-                length = len(line.decode('utf-8'))
+                length = sum(not unicodedata.combining(c)
+                             for c in line.decode('utf-8'))
             except UnicodeError:
                 pass
         if length > max_line_length:
