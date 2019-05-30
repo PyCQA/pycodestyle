@@ -298,15 +298,14 @@ def maximum_line_length(physical_line, max_line_length, multiline,
                 len(line) - len(chunks[-1]) < max_line_length - 7:
             return
         # Special case: multi-byte chars and combining diacritics
-        try:
-            length = sum(not unicodedata.combining(c) for c in line)
-        except TypeError:  # Python 2 str
-            if hasattr(line, 'decode'):  # Python 2 str
-                try:
-                    length = sum(not unicodedata.combining(c)
-                                 for c in line.decode('utf-8'))
-                except UnicodeError:
-                    pass
+        if sys.version_info >= (3,):
+            line_text = line
+        else:
+            try:
+                line_text = line.decode('UTF-8')
+            except UnicodeDecodeError:
+                line_text = u''
+        length = sum(not unicodedata.combining(c) for c in line_text)
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
