@@ -284,8 +284,7 @@ def maximum_line_length(physical_line, max_line_length, multiline,
     Reports error E501.
     """
     line = physical_line.rstrip()
-    # compute length ignoring combining diacritics
-    length = sum(not unicodedata.combining(c) for c in line)
+    length = len(line)
     if length > max_line_length and not noqa:
         # Special case: ignore long shebang lines.
         if line_number == 1 and line.startswith('#!'):
@@ -298,13 +297,16 @@ def maximum_line_length(physical_line, max_line_length, multiline,
             (len(chunks) == 2 and chunks[0] == '#')) and \
                 len(line) - len(chunks[-1]) < max_line_length - 7:
             return
-        if hasattr(line, 'decode'):   # Python 2
-            # The line could contain multi-byte characters
-            try:
-                length = sum(not unicodedata.combining(c)
-                             for c in line.decode('utf-8'))
-            except UnicodeError:
-                pass
+        # Special case: multi-byte chars and combining diacritics
+        try:
+            length = sum(not unicodedata.combining(c) for c in line)
+        except TypeError:  # Python 2 str
+            if hasattr(line, 'decode'):  # Python 2 str
+                try:
+                    length = sum(not unicodedata.combining(c)
+                                 for c in line.decode('utf-8'))
+                except UnicodeError:
+                    pass
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
