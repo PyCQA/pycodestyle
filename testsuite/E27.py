@@ -42,3 +42,8 @@ try:
     from importable.module import(e, f)
 except ImportError:
     pass
+#: E241
+{  # (but no E272)
+    "key":        lambda: None,
+    "longer-key": lambda: None,
+}
