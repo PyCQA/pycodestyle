@@ -37,3 +37,10 @@ class Class:
 
     def m(self):
         xs: List[int] = []
+
+
+# Used to trigger W504
+def f(
+    x: str = ...
+):
+    ...
