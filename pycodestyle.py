@@ -497,9 +497,16 @@ def missing_whitespace(logical_line):
         char = line[index]
         if char in ',;:' and line[index + 1] not in WHITESPACE:
             before = line[:index]
-            if char == ':' and before.count('[') > before.count(']') and \
-                    before.rfind('{') < before.rfind('['):
-                continue  # Slice syntax, no space required
+            if char == ':' and before.count('[') > before.count(']'):
+                after = line[index:]
+                before_slice = before.rfind('[')
+                after_slice = after.find(']')
+
+                splice_string = before[before_slice].lstrip('[')\
+                    + after[:after_slice + 1].rstrip(']')
+                if all(bad_char not in splice_string for bad_char
+                       in ['{', '}']):
+                    continue  # Slice syntax, no space required
             if char == ',' and line[index + 1] == ')':
                 continue  # Allow tuple with only one element: (3,)
             yield index, "E231 missing whitespace after '%s'" % char
