@@ -117,11 +117,13 @@ ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
 # Warn for -> function annotation operator in py3.5+ (issue 803)
 FUNCTION_RETURN_ANNOTATION_OP = ['->'] if sys.version_info >= (3, 5) else []
+ASSIGNMENT_EXPRESSION_OP = [':='] if sys.version_info >= (3, 8) else []
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
     'and', 'in', 'is', 'or'] +
-    FUNCTION_RETURN_ANNOTATION_OP)
+    FUNCTION_RETURN_ANNOTATION_OP +
+    ASSIGNMENT_EXPRESSION_OP)
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
@@ -134,7 +136,7 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,.*,\s*\w+\s*$')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;:]')
+EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;]| :(?!=)')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
@@ -495,13 +497,16 @@ def missing_whitespace(logical_line):
     line = logical_line
     for index in range(len(line) - 1):
         char = line[index]
-        if char in ',;:' and line[index + 1] not in WHITESPACE:
+        next_char = line[index + 1]
+        if char in ',;:' and next_char not in WHITESPACE:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']') and \
                     before.rfind('{') < before.rfind('['):
                 continue  # Slice syntax, no space required
-            if char == ',' and line[index + 1] == ')':
+            if char == ',' and next_char == ')':
                 continue  # Allow tuple with only one element: (3,)
+            if char == ':' and next_char == '=' and sys.version_info >= (3, 8):
+                continue  # Allow assignment expression
             yield index, "E231 missing whitespace after '%s'" % char
 
 
@@ -1141,7 +1146,9 @@ def compound_statements(logical_line):
         update_counts(line[prev_found:found], counts)
         if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
              counts['['] <= counts[']'] and   # [1:2] (slice)
-             counts['('] <= counts[')'])):    # (annotation)
+             counts['('] <= counts[')']) and  # (annotation)
+            not (sys.version_info >= (3, 8) and
+                 line[found + 1] == '=')):  # assignment expression
             lambda_kw = LAMBDA_REGEX.search(line, 0, found)
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
