@@ -2377,7 +2377,7 @@ class ListReport(object):
                              "lineno": line_number,
                              "offset": offset,
                              "message": text[5:],
-                             "source": self.lines[line_number],
+                             "source": self.lines[line_number - 1],
                              })
 
         self.file_errors += 1
