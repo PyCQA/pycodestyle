@@ -46,6 +46,15 @@ class PycodestyleTestCase(unittest.TestCase):
         self.assertEqual(list(report.messages.keys()), ['W504'],
                          msg='Failures: %s' % report.messages)
 
+    def test_list_reporter(self):
+        files = [pycodestyle.__file__.rstrip('oc'), __file__.rstrip('oc'),
+                 os.path.join(ROOT_DIR, 'setup.py')]
+        report = self._style.init_report(pycodestyle.ListReport)
+        report = self._style.check_files(files)
+        self.assertTrue(len(report.entries) > 0)
+        self.assertIsInstance(report.entries[0], dict)
+        self.assertEqual(report.entries[0]["message_code"], 'W504')
+
 
 def suite():
     from testsuite import (
