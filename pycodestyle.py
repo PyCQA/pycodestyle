@@ -140,7 +140,7 @@ COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s+type(?:s.\w+Type'
-                                r'|\s*\(\s*([^)]*[^ )])\s*\))')
+                                r'($|[^\.\w])|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
@@ -1384,6 +1384,10 @@ def comparison_type(logical_line, noqa):
 
     Okay: if isinstance(obj, basestring):
     Okay: if type(a1) is type(b1):
+
+    E721: if a1 == types.FooType:
+    Okay: if a1 == types.FooType.nestedValue:
+    Okay: if a1 == types.FooTyping
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
