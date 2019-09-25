@@ -43,6 +43,10 @@ import bar
 #: Okay
 if False:
     import foo
+elif not True:
+    import bar
+else:
+    import mwahaha
 
 import bar
 #: E402
