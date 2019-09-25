@@ -1073,7 +1073,8 @@ def module_imports_on_top_of_file(
             line = line[1:]
         return line and (line[0] == '"' or line[0] == "'")
 
-    allowed_try_keywords = ('try', 'except', 'else', 'finally')
+    allowed_keywords = (
+        'try', 'except', 'else', 'finally', 'with', 'if', 'elif')
 
     if indent_level:  # Allow imports in conditional statement/function
         return
@@ -1087,9 +1088,9 @@ def module_imports_on_top_of_file(
             yield 0, "E402 module level import not at top of file"
     elif re.match(DUNDER_REGEX, line):
         return
-    elif any(line.startswith(kw) for kw in allowed_try_keywords):
-        # Allow try, except, else, finally keywords intermixed with
-        # imports in order to support conditional importing
+    elif any(line.startswith(kw) for kw in allowed_keywords):
+        # Allow certain keywords intermixed with imports in order to
+        # support conditional or filtered importing
         return
     elif is_string_literal(line):
         # The first literal is a docstring, allow it. Otherwise, report
