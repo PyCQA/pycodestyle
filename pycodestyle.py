@@ -857,7 +857,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 pass
             elif prev_text == '/' and text == ',':
                 # Tolerate the "/" operator in function definition
-                # For more info see PEP570source
+                # For more info see PEP570
                 pass
             else:
                 if need_space is True or need_space[1]:
