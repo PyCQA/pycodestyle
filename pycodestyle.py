@@ -860,6 +860,10 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 # Deal with Python 3's annotated return value "->"
                 pass
+            elif prev_text == '/' and text == ',':
+                # Tolerate the "/" operator in function definition
+                # For more info see PEP570
+                pass
             else:
                 if need_space is True or need_space[1]:
                     # A needed trailing space was not found

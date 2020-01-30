@@ -1,4 +1,7 @@
 #: Okay
+def f(a, /, b):
+    pass
+#: Okay
 if x := 1:
     print(x)
 if m and (token := m.group(1)):
