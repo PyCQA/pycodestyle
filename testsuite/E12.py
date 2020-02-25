@@ -372,4 +372,26 @@ print(True)
 
 print(a
 , end=' ')
-#:
+#: E127:4:12
+def foo():
+    pass
+    raise 123 + \
+           123
+#: E127:4:13
+class Eggs:
+    pass
+    assert 123456 == \
+            123456
+#: E127:4:11
+def f1():
+    print('foo')
+    with open('/path/to/some/file/you/want/to/read') as file_1, \
+          open('/path/to/some/file/being/written', 'w') as file_2:
+        file_2.write(file_1.read())
+#: E127:5:11
+def f1():
+    print('foo')
+    with open('/path/to/some/file/you/want/to/read') as file_1, \
+         open('/path/to/some/file/being/written', 'w') as file_2, \
+          open('later-misindent'):
+        file_2.write(file_1.read())

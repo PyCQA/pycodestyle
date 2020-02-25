@@ -639,3 +639,23 @@ print dedent(
         # more stuff
     )
 )
+
+
+def foo():
+    pass
+    raise 123 + \
+          123
+
+
+class Eggs:
+    pass
+    assert 123456 == \
+           123456
+
+
+def f1():
+    print('foo')
+    with open('/path/to/some/file/you/want/to/read') as file_1, \
+         open('/path/to/some/file/being/written', 'w') as file_2, \
+         open('just-making-sure-more-continuations-also-work'):
+        file_2.write(file_1.read())
