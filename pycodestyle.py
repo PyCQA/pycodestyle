@@ -1794,6 +1794,7 @@ def expand_indent(line):
     >>> expand_indent('        \t')
     16
     """
+    line = line.rstrip('\n\r')
     if '\t' not in line:
         return len(line) - len(line.lstrip())
     result = 0
