@@ -48,6 +48,10 @@ if x == 4:
     x, y = y , x
 #: E203:1:37
 foo[idxs[2 : 6] : spam(ham[1], {eggs : a[2 : 4]})]
+#: E203:1:8
+[lambda : foo]
+#: E203:1:13
+ham[lambda x : foo]
 #: Okay
 if x == 4:
     print x, y
@@ -58,4 +62,6 @@ ham[1:9], ham[1:9:3], ham[:9:3], ham[1::3], ham[1:9:]
 ham[: upper_fn(x) : step_fn(x)], ham[:: step_fn(x)]
 ham[lower + offset : upper + offset]
 foo[idxs[2 : 6] : spam(ham[1], {eggs: a[2 : 4]})]
+[lambda: foo]
+ham[lambda x: foo]
 #:

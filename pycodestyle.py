@@ -434,24 +434,37 @@ def extraneous_whitespace(logical_line):
     E203: if x == 4 : print x, y; x, y = y, x
     """
 
-    def is_a_slice(line, colon_position):
-        """Check colon acts as a slice
+    def is_a_slice(line, space_pos):
+        """Check if the colon after an extra space acts as a slice
 
         Return True if the colon is directly contained within
         square brackets.
         """
+        # list of found '[({' as tuples "(char, position)"
         parentheses_brackets_braces = list()
-        for i in range(colon_position):
+        for i in range(space_pos):
             c = line[i]
             if c in '[({':
-                parentheses_brackets_braces += c
+                # add it to the stack
+                parentheses_brackets_braces.append((c, i))
             elif c in '])}':
-                last_opened = parentheses_brackets_braces.pop()
+                # unstack last item and check consistency
+                last_opened = parentheses_brackets_braces.pop()[0]
                 expected_close = {'{': '}', '(': ')', '[': ']'}[last_opened]
                 if c != expected_close:  # invalid Python code
                     return False
-        return (len(parentheses_brackets_braces) > 0 and
-                parentheses_brackets_braces.pop() == '[')
+        is_within_brackets = (len(parentheses_brackets_braces) > 0 and
+                              parentheses_brackets_braces[-1][0] == '[')
+
+        is_lambda_expr = False
+        if is_within_brackets:
+            # check for a lambda expression nested in brackets
+            if space_pos > 6:
+                last_opened = parentheses_brackets_braces[-1]
+                between_bracket_colon = line[last_opened[1] + 1 : space_pos]
+                is_lambda_expr = 'lambda' in between_bracket_colon
+
+        return (is_within_brackets and not is_lambda_expr)
 
     line = logical_line
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
