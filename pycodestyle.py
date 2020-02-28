@@ -461,7 +461,7 @@ def extraneous_whitespace(logical_line):
             # check for a lambda expression nested in brackets
             if space_pos > 6:
                 last_opened = parentheses_brackets_braces[-1]
-                between_bracket_colon = line[last_opened[1] + 1 : space_pos]
+                between_bracket_colon = line[last_opened[1] + 1: space_pos]
                 is_lambda_expr = 'lambda' in between_bracket_colon
 
         return (is_within_brackets and not is_lambda_expr)
