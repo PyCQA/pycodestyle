@@ -608,7 +608,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
-    for token_type, text, start, end, line in tokens:
+    for idx, (token_type, text, start, end, line) in enumerate(tokens):
 
         newline = row < start[0] - first_row
         if newline:
@@ -695,6 +695,10 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
             indent_chances[start[1]] = str
+        # hanging indents in comprehensions
+        elif (token_type == tokenize.NAME and text == "if" and
+              tokens[idx + 1][0] != tokenize.LPAR):  # [0] == .type
+            indent_chances[tokens[idx + 1][2][1]] = True  # [2] == .start
         # special case for the "if" statement because len("if (") == 4
         elif not indent_chances and not row and not depth and text == 'if':
             indent_chances[end[1] + 1] = True
