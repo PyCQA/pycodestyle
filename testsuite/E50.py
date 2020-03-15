@@ -122,7 +122,8 @@ import this
 #: E501 W505
 # This
 #                                                                       almost_empty_line
+#: E501 E226
+#!/usr/bin/env python3
 
-#
-#: Okay
-#!/reallylongpath/toexecutable --maybe --with --some ARGUMENTS TO DO WITH WHAT EXECUTABLE TO RUN
+verylong = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+double = verylong+verylong
