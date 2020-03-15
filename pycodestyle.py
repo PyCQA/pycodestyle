@@ -1217,16 +1217,13 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
-_SYMBOLIC_OPS = frozenset("()[]{},:.;@=%~") | frozenset(("...",))
-
-
 def _is_binary_operator(token_type, text):
     is_op_token = token_type == tokenize.OP
     is_conjunction = text in ['and', 'or']
     # NOTE(sigmavirus24): Previously the not_a_symbol check was executed
-    # conditionally. Since it is now *always* executed, text may be
-    # None. In that case we get a TypeError for `text not in str`.
-    not_a_symbol = text and text not in _SYMBOLIC_OPS
+    # conditionally. Since it is now *always* executed, text may be None.
+    # In that case we get a TypeError for `text not in str`.
+    not_a_symbol = text and text not in "()[]{},:.;@=%~"
     # The % character is strictly speaking a binary operator, but the
     # common usage seems to be to put it next to the format parameters,
     # after a line break.
@@ -1251,7 +1248,12 @@ def _break_around_binary_operators(tokens):
         if ('\n' in text or '\r' in text) and token_type != tokenize.STRING:
             line_break = True
         else:
-            yield (token_type, text, previous_token_type, previous_text,
+            prev_is_binary = _is_binary_operator(
+                previous_token_type, previous_text
+            )
+            curr_is_binary = _is_binary_operator(token_type, text)
+
+            yield (curr_is_binary, prev_is_binary,
                    line_break, unary_context, start)
             unary_context = text in '([{,;'
             line_break = False
@@ -1259,7 +1261,6 @@ def _break_around_binary_operators(tokens):
             previous_text = text
 
 
-@register_check
 def break_before_binary_operator(logical_line, tokens):
     r"""
     Avoid breaks before binary operators.
@@ -1269,6 +1270,38 @@ def break_before_binary_operator(logical_line, tokens):
 
     W503: (width == 0\n + height == 0)
     W503: (width == 0\n and height == 0)
+
+    W504: (width == 0 +\n height == 0)
+    W504: var = (1 &\n       ~2)
+    Okay: foo(\n    -x)
+    Okay: foo(x\n    [])
+    Okay: x = '''\n''' + ''
+    Okay: foo(x,\n    -y)
+    Okay: foo(x,  # comment\n    -y)
+    Okay: var = (1 /\n       -2)
+    Okay: var = (1 +\n       -1 +\n       -2)
+    """
+    for context in _break_around_binary_operators(tokens):
+        (curr_is_binary, prev_is_binary,
+         line_break, unary_context, start) = context
+
+        binary_break = line_break and curr_is_binary and not prev_is_binary
+
+        if (binary_break and not unary_context):
+            yield start, "W503 line break before binary operator"
+
+
+def break_after_binary_operator(logical_line, tokens):
+    r"""
+    Avoid breaks after binary operators.
+
+    The preferred place to break around a binary operator is after the
+    operator, not before it.
+
+    W504: (width == 0 +\n height == 0)
+    W504: (width == 0 and\n height == 0)
+
+    W503: (width == 0\n + height == 0)
     W503: var = (1\n       & ~2)
     W503: var = (1\n       / -2)
     W503: var = (1\n       + -1\n       + -2)
@@ -1276,55 +1309,21 @@ def break_before_binary_operator(logical_line, tokens):
     Okay: foo(\n    -x)
     Okay: foo(x\n    [])
     Okay: x = '''\n''' + ''
-    Okay: foo(x,\n    -y)
-    Okay: foo(x,  # comment\n    -y)
-    """
-    for context in _break_around_binary_operators(tokens):
-        (token_type, text, previous_token_type, previous_text,
-         line_break, unary_context, start) = context
-        if (_is_binary_operator(token_type, text) and line_break and
-                not unary_context and
-                not _is_binary_operator(previous_token_type,
-                                        previous_text)):
-            yield start, "W503 line break before binary operator"
-
-
-@register_check
-def break_after_binary_operator(logical_line, tokens):
-    r"""
-    Avoid breaks after binary operators.
-
-    The preferred place to break around a binary operator is before the
-    operator, not after it.
-
-    W504: (width == 0 +\n height == 0)
-    W504: (width == 0 and\n height == 0)
-    W504: var = (1 &\n       ~2)
-
-    Okay: foo(\n    -x)
-    Okay: foo(x\n    [])
-    Okay: x = '''\n''' + ''
     Okay: x = '' + '''\n'''
     Okay: foo(x,\n    -y)
     Okay: foo(x,  # comment\n    -y)
-
-    The following should be W504 but unary_context is tricky with these
-    Okay: var = (1 /\n       -2)
-    Okay: var = (1 +\n       -1 +\n       -2)
     """
-    prev_start = None
     for context in _break_around_binary_operators(tokens):
-        (token_type, text, previous_token_type, previous_text,
+        (curr_is_binary, prev_is_binary,
          line_break, unary_context, start) = context
-        if (_is_binary_operator(previous_token_type, previous_text) and
-                line_break and
-                not unary_context and
-                not _is_binary_operator(token_type, text)):
-            yield prev_start, "W504 line break after binary operator"
-        prev_start = start
+
+        binary_break = line_break and prev_is_binary and not curr_is_binary
+
+        if (binary_break and not unary_context):
+            error_pos = (start[0] - 1, start[1])
+            yield error_pos, "W504 line break after binary operator"
 
 
-@register_check
 def comparison_to_singleton(logical_line, noqa):
     r"""Comparison to singletons should use "is" or "is not".
 

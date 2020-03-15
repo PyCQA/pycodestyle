@@ -109,8 +109,8 @@ if os.path.exists(os.path.join(path, PEP8_BIN)):
 '''sometimes, you just need to go nuts in a multiline string
 	and allow all sorts of crap
   like mixed tabs and spaces
-      
-or trailing whitespace  
+
+or trailing whitespace
 or long long long long long long long long long long long long long long long long long lines
 '''  # nopep8
 #: Okay

@@ -16,11 +16,11 @@ if x == 2 \
         or y > 1 \
         or x == 3:
     pass
-#: W503
+#: W503:2:9
 if (foo == bar
         and baz == frop):
     pass
-#: W503
+#: W503:3:5
 if (
     foo == bar
     and baz == frop
@@ -107,7 +107,7 @@ sat = 'AAA'    \
       'BBB'    \
       'iii'    \
       'CCC'
-#: W504 W504
+#: W504:1:12 W504:2:12
 abricot = (3 +
            4 +
            5 + 6)
@@ -136,7 +136,7 @@ def long_function_name(
         var_one, var_two, var_three,
         var_four):
     print(var_one)
-#: W504
+#: W504:1:6
 if ((row < 0 or self.moduleCount <= row or
      col < 0 or self.moduleCount <= col)):
     raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
@@ -181,23 +181,23 @@ if bar:
         "to match that of the opening "
         "bracket's line"
     )
-#: W504
+#: W504:2:6
 # you want vertical alignment, so use a parens
 if ((foo.bar("baz") and
      foo.bar("frop")
      )):
     print "yes"
-#: W504
+#: W504:2:6
 # also ok, but starting to look like LISP
 if ((foo.bar("baz") and
      foo.bar("frop"))):
     print "yes"
-#: W504
+#: W504:1:5
 if (a == 2 or
     b == "abc def ghi"
          "jkl mno"):
     return True
-#: W504
+#: W504:1:5
 if (a == 2 or
     b == """abc def ghi
 jkl mno"""):
@@ -221,14 +221,14 @@ print 'l.{line}\t{pos}\t{name}\t{text}'.format(
 print('%-7d %s per second (%d total)' % (
       options.counters[key] / elapsed, key,
       options.counters[key]))
-#: W504
+#: W504:2:12
 if os.path.exists(os.path.join(path, PEP8_BIN)):
     cmd = ([os.path.join(path, PEP8_BIN)] +
            self._pep8_options(targetfile))
-#: W504
+#: W504:1:10
 fixed = (re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] +
          target[c + 1:])
-#: W504
+#: W504:2:5
 fixed = (
     re.sub(r'\t+', ' ', target[c::-1], 1)[::-1] +
     target[c + 1:]
@@ -418,8 +418,7 @@ add_option('--count',
 
 
 #
-
-
+#: W504:1:9
 help = ("print total number of errors " +
         "to standard error")
 
