@@ -1,5 +1,17 @@
 #: Okay
-def f(a, /, b):
+def f1(a, /, b):
+    pass
+
+
+def f2(a, b, /):
+    pass
+
+
+def f3(
+        a,
+        /,
+        b,
+):
     pass
 #: Okay
 if x := 1:
