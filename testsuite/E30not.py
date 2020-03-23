@@ -167,6 +167,10 @@ def foo(x):
 # for no E30x being emitted.
 def bar(): pass
 def baz(): pass
+
+
+def main():
+    pass
 #: E704:4:5 E704:5:5
 def foo():
     # This emits the (ignored-by-default) E704, but here we're testing
