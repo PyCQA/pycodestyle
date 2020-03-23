@@ -350,7 +350,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     top_level_lines = BLANK_LINES_CONFIG['top_level']
     method_lines = BLANK_LINES_CONFIG['method']
 
-    if line_number < top_level_lines + 1 and not previous_logical:
+    if not previous_logical and blank_before < top_level_lines:
         return  # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         if blank_lines:

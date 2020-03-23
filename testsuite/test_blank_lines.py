@@ -139,7 +139,6 @@ class AFarEnoughClass(object):
     pass
 """)
         self.assertEqual([
-            'E302:4:1',  # some_function
             'E302:7:1',  # another_function
             'E302:14:1',  # SomeCloseClass
         ], result)
@@ -438,7 +437,7 @@ def some_function():
 
     def test_top_level_fewer_blank_lines(self):
         """
-        It will trigger an error when less 2 blank lines are found
+        It will trigger an error when less 3 blank lines are found
         before top level definitions.
         """
         result = self.check("""# First comment line.
@@ -471,7 +470,6 @@ class AFarEnoughClass(object):
     pass
 """)
         self.assertEqual([
-            'E302:5:1',  # some_function
             'E302:9:1',  # another_function
             'E302:17:1',  # SomeCloseClass
         ], result)
