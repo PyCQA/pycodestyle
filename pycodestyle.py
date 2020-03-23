@@ -695,6 +695,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
             indent_chances[start[1]] = str
+        # visual indent after assert/raise/with
+        elif not row and not depth and text in ["assert", "raise", "with"]:
+            indent_chances[end[1] + 1] = True
         # special case for the "if" statement because len("if (") == 4
         elif not indent_chances and not row and not depth and text == 'if':
             indent_chances[end[1] + 1] = True
