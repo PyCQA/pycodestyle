@@ -177,3 +177,13 @@ def foo():
     # for no E30x being emitted.
     def bar(): pass
     def baz(): pass
+#: Okay
+#!python
+# -*- coding: utf-8 -*-
+def a():
+    pass
+#: Okay
+def f(
+    a,
+):
+    pass

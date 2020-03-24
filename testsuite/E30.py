@@ -16,11 +16,6 @@ class X:
 #:
 
 
-#: E302:3:1
-#!python
-# -*- coding: utf-8 -*-
-def a():
-    pass
 #: E302:2:1
 """Main module."""
 def _main():
