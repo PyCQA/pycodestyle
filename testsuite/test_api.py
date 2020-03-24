@@ -43,8 +43,7 @@ class APITestCase(unittest.TestCase):
 
     def test_register_physical_check(self):
         def check_dummy(physical_line, line_number):
-            if False:
-                yield
+            raise NotImplementedError
         pycodestyle.register_check(check_dummy, ['Z001'])
 
         self.assertTrue(check_dummy in pycodestyle._checks['physical_line'])
@@ -53,13 +52,12 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(args, ['physical_line', 'line_number'])
 
         options = pycodestyle.StyleGuide().options
-        self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.physical_checks))
+        functions = [func for _, func, _ in options.physical_checks]
+        self.assertIn(check_dummy, functions)
 
     def test_register_logical_check(self):
         def check_dummy(logical_line, tokens):
-            if False:
-                yield
+            raise NotImplementedError
         pycodestyle.register_check(check_dummy, ['Z401'])
 
         self.assertTrue(check_dummy in pycodestyle._checks['logical_line'])
@@ -74,8 +72,8 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(args, ['logical_line', 'tokens'])
 
         options = pycodestyle.StyleGuide().options
-        self.assertTrue(any(func == check_dummy
-                            for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertIn(check_dummy, functions)
 
     def test_register_ast_check(self):
         pycodestyle.register_check(DummyChecker, ['Z701'])
@@ -86,17 +84,17 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(args is None)
 
         options = pycodestyle.StyleGuide().options
-        self.assertTrue(any(cls == DummyChecker
-                            for name, cls, args in options.ast_checks))
+        classes = [cls for _, cls, _ in options.ast_checks]
+        self.assertIn(DummyChecker, classes)
 
     def test_register_invalid_check(self):
         class InvalidChecker(DummyChecker):
             def __init__(self, filename):
-                pass
+                raise NotImplementedError
 
         def check_dummy(logical, tokens):
-            if False:
-                yield
+            raise NotImplementedError
+
         pycodestyle.register_check(InvalidChecker, ['Z741'])
         pycodestyle.register_check(check_dummy, ['Z441'])
 
@@ -272,28 +270,28 @@ class APITestCase(unittest.TestCase):
 
         # Do run E11 checks
         options = pycodestyle.StyleGuide().options
-        self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertIn(pycodestyle.indentation, functions)
         options = pycodestyle.StyleGuide(select=['E']).options
-        self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertIn(pycodestyle.indentation, functions)
         options = pycodestyle.StyleGuide(ignore=['W']).options
-        self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertIn(pycodestyle.indentation, functions)
         options = pycodestyle.StyleGuide(ignore=['E12']).options
-        self.assertTrue(any(func == pycodestyle.indentation
-                            for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertIn(pycodestyle.indentation, functions)
 
         # Do not run E11 checks
         options = pycodestyle.StyleGuide(select=['W']).options
-        self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertNotIn(pycodestyle.indentation, functions)
         options = pycodestyle.StyleGuide(ignore=['E']).options
-        self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertNotIn(pycodestyle.indentation, functions)
         options = pycodestyle.StyleGuide(ignore=['E11']).options
-        self.assertFalse(any(func == pycodestyle.indentation
-                             for name, func, args in options.logical_checks))
+        functions = [func for _, func, _ in options.logical_checks]
+        self.assertNotIn(pycodestyle.indentation, functions)
 
     def test_styleguide_init_report(self):
         style = pycodestyle.StyleGuide(paths=[E11])
@@ -327,9 +325,7 @@ class APITestCase(unittest.TestCase):
     def test_check_unicode(self):
         # Do not crash if lines are Unicode (Python 2.x)
         pycodestyle.register_check(DummyChecker, ['Z701'])
-        source = '#\n'
-        if hasattr(source, 'decode'):
-            source = source.decode('ascii')
+        source = u'#\n'
 
         pep8style = pycodestyle.StyleGuide()
         count_errors = pep8style.input_file('stdin', lines=[source])
@@ -345,13 +341,9 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        if 'SyntaxError' in stdout:
-            # PyPy 2.2 returns a SyntaxError
-            expected = "stdin:1:2: E901 SyntaxError"
-        elif 'ValueError' in stdout:
-            # Python 3.5.
+        if 'ValueError' in stdout:  # pragma: no cover (python 3.5+)
             expected = "stdin:1:1: E901 ValueError"
-        else:
+        else:  # pragma: no cover (< python3.5)
             expected = "stdin:1:1: E901 TypeError"
         self.assertTrue(stdout.startswith(expected),
                         msg='Output %r does not start with %r' %

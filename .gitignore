@@ -1,8 +1,9 @@
 *.egg
 *.egg-info
 *.pyc
-.tox
-dist
-docs/_build
-build/
+/.coverage
+/.tox
+/build/
+/dist
 /venv*/
+docs/_build
