@@ -863,7 +863,16 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 # Deal with Python 3's annotated return value "->"
                 pass
-            elif prev_text == '/' and text == ',':
+            elif (
+                    # def f(a, /, b):
+                    #           ^
+                    # def f(a, b, /):
+                    #              ^
+                    prev_text == '/' and text in {',', ')'} or
+                    # def f(a, b, /):
+                    #               ^
+                    prev_text == ')' and text == ':'
+            ):
                 # Tolerate the "/" operator in function definition
                 # For more info see PEP570
                 pass
