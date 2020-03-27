@@ -1,0 +1,6 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "read_version[toml] >= 0.3.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.read_version]
+version = "pycodestyle:__version__"
