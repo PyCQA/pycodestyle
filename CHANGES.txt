@@ -1,6 +1,31 @@
 Changelog
 =========
 
+2.6.0a1 (2020-04-02)
+--------------------
+
+New checks:
+
+* E225: require whitespace around ``and`` ``in`` ``is`` and ``or``.  PR #847.
+
+Changes:
+
+* E117: fix indentation using tabs by treating as 8-space indents.  PR #837.
+* E721: fix false positive with names containg ``istype``.  PR #850.
+* E741: allow ``l`` as a named argument in a function call.  PR #853.
+* E302: fix false-negative with decorated functions.  PR #859.
+* W504: ellipsis (``...``) is no longer treated as a binary operator.  PR #875.
+* E402: allow ``with``, ``if``, ``elif``, ``else`` to guard imports.  PR #834.
+* Add support for assignment expressions ``:=`` (PEP 572).  PR #879.
+* Add support for positional-only arguments ``/`` (PEP 570).  PR #872, #918.
+* Add support for python 3.8.
+* Add support for matrix multiplication operator ``@`` (PEP 465).  PR #897.
+* Support visual indent for continuation lines for ``with`` / ``assert`` /
+  ``raise``.  PR #912.
+* E302: allow two blank lines after a block of one-liners.  PR #913.
+* E302: allow two-and-fewer newlines at the top of the file.  PR #919.
+
+
 2.5.0 (2019-01-29)
 ------------------
 
