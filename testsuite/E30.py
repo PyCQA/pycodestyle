@@ -124,6 +124,11 @@ def a():
     x = 1
     def b():
         pass
+#: E306:3:5
+async def a():
+    x = 1
+    def b():
+        pass
 #: E306:3:5 E306:5:9
 def a():
     x = 2

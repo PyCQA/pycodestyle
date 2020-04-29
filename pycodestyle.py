@@ -383,7 +383,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 for line in lines[line_number - top_level_lines::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
-                        nested = line.lstrip().startswith('def ')
+                        nested = STARTSWITH_DEF_REGEX.match(line.lstrip())
                         if nested or ancestor_level == 0:
                             break
                 if nested:
