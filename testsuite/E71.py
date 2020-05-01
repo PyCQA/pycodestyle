@@ -67,6 +67,9 @@ if not X.B is Y:
 #: E714
 if not X is Y is not Z:
     pass
+#: E714
+if not X is not Y:
+    pass
 
 #
 #: Okay
