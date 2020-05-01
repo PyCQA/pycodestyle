@@ -140,7 +140,8 @@ EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;]| :(?!=)')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
-COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)\s')
+COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)'
+                                    r'\s+(?!not\s)')
 COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s+type(?:s.\w+Type'
                                 r'|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
