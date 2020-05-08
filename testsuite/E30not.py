@@ -177,6 +177,32 @@ def foo():
     # for no E30x being emitted.
     def bar(): pass
     def baz(): pass
+#: E704:8:1 E704:10:1
+from typing import overload
+from typing import Union
+
+
+# This emits the (ignored-by-default) E704, but here we're testing
+# for no E30x being emitted.
+@overload
+def f(x: int) -> int: ...
+@overload
+def f(x: str) -> str: ...
+
+
+def f(x: Union[int, str]) -> Union[int, str]:
+    return x
+#: E704:8:5 E704:10:5
+from typing import Protocol
+
+
+class C(Protocol):
+    # This emits the (ignored-by-default) E704, but here we're testing
+    # for no E30x being emitted.
+    @property
+    def f(self) -> int: ...
+    @property
+    def g(self) -> str: ...
 #: Okay
 #!python
 # -*- coding: utf-8 -*-
