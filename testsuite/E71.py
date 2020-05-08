@@ -64,6 +64,12 @@ if not X is Y:
 #: E714
 if not X.B is Y:
     pass
+#: E714
+if not X is Y is not Z:
+    pass
+#: E714
+if not X is not Y:
+    pass
 
 #
 #: Okay
@@ -77,6 +83,9 @@ if not (X in Y):
     pass
 
 if x is not y:
+    pass
+
+if X is not Y is not Z:
     pass
 
 if TrueElement.get_element(True) == TrueElement.get_element(False):
