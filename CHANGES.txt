@@ -1,8 +1,12 @@
 Changelog
 =========
 
-2.6.0 (2020-05-08)
+2.6.0 (2020-05-11)
 ------------------
+
+Announcements:
+
+* Anthony Sottile (@asottile) joined the team as a core developer. :tada:
 
 Changes:
 
