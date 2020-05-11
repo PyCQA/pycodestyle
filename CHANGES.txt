@@ -1,7 +1,17 @@
 Changelog
 =========
 
-2.6.0a1 (2020-04-02)
+2.6.0 (2020-05-08)
+------------------
+
+Changes:
+
+* E306: fix detection inside ``async def``.  PR #929.
+* E301: fix regression disallowing decorated one-liners.  PR #927.
+* E714: fix false positive with chained ``is not``.  PR #931.
+
+
+2.6.0a1 (2020-04-23)
 --------------------
 
 New checks:
