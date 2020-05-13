@@ -64,4 +64,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     test_suite='testsuite.test_all.suite',
+    project_urls={
+        'Changes':
+        'https://pycodestyle.pycqa.org/en/latest/developer.html#changes',
+    },
 )
