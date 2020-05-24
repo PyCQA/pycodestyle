@@ -6,7 +6,7 @@ pycodestyle (formerly called pep8) - Python style guide checker
    :alt: Build status
 
 .. image:: https://readthedocs.org/projects/pycodestyle/badge/?version=latest
-    :target: https://pycodestyle.readthedocs.io
+    :target: https://pycodestyle.pycqa.org
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/pypi/wheel/pycodestyle.svg
@@ -103,6 +103,6 @@ Or you can display how often each error was found::
 Links
 -----
 
-* `Read the documentation <https://pycodestyle.readthedocs.io/>`_
+* `Read the documentation <https://pycodestyle.pycqa.org/>`_
 
 * `Fork me on GitHub <http://github.com/PyCQA/pycodestyle>`_

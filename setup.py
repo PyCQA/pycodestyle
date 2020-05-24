@@ -28,7 +28,7 @@ setup(
     author_email='johann@rocholl.net',
     maintainer='Ian Lee',
     maintainer_email='IanLee1521@gmail.com',
-    url='https://pycodestyle.readthedocs.io/',
+    url='https://pycodestyle.pycqa.org/',
     license='Expat license',
     py_modules=['pycodestyle'],
     namespace_packages=[],
