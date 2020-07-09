@@ -1135,7 +1135,8 @@ def module_imports_on_top_of_file(
     if noqa:
         return
     line = logical_line
-    if line.startswith('import ') or line.startswith('from '):
+    if (line.startswith('import ') or line.startswith('from ') or
+            line.startswith('cimport ')):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
     elif re.match(DUNDER_REGEX, line):

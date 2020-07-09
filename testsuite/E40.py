@@ -48,6 +48,10 @@ elif not True:
 else:
     import mwahaha
 
+import foo
+#: Okay
+cimport bar
+
 import bar
 #: E402
 VERSION = '1.2.3'
