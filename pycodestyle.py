@@ -2114,13 +2114,15 @@ class Checker(object):
         except (ValueError, SyntaxError, TypeError):
             return self.report_invalid_syntax()
         for name, cls, __ in self._ast_checks:
+            checker = None
             if len(_get_parameters(cls.__init__)) == 2:
                 checker = cls(tree, self.filename)
             elif len(_get_parameters(cls.__init__)) == 3:
                 checker = cls(tree, self.filename, self.lines)
-            for lineno, offset, text, check in checker.run():
-                if not self.lines or not noqa(self.lines[lineno - 1]):
-                    self.report_error(lineno, offset, text, check)
+            if checker != None:
+                for lineno, offset, text, check in checker.run():
+                    if not self.lines or not noqa(self.lines[lineno - 1]):
+                        self.report_error(lineno, offset, text, check)
 
     def generate_tokens(self):
         """Tokenize file, run physical line checks and yield tokens."""
