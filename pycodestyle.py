@@ -2115,9 +2115,9 @@ class Checker(object):
             return self.report_invalid_syntax()
         for name, cls, __ in self._ast_checks:
             checker = None
-            if len(_get_parameters(cls.__init__)) == 2:
+            if len(_get_parameters(cls.__init__)) == 3:
                 checker = cls(tree, self.filename)
-            elif len(_get_parameters(cls.__init__)) == 3:
+            elif len(_get_parameters(cls.__init__)) == 4:
                 checker = cls(tree, self.filename, self.lines)
             for lineno, offset, text, check in checker.run():
                 if not self.lines or not noqa(self.lines[lineno - 1]):
