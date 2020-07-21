@@ -2119,10 +2119,9 @@ class Checker(object):
                 checker = cls(tree, self.filename)
             elif len(_get_parameters(cls.__init__)) == 3:
                 checker = cls(tree, self.filename, self.lines)
-            if checker != None:
-                for lineno, offset, text, check in checker.run():
-                    if not self.lines or not noqa(self.lines[lineno - 1]):
-                        self.report_error(lineno, offset, text, check)
+            for lineno, offset, text, check in checker.run():
+                if not self.lines or not noqa(self.lines[lineno - 1]):
+                    self.report_error(lineno, offset, text, check)
 
     def generate_tokens(self):
         """Tokenize file, run physical line checks and yield tokens."""
