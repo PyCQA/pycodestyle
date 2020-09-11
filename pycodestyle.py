@@ -264,7 +264,7 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     However the last line should end with a new line (warning W292).
     """
     if line_number == total_lines:
-        stripped_last_line = physical_line.rstrip()
+        stripped_last_line = physical_line.rstrip('\r\n')
         if physical_line and not stripped_last_line:
             return 0, "W391 blank line at end of file"
         if stripped_last_line == physical_line:
@@ -2125,21 +2125,30 @@ class Checker(object):
             self.report_error(1, 0, 'E902 %s' % self._io_error, readlines)
         tokengen = tokenize.generate_tokens(self.readline)
         try:
+            prev_physical = ''
             for token in tokengen:
                 if token[2][0] > self.total_lines:
                     return
                 self.noqa = token[4] and noqa(token[4])
-                self.maybe_check_physical(token)
+                self.maybe_check_physical(token, prev_physical)
                 yield token
+                prev_physical = token[4]
         except (SyntaxError, tokenize.TokenError):
             self.report_invalid_syntax()
 
-    def maybe_check_physical(self, token):
+    def maybe_check_physical(self, token, prev_physical):
         """If appropriate for token, check current physical line(s)."""
         # Called after every token, but act only on end of line.
+
+        # a newline token ends a single physical line.
         if _is_eol_token(token):
-            # Obviously, a newline token ends a single physical line.
-            self.check_physical(token[4])
+            # if the file does not end with a newline, the NEWLINE
+            # token is inserted by the parser, but it does not contain
+            # the previous physical line in `token[4]`
+            if token[4] == '':
+                self.check_physical(prev_physical)
+            else:
+                self.check_physical(token[4])
         elif token[0] == tokenize.STRING and '\n' in token[1]:
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal

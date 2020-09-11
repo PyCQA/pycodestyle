@@ -9,6 +9,11 @@ class Foo(object):
 #: W291:2:35
 '''multiline
 string with trailing whitespace'''   
+#: W291 W292 noeol
+x = 1   
+#: W191 W292 noeol
+if False:
+	pass  # indented with tabs
 #: W292:1:36 noeol
 # This line doesn't have a linefeed
 #: W292:1:5 E225:1:2 noeol
