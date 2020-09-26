@@ -96,6 +96,30 @@ class ShellTestCase(unittest.TestCase):
                             for p in self._config_filenames]
         self.assertTrue('setup.cfg' in config_filenames)
 
+    def test_check_config_root_none(self):
+        root_dir = 'testsuite'
+        stdout, stderr, errcode = self.pycodestyle('--root', root_dir, '-')
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertFalse(stdout)
+
+        # No configuration file should exist in `testsuite`
+        config_filenames = [os.path.basename(p)
+                            for p in self._config_filenames]
+        self.assertFalse(config_filenames)
+
+    def test_check_config_root_toxini(self):
+        root_dir = 'testsuite/example-tox-ini'
+        stdout, stderr, errcode = self.pycodestyle('--root', root_dir, '-')
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertFalse(stdout)
+
+        # Config file read from example tox.ini
+        config_filenames = [os.path.basename(p)
+                            for p in self._config_filenames]
+        self.assertTrue('tox.ini' in config_filenames)
+
     def test_check_stdin(self):
         pycodestyle.PROJECT_CONFIG = ()
         stdout, stderr, errcode = self.pycodestyle('-')
