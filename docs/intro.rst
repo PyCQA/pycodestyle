@@ -149,6 +149,8 @@ Quick help is available on the command line::
                          separated patterns (default: .svn,CVS,.bzr,.hg,.git)
     --filename=patterns  when parsing directories, only check filenames matching
                          these comma separated patterns (default: *.py)
+    --root=dir           when looking for project options, only check the
+                         directory provided (ignored if not set)
     --select=errors      select errors and warnings (e.g. E,W6)
     --ignore=errors      skip errors and warnings (e.g. E4,W)
     --show-source        show source code for each error
