@@ -1900,6 +1900,20 @@ def parse_udiff(diff, patterns=None, parent='.'):
     }
 
 
+def normalize_path(value, parent=os.curdir):
+    """Normalize a provided path.
+
+    Return an absolute path or `None` if no path was provided.
+    """
+    if not value:
+        return None
+
+    path = value.strip()
+    if '/' in path:
+        path = os.path.abspath(os.path.join(parent, path))
+    return path.rstrip('/')
+
+
 def normalize_paths(value, parent=os.curdir):
     """Parse a comma-separated list of paths.
 
@@ -1911,10 +1925,7 @@ def normalize_paths(value, parent=os.curdir):
         return value
     paths = []
     for path in value.split(','):
-        path = path.strip()
-        if '/' in path:
-            path = os.path.abspath(os.path.join(parent, path))
-        paths.append(path.rstrip('/'))
+        paths.append(normalize_path(path, parent=parent))
     return paths
 
 
