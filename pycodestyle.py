@@ -2556,6 +2556,9 @@ def get_parser(prog='pycodestyle', version=__version__):
                       help="when parsing directories, only check filenames "
                            "matching these comma separated patterns "
                            "(default: %default)")
+    parser.add_option('--root', metavar='dir',
+                      help="when looking for project options, only check the "
+                           "directory provided (ignored if not set)")
     parser.add_option('--select', metavar='errors', default='',
                       help="select errors and warnings (e.g. E,W6)")
     parser.add_option('--ignore', metavar='errors', default='',
@@ -2613,6 +2616,7 @@ def read_config(options, args, arglist, parser):
     config = RawConfigParser()
 
     cli_conf = options.config
+    root_dir = options.root
 
     local_dir = os.curdir
 
@@ -2621,14 +2625,19 @@ def read_config(options, args, arglist, parser):
             print('user configuration: %s' % USER_CONFIG)
         config.read(USER_CONFIG)
 
-    parent = tail = args and os.path.abspath(os.path.commonprefix(args))
-    while tail:
-        if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
-            local_dir = parent
-            if options.verbose:
-                print('local configuration: in %s' % parent)
-            break
-        (parent, tail) = os.path.split(parent)
+    if root_dir:
+        if config.read(os.path.join(root_dir, fn) for fn in PROJECT_CONFIG):
+            local_dir = root_dir
+    else:
+        parent = tail = args and os.path.abspath(os.path.commonprefix(args))
+        while tail:
+            if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
+                local_dir = parent
+                break
+            (parent, tail) = os.path.split(parent)
+
+    if options.verbose and local_dir != os.curdir:
+        print('local configuration: in %s' % local_dir)
 
     if cli_conf and os.path.isfile(cli_conf):
         if options.verbose:
@@ -2715,6 +2724,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
         options = read_config(options, args, arglist, parser)
         options.reporter = parse_argv and options.quiet == 1 and FileReport
 
+    options.root = normalize_path(options.root)
     options.filename = _parse_multi_options(options.filename)
     options.exclude = normalize_paths(options.exclude)
     options.select = _parse_multi_options(options.select)
