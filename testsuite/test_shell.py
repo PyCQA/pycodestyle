@@ -84,6 +84,13 @@ class ShellTestCase(unittest.TestCase):
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
+
+    def test_check_config(self):
+        stdout, stderr, errcode = self.pycodestyle('-')
+        self.assertFalse(errcode)
+        self.assertFalse(stderr)
+        self.assertFalse(stdout)
+
         # Config file read from the pycodestyle's setup.cfg
         config_filenames = [os.path.basename(p)
                             for p in self._config_filenames]
