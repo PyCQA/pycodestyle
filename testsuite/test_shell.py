@@ -79,7 +79,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(stderr)
         self.assertEqual(len(stdout), 24)
         for line, num, col in zip(stdout, (3, 6, 6, 9, 12), (3, 6, 6, 1, 5)):
-            path, x, y, msg = line.split(':')
+            path, x, y, msg = line.rsplit(':', 3)
             self.assertTrue(path.endswith(E11))
             self.assertEqual(x, str(num))
             self.assertEqual(y, str(col))
