@@ -18,6 +18,6 @@ class UtilTestCase(unittest.TestCase):
         self.assertEqual(normalize_paths('foo,bar'), ['foo', 'bar'])
         self.assertEqual(normalize_paths('foo,  bar  '), ['foo', 'bar'])
         self.assertEqual(normalize_paths('/foo/bar,baz/../bat'),
-                         ['/foo/bar', cwd + '/bat'])
+                         [os.path.realpath('/foo/bar'), cwd + '/bat'])
         self.assertEqual(normalize_paths(".pyc,\n   build/*"),
                          ['.pyc', cwd + '/build/*'])
