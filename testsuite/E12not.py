@@ -659,3 +659,26 @@ def f1():
          open('/path/to/some/file/being/written', 'w') as file_2, \
          open('just-making-sure-more-continuations-also-work'):
         file_2.write(file_1.read())
+
+
+aaaa = (
+    sqla.session
+        .pop()
+)
+
+
+aaaa5 = (
+    sqla.session
+        .pop()
+)
+
+
+verify = (
+    sqla.session
+        .query(table)
+        .filter(
+            table.col1 == col1,
+            table.col2 == col2,
+        )
+        .first()
+)

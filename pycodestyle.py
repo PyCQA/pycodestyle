@@ -638,6 +638,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     hangs = [None]
     # visual indents
     indent_chances = {}
+    indent_chances_rows = {}
     last_indent = tokens[0][2]
     visual_indent = None
     last_token_multiline = False
@@ -705,6 +706,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             elif visual_indent in (text, str):
                 # ignore token lined up with matching one from a
                 # previous line
+                pass
+            elif isinstance(visual_indent, list) and text in visual_indent:
+                # issue-953
                 pass
             else:
                 # indent is broken
@@ -778,6 +782,15 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if start[1] not in indent_chances:
                 # allow lining up tokens
                 indent_chances[start[1]] = text
+            else:
+                None, False, True, str or list
+                v = indent_chances[start[1]]
+                # print(indent_chances, text, start[1])
+                if not isinstance(v, (bool, type(None))):
+                    if isinstance(v, list):
+                        indent_chances[start[1]].append(text)
+                    else:
+                        indent_chances[start[1]] = [v, text]
 
         last_token_multiline = (start[0] != end[0])
         if last_token_multiline:
