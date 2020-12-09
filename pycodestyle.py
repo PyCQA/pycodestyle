@@ -638,7 +638,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     hangs = [None]
     # visual indents
     indent_chances = {}
-    indent_chances_rows = {}
     last_indent = tokens[0][2]
     visual_indent = None
     last_token_multiline = False

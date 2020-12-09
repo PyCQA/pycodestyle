@@ -671,14 +671,3 @@ aaaa5 = (
     sqla.session
         .pop()
 )
-
-
-verify = (
-    sqla.session
-        .query(table)
-        .filter(
-            table.col1 == col1,
-            table.col2 == col2,
-        )
-        .first()
-)
