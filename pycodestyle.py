@@ -707,7 +707,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # previous line
                 pass
             elif isinstance(visual_indent, list) and text in visual_indent:
-                # issue-953
                 pass
             else:
                 # indent is broken
@@ -782,7 +781,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 # allow lining up tokens
                 indent_chances[start[1]] = text
             else:
-                None, False, True, str or list
                 v = indent_chances[start[1]]
                 # print(indent_chances, text, start[1])
                 if not isinstance(v, (bool, type(None))):
