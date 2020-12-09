@@ -782,7 +782,6 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 indent_chances[start[1]] = text
             else:
                 v = indent_chances[start[1]]
-                # print(indent_chances, text, start[1])
                 if not isinstance(v, (bool, type(None))):
                     if isinstance(v, list):
                         indent_chances[start[1]].append(text)
