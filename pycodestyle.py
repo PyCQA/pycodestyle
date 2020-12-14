@@ -58,6 +58,8 @@ import time
 import tokenize
 import warnings
 import bisect
+from collections import defaultdict
+from copy import deepcopy
 
 try:
     from functools import lru_cache
@@ -637,7 +639,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     # for each depth, memorize the hanging indentation
     hangs = [None]
     # visual indents
-    indent_chances = {}
+    indent_chances_stack = []
+    indent_chances = defaultdict(lambda: set())
+    prev_indent_to = float('inf')
     last_indent = tokens[0][2]
     visual_indent = None
     last_token_multiline = False
@@ -676,7 +680,8 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             # is there any chance of visual indent?
             visual_indent = (not close_bracket and hang > 0 and
                              indent_chances.get(start[1]))
-
+            visual_indent = visual_indent or set()
+            assert isinstance(visual_indent, set)
             if close_bracket and indent[depth]:
                 # closing bracket for visual indent
                 if start[1] != indent[depth]:
@@ -688,7 +693,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
             elif indent[depth] and start[1] < indent[depth]:
-                if visual_indent is not True:
+                if True not in visual_indent:
                     # visual indent is broken
                     yield (start, "E128 continuation line "
                            "under-indented for visual indent")
@@ -699,14 +704,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                     yield (start, "E123 closing bracket does not match "
                            "indentation of opening bracket's line")
                 hangs[depth] = hang
-            elif visual_indent is True:
+            elif True in visual_indent:
                 # visual indent is verified
                 indent[depth] = start[1]
-            elif visual_indent in (text, str):
+            elif visual_indent & {text, str}:
                 # ignore token lined up with matching one from a
                 # previous line
-                pass
-            elif isinstance(visual_indent, list) and text in visual_indent:
                 pass
             else:
                 # indent is broken
@@ -729,19 +732,19 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 token_type not in (tokenize.NL, tokenize.COMMENT) and
                 not indent[depth]):
             indent[depth] = start[1]
-            indent_chances[start[1]] = True
+            indent_chances[start[1]].add(True)
             if verbose >= 4:
                 print("bracket depth %s indent to %s" % (depth, start[1]))
         # deal with implicit string concatenation
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
-            indent_chances[start[1]] = str
+            indent_chances[start[1]].add(str)
         # visual indent after assert/raise/with
         elif not row and not depth and text in ["assert", "raise", "with"]:
-            indent_chances[end[1] + 1] = True
+            indent_chances[end[1] + 1].add(True)
         # special case for the "if" statement because len("if (") == 4
         elif not indent_chances and not row and not depth and text == 'if':
-            indent_chances[end[1] + 1] = True
+            indent_chances[end[1] + 1].add(True)
         elif text == ':' and line[end[1]:].isspace():
             open_rows[depth].append(row)
 
@@ -749,6 +752,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         if token_type == tokenize.OP:
             if text in '([{':
                 depth += 1
+                indent_chances_stack.append(deepcopy(indent_chances))
                 indent.append(0)
                 hangs.append(None)
                 if len(open_rows) == depth:
@@ -761,32 +765,31 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             elif text in ')]}' and depth > 0:
                 # parent indents should not be more than this one
                 prev_indent = indent.pop() or last_indent[1]
+                prev_indent = min(prev_indent_to, prev_indent)
+                if row > open_rows[depth][0]:
+                    prev_indent_to = prev_indent
                 hangs.pop()
                 for d in range(depth):
                     if indent[d] > prev_indent:
                         indent[d] = 0
+                prev_indent_chances = indent_chances
+                indent_chances = indent_chances_stack.pop()
                 for ind in list(indent_chances):
-                    if ind >= prev_indent:
+                    if ind > prev_indent:
                         del indent_chances[ind]
+                for ind in list(prev_indent_chances):
+                    if ind < prev_indent and ind not in indent_chances:
+                        indent_chances[ind] = prev_indent_chances[ind]
                 del open_rows[depth + 1:]
                 depth -= 1
                 if depth:
-                    indent_chances[indent[depth]] = True
+                    indent_chances[indent[depth]].add(True)
                 for idx in range(row, -1, -1):
                     if parens[idx]:
                         parens[idx] -= 1
                         break
             assert len(indent) == depth + 1
-            if start[1] not in indent_chances:
-                # allow lining up tokens
-                indent_chances[start[1]] = text
-            else:
-                v = indent_chances[start[1]]
-                if not isinstance(v, (bool, type(None))):
-                    if isinstance(v, list):
-                        indent_chances[start[1]].append(text)
-                    else:
-                        indent_chances[start[1]] = [v, text]
+            indent_chances[start[1]].add(text)
 
         last_token_multiline = (start[0] != end[0])
         if last_token_multiline:

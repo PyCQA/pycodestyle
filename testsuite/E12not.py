@@ -663,11 +663,21 @@ def f1():
 
 aaaa = (
     sqla.session
-        .pop()
+        .query(table)
 )
 
 
 aaaa5 = (
     sqla.session
-        .pop()
+        .query(table)
+)
+
+verify = (
+    sqla.session
+        .query(table)
+        .filter(
+            table.col1 == col1,
+            table.col2 == col2,
+        )
+        .first()
 )
