@@ -641,12 +641,11 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     # visual indents
     indent_chances_stack = []
     indent_chances = defaultdict(lambda: set())
-    prev_indent_to = float('inf')
-    last_indent = tokens[0][2]
+    last_indent = [tokens[0][2][1]]
     visual_indent = None
     last_token_multiline = False
     # for each depth, memorize the visual indent column
-    indent = [last_indent[1]]
+    indent = [last_indent[-1]]
     if verbose >= 3:
         print(">>> " + tokens[0][4].rstrip())
 
@@ -659,7 +658,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
 
         if newline:
             # this is the beginning of a continuation line.
-            last_indent = start
+            last_indent.append(start[1])
             if verbose >= 3:
                 print("... " + line.rstrip())
 
@@ -693,7 +692,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if hang_closing:
                     yield start, "E133 closing bracket is missing indentation"
             elif indent[depth] and start[1] < indent[depth]:
-                if True not in visual_indent:
+                if not ({str, True} & visual_indent):
                     # visual indent is broken
                     yield (start, "E128 continuation line "
                            "under-indented for visual indent")
@@ -764,10 +763,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                           (depth, start[1], indent[depth]))
             elif text in ')]}' and depth > 0:
                 # parent indents should not be more than this one
-                prev_indent = indent.pop() or last_indent[1]
-                prev_indent = min(prev_indent_to, prev_indent)
+                prev_indent = indent.pop() or last_indent[-1]
                 if row > open_rows[depth][0]:
-                    prev_indent_to = prev_indent
+                    pass
                 hangs.pop()
                 for d in range(depth):
                     if indent[d] > prev_indent:
