@@ -1814,10 +1814,8 @@ else:
     def readlines(filename):
         """Read the source code."""
         try:
-            with open(filename, 'rb') as f:
-                (coding, lines) = tokenize.detect_encoding(f.readline)
-                f = TextIOWrapper(f, coding, line_buffering=True)
-                return [line.decode(coding) for line in lines] + f.readlines()
+            with tokenize.open(filename) as f:
+                return f.readlines()
         except (LookupError, SyntaxError, UnicodeError):
             # Fall back if file encoding is improperly declared
             with open(filename, encoding='latin-1') as f:
