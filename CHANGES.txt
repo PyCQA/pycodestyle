@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2.7.0 (2021-03-14)
+------------------
+
+Changes:
+
+* Fix physical checks (such as W191) at end of file.  PR #961.
+* Add ``--indent-size`` option (defaulting to ``4``).  PR #970.
+* W605: fix escaped crlf false positive on windows.  PR #976.
+
+
 2.6.0 (2020-05-11)
 ------------------
 
