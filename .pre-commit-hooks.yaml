@@ -1,0 +1,6 @@
+-   id: pycodestyle
+    name: pycodetyle
+    description: pycodestyle is a tool to check your Python code against some of the style conventions in PEP 8.
+    entry: pycodestyle
+    language: python
+    types: [python]
