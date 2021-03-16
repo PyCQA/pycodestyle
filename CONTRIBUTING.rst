@@ -55,7 +55,7 @@ Step 3: Run tests
 
 Before creating a pull request you should run the tests to make sure that the
 changes that have been made haven't caused any regressions in functionality.
-To run the tests, the core developer team and Travis-CI use `tox`_::
+To run the tests, the core developer team and GitHub Actions use `tox`_::
 
     $ pip install -r dev-requirements.txt
     $ tox
