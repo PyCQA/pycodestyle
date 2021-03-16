@@ -1,8 +1,8 @@
 pycodestyle (formerly called pep8) - Python style guide checker
 ===============================================================
 
-.. image:: https://img.shields.io/travis/PyCQA/pycodestyle.svg
-   :target: https://travis-ci.org/PyCQA/pycodestyle
+.. image:: https://github.com/PyCQA/pycodestyle/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/PyCQA/pycodestyle/actions/workflows/main.yml
    :alt: Build status
 
 .. image:: https://readthedocs.org/projects/pycodestyle/badge/?version=latest

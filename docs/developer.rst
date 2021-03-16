@@ -13,9 +13,9 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 
 * `Source code <https://github.com/pycqa/pycodestyle>`_ and
   `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
-* `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
-  2.7 and 3.4+ as well as the nightly Python build and PyPy, on `Travis CI
-  platform <https://docs.travis-ci.com//>`_.
+* `Continuous tests <https://github.com/PyCQA/pycodestyle/actions>`_ against
+  Python 2.7 and 3.5+ as well as the nightly Python build and PyPy, on GitHub
+  Actions.
 
 .. _available on GitHub: https://github.com/pycqa/pycodestyle
 
@@ -103,7 +103,7 @@ Then be sure to pass the tests::
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.
 
-To run the tests, the core developer team and Travis CI use tox::
+To run the tests, the core developer team and GitHub Actions use tox::
 
     $ pip install -r dev-requirements.txt
     $ tox

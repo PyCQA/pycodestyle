@@ -26,9 +26,6 @@ jobs:
           py: 2.7
           toxenv: py
         - os: ubuntu-latest
-          py: 3.4
-          toxenv: py
-        - os: ubuntu-latest
           py: 3.5
           toxenv: py
         - os: ubuntu-latest
