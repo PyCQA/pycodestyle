@@ -42,6 +42,8 @@ if res[1] == True:
 #: E712
 if res[1] != False:
     pass
+#: E712 E712
+var = 1 if cond == True else -1 if cond == False else cond
 
 #
 #: E713
