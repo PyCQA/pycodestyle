@@ -1393,8 +1393,10 @@ def comparison_to_singleton(logical_line, noqa):
     None was set to some other value.  The other value might have a type
     (such as a container) that could be false in a boolean context!
     """
-    match = not noqa and COMPARE_SINGLETON_REGEX.search(logical_line)
-    if match:
+    if noqa:
+        return
+
+    for match in COMPARE_SINGLETON_REGEX.finditer(logical_line):
         singleton = match.group(1) or match.group(3)
         same = (match.group(2) == '==')
 
