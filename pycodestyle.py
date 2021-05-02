@@ -822,7 +822,7 @@ def whitespace_before_parameters(logical_line, tokens):
             not keyword.iskeyword(prev_text) and
             # 'match' and 'case' are only soft keywords
             (
-                sys.version_info < (3, 10) or
+                sys.version_info < (3, 9) or
                 not keyword.issoftkeyword(prev_text)
             )
         ):
