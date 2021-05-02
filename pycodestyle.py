@@ -821,7 +821,10 @@ def whitespace_before_parameters(logical_line, tokens):
             # Allow "return (a.foo for a in range(5))"
             not keyword.iskeyword(prev_text) and
             # 'match' and 'case' are only soft keywords
-            prev_text not in ('match', 'case')
+            (
+                sys.version_info <= (3, 10) or
+                not keyword.issoftkeyword(prev_text)
+            )
         ):
             yield prev_end, "E211 whitespace before '%s'" % text
         prev_type = token_type
