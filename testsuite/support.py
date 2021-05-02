@@ -6,7 +6,6 @@ import sys
 from pycodestyle import Checker, BaseReport, StandardReport, readlines
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
-SELFTEST_PY_REGEX = re.compile(r'\bPython (\d).(\d+)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -113,14 +112,8 @@ def selftest(options):
     counters = report.counters
     checks = options.physical_checks + options.logical_checks
     for name, check, argument_names in checks:
-        python_version = None
         for line in check.__doc__.splitlines():
             line = line.lstrip()
-            match = SELFTEST_PY_REGEX.match(line)
-            if match:
-                python_version = tuple(map(int, match.groups()))
-            if python_version and sys.version_info < python_version:
-                continue
             match = SELFTEST_REGEX.match(line)
             if match is None:
                 continue

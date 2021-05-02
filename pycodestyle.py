@@ -494,6 +494,17 @@ def whitespace_around_keywords(logical_line):
         elif len(after) > 1:
             yield match.start(2), "E271 multiple spaces after keyword"
 
+    if sys.version_info >= (3, 10):
+        match = MATCH_CASE_REGEX.match(logical_line)
+        if match:
+            whitespace = match.groups()[0]
+            if whitespace == ' ':
+                return
+            if whitespace == '':
+                yield match.start(1), "E275 missing whitespace after keyword"
+            else:
+                yield match.start(1), "E271 multiple spaces after keyword"
+
 
 @register_check
 def missing_whitespace_after_import_keyword(logical_line):
@@ -511,32 +522,6 @@ def missing_whitespace_after_import_keyword(logical_line):
         if -1 < found:
             pos = found + len(indicator) - 1
             yield pos, "E275 missing whitespace after keyword"
-
-
-@register_check
-def missing_whitespace_after_match_case(logical_line):
-    r"""Check whitespace after 'match' and 'case'.
-
-    Python 3.10
-    Okay: match status:
-    E271: match  status:
-    E271: case\tstatus:
-    E271: case   _:
-    E275: matchstatus:
-    E275: casestatus:
-    E275: case_:
-    """
-    if sys.version_info < (3, 10):
-        return
-    match = MATCH_CASE_REGEX.match(logical_line)
-    if match:
-        whitespace = match.groups()[0]
-        if whitespace == ' ':
-            return
-        if whitespace == '':
-            yield match.start(1), "E275 missing whitespace after keyword"
-        else:
-            yield match.start(1), "E271 multiple spaces after keyword"
 
 
 @register_check
