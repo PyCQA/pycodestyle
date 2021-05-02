@@ -169,7 +169,7 @@ def init_tests(pep8style):
     def run_tests(filename):
         """Run all the tests from a file."""
         # Skip tests meant for higher versions of python
-        ver_match = re.search(r'python(\d)(\d)?\.py$', filename)
+        ver_match = re.search(r'python(\d)(\d+)?\.py$', filename)
         if ver_match:
             test_against_version = tuple(int(val or 0)
                                          for val in ver_match.groups())
