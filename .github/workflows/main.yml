@@ -41,6 +41,9 @@ jobs:
           py: 3.9
           toxenv: py
         - os: ubuntu-latest
+          py: 3.10-dev
+          toxenv: py
+        - os: ubuntu-latest
           py: 3.9
           toxenv: flake8
     runs-on: ${{ matrix.os }}
