@@ -163,6 +163,7 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
     )))
 )
 DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
+MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
 
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
@@ -492,6 +493,16 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E273 tab after keyword"
         elif len(after) > 1:
             yield match.start(2), "E271 multiple spaces after keyword"
+
+    if sys.version_info >= (3, 10):
+        match = MATCH_CASE_REGEX.match(logical_line)
+        if match:
+            if match[1] == ' ':
+                return
+            if match[1] == '':
+                yield match.start(1), "E275 missing whitespace after keyword"
+            else:
+                yield match.start(1), "E271 multiple spaces after keyword"
 
 
 @register_check
