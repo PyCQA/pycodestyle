@@ -497,10 +497,9 @@ def whitespace_around_keywords(logical_line):
     if sys.version_info >= (3, 10):
         match = MATCH_CASE_REGEX.match(logical_line)
         if match:
-            whitespace = match.groups()[0]
-            if whitespace == ' ':
+            if match[1] == ' ':
                 return
-            if whitespace == '':
+            if match[1] == '':
                 yield match.start(1), "E275 missing whitespace after keyword"
             else:
                 yield match.start(1), "E271 multiple spaces after keyword"
