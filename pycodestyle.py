@@ -164,6 +164,7 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 )
 DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
 MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
+BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
 
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
@@ -1488,8 +1489,7 @@ def bare_except(logical_line, noqa):
     if noqa:
         return
 
-    regex = re.compile(r"except\s*:")
-    match = regex.match(logical_line)
+    match = BLANK_EXCEPT_REGEX.match(logical_line)
     if match:
         yield match.start(), "E722 do not use bare 'except'"
 
