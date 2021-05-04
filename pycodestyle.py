@@ -78,6 +78,13 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
+# this is a performance hack.  see https://bugs.python.org/issue43014
+if (
+        sys.version_info < (3, 10) and
+        callable(getattr(tokenize, '_compile', None))
+):  # pragma: no cover (<py310)
+    tokenize._compile = lru_cache()(tokenize._compile)  # type: ignore
+
 __version__ = '2.7.0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
