@@ -564,7 +564,7 @@ def missing_whitespace(logical_line):
 @register_check
 def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level,
-                indent_size, indent_size_str):
+                indent_size):
     r"""Use indent_size (PEP8 says 4) spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue
@@ -588,7 +588,7 @@ def indentation(logical_line, previous_logical, indent_char,
     if indent_level % indent_size:
         yield 0, tmpl % (
             1 + c,
-            "indentation is not a multiple of " + indent_size_str,
+            "indentation is not a multiple of " + str(indent_size),
         )
     indent_expect = previous_logical.endswith(':')
     if indent_expect and indent_level <= previous_indent_level:
@@ -605,8 +605,7 @@ def indentation(logical_line, previous_logical, indent_char,
 
 @register_check
 def continued_indentation(logical_line, tokens, indent_level, hang_closing,
-                          indent_char, indent_size, indent_size_str, noqa,
-                          verbose):
+                          indent_char, indent_size, noqa, verbose):
     r"""Continuation lines indentation.
 
     Continuation lines should align wrapped elements either vertically
@@ -1997,8 +1996,6 @@ class Checker(object):
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
         self.indent_size = options.indent_size
-        self.indent_size_str = ({2: 'two', 4: 'four', 8: 'eight'}
-                                .get(self.indent_size, str(self.indent_size)))
         self.verbose = options.verbose
         self.filename = filename
         # Dictionary where a checker can store its custom state.
