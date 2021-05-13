@@ -984,7 +984,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
 
 
 @register_check
-def whitespace_around_comma(logical_line):
+def whitespace_around_comma(logical_line, noqa):
     r"""Avoid extraneous whitespace after a comma or a colon.
 
     Note: these checks are disabled by default
@@ -993,6 +993,8 @@ def whitespace_around_comma(logical_line):
     E241: a = (1,  2)
     E242: a = (1,\t2)
     """
+    if noqa:
+        return
     line = logical_line
     for m in WHITESPACE_AFTER_COMMA_REGEX.finditer(line):
         found = m.start() + 1
