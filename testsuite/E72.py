@@ -47,6 +47,8 @@ if isinstance(res, str):
     pass
 if isinstance(res, types.MethodType):
     pass
+if a is type(None):
+    pass
 #: Okay
 def func_histype(a, b, c):
     pass
