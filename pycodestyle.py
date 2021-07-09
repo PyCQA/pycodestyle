@@ -964,8 +964,13 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Check if the operator is used as a binary operator
                 # Allow unary operators: -123, -x, +1.
                 # Allow argument unpacking: foo(*args, **kwargs).
-                if (prev_text in '}])' if prev_type == tokenize.OP
-                        else prev_text not in KEYWORDS):
+                if prev_type == tokenize.OP and prev_text in '}])' or (
+                    prev_type != tokenize.OP and
+                    prev_text not in KEYWORDS and (
+                        sys.version_info < (3, 9) or
+                        not keyword.issoftkeyword(prev_text)
+                    )
+                ):
                     need_space = None
             elif text in WS_OPTIONAL_OPERATORS:
                 need_space = None
