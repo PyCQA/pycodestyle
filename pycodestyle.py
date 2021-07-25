@@ -174,6 +174,7 @@ MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
 
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
+_longest_line = 0
 
 
 def _get_parameters(function):
@@ -316,6 +317,9 @@ def maximum_line_length(physical_line, max_line_length, multiline,
             except UnicodeError:
                 pass
         if length > max_line_length:
+            global _longest_line
+            if length > _longest_line:
+                _longest_line = length
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
 
@@ -2267,6 +2271,7 @@ class BaseReport(object):
     def __init__(self, options):
         self._benchmark_keys = options.benchmark_keys
         self._ignore_code = options.ignore_code
+        self._max_line_length = options.max_line_length
         # Results
         self.elapsed = 0
         self.total_errors = 0
@@ -2331,6 +2336,11 @@ class BaseReport(object):
         prefix='W' matches all warnings
         prefix='E4' matches all errors that have to do with imports
         """
+        if _longest_line:
+            self.messages['E501'] = 'line too long (%d > %d characters)' % (
+                _longest_line, self._max_line_length
+            )
+
         return ['%-7s %s %s' % (self.counters[key], key, self.messages[key])
                 for key in sorted(self.messages) if key.startswith(prefix)]
 
