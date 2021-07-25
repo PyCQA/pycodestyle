@@ -2340,7 +2340,6 @@ class BaseReport(object):
             self.messages['E501'] = 'line too long (%d > %d characters)' % (
                 _longest_line, self._max_line_length
             )
-
         return ['%-7s %s %s' % (self.counters[key], key, self.messages[key])
                 for key in sorted(self.messages) if key.startswith(prefix)]
 
