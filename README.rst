@@ -56,6 +56,14 @@ You can install, upgrade, and uninstall ``pycodestyle.py`` with these commands::
 There's also a package for Debian/Ubuntu, but it's not always the
 latest version.
 
+If you want to use a PEP518 compliant ``pyproject.toml`` for configuration you must
+install the pep518 extra::
+
+  $ pip install pycodestyle[pep518]
+
+In this case, you can add a ``[tool.pycodestyle]`` configuration section in your
+``pyproject.toml`` file instead of using ``tox.ini`` or ``setup.cfg``.
+
 Example usage and output
 ------------------------
 

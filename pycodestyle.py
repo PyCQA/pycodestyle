@@ -78,6 +78,13 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
+try:
+    from toml import load as load_toml_from_file
+except ImportError:
+    _IS_TOML_AVAILABLE = False
+else:
+    _IS_TOML_AVAILABLE = True
+
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (
         sys.version_info < (3, 10) and
@@ -101,6 +108,8 @@ except ImportError:
     USER_CONFIG = None
 
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
+PY_PROJECT_TOML_CONFIG = 'pyproject.toml'
+PY_PROJECT_TOML_TOOL_SECTION = 'tool'
 TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 # Number of blank lines between various code parts.
@@ -2653,7 +2662,20 @@ def read_config(options, args, arglist, parser):
 
     parent = tail = args and os.path.abspath(os.path.commonprefix(args))
     while tail:
-        if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
+        py_project_file = os.path.join(parent, PY_PROJECT_TOML_CONFIG)
+        if _IS_TOML_AVAILABLE is True and os.path.exists(py_project_file):
+            config_dict = load_toml_from_file(py_project_file)
+            if PY_PROJECT_TOML_TOOL_SECTION in config_dict.keys():
+                tool_section = config_dict[PY_PROJECT_TOML_TOOL_SECTION]
+                if parser.prog in tool_section.keys():
+                    prog_config = tool_section[parser.prog]
+                    prog_config = {parser.prog: prog_config}
+                    config.read_dict(prog_config)
+            local_dir = parent
+            if options.verbose:
+                print('local configuration from pyproject: in %s' % parent)
+            break
+        elif config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
             local_dir = parent
             if options.verbose:
                 print('local configuration: in %s' % parent)

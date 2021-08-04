@@ -39,6 +39,9 @@ setup(
         # Broken with Python 3: https://github.com/pypa/pip/issues/650
         # 'setuptools',
     ],
+    extras_require={
+        'pep518': ['toml>=0.10.2']
+    },
     entry_points={
         'console_scripts': [
             'pycodestyle = pycodestyle:_main',
