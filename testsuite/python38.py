@@ -13,6 +13,9 @@ def f3(
         b,
 ):
     pass
+
+
+lambda a, /: None
 #: Okay
 if x := 1:
     print(x)
