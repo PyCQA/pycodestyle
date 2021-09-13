@@ -933,7 +933,9 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     #           ^
                     # def f(a, b, /):
                     #              ^
-                    prev_text == '/' and text in {',', ')'} or
+                    # f = lambda a, /:
+                    #                ^
+                    prev_text == '/' and text in {',', ')', ':'} or
                     # def f(a, b, /):
                     #               ^
                     prev_text == ')' and text == ':'
