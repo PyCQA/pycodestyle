@@ -1088,7 +1088,9 @@ def whitespace_before_comment(logical_line, tokens):
         if token_type == tokenize.COMMENT:
             inline_comment = line[:start[1]].strip()
             if inline_comment:
-                if prev_end[0] == start[0] and start[1] < prev_end[1] + 2:
+                contains_tab = '\t' in line[prev_end[1]: prev_end[1] + 2]
+                nottwo = prev_end[0] == start[0] and start[1] < prev_end[1] + 2
+                if contains_tab or nottwo:
                     yield (prev_end,
                            "E261 at least two spaces before inline comment")
             symbol, sp, comment = text.partition(' ')

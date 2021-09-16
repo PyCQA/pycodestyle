@@ -1,7 +1,15 @@
 #: E261:1:5
 pass # an inline comment
+#: E261:1:5
+pass 	# an inline comment
+#: E261:1:5
+pass	 # an inline comment
+#: E261:1:5
+pass		# an inline comment
 #: E262:1:12
 x = x + 1  #Increment x
+#: E262:1:12
+x = x + 1  #	Increment x
 #: E262:1:12
 x = x + 1  #  Increment x
 #: E262:1:12
