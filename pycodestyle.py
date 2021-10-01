@@ -169,7 +169,7 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
         'while',
     )))
 )
-DUNDER_REGEX = re.compile(r'^__([^\s]+)__ = ')
+DUNDER_REGEX = re.compile(r"^__([^\s]+)__(?::\s*[a-zA-Z.0-9_\[\]\"]+)? = ")
 MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
 

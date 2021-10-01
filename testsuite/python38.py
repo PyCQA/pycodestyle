@@ -28,3 +28,17 @@ if x:= 1:
 #: E225:1:18
 if False or (x :=1):
     pass
+#: Okay
+import typing as t
+
+__all__: t.List[str] = []
+
+import logging
+
+logging.getLogger(__name__)
+#: E402
+import typing as t
+
+all_the_things: t.List[str] = []
+
+import logging
