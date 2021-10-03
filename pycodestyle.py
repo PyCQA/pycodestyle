@@ -454,6 +454,12 @@ def extraneous_whitespace(logical_line):
     - Immediately inside parentheses, brackets or braces.
     - Immediately before a comma, semicolon, or colon.
 
+    Exceptions:
+    - When the colon acts as a slice, the rule of binary operators
+      applies and we should have the same amount of space on either side
+    - When the colon acts as a slice but a parameter is omitted, then
+      the space is omitted
+
     Okay: spam(ham[1], {eggs: 2})
     E201: spam( ham[1], {eggs: 2})
     E201: spam(ham[ 1], {eggs: 2})
@@ -462,10 +468,45 @@ def extraneous_whitespace(logical_line):
     E202: spam(ham[1 ], {eggs: 2})
     E202: spam(ham[1], {eggs: 2 })
 
+    Okay: ham[8 : 2]
+    Okay: ham[: 2]
     E203: if x == 4: print x, y; x, y = y , x
     E203: if x == 4: print x, y ; x, y = y, x
     E203: if x == 4 : print x, y; x, y = y, x
     """
+
+    def is_a_slice(line, space_pos):
+        """Check if the colon after an extra space acts as a slice
+
+        Return True if the colon is directly contained within
+        square brackets.
+        """
+        # list of found '[({' as tuples "(char, position)"
+        parentheses_brackets_braces = list()
+        for i in range(space_pos):
+            c = line[i]
+            if c in '[({':
+                # add it to the stack
+                parentheses_brackets_braces.append((c, i))
+            elif c in '])}':
+                # unstack last item and check consistency
+                last_opened = parentheses_brackets_braces.pop()[0]
+                expected_close = {'{': '}', '(': ')', '[': ']'}[last_opened]
+                if c != expected_close:  # invalid Python code
+                    return False
+        is_within_brackets = (len(parentheses_brackets_braces) > 0 and
+                              parentheses_brackets_braces[-1][0] == '[')
+
+        is_lambda_expr = False
+        if is_within_brackets:
+            # check for a lambda expression nested in brackets
+            if space_pos > 6:
+                last_opened = parentheses_brackets_braces[-1]
+                between_bracket_colon = line[last_opened[1] + 1: space_pos]
+                is_lambda_expr = 'lambda' in between_bracket_colon
+
+        return (is_within_brackets and not is_lambda_expr)
+
     line = logical_line
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
         text = match.group()
@@ -474,7 +515,8 @@ def extraneous_whitespace(logical_line):
         if text == char + ' ':
             # assert char in '([{'
             yield found + 1, "E201 whitespace after '%s'" % char
-        elif line[found - 1] != ',':
+        elif (line[found - 1] != ',' and
+              not (char == ':' and is_a_slice(line, found))):
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
             yield found, "%s whitespace before '%s'" % (code, char)
 
