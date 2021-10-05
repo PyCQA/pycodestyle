@@ -7,6 +7,21 @@ match (var, var2):
         pass
     case _:
         print("Default")
+#: Okay
+var = 0, 1, 2
+match var:
+    case *_, 1, 2:
+        pass
+    case 0, *_, 2:
+        pass
+    case 0, 1, *_:
+        pass
+    case (*_, 1, 2):
+        pass
+    case (0, *_, 2):
+        pass
+    case (0, 1, *_):
+        pass
 #: E271:2:6 E271:3:9 E271:5:9 E271:7:9
 var = 1
 match  var:
