@@ -9,6 +9,8 @@ def foo(x: int) -> int:
 
 # Annotated variables #575
 CONST: int = 42
+match: int = 42
+case: int = 42
 
 
 class Class:
