@@ -148,7 +148,12 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 )
 DUNDER_REGEX = re.compile(r"^__([^\s]+)__(?::\s*[a-zA-Z.0-9_\[\]\"]+)? = ")
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
-MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
+MATCH_CASE_REGEX = re.compile(
+    r'^\s*\b(?:match|case)(\s*)(?=.*\S.*\:(?=\s*$|\s*#))'
+)
+CASE_REGEX_FALLBACK = re.compile(
+    r'^\s*\b(?:case)(\s*)(?:(?=.*\S.*\:))'
+)
 
 if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
     FSTRING_START = tokenize.FSTRING_START
@@ -454,7 +459,7 @@ def extraneous_whitespace(logical_line):
 
 
 @register_check
-def whitespace_around_keywords(logical_line):
+def whitespace_around_keywords(logical_line, tokens):
     r"""Avoid extraneous whitespace around keywords.
 
     Okay: True and False
@@ -485,6 +490,55 @@ def whitespace_around_keywords(logical_line):
                 yield match.start(1), "E275 missing whitespace after keyword"
             else:
                 yield match.start(1), "E271 multiple spaces after keyword"
+        else:
+            # Fallback if case statement is written inline
+            # Before emitting a warning, check that ':' is preset
+            # outside of (), {}, []
+            match = CASE_REGEX_FALLBACK.match(logical_line)
+            if match:
+                brackets = []
+                case_token_found = False
+                for token in tokens:
+                    if not case_token_found:
+                        if token.type == tokenize.NAME:
+                            if token.string != "case":
+                                return
+                            case_token_found = True
+                        continue
+
+                    # Only continue if case NAME token has been found
+                    if token.type != tokenize.OP:
+                        continue
+                    if len(brackets) == 0:
+                        if token.exact_type == tokenize.COLON:
+                            break
+                        if token.exact_type == tokenize.EQUAL:
+                            return
+                    if token.exact_type in {
+                        tokenize.LPAR, tokenize.LSQB, tokenize.LBRACE
+                    }:
+                        brackets.append(token.exact_type)
+                    elif len(brackets) > 0 and (
+                        token.exact_type == tokenize.RPAR and
+                        brackets[-1] == tokenize.LPAR or
+                        token.exact_type == tokenize.RSQB and
+                        brackets[-1] == tokenize.LSQB or
+                        token.exact_type == tokenize.RBRACE and
+                        brackets[-1] == tokenize.LBRACE
+                    ):
+                        brackets.pop()
+                else:
+                    # No matching colon found
+                    return
+
+                if match[1] == ' ':
+                    return
+                if match[1] == '':
+                    yield (
+                        match.start(1), "E275 missing whitespace after keyword"
+                    )
+                else:
+                    yield match.start(1), "E271 multiple spaces after keyword"
 
 
 @register_check
