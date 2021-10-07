@@ -148,6 +148,7 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 )
 DUNDER_REGEX = re.compile(r"^__([^\s]+)__(?::\s*[a-zA-Z.0-9_\[\]\"]+)? = ")
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
+MATCH_CASE_REGEX = re.compile(r'^\s*\b(?:match|case)(\s*)(?=.*\:)')
 
 if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
     FSTRING_START = tokenize.FSTRING_START
@@ -474,6 +475,16 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E273 tab after keyword"
         elif len(after) > 1:
             yield match.start(2), "E271 multiple spaces after keyword"
+
+    if sys.version_info >= (3, 10):
+        match = MATCH_CASE_REGEX.match(logical_line)
+        if match:
+            if match[1] == ' ':
+                return
+            if match[1] == '':
+                yield match.start(1), "E275 missing whitespace after keyword"
+            else:
+                yield match.start(1), "E271 multiple spaces after keyword"
 
 
 @register_check
