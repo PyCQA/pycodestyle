@@ -25,7 +25,6 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 r"""
 Check Python source code formatting, according to PEP 8.
 
@@ -49,6 +48,7 @@ W warnings
 """
 from __future__ import with_statement
 
+import bisect
 import inspect
 import keyword
 import os
@@ -57,7 +57,6 @@ import sys
 import time
 import tokenize
 import warnings
-import bisect
 
 try:
     from functools import lru_cache
