@@ -1,6 +1,23 @@
 Changelog
 =========
 
+2.8.0 (2021-10-10)
+------------------
+
+Changes:
+
+* Drop python 3.4.  PR #982.
+* E712: fix false negative with multiple comparisons.  PR #987.
+* E211: fix false positives with ``match``.  PR #989.
+* E772: improve performance of bare except check.  PR #992.
+* Backport tokenize performance improvement from python 3.10.  PR #993.
+* E225: fix for lambdas containing positional-only args.  PR #1012.
+* Remove ``indent_size_str`` "setting".  PR #995.
+* E402: allow ``__all__`` to be typed.  PR #1019.
+* E225: fix false positives for ``*`` in ``case``.  PR #1003.
+* E201: detect tabs as whitespace.  PR #1015.
+
+
 2.7.0 (2021-03-14)
 ------------------
 
