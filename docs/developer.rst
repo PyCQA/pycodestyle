@@ -119,5 +119,5 @@ All the tests should pass for all available interpreters, with the summary of::
 Changes
 ~~~~~~~
 
-.. include:: ../CHANGES.txt
+.. include:: ../CHANGES.md
    :start-line: 3
