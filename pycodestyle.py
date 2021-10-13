@@ -488,6 +488,8 @@ def whitespace_around_keywords(logical_line, tokens):
                 return
             if match[1] == '':
                 yield match.start(1), "E275 missing whitespace after keyword"
+            elif '\t' in match[1]:
+                yield match.start(1), "E273 tab after keyword"
             else:
                 yield match.start(1), "E271 multiple spaces after keyword"
         else:
@@ -537,6 +539,8 @@ def whitespace_around_keywords(logical_line, tokens):
                     yield (
                         match.start(1), "E275 missing whitespace after keyword"
                     )
+                elif '\t' in match[1]:
+                    yield match.start(1), "E273 tab after keyword"
                 else:
                     yield match.start(1), "E271 multiple spaces after keyword"
 

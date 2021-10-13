@@ -26,16 +26,18 @@ match var:
         pass
     case SomeClass(arg=2):
         pass
-#: E271:2:6 E271:3:9 E271:5:9 E271:7:9
+#: E271:2:6 E271:3:9 E271:5:9
 var = 1
 match  var:
     case  1:
         pass
-    case	2:
-        pass
     case  (
         3
     ):
+        pass
+#: E273:1:6 E273:2:9
+match	var:
+    case	2:
         pass
 #: E275:2:6 E275:3:9 E275:5:9
 var = 1
