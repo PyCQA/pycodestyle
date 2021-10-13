@@ -42,3 +42,14 @@ import typing as t
 all_the_things: t.List[str] = []
 
 import logging
+#: E221:1:5 E222:1:9 E221:3:6
+if x  :=  1:
+    pass
+if (x  := 2):
+    pass
+#: E223:1:5 E224:1:8
+if x	:=	2:
+    pass
+#: E221:1:6 E221:1:19
+if (x  := 1) == (y  := 2):
+    pass
