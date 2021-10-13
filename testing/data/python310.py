@@ -55,7 +55,7 @@ match var:
     case  {"x": 42}: pass
     case  [{"y": 2}, 3]: print()  # comment
     case  "Hello: World": pass
-#: E221:6:5 E221:7:5
+#: E221:6:5 E221:7:5 E221:9:9
 # Don't emit false-positives
 # Only E221 (multiple spaces before operator), not E271!
 match: int = 42
@@ -63,3 +63,7 @@ case: int = 42
 matched = {"true": True, "false": False}
 case  = {"x": 42}
 case  = "Hello: World"
+if (
+    case  := 42
+):
+    pass
