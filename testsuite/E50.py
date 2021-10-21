@@ -59,6 +59,10 @@ ddd = \
 ('''
     ''' + ' \
 ')
+
+#
+#: Okay
+this = 'é́́́́xá́́́́mplé́́́́ há́́́́s ló́́́́ts ó́́́́f có́́́́mbí́́́́ní́́́́ng dí́́́́á́́́́crí́́́́tí́́́́cs, á́́́́nd thá́́́́t í́́́́s ó́́́́ká́́́́y.'
 #: E501 E225 E226
 very_long_identifiers=and_terrible_whitespace_habits(are_no_excuse+for_long_lines)
 #

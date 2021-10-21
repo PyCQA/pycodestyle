@@ -56,6 +56,7 @@ import re
 import sys
 import time
 import tokenize
+import unicodedata
 import warnings
 
 try:
@@ -307,12 +308,15 @@ def maximum_line_length(physical_line, max_line_length, multiline,
             (len(chunks) == 2 and chunks[0] == '#')) and \
                 len(line) - len(chunks[-1]) < max_line_length - 7:
             return
-        if hasattr(line, 'decode'):   # Python 2
-            # The line could contain multi-byte characters
+        # Special case: multi-byte chars and combining diacritics
+        if sys.version_info >= (3,):
+            line_text = line
+        else:
             try:
-                length = len(line.decode('utf-8'))
-            except UnicodeError:
-                pass
+                line_text = line.decode('UTF-8')
+            except UnicodeDecodeError:
+                line_text = u''
+        length = sum(not unicodedata.combining(c) for c in line_text)
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
