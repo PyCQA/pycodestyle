@@ -46,8 +46,6 @@ W warnings
 700 statements
 900 syntax error
 """
-from __future__ import with_statement
-
 import bisect
 import inspect
 import keyword
@@ -122,14 +120,11 @@ KEYWORDS = frozenset(keyword.kwlist + ['print', 'async']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-', '@'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
-# Warn for -> function annotation operator in py3.5+ (issue 803)
-FUNCTION_RETURN_ANNOTATION_OP = ['->'] if sys.version_info >= (3, 5) else []
 ASSIGNMENT_EXPRESSION_OP = [':='] if sys.version_info >= (3, 8) else []
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
-    'and', 'in', 'is', 'or'] +
-    FUNCTION_RETURN_ANNOTATION_OP +
+    'and', 'in', 'is', 'or', '->'] +
     ASSIGNMENT_EXPRESSION_OP)
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
@@ -158,7 +153,7 @@ HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)\b')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def\s+|def\s+|class\s+|@)')
 STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
-    r'^\s*({0})\b'.format('|'.join(s.replace(' ', r'\s+') for s in (
+    r'^\s*({})\b'.format('|'.join(s.replace(' ', r'\s+') for s in (
         'def', 'async def',
         'for', 'async for',
         'if', 'elif', 'else',
@@ -175,13 +170,10 @@ _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 
 def _get_parameters(function):
-    if sys.version_info >= (3, 3):
-        return [parameter.name
-                for parameter
-                in inspect.signature(function).parameters.values()
-                if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
-    else:
-        return inspect.getargspec(function)[0]
+    return [parameter.name
+            for parameter
+            in inspect.signature(function).parameters.values()
+            if parameter.kind == parameter.POSITIONAL_OR_KEYWORD]
 
 
 def register_check(check, codes=None):
@@ -429,8 +421,8 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                     yield 0, "E306 expected %s blank line before a " \
                         "nested definition, found 0" % (method_lines,)
                 else:
-                    yield 0, "E301 expected %s blank line, found 0" % (
-                        method_lines,)
+                    yield 0, "E301 expected {} blank line, found 0".format(
+                        method_lines)
         elif blank_before != top_level_lines:
             yield 0, "E302 expected %s blank lines, found %d" % (
                 top_level_lines, blank_before)
@@ -474,7 +466,7 @@ def extraneous_whitespace(logical_line):
             yield found + 1, "E201 whitespace after '%s'" % char
         elif line[found - 1] != ',':
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
-            yield found, "%s whitespace before '%s'" % (code, char)
+            yield found, f"{code} whitespace before '{char}'"
 
 
 @register_check
@@ -735,7 +727,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             indent[depth] = start[1]
             indent_chances[start[1]] = True
             if verbose >= 4:
-                print("bracket depth %s indent to %s" % (depth, start[1]))
+                print(f"bracket depth {depth} indent to {start[1]}")
         # deal with implicit string concatenation
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
@@ -1228,7 +1220,7 @@ def compound_statements(logical_line):
             lambda_kw = LAMBDA_REGEX.search(line, 0, found)
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
-                if before[-1:] == '=' and isidentifier(before[:-1].strip()):
+                if before[-1:] == '=' and before[:-1].strip().isidentifier():
                     yield 0, ("E731 do not assign a lambda expression, use a "
                               "def")
                 break
@@ -1473,7 +1465,7 @@ def comparison_type(logical_line, noqa):
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
         inst = match.group(1)
-        if inst and isidentifier(inst) and inst not in SINGLETONS:
+        if inst and inst.isidentifier() and inst not in SINGLETONS:
             return  # Allow comparison for types which are not obvious
         yield match.start(), "E721 do not compare types, use 'isinstance()'"
 
@@ -1822,30 +1814,21 @@ def maximum_doc_length(logical_line, max_doc_length, noqa, tokens):
 ########################################################################
 
 
-if sys.version_info < (3,):
-    # Python 2: implicit encoding.
-    def readlines(filename):
-        """Read the source code."""
-        with open(filename, 'rU') as f:
+def readlines(filename):
+    """Read the source code."""
+    try:
+        with tokenize.open(filename) as f:
             return f.readlines()
-    isidentifier = re.compile(r'[a-zA-Z_]\w*$').match
-    stdin_get_value = sys.stdin.read
-else:
-    # Python 3
-    def readlines(filename):
-        """Read the source code."""
-        try:
-            with tokenize.open(filename) as f:
-                return f.readlines()
-        except (LookupError, SyntaxError, UnicodeError):
-            # Fall back if file encoding is improperly declared
-            with open(filename, encoding='latin-1') as f:
-                return f.readlines()
-    isidentifier = str.isidentifier
+    except (LookupError, SyntaxError, UnicodeError):
+        # Fall back if file encoding is improperly declared
+        with open(filename, encoding='latin-1') as f:
+            return f.readlines()
 
-    def stdin_get_value():
-        """Read the value from stdin."""
-        return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+
+def stdin_get_value():
+    """Read the value from stdin."""
+    return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+
 
 noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)\b', re.I).search)
 
@@ -1911,7 +1894,7 @@ def parse_udiff(diff, patterns=None, parent='.'):
             continue
         if line[:3] == '@@ ':
             hunk_match = HUNK_REGEX.match(line)
-            (row, nrows) = [int(g or '1') for g in hunk_match.groups()]
+            (row, nrows) = (int(g or '1') for g in hunk_match.groups())
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
@@ -1972,7 +1955,7 @@ def _is_eol_token(token):
 ########################################################################
 
 
-class Checker(object):
+class Checker:
     """Load a Python source file, tokenize it, check coding style."""
 
     def __init__(self, filename=None, lines=None,
@@ -2004,9 +1987,9 @@ class Checker(object):
         elif lines is None:
             try:
                 self.lines = readlines(filename)
-            except IOError:
+            except OSError:
                 (exc_type, exc) = sys.exc_info()[:2]
-                self._io_error = '%s: %s' % (exc_type.__name__, exc)
+                self._io_error = f'{exc_type.__name__}: {exc}'
                 self.lines = []
         else:
             self.lines = lines
@@ -2031,7 +2014,7 @@ class Checker(object):
         else:
             offset = (1, 0)
         self.report_error(offset[0], offset[1] or 0,
-                          'E901 %s: %s' % (exc_type.__name__, exc.args[0]),
+                          f'E901 {exc_type.__name__}: {exc.args[0]}',
                           self.report_invalid_syntax)
 
     def readline(self):
@@ -2224,7 +2207,7 @@ class Checker(object):
             token_type, text = token[0:2]
             if self.verbose >= 3:
                 if token[2][0] == token[3][0]:
-                    pos = '[%s:%s]' % (token[2][1] or '', token[3][1])
+                    pos = '[{}:{}]'.format(token[2][1] or '', token[3][1])
                 else:
                     pos = 'l.%s' % token[3][0]
                 print('l.%s\t%s\t%s\t%r' %
@@ -2251,7 +2234,7 @@ class Checker(object):
         return self.report.get_file_results()
 
 
-class BaseReport(object):
+class BaseReport:
     """Collect the results of the checks."""
 
     print_filename = False
@@ -2333,7 +2316,7 @@ class BaseReport(object):
 
     def print_benchmark(self):
         """Print benchmark numbers."""
-        print('%-7.2f %s' % (self.elapsed, 'seconds elapsed'))
+        print('{:<7.2f} {}'.format(self.elapsed, 'seconds elapsed'))
         if self.elapsed:
             for key in self._benchmark_keys:
                 print('%-7d %s per second (%d total)' %
@@ -2351,7 +2334,7 @@ class StandardReport(BaseReport):
     """Collect and print the results of the checks."""
 
     def __init__(self, options):
-        super(StandardReport, self).__init__(options)
+        super().__init__(options)
         self._fmt = REPORT_FORMAT.get(options.format.lower(),
                                       options.format)
         self._repeat = options.repeat
@@ -2361,13 +2344,12 @@ class StandardReport(BaseReport):
     def init_file(self, filename, lines, expected, line_offset):
         """Signal a new file."""
         self._deferred_print = []
-        return super(StandardReport, self).init_file(
+        return super().init_file(
             filename, lines, expected, line_offset)
 
     def error(self, line_number, offset, text, check):
         """Report an error, according to options."""
-        code = super(StandardReport, self).error(line_number, offset,
-                                                 text, check)
+        code = super().error(line_number, offset, text, check)
         if code and (self.counters[code] == 1 or self._repeat):
             self._deferred_print.append(
                 (line_number, offset, code, text[5:], check.__doc__))
@@ -2406,16 +2388,16 @@ class DiffReport(StandardReport):
     """Collect and print the results for the changed lines only."""
 
     def __init__(self, options):
-        super(DiffReport, self).__init__(options)
+        super().__init__(options)
         self._selected = options.selected_lines
 
     def error(self, line_number, offset, text, check):
         if line_number not in self._selected[self.filename]:
             return
-        return super(DiffReport, self).error(line_number, offset, text, check)
+        return super().error(line_number, offset, text, check)
 
 
-class StyleGuide(object):
+class StyleGuide:
     """Initialize a PEP-8 instance with few options."""
 
     def __init__(self, *args, **kwargs):
@@ -2505,8 +2487,10 @@ class StyleGuide(object):
                     dirs.remove(subdir)
             for filename in sorted(files):
                 # contain a pattern that matches?
-                if ((filename_match(filename, filepatterns) and
-                     not self.excluded(filename, root))):
+                if (
+                    filename_match(filename, filepatterns) and
+                    not self.excluded(filename, root)
+                ):
                     runner(os.path.join(root, filename))
 
     def excluded(self, filename, parent=None):
@@ -2676,8 +2660,8 @@ def read_config(options, args, arglist, parser):
                 print("  unknown option '%s' ignored" % opt)
                 continue
             if options.verbose > 1:
-                print("  %s = %s" % (opt,
-                                     config.get(pycodestyle_section, opt)))
+                print("  {} = {}".format(opt,
+                                         config.get(pycodestyle_section, opt)))
             normalized_opt = opt.replace('-', '_')
             opt_type = option_list[normalized_opt]
             if opt_type in ('int', 'count'):

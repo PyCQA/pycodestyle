@@ -11,22 +11,10 @@ jobs:
       matrix:
         include:
         - os: windows-latest
-          py: 2.7
-          toxenv: py
-        - os: windows-latest
           py: 3.9
           toxenv: py
         - os: ubuntu-latest
-          py: pypy2
-          toxenv: py
-        - os: ubuntu-latest
           py: pypy3
-          toxenv: py
-        - os: ubuntu-latest
-          py: 2.7
-          toxenv: py
-        - os: ubuntu-latest
-          py: 3.5
           toxenv: py
         - os: ubuntu-latest
           py: 3.6

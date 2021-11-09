@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # pycodestyle documentation build configuration file, created by
 # sphinx-quickstart on Tue Aug 21 09:47:49 2012.
@@ -43,9 +42,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pycodestyle'
-authors = u'Johann C. Rocholl, Florent Xicluna, Ian Lee'
-copyright = u'2006-2016, %s' % (authors)
+project = 'pycodestyle'
+authors = 'Johann C. Rocholl, Florent Xicluna, Ian Lee'
+copyright = '2006-2016, %s' % (authors)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -195,7 +194,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'pycodestyle.tex', u'pycodestyle documentation',
+    ('index', 'pycodestyle.tex', 'pycodestyle documentation',
      authors, 'manual'),
 ]
 
@@ -225,7 +224,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pycodestyle', u'pycodestyle documentation',
+    ('index', 'pycodestyle', 'pycodestyle documentation',
      [authors], 1)
 ]
 
@@ -239,7 +238,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'pycodestyle', u'pycodestyle documentation', authors,
+    ('index', 'pycodestyle', 'pycodestyle documentation', authors,
      'pycodestyle', 'One line description of project.',
      'Miscellaneous'),
 ]
