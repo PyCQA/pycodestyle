@@ -57,3 +57,10 @@ def oof():
     # ################################################################ #
     # ####################### another separator ###################### #
     # ################################################################ #
+#: E262:3:9
+# -*- coding: utf8 -*-
+#  (One space one NBSP) Ok for block comment
+a = 42  #  (One space one NBSP)
+#: E262:2:9
+#  (Two spaces) Ok for block comment
+a = 42  #  (Two spaces)

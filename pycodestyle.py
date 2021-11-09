@@ -126,7 +126,7 @@ WS_NEEDED_OPERATORS = frozenset([
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
     'and', 'in', 'is', 'or', '->'] +
     ASSIGNMENT_EXPRESSION_OP)
-WHITESPACE = frozenset(' \t')
+WHITESPACE = frozenset(' \t\xa0')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
 # ERRORTOKEN is triggered by backticks in Python 3
@@ -1056,21 +1056,24 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
 
 @register_check
 def whitespace_before_comment(logical_line, tokens):
-    r"""Separate inline comments by at least two spaces.
+    """Separate inline comments by at least two spaces.
 
     An inline comment is a comment on the same line as a statement.
     Inline comments should be separated by at least two spaces from the
     statement. They should start with a # and a single space.
 
-    Each line of a block comment starts with a # and a single space
-    (unless it is indented text inside the comment).
+    Each line of a block comment starts with a # and one or multiple
+    spaces as there can be indented text inside the comment.
 
     Okay: x = x + 1  # Increment x
     Okay: x = x + 1    # Increment x
-    Okay: # Block comment
+    Okay: # Block comments:
+    Okay: #  - Block comment list
+    Okay: # \xa0- Block comment list
     E261: x = x + 1 # Increment x
     E262: x = x + 1  #Increment x
     E262: x = x + 1  #  Increment x
+    E262: x = x + 1  # \xa0Increment x
     E265: #Block comment
     E266: ### Block comment
     """
