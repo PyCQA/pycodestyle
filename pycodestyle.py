@@ -1465,7 +1465,6 @@ def comparison_type(logical_line, noqa):
     common base class, basestring, so you can do:
 
     Okay: if isinstance(obj, basestring):
-    Okay: if type(a1) is type(b1):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:

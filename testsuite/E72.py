@@ -4,7 +4,7 @@ if type(res) == type(42):
 #: E721
 if type(res) != type(""):
     pass
-#: E721
+#: Okay
 import types
 
 if res == types.IntType:
@@ -46,8 +46,6 @@ if isinstance(res, int):
 if isinstance(res, str):
     pass
 if isinstance(res, types.MethodType):
-    pass
-if type(a) != type(b) or type(a) == type(ccc):
     pass
 #: Okay
 def func_histype(a, b, c):
