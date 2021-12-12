@@ -80,3 +80,8 @@ try:
     pass
 except Exception:
     pass
+#: Okay
+from . import custom_types as types
+
+red = types.ColorTypeRED
+red is types.ColorType.RED
