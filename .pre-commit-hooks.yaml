@@ -1,0 +1,6 @@
+-   id: pycodestyle
+    name: pycodestyle
+    description: 'Python style guide checker'
+    entry: pycodestyle
+    language: python
+    types: [python]
