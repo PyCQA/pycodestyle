@@ -55,7 +55,6 @@ import sys
 import time
 import tokenize
 import warnings
-
 from fnmatch import fnmatch
 from functools import lru_cache
 from optparse import OptionParser
