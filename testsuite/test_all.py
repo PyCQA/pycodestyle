@@ -7,9 +7,6 @@ import unittest
 import pycodestyle
 from testsuite.support import init_tests, selftest, ROOT_DIR
 
-# Note: please only use a subset of unittest methods which were present
-# in Python 2.5: assert(True|False|Equal|NotEqual|Raises)
-
 
 class PycodestyleTestCase(unittest.TestCase):
     """Test the standard errors and warnings (E and W)."""
