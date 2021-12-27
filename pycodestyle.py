@@ -55,18 +55,8 @@ import sys
 import time
 import tokenize
 import warnings
-
-try:
-    from functools import lru_cache
-except ImportError:
-    def lru_cache(maxsize=128):  # noqa as it's a fake implementation.
-        """Does not really need a real a lru_cache, it's just
-        optimization, so let's just do nothing here. Python 3.2+ will
-        just get better performances, time to upgrade?
-        """
-        return lambda function: function
-
 from fnmatch import fnmatch
+from functools import lru_cache
 from optparse import OptionParser
 
 try:
@@ -301,12 +291,6 @@ def maximum_line_length(physical_line, max_line_length, multiline,
             (len(chunks) == 2 and chunks[0] == '#')) and \
                 len(line) - len(chunks[-1]) < max_line_length - 7:
             return
-        if hasattr(line, 'decode'):   # Python 2
-            # The line could contain multi-byte characters
-            try:
-                length = len(line.decode('utf-8'))
-            except UnicodeError:
-                pass
         if length > max_line_length:
             return (max_line_length, "E501 line too long "
                     "(%d > %d characters)" % (length, max_line_length))
@@ -1459,12 +1443,6 @@ def comparison_type(logical_line, noqa):
 
     Okay: if isinstance(obj, int):
     E721: if type(obj) is type(1):
-
-    When checking if an object is a string, keep in mind that it might
-    be a unicode string too! In Python 2.3, str and unicode have a
-    common base class, basestring, so you can do:
-
-    Okay: if isinstance(obj, basestring):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
@@ -1787,12 +1765,6 @@ def maximum_doc_length(logical_line, max_doc_length, noqa, tokens):
             if prev_token is None or prev_token in SKIP_TOKENS:
                 lines = line.splitlines()
                 for line_num, physical_line in enumerate(lines):
-                    if hasattr(physical_line, 'decode'):  # Python 2
-                        # The line could contain multi-byte characters
-                        try:
-                            physical_line = physical_line.decode('utf-8')
-                        except UnicodeError:
-                            pass
                     if start[0] + line_num == 1 and line.startswith('#!'):
                         return
                     length = len(physical_line)

@@ -322,18 +322,6 @@ class APITestCase(unittest.TestCase):
         # < 3.3 raises TypeError; >= 3.3 raises AttributeError
         self.assertRaises(Exception, pep8style.check_files, [42])
 
-    def test_check_unicode(self):
-        # Do not crash if lines are Unicode (Python 2.x)
-        pycodestyle.register_check(DummyChecker, ['Z701'])
-        source = u'#\n'
-
-        pep8style = pycodestyle.StyleGuide()
-        count_errors = pep8style.input_file('stdin', lines=[source])
-
-        self.assertFalse(sys.stdout)
-        self.assertFalse(sys.stderr)
-        self.assertEqual(count_errors, 0)
-
     def test_check_nullbytes(self):
         pycodestyle.register_check(DummyChecker, ['Z701'])
 
@@ -341,10 +329,7 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        if 'ValueError' in stdout:  # pragma: no cover (python 3.5+)
-            expected = "stdin:1:1: E901 ValueError"
-        else:  # pragma: no cover (< python3.5)
-            expected = "stdin:1:1: E901 TypeError"
+        expected = "stdin:1:1: E901 ValueError"
         self.assertTrue(stdout.startswith(expected),
                         msg='Output %r does not start with %r' %
                         (stdout, expected))
