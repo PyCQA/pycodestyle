@@ -89,4 +89,8 @@ ham[1:9], ham[1:9:3], ham[:9:3], ham[1::3], ham[1:9:]
 ham[lower:upper], ham[lower:upper:], ham[lower::step]
 ham[: upper_fn(x) : step_fn(x)], ham[:: step_fn(x)]
 ham[{"a": [1, {}, {"a": [{}, []], "b": [3]}, 3][1 : 3]}["a"] :]
+append_leaves(
+    new_line, line, LL[string_idx + 1 : rpar_idx] + LL[rpar_idx + 1 :]
+)
+if token.PERCENT in {leaf.type for leaf in LL[idx - 1 : next_idx]}
 #:

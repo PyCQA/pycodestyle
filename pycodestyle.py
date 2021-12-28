@@ -422,11 +422,13 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 top_level_lines, blank_before)
 
 
-def _E203(tokens, pos):
+def _E203(tokens, count):
     """Additional check for E203 to allow whitespace in slices"""
-    
+
     sqbrackets = 0
     last = 0
+
+    col_count = 0
 
     in_lambda = False
     delim_history = []
@@ -444,7 +446,8 @@ def _E203(tokens, pos):
         if token.exact_type == tokenize.NAME and token[1] == "lambda":
             in_lambda = True
 
-        if token[3][1] == pos:
+        if token.exact_type == tokenize.COLON and col_count == count:
+
             # Colon not inside brackets or
             # following another colon or in lambda expression
             if sqbrackets <= 0 or last == tokenize.COLON or in_lambda:
@@ -472,9 +475,9 @@ def _E203(tokens, pos):
                         count += 1
             break
 
-        if in_lambda and token.exact_type == tokenize.COLON:
+        if token.exact_type == tokenize.COLON:
+            col_count += 1
             in_lambda = False
-
         last = token.exact_type
 
     return False
@@ -500,7 +503,8 @@ def extraneous_whitespace(logical_line, tokens):
     E203: if x == 4: print x, y ; x, y = y, x
     E203: if x == 4 : print x, y; x, y = y, x
     """
-    line = logical_line
+    line: str = logical_line
+    colons = [m.end() for m in re.compile(r":").finditer(line)]
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
         text = match.group()
         char = text.strip()
@@ -510,7 +514,7 @@ def extraneous_whitespace(logical_line, tokens):
             yield found + 1, "E201 whitespace after '%s'" % char
         elif line[found - 1] != ',':
             if (char == ":" and line[found - 1] != " " and
-                    not _E203(tokens, match.end())):
+                    not _E203(tokens, colons.index(match.end()))):
                 continue
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
             yield found, f"{code} whitespace before '{char}'"
