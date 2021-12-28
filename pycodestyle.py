@@ -136,7 +136,7 @@ COMPARE_NEGATIVE_REGEX = re.compile(r'\b(?<!is\s)(not)\s+[^][)(}{ ]+\s+'
                                     r'(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(
     r'(?:[=!]=|is(?:\s+not)?)\s+type(?:\s*\(\s*([^)]*[^ )])\s*\))' +
-    r'|type(?:\s*\(\s*([^)]*[^ )])\s*\))\s+(?:[=!]=|is(?:\s+not)?)'
+    r'|\btype(?:\s*\(\s*([^)]*[^ )])\s*\))\s+(?:[=!]=|is(?:\s+not)?)'
 )
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+|:=)(\s*)')
