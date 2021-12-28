@@ -69,10 +69,24 @@ if x == 4:
 if x == 4:
     print x, y
     x, y = y	, x
+#: E203:1:20
+ham[lower + offset  : upper + offset]
+#: E203:1:12
+ham[lower : : upper]
+#: E203:1:14
+ham[(lambda x : x)(5) :]
+#: E203:1:9
+ham[{"a" : 6}["a"] :]
+#: E203:1:38
+ham[{"a": [1, {}, {"a": [{}, []], "b" :[3]}, 3][1 : 3]}["a"] :]
 #: Okay
 if x == 4:
     print x, y
     x, y = y, x
 a[b1, :] == a[b1, ...]
 b = a[:, b1]
+ham[1:9], ham[1:9:3], ham[:9:3], ham[1::3], ham[1:9:]
+ham[lower:upper], ham[lower:upper:], ham[lower::step]
+ham[: upper_fn(x) : step_fn(x)], ham[:: step_fn(x)]
+ham[{"a": [1, {}, {"a": [{}, []], "b": [3]}, 3][1 : 3]}["a"] :]
 #:

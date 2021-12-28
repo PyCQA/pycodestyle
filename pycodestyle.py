@@ -422,8 +422,66 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 top_level_lines, blank_before)
 
 
+def _E203(tokens, pos):
+    """Additional check for E203 to allow whitespace in slices"""
+    
+    sqbrackets = 0
+    last = 0
+
+    in_lambda = False
+    delim_history = []
+
+    for token in tokens:
+        if token.exact_type == tokenize.LSQB:
+            sqbrackets += 1
+        elif token.exact_type == tokenize.RSQB:
+            sqbrackets -= 1
+        if token.exact_type in (
+            tokenize.LBRACE, tokenize.RBRACE, tokenize.RSQB, tokenize.LSQB
+        ):
+            delim_history.append(token.exact_type)
+
+        if token.exact_type == tokenize.NAME and token[1] == "lambda":
+            in_lambda = True
+
+        if token[3][1] == pos:
+            # Colon not inside brackets or
+            # following another colon or in lambda expression
+            if sqbrackets <= 0 or last == tokenize.COLON or in_lambda:
+                return True
+
+            # Colon in dict
+            if tokenize.LBRACE not in delim_history:
+                break
+            needs = 0
+            count = 0
+            for d in delim_history[::-1]:
+                if needs == 0:
+                    if d == tokenize.LBRACE:
+                        return True
+                    if d == tokenize.LSQB:
+                        return False
+                    needs = d - 1
+                else:
+                    if d == needs:
+                        if count == 0:
+                            needs = 0
+                        else:
+                            count -= 1
+                    if d == needs + 1:
+                        count += 1
+            break
+
+        if in_lambda and token.exact_type == tokenize.COLON:
+            in_lambda = False
+
+        last = token.exact_type
+
+    return False
+
+
 @register_check
-def extraneous_whitespace(logical_line):
+def extraneous_whitespace(logical_line, tokens):
     r"""Avoid extraneous whitespace.
 
     Avoid extraneous whitespace in these situations:
@@ -451,6 +509,9 @@ def extraneous_whitespace(logical_line):
             # assert char in '([{'
             yield found + 1, "E201 whitespace after '%s'" % char
         elif line[found - 1] != ',':
+            if (char == ":" and line[found - 1] != " " and
+                    not _E203(tokens, match.end())):
+                continue
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
             yield found, f"{code} whitespace before '{char}'"
 
