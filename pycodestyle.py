@@ -424,7 +424,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
 
 def _E203(tokens, pos):
     """Additional check for E203 to allow whitespace in slices"""
-    
+
     sqbrackets = 0
     last = 0
 
