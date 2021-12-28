@@ -83,3 +83,8 @@ from . import custom_types as types
 
 red = types.ColorTypeRED
 red is types.ColorType.RED
+#: Okay
+from . import compute_type
+
+if compute_type(foo) == 5:
+    pass
