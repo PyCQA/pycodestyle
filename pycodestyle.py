@@ -1269,20 +1269,19 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
+# The % character is strictly speaking a binary operator, but the
+# common usage seems to be to put it next to the format parameters,
+# after a line break.
 _SYMBOLIC_OPS = frozenset("()[]{},:.;@=%~") | frozenset(("...",))
 
 
 def _is_binary_operator(token_type, text):
-    is_op_token = token_type == tokenize.OP
-    is_conjunction = text in ['and', 'or']
-    # NOTE(sigmavirus24): Previously the not_a_symbol check was executed
-    # conditionally. Since it is now *always* executed, text may be
-    # None. In that case we get a TypeError for `text not in str`.
-    not_a_symbol = text and text not in _SYMBOLIC_OPS
-    # The % character is strictly speaking a binary operator, but the
-    # common usage seems to be to put it next to the format parameters,
-    # after a line break.
-    return ((is_op_token or is_conjunction) and not_a_symbol)
+    return (
+        token_type == tokenize.OP or
+        text in {'and', 'or'}
+    ) and (
+        text not in _SYMBOLIC_OPS
+    )
 
 
 def _break_around_binary_operators(tokens):
