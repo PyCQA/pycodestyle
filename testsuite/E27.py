@@ -42,5 +42,10 @@ try:
     from importable.module import(e, f)
 except ImportError:
     pass
+#: E275
+if(foo):
+    pass
+else:
+    pass
 #: Okay
 matched = {"true": True, "false": False}

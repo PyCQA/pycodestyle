@@ -41,8 +41,8 @@ if (
 #: E101 E101 W191 W191
 if start[1] > end_col and not (
         over_indent == 4 and indent_next):
-	return(0, "E121 continuation line over-"
-	       "indented for visual indent")
+	return (0, "E121 continuation line over-"
+	        "indented for visual indent")
 #:
 
 #: E101 W191
@@ -58,7 +58,7 @@ if ((row < 0 or self.moduleCount <= row or
 	raise Exception("%s,%s - %s" % (row, col, self.moduleCount))
 #: E101 E101 E101 E101 W191 W191 W191 W191 W191 W191
 if bar:
-	return(
+	return (
 	    start, 'E121 lines starting with a '
 	    'closing bracket should be indented '
 	    "to match that of the opening "
