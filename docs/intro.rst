@@ -107,13 +107,16 @@ Or you can display how often each error was found::
   1188    W602 deprecated form of raising exception
 
 You can also make ``pycodestyle.py`` show the error text in different formats by
-using ``--format`` having options default/pylint/custom::
+using ``--format`` having options default/pylint/sarif/custom::
 
   $ pycodestyle testsuite/E40.py --format=default
   testsuite/E40.py:2:10: E401 multiple imports on one line
 
   $ pycodestyle testsuite/E40.py --format=pylint
   testsuite/E40.py:2: [E401] multiple imports on one line
+
+  $ pycodestyle testsuite/E40.py --format=sarif
+  return results in Static Analysis Results Interchange Format (SARIF)
 
   $ pycodestyle testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
   testsuite/E40.py|2|10| E401 multiple imports on one line
@@ -162,7 +165,7 @@ Quick help is available on the command line::
     --indent-size=n      set how many spaces make up an indent (default: 4)
     --hang-closing       hang closing bracket instead of matching indentation of
                          opening bracket's line
-    --format=format      set the error format [default|pylint|<custom>]
+    --format=format      set the error format [default|pylint|sarif|<custom>]
     --diff               report only lines changed according to the unified diff
                          received on STDIN
 

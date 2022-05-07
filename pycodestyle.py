@@ -48,6 +48,7 @@ W warnings
 """
 import bisect
 import inspect
+import json
 import keyword
 import os
 import re
@@ -58,6 +59,7 @@ import warnings
 from fnmatch import fnmatch
 from functools import lru_cache
 from optparse import OptionParser
+from pathlib import Path
 
 try:
     from configparser import RawConfigParser
@@ -102,6 +104,7 @@ INDENT_SIZE = 4
 REPORT_FORMAT = {
     'default': '%(path)s:%(row)d:%(col)d: %(code)s %(text)s',
     'pylint': '%(path)s:%(row)d: [%(code)s] %(text)s',
+    'sarif': 'sarif',
 }
 
 PyCF_ONLY_AST = 1024
@@ -1937,7 +1940,7 @@ def _is_eol_token(token):
 class Checker:
     """Load a Python source file, tokenize it, check coding style."""
 
-    def __init__(self, filename=None, lines=None,
+    def __init__(self, filename=None, dirname=None, lines=None,
                  options=None, report=None, **kwargs):
         if options is None:
             options = StyleGuide(kwargs).options
@@ -1955,6 +1958,7 @@ class Checker:
         self.indent_size = options.indent_size
         self.verbose = options.verbose
         self.filename = filename
+        self.dirname = dirname
         # Dictionary where a checker can store its custom state.
         self._checker_states = {}
         if filename is None:
@@ -2169,7 +2173,8 @@ class Checker:
 
     def check_all(self, expected=None, line_offset=0):
         """Run all checks on the input file."""
-        self.report.init_file(self.filename, self.lines, expected, line_offset)
+        self.report.init_file(self.filename, self.dirname, self.lines,
+                              expected, line_offset)
         self.total_lines = len(self.lines)
         if self._ast_checks:
             self.check_ast()
@@ -2226,6 +2231,7 @@ class BaseReport:
         self.total_errors = 0
         self.counters = dict.fromkeys(self._benchmark_keys, 0)
         self.messages = {}
+        self.sarif_data = []
 
     def start(self):
         """Start the timer."""
@@ -2235,9 +2241,10 @@ class BaseReport:
         """Stop the timer."""
         self.elapsed = time.time() - self._start_time
 
-    def init_file(self, filename, lines, expected, line_offset):
+    def init_file(self, filename, dirname, lines, expected, line_offset):
         """Signal a new file."""
         self.filename = filename
+        self.dirname = dirname
         self.lines = lines
         self.expected = expected or ()
         self.line_offset = line_offset
@@ -2320,11 +2327,11 @@ class StandardReport(BaseReport):
         self._show_source = options.show_source
         self._show_pep8 = options.show_pep8
 
-    def init_file(self, filename, lines, expected, line_offset):
+    def init_file(self, filename, dirname, lines, expected, line_offset):
         """Signal a new file."""
         self._deferred_print = []
         return super().init_file(
-            filename, lines, expected, line_offset)
+            filename, dirname, lines, expected, line_offset)
 
     def error(self, line_number, offset, text, check):
         """Report an error, according to options."""
@@ -2338,20 +2345,35 @@ class StandardReport(BaseReport):
         """Print results and return the overall count for this file."""
         self._deferred_print.sort()
         for line_number, offset, code, text, doc in self._deferred_print:
-            print(self._fmt % {
-                'path': self.filename,
-                'row': self.line_offset + line_number, 'col': offset + 1,
-                'code': code, 'text': text,
-            })
-            if self._show_source:
-                if line_number > len(self.lines):
-                    line = ''
-                else:
-                    line = self.lines[line_number - 1]
-                print(line.rstrip())
-                print(re.sub(r'\S', ' ', line[:offset]) + '^')
-            if self._show_pep8 and doc:
-                print('    ' + doc.strip())
+            if self._fmt != 'sarif':
+                print(self._fmt % {
+                    'path': self.filename,
+                    'row': self.line_offset + line_number, 'col': offset + 1,
+                    'code': code, 'text': text,
+                })
+                if self._show_source:
+                    if line_number > len(self.lines):
+                        line = ''
+                    else:
+                        line = self.lines[line_number - 1]
+                    print(line.rstrip())
+                    print(re.sub(r'\S', ' ', line[:offset]) + '^')
+                if self._show_pep8 and doc:
+                    print('    ' + doc.strip())
+            else:
+                sarif = SarifData(
+                    rule_id=code,
+                    rule_level='warning' if code.startswith('W') else 'error',
+                    rule_full_desc=doc.strip(),
+                    full_file_path=self.filename,
+                    root_dir_path=self.dirname,
+                    result_message=text,
+                    start_line=self.line_offset + line_number,
+                    start_column=offset + 1,
+                    code_snippet=self.get_source_code(line_number),
+                    code_context=self.get_source_code(line_number,
+                                                      include_context=True))
+                self.sarif_data.append(sarif)
 
             # stdout is block buffered when not stdout.isatty().
             # line can be broken where buffer boundary since other
@@ -2361,6 +2383,143 @@ class StandardReport(BaseReport):
             # len(line) < 8192.
             sys.stdout.flush()
         return self.file_errors
+
+    def get_source_code(self, line_number, include_context=False):
+        if line_number > len(self.lines) or line_number < 1:
+            return ''
+        else:
+            source_code = self.lines[line_number - 1]
+            if include_context:
+                if line_number - 1 >= 1:
+                    source_code = self.lines[line_number - 2] + source_code
+                if line_number + 1 <= len(self.lines):
+                    source_code = source_code + self.lines[line_number]
+            return source_code
+
+    def print_sarif_report(self):
+        sarif = {
+            "$schema": ("https://schemastore.azurewebsites.net/schemas/"
+                        "json/sarif-2.1.0-rtm.5.json"),
+            "version": "2.1.0",
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "pycodestyle",
+                            "informationUri": "https://pycodestyle.pycqa.org/",
+                            "version": "1.7.1",
+                            "rules": [
+                                {
+                                    "id": "E101",
+                                    "fullDescription": {
+                                        "text": "Never mix tabs and spaces..."
+                                    },
+                                    "defaultConfiguration": {
+                                        "level": "error"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "results": [
+                        {
+                            "ruleId": "E101",
+                            "ruleIndex": 0,
+                            "message": {
+                                "text": "indentation contains mixed spaces..."
+                            },
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {
+                                            "uri": "TestFileFolder/E10.py",
+                                            "uriBaseId": "ROOTPATH"
+                                        },
+                                        "region": {
+                                            "startLine": 2,
+                                            "startColumn": 7,
+                                            "snippet": {
+                                                "text": "\tprint b  # ind..."
+                                            }
+                                        },
+                                        "contextRegion": {
+                                            "snippet": {
+                                                "text": ("print a  # indented"
+                                                         " with 8 spaces\n"
+                                                         "\tprint b  # ind...")
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "columnKind": "utf16CodeUnits",
+                    "originalUriBaseIds": {
+                        "ROOTPATH": {
+                            "uri": "file:///C:/repos/repototest/"
+                        }
+                    }
+                }
+            ]
+        }
+
+        rules = sarif['runs'][0]['tool']['driver']['rules'] = []
+        results = sarif['runs'][0]['results'] = []
+        roots = sarif['runs'][0]['originalUriBaseIds'] = {}
+
+        for message in self.sarif_data:
+            rule_index_exists = next((i for i, tag in enumerate(rules)
+                                      if tag['id'] == message.rule_id), 'none')
+            if rule_index_exists == 'none':
+                new_rule = {'id': message.rule_id}
+                new_rule['fullDescription'] = {'text': message.rule_full_desc}
+                if message.rule_level != 'warning':
+                    new_rule['defaultConfiguration'] = {
+                        'level': message.rule_level}
+                rules.append(new_rule)
+                rule_index = len(rules) - 1
+            else:
+                rule_index = rule_index_exists
+
+            base_uri = message.get_base_dir_file_uri()
+            root_path_index_exists = next((i for i, tag in roots.items()
+                                           if tag['uri'] == base_uri), 'none')
+            if root_path_index_exists == 'none':
+                new_root_name = ('ROOTPATH' + str(len(roots) + 1)
+                                 if len(roots) >= 1 else 'ROOTPATH')
+                roots[new_root_name] = {'uri': base_uri}
+                root_path = new_root_name
+            else:
+                root_path = root_path_index_exists
+
+            result = {
+                'ruleId': message.rule_id,
+                'ruleIndex': rule_index,
+                'message': {'text': message.result_message},
+                'locations': [{
+                    'physicalLocation': {
+                        'artifactLocation': {
+                            'uri': message.get_relative_path(),
+                            'uriBaseId': root_path
+                        },
+                        'region': {
+                            'startLine': message.start_line,
+                            'startColumn': message.start_column,
+                            "snippet": {
+                                "text": message.code_snippet
+                            }
+                        },
+                        "contextRegion": {
+                            "snippet": {
+                                "text": message.code_context
+                            }
+                        }
+                    }
+                }],
+            }
+            results.append(result)
+        print(json.dumps(sarif, indent=4))
 
 
 class DiffReport(StandardReport):
@@ -2374,6 +2533,41 @@ class DiffReport(StandardReport):
         if line_number not in self._selected[self.filename]:
             return
         return super().error(line_number, offset, text, check)
+
+
+class SarifData:
+    """Collect the results of the checks for SARIF format."""
+
+    def __init__(self, rule_id, rule_level, rule_full_desc, full_file_path,
+                 root_dir_path, result_message, start_line, start_column,
+                 code_snippet, code_context):
+        self.rule_id = rule_id
+        self.rule_level = rule_level
+        self.rule_full_desc = rule_full_desc
+        self.full_file_path = full_file_path
+        self.root_dir_path = root_dir_path
+        self.result_message = result_message
+        self.start_line = start_line
+        self.start_column = start_column
+        self.code_snippet = code_snippet
+        self.code_context = code_context
+
+    def get_relative_path(self):
+        """Return path of the file relative to the root folder."""
+        if self.root_dir_path is None:
+            path = os.path.dirname(os.path.abspath(self.full_file_path))
+        else:
+            path = self.root_dir_path
+        path = Path(self.full_file_path).relative_to(path)
+        return str(path).replace('\\', '/')
+
+    def get_base_dir_file_uri(self):
+        """Return file uri of the root folder."""
+        if self.root_dir_path is None:
+            path = os.path.dirname(os.path.abspath(self.full_file_path))
+        else:
+            path = self.root_dir_path
+        return Path(path).as_uri() + '/'
 
 
 class StyleGuide:
@@ -2440,12 +2634,13 @@ class StyleGuide:
         report.stop()
         return report
 
-    def input_file(self, filename, lines=None, expected=None, line_offset=0):
+    def input_file(self, filename, dirname=None, lines=None, expected=None,
+                   line_offset=0):
         """Run all checks on a Python source file."""
         if self.options.verbose:
             print('checking %s' % filename)
         fchecker = self.checker_class(
-            filename, lines=lines, options=self.options)
+            filename, dirname=dirname, lines=lines, options=self.options)
         return fchecker.check_all(expected=expected, line_offset=line_offset)
 
     def input_dir(self, dirname):
@@ -2470,7 +2665,7 @@ class StyleGuide:
                     filename_match(filename, filepatterns) and
                     not self.excluded(filename, root)
                 ):
-                    runner(os.path.join(root, filename))
+                    runner(os.path.join(root, filename), dirname)
 
     def excluded(self, filename, parent=None):
         """Check if the file should be excluded.
@@ -2569,7 +2764,8 @@ def get_parser(prog='pycodestyle', version=__version__):
                       help="hang closing bracket instead of matching "
                            "indentation of opening bracket's line")
     parser.add_option('--format', metavar='format', default='default',
-                      help="set the error format [default|pylint|<custom>]")
+                      help="set the error format "
+                      "[default|pylint|sarif|<custom>]")
     parser.add_option('--diff', action='store_true',
                       help="report changes only within line number ranges in "
                            "the unified diff received on STDIN")
@@ -2757,6 +2953,9 @@ def _main():
 
     if options.testsuite and not options.quiet:
         report.print_results()
+
+    if options.format == 'sarif':
+        report.print_sarif_report()
 
     if report.total_errors:
         if options.count:

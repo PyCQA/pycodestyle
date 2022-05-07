@@ -135,6 +135,25 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(sys.stderr)
         self.reset()
 
+        # Testing with SARIF format
+        report = pycodestyle.StyleGuide(
+            paths=[E11], format='sarif').check_files()
+        stdout = sys.stdout.getvalue().splitlines()
+        self.assertEqual(len(stdout), 0)
+        self.assertEqual(report.total_errors, 24)
+        self.assertEqual(len(report.sarif_data), 24)
+        self.assertEqual(report.sarif_data[0].rule_id, 'E111')
+        self.assertEqual(report.sarif_data[0].rule_level, 'error')
+        self.assertEqual(report.sarif_data[0].code_snippet, '  print x\n')
+        self.assertFalse(sys.stderr)
+        report.print_sarif_report()
+        stdout = sys.stdout.getvalue().splitlines()
+        self.assertEqual(len(stdout), 818)
+        self.assertEqual(stdout[12].strip(), '"id": "E111",')
+        self.assertEqual(stdout[17].strip(), '"level": "error"')
+        self.assertEqual(stdout[129].strip(), '"text": "  print x\\n"')
+        self.reset()
+
     def test_styleguide_options(self):
         # Instantiate a simple checker
         pep8style = pycodestyle.StyleGuide(paths=[E11])

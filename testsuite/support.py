@@ -166,7 +166,7 @@ def init_tests(pep8style):
     report = pep8style.init_report(TestReport)
     runner = pep8style.input_file
 
-    def run_tests(filename):
+    def run_tests(filename, dirname=None):
         """Run all the tests from a file."""
         # Skip tests meant for higher versions of python
         ver_match = re.search(r'python(\d)(\d+)?\.py$', filename)
@@ -192,7 +192,7 @@ def init_tests(pep8style):
                 codes = [c for c in codes
                          if c not in ('Okay', 'noeol')]
                 # Run the checker
-                runner(filename, testcase, expected=codes,
+                runner(filename, dirname, testcase, expected=codes,
                        line_offset=line_offset)
             # output the real line numbers
             line_offset = index + 1
