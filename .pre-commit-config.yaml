@@ -13,7 +13,7 @@ repos:
     -   id: reorder-python-imports
         args: [--py36-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.1
+    rev: v2.33.0
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
