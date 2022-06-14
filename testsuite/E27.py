@@ -49,3 +49,6 @@ else:
     pass
 #: Okay
 matched = {"true": True, "false": False}
+#: E275:2:11
+if True:
+    assert(1)

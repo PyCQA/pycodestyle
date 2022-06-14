@@ -497,8 +497,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
                 tok0.string not in SINGLETONS and
                 tok0.string not in ('async', 'await') and
                 tok1.string not in ':\n'):
-            line, pos = tok0.end
-            yield pos, "E275 missing whitespace after keyword"
+            yield tok0.end, "E275 missing whitespace after keyword"
 
 
 @register_check
