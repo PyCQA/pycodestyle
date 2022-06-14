@@ -29,7 +29,10 @@ jobs:
           py: 3.9
           toxenv: py
         - os: ubuntu-latest
-          py: 3.10-dev
+          py: '3.10'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.11-dev'
           toxenv: py
         - os: ubuntu-latest
           py: 3.9

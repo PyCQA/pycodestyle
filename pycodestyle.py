@@ -496,6 +496,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
                 keyword.iskeyword(tok0.string) and
                 tok0.string not in SINGLETONS and
                 tok0.string not in ('async', 'await') and
+                not (tok0.string == 'except' and tok1.string == '*') and
                 tok1.string not in ':\n'):
             yield tok0.end, "E275 missing whitespace after keyword"
 
