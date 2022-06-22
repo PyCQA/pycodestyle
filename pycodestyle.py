@@ -140,7 +140,9 @@ COMPARE_TYPE_REGEX = re.compile(
 )
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+|:=)(\s*)')
-LAMBDA_REGEX = re.compile(r'\blambda\b')
+LAMBDA_ASSIGNMENT_REGEX = re.compile(
+    r'(?<!\.)\w+\s*(\,\s*\w+\s*)*\='
+    r'(.*\,)*[\s|\(]*lambda')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)\b')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def\s+|def\s+|class\s+|@)')
@@ -1203,6 +1205,9 @@ def compound_statements(logical_line):
     found = line.find(':')
     prev_found = 0
     counts = {char: 0 for char in '{}[]()'}
+    if LAMBDA_ASSIGNMENT_REGEX.match(line):
+        yield 0, ("E731 do not assign a lambda expression, use a "
+                  "def")
     while -1 < found < last_char:
         update_counts(line[prev_found:found], counts)
         if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
@@ -1210,13 +1215,6 @@ def compound_statements(logical_line):
              counts['('] <= counts[')']) and  # (annotation)
             not (sys.version_info >= (3, 8) and
                  line[found + 1] == '=')):  # assignment expression
-            lambda_kw = LAMBDA_REGEX.search(line, 0, found)
-            if lambda_kw:
-                before = line[:lambda_kw.start()].rstrip()
-                if before[-1:] == '=' and before[:-1].strip().isidentifier():
-                    yield 0, ("E731 do not assign a lambda expression, use a "
-                              "def")
-                break
             if STARTSWITH_DEF_REGEX.match(line):
                 yield 0, "E704 multiple statements on one line (def)"
             elif STARTSWITH_INDENT_STATEMENT_REGEX.match(line):
