@@ -128,7 +128,13 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,.*,\s*\w+\s*$')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({][ \t]|[ \t][\]}),;:](?!=)')
+EXTRANEOUS_WHITESPACE_REGEX = re.compile(
+    r'('
+    r'[\[({][ \t]|'
+    r'(?P<in_brackets>\[[^]]*)[^]]]?|'
+    r'[ \t][]}),;:](?!=)'
+    r')'
+)
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
@@ -445,13 +451,18 @@ def extraneous_whitespace(logical_line):
     line = logical_line
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
         text = match.group()
-        char = text.strip()
+        char = text.strip()[-1]
         found = match.start()
         if text[-1].isspace():
             # assert char in '([{'
             yield found + 1, "E201 whitespace after '%s'" % char
         elif line[found - 1] != ',':
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
+            if "in_brackets" in match.groupdict():  # Not first case of regex
+                if not re.match(r"[ \t]", text[-2]):  # No space
+                    continue
+                if len(text) > 2 and text[-3] == ",":  # comma space
+                    continue
             yield found, f"{code} whitespace before '{char}'"
 
 

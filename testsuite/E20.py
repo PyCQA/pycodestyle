@@ -19,13 +19,13 @@ spam(ham[1], {eggs: 2})
 spam(ham[1], {eggs: 2} )
 #: E202:1:22
 spam(ham[1], {eggs: 2 })
-#: E202:1:11
+#: E202:1:9
 spam(ham[1 ], {eggs: 2})
 #: E202:1:23
 spam(ham[1], {eggs: 2}	)
 #: E202:1:22
 spam(ham[1], {eggs: 2	})
-#: E202:1:11
+#: E202:1:9
 spam(ham[1	], {eggs: 2})
 #: Okay
 spam(ham[1], {eggs: 2})
