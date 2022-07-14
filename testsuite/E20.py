@@ -75,4 +75,9 @@ if x == 4:
     x, y = y, x
 a[b1, :] == a[b1, ...]
 b = a[:, b1]
-#:
+#: Okay
+if x == 4:
+    print x, y
+    x, y = y, x
+a[1 : 2] == a[b1, ...]
+b = a[:, b1]
