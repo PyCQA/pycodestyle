@@ -1,6 +1,18 @@
 Changelog
 =========
 
+2.9.0 (2022-07-30)
+------------------
+
+Changes:
+
+* E221, E222, E223, E224: add support for ``:=`` operator.  PR #1032.
+* Drop python 2.7 / 3.5.
+* E262: consider non-breaking spaces (``\xa0``) as whitespace.  PR #1035.
+* Improve performance of ``_is_binary_operator``.  PR #1052.
+* E275: requires whitespace around keywords.  PR #1063.
+* Add support for python 3.11. PR #1070.
+
 2.8.0 (2021-10-10)
 ------------------
 
