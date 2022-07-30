@@ -134,10 +134,8 @@ COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(?<!is\s)(not)\s+[^][)(}{ ]+\s+'
                                     r'(in|is)\s')
-COMPARE_TYPE_REGEX = re.compile(
-    r'(?:[=!]=|is(?:\s+not)?)\s+type(?:\s*\(\s*([^)]*[^ )])\s*\))' +
-    r'|\btype(?:\s*\(\s*([^)]*[^ )])\s*\))\s+(?:[=!]=|is(?:\s+not)?)'
-)
+COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s+type(?:s.\w+Type'
+                                r'|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+|:=)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
@@ -1446,6 +1444,13 @@ def comparison_type(logical_line, noqa):
 
     Okay: if isinstance(obj, int):
     E721: if type(obj) is type(1):
+
+    When checking if an object is a string, keep in mind that it might
+    be a unicode string too! In Python 2.3, str and unicode have a
+    common base class, basestring, so you can do:
+
+    Okay: if isinstance(obj, basestring):
+    Okay: if type(a1) is type(b1):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:

@@ -4,7 +4,7 @@ if type(res) == type(42):
 #: E721
 if type(res) != type(""):
     pass
-#: Okay
+#: E721
 import types
 
 if res == types.IntType:
@@ -47,6 +47,8 @@ if isinstance(res, str):
     pass
 if isinstance(res, types.MethodType):
     pass
+if type(a) != type(b) or type(a) == type(ccc):
+    pass
 #: Okay
 def func_histype(a, b, c):
     pass
@@ -78,11 +80,6 @@ try:
     pass
 except Exception:
     pass
-#: Okay
-from . import custom_types as types
-
-red = types.ColorTypeRED
-red is types.ColorType.RED
 #: Okay
 from . import compute_type
 
