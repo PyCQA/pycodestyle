@@ -13,11 +13,11 @@ repos:
     -   id: reorder-python-imports
         args: [--py36-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
+    rev: v2.37.3
     hooks:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 5.0.3
     hooks:
     -   id: flake8
