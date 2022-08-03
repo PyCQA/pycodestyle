@@ -52,3 +52,7 @@ matched = {"true": True, "false": False}
 #: E275:2:11
 if True:
     assert(1)
+#: Okay
+def f():
+    print((yield))
+    x = (yield)
