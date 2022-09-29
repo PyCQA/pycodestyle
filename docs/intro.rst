@@ -200,7 +200,7 @@ Example::
 
   [pycodestyle]
   count = False
-  ignore = E226,E302,E41
+  ignore = E226,E302,E71
   max-line-length = 160
   statistics = True
 
