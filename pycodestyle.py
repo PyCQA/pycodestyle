@@ -1494,14 +1494,18 @@ def ambiguous_identifier(logical_line, tokens):
     E741: I = 42
 
     Variables can be bound in several other contexts, including class
-    and function definitions, 'global' and 'nonlocal' statements,
-    exception handlers, and 'with' and 'for' statements.
+    and function definitions, lambda functions, 'global' and 'nonlocal'
+    statements, exception handlers, and 'with' and 'for' statements.
     In addition, we have a special handling for function parameters.
 
     Okay: except AttributeError as o:
     Okay: with lock as L:
     Okay: foo(l=12)
+    Okay: foo(l=I)
     Okay: for a in foo(l=12):
+    Okay: lambda arg: arg * l
+    Okay: lambda a=l[I:5]: None
+    Okay: lambda x=a.I: None
     E741: except AttributeError as O:
     E741: with lock as l:
     E741: global I
@@ -1510,17 +1514,23 @@ def ambiguous_identifier(logical_line, tokens):
     E741: def foo(l=12):
     E741: l = foo(l=12)
     E741: for l in range(10):
+    E741: [l for l in lines if l]
+    E741: lambda l: None
+    E741: lambda a=x[1:5], l: None
+    E741: lambda **l:
+    E741: def f(**l):
     E742: class I(object):
     E743: def l(x):
     """
-    is_func_def = False  # Set to true if 'def' is found
+    is_func_def = False  # Set to true if 'def' or 'lambda' is found
     parameter_parentheses_level = 0
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
-    for token_type, text, start, end, line in tokens[1:]:
+    for index in range(1, len(tokens)):
+        token_type, text, start, end, line = tokens[index]
         ident = pos = None
         # find function definitions
-        if prev_text == 'def':
+        if prev_text in {'def', 'lambda'}:
             is_func_def = True
         # update parameter parentheses level
         if parameter_parentheses_level == 0 and \
@@ -1545,11 +1555,15 @@ def ambiguous_identifier(logical_line, tokens):
             if text in idents_to_avoid:
                 ident = text
                 pos = start
-        # function parameter definitions
-        if is_func_def:
-            if text in idents_to_avoid:
-                ident = text
-                pos = start
+        # function / lambda parameter definitions
+        if (
+                is_func_def and
+                index < len(tokens) - 1 and tokens[index + 1][1] in ':,=)' and
+                prev_text in {'lambda', ',', '*', '**', '('} and
+                text in idents_to_avoid
+        ):
+            ident = text
+            pos = start
         if prev_text == 'class':
             if text in idents_to_avoid:
                 yield start, "E742 ambiguous class definition '%s'" % text
