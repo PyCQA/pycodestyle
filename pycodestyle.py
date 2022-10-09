@@ -506,6 +506,7 @@ def missing_whitespace(logical_line):
 
     Okay: [a, b]
     Okay: (3,)
+    Okay: a[3,] = 1
     Okay: a[1:4]
     Okay: a[:4]
     Okay: a[1:]
@@ -523,7 +524,7 @@ def missing_whitespace(logical_line):
             if char == ':' and before.count('[') > before.count(']') and \
                     before.rfind('{') < before.rfind('['):
                 continue  # Slice syntax, no space required
-            if char == ',' and next_char == ')':
+            if char == ',' and next_char in ')]':
                 continue  # Allow tuple with only one element: (3,)
             if char == ':' and next_char == '=' and sys.version_info >= (3, 8):
                 continue  # Allow assignment expression
