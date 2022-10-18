@@ -71,11 +71,9 @@ Example usage and output
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
-  optparse.py:222:34: W602 deprecated form of raising exception
   optparse.py:347:31: E211 whitespace before '('
   optparse.py:357:17: E201 whitespace after '{'
   optparse.py:472:29: E221 multiple spaces before operator
-  optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
 You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
@@ -103,8 +101,6 @@ Or you can display how often each error was found::
   165     E303 too many blank lines (4)
   325     E401 multiple imports on one line
   3615    E501 line too long (82 characters)
-  612     W601 .has_key() is deprecated, use 'in'
-  1188    W602 deprecated form of raising exception
 
 You can also make ``pycodestyle.py`` show the error text in different formats by
 using ``--format`` having options default/pylint/custom::
@@ -414,14 +410,6 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 +------------+----------------------------------------------------------------------+
 | **W6**     | *Deprecation warning*                                                |
-+------------+----------------------------------------------------------------------+
-| W601       | .has_key() is deprecated, use 'in'                                   |
-+------------+----------------------------------------------------------------------+
-| W602       | deprecated form of raising exception                                 |
-+------------+----------------------------------------------------------------------+
-| W603       | '<>' is deprecated, use '!='                                         |
-+------------+----------------------------------------------------------------------+
-| W604       | backticks are deprecated, use 'repr()'                               |
 +------------+----------------------------------------------------------------------+
 | W605       | invalid escape sequence '\x'                                         |
 +------------+----------------------------------------------------------------------+
