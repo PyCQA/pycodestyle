@@ -1564,59 +1564,6 @@ def ambiguous_identifier(logical_line, tokens):
 
 
 @register_check
-def python_3000_has_key(logical_line, noqa):
-    r"""The {}.has_key() method is removed in Python 3: use the 'in'
-    operator.
-
-    Okay: if "alph" in d:\n    print d["alph"]
-    W601: assert d.has_key('alph')
-    """
-    pos = logical_line.find('.has_key(')
-    if pos > -1 and not noqa:
-        yield pos, "W601 .has_key() is deprecated, use 'in'"
-
-
-@register_check
-def python_3000_raise_comma(logical_line):
-    r"""When raising an exception, use "raise ValueError('message')".
-
-    The older form is removed in Python 3.
-
-    Okay: raise DummyError("Message")
-    W602: raise DummyError, "Message"
-    """
-    match = RAISE_COMMA_REGEX.match(logical_line)
-    if match and not RERAISE_COMMA_REGEX.match(logical_line):
-        yield match.end() - 1, "W602 deprecated form of raising exception"
-
-
-@register_check
-def python_3000_not_equal(logical_line):
-    r"""New code should always use != instead of <>.
-
-    The older syntax is removed in Python 3.
-
-    Okay: if a != 'no':
-    W603: if a <> 'no':
-    """
-    pos = logical_line.find('<>')
-    if pos > -1:
-        yield pos, "W603 '<>' is deprecated, use '!='"
-
-
-@register_check
-def python_3000_backticks(logical_line):
-    r"""Use repr() instead of backticks in Python 3.
-
-    Okay: val = repr(1 + 2)
-    W604: val = `1 + 2`
-    """
-    pos = logical_line.find('`')
-    if pos > -1:
-        yield pos, "W604 backticks are deprecated, use 'repr()'"
-
-
-@register_check
 def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
     r"""Invalid escape sequences are deprecated in Python 3.6.
 
