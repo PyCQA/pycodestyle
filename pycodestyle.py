@@ -1504,6 +1504,7 @@ def ambiguous_identifier(logical_line, tokens):
     Okay: lambda arg: arg * l
     Okay: lambda a=l[I:5]: None
     Okay: lambda x=a.I: None
+    Okay: if l >= 12:
     E741: except AttributeError as O:
     E741: with lock as l:
     E741: global I
@@ -1542,7 +1543,7 @@ def ambiguous_identifier(logical_line, tokens):
             elif text == ')':
                 parameter_parentheses_level -= 1
         # identifiers on the lhs of an assignment operator
-        if token_type == tokenize.OP and '=' in text and \
+        if token_type == tokenize.OP and text in {'=', ':='} and \
                 parameter_parentheses_level == 0:
             if prev_text in idents_to_avoid:
                 ident = prev_text
