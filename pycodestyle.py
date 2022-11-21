@@ -47,7 +47,9 @@ W warnings
 900 syntax error
 """
 import bisect
+import configparser
 import inspect
+import io
 import keyword
 import os
 import re
@@ -58,12 +60,6 @@ import warnings
 from fnmatch import fnmatch
 from functools import lru_cache
 from optparse import OptionParser
-
-try:
-    from configparser import RawConfigParser
-    from io import TextIOWrapper
-except ImportError:
-    from ConfigParser import RawConfigParser
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (
@@ -1769,7 +1765,7 @@ def readlines(filename):
 
 def stdin_get_value():
     """Read the value from stdin."""
-    return TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
+    return io.TextIOWrapper(sys.stdin.buffer, errors='ignore').read()
 
 
 noqa = lru_cache(512)(re.compile(r'# no(?:qa|pep8)\b', re.I).search)
@@ -2558,7 +2554,7 @@ def read_config(options, args, arglist, parser):
     merged together (in that order) using the read method of
     ConfigParser.
     """
-    config = RawConfigParser()
+    config = configparser.RawConfigParser()
 
     cli_conf = options.config
 
