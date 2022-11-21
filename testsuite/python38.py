@@ -56,3 +56,6 @@ if (x  := 1) == (y  := 2):
 #: E741
 while l := 1:
     pass
+#: E741
+if (l := 1):
+    pass
