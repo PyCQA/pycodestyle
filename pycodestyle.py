@@ -1522,7 +1522,8 @@ def ambiguous_identifier(logical_line, tokens):
     E743: def l(x):
     """
     is_func_def = False  # Set to true if 'def' or 'lambda' is found
-    parameter_parentheses_level = 0
+    seen_colon = False  # set to true if we're done with function parameters
+    brace_depth = 0
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
     for index in range(1, len(tokens)):
@@ -1531,20 +1532,15 @@ def ambiguous_identifier(logical_line, tokens):
         # find function definitions
         if prev_text in {'def', 'lambda'}:
             is_func_def = True
+        elif is_func_def and text == ':' and brace_depth == 0:
+            seen_colon = True
         # update parameter parentheses level
-        if parameter_parentheses_level == 0 and \
-                prev_type == tokenize.NAME and \
-                token_type == tokenize.OP and text == '(':
-            parameter_parentheses_level = 1
-        elif parameter_parentheses_level > 0 and \
-                token_type == tokenize.OP:
-            if text == '(':
-                parameter_parentheses_level += 1
-            elif text == ')':
-                parameter_parentheses_level -= 1
+        if text in '([{':
+            brace_depth += 1
+        elif text in ')]}':
+            brace_depth -= 1
         # identifiers on the lhs of an assignment operator
-        if token_type == tokenize.OP and text in {'=', ':='} and \
-                parameter_parentheses_level == 0:
+        if text == ':=' or (text == '=' and brace_depth == 0):
             if prev_text in idents_to_avoid:
                 ident = prev_text
                 pos = prev_start
@@ -1557,6 +1553,7 @@ def ambiguous_identifier(logical_line, tokens):
         # function / lambda parameter definitions
         if (
                 is_func_def and
+                not seen_colon and
                 index < len(tokens) - 1 and tokens[index + 1][1] in ':,=)' and
                 prev_text in {'lambda', ',', '*', '**', '('} and
                 text in idents_to_avoid
@@ -1571,7 +1568,6 @@ def ambiguous_identifier(logical_line, tokens):
                 yield start, "E743 ambiguous function definition '%s'" % text
         if ident:
             yield pos, "E741 ambiguous variable name '%s'" % ident
-        prev_type = token_type
         prev_text = text
         prev_start = start
 
