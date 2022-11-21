@@ -1521,7 +1521,7 @@ def ambiguous_identifier(logical_line, tokens):
     E742: class I(object):
     E743: def l(x):
     """
-    is_func_def = False  # Set to true if 'def' or 'lambda' is found
+    func_depth = None  # set to brace depth if 'def' or 'lambda' is found
     seen_colon = False  # set to true if we're done with function parameters
     brace_depth = 0
     idents_to_avoid = ('l', 'O', 'I')
@@ -1531,8 +1531,13 @@ def ambiguous_identifier(logical_line, tokens):
         ident = pos = None
         # find function definitions
         if prev_text in {'def', 'lambda'}:
-            is_func_def = True
-        elif is_func_def and text == ':' and brace_depth == 0:
+            func_depth = brace_depth
+            seen_colon = False
+        elif (
+                func_depth is not None and
+                text == ':' and
+                brace_depth == func_depth
+        ):
             seen_colon = True
         # update parameter parentheses level
         if text in '([{':
@@ -1552,7 +1557,7 @@ def ambiguous_identifier(logical_line, tokens):
                 pos = start
         # function / lambda parameter definitions
         if (
-                is_func_def and
+                func_depth is not None and
                 not seen_colon and
                 index < len(tokens) - 1 and tokens[index + 1][1] in ':,=)' and
                 prev_text in {'lambda', ',', '*', '**', '('} and
