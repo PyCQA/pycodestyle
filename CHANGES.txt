@@ -1,12 +1,22 @@
 Changelog
 =========
 
+2.10.0 (2022-11-23)
+-------------------
+
+Changes:
+
+* E231: allow trailing comma inside 1-tuples in `[]`.  PR #1108.
+* W601, W602, W603, W604: removed (no longer relevant in python 3).  PR #1111.
+* E741: also apply to lambdas.  PR #1106.
+* E741: fix false positive for comparison operators.  PR #1118.
+
 2.9.1 (2022-08-03)
 ------------------
 
 Changes:
 
-* E275: fix false positive for yield expressions.
+* E275: fix false positive for yield expressions.  PR #1091.
 
 2.9.0 (2022-07-30)
 ------------------
