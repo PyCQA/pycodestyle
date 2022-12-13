@@ -329,7 +329,10 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        expected = "stdin:1:1: E901 ValueError"
+        if sys.version_info < (3, 12):
+            expected = "stdin:1:1: E901 ValueError"
+        else:
+            expected = "stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes"  # noqa: E501
         self.assertTrue(stdout.startswith(expected),
                         msg='Output %r does not start with %r' %
                         (stdout, expected))
