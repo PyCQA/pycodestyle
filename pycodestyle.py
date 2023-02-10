@@ -75,7 +75,7 @@ if sys.platform == 'win32':
 else:
     USER_CONFIG_DIRECTORY = os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config')
     USER_CONFIG = os.path.join(USER_CONFIG_DIRECTORY, 'pycodestyle')
-        
+
 except ImportError:
     USER_CONFIG = None
 
