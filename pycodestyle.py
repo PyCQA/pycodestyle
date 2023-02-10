@@ -62,24 +62,20 @@ from functools import lru_cache
 from optparse import OptionParser
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
-if (
-        sys.version_info < (3, 10) and
-        callable(getattr(tokenize, '_compile', None))
-):  # pragma: no cover (<py310)
-    tokenize._compile = lru_cache()(tokenize._compile)  # type: ignore
-
 __version__ = '2.10.0'
 
-DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
-DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'
-try:
-    if sys.platform == 'win32':
-        USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
-    else:
-        USER_CONFIG = os.path.join(
-            os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),
-            'pycodestyle'
-        )
+EXCLUDED_DIRECTORIES = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
+IGNORED_ERROR_CODES = 'E121,E123,E126,E226,E24,E704,W503,W504'
+
+if sys.version_info < (3, 10):
+    tokenize._compile = lru_cache()(tokenize._compile)
+
+if sys.platform == 'win32':
+    USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
+else:
+    USER_CONFIG_DIRECTORY = os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config')
+    USER_CONFIG = os.path.join(USER_CONFIG_DIRECTORY, 'pycodestyle')
+        
 except ImportError:
     USER_CONFIG = None
 
