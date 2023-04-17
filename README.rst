@@ -51,6 +51,9 @@ You can install, upgrade, and uninstall ``pycodestyle.py`` with these commands::
 
   $ pip install pycodestyle
   $ pip install --upgrade pycodestyle
+
+You can uninstall ``pycodestyle.py`` with this commands::
+
   $ pip uninstall pycodestyle
 
 There's also a package for Debian/Ubuntu, but it's not always the
