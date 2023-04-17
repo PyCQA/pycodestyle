@@ -47,7 +47,7 @@ Features
 Installation
 ------------
 
-You can install, upgrade, and uninstall ``pycodestyle.py`` with these commands::
+You can install and upgrade ``pycodestyle.py`` with these commands::
 
   $ pip install pycodestyle
   $ pip install --upgrade pycodestyle
