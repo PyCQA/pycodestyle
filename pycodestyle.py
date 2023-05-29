@@ -239,7 +239,7 @@ def trailing_whitespace(physical_line):
 
 
 @register_check
-def trailing_blank_lines(physical_line, lines, line_number):
+def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     r"""Trailing blank lines are superfluous.
 
     Okay: spam(1)
