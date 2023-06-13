@@ -2010,6 +2010,11 @@ class Checker:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
+            elif (
+                    sys.version_info >= (3, 12) and
+                    token_type == tokenize.FSTRING_MIDDLE
+            ):
+                text = 'x' * len(text)
             if prev_row:
                 (start_row, start_col) = start
                 if prev_row != start_row:    # different row
