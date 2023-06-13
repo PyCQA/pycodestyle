@@ -1,0 +1,2 @@
+#: Okay
+f'{hello}:{world}'
