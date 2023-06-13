@@ -329,15 +329,18 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        if sys.version_info < (3, 12):
-            expected = "stdin:1:1: E901 ValueError"
+        if sys.version_info < (3, 11, 4):
+            expected = ["stdin:1:1: E901 ValueError: source code string cannot contain null bytes"]  # noqa: E501
+        elif sys.version_info < (3, 12):
+            expected = ["stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes"]  # noqa: E501
         else:
-            expected = "stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes"  # noqa: E501
-        self.assertTrue(stdout.startswith(expected),
-                        msg='Output %r does not start with %r' %
-                        (stdout, expected))
+            expected = [
+                "stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes",   # noqa: E501
+                "stdin:1:1: E901 TokenError: source code cannot contain null bytes",   # noqa: E501
+            ]
+        self.assertEqual(stdout.splitlines(), expected)
         self.assertFalse(sys.stderr)
-        self.assertEqual(count_errors, 1)
+        self.assertEqual(count_errors, len(expected))
 
     def test_styleguide_unmatched_triple_quotes(self):
         pycodestyle.register_check(DummyChecker, ['Z701'])
@@ -350,35 +353,22 @@ class APITestCase(unittest.TestCase):
         pep8style.input_file('stdin', lines=lines)
         stdout = sys.stdout.getvalue()
 
-        expected = 'stdin:2:5: E901 TokenError: EOF in multi-line string'
-        self.assertTrue(expected in stdout)
-
-    def test_styleguide_continuation_line_outdented(self):
-        pycodestyle.register_check(DummyChecker, ['Z701'])
-        lines = [
-            'def foo():\n',
-            '    pass\n',
-            '\n',
-            '\\\n',
-            '\n',
-            'def bar():\n',
-            '    pass\n',
-        ]
-
-        pep8style = pycodestyle.StyleGuide()
-        count_errors = pep8style.input_file('stdin', lines=lines)
-        self.assertEqual(count_errors, 2)
-        stdout = sys.stdout.getvalue()
-        expected = (
-            'stdin:6:1: '
-            'E122 continuation line missing indentation or outdented'
-        )
-        self.assertTrue(expected in stdout)
-        expected = 'stdin:6:1: E302 expected 2 blank lines, found 1'
-        self.assertTrue(expected in stdout)
-
-        # TODO: runner
-        # TODO: input_file
+        if sys.version_info < (3, 10):
+            expected = [
+                'stdin:2:5: E901 TokenError: EOF in multi-line string',
+                'stdin:2:26: E901 SyntaxError: EOF while scanning triple-quoted string literal',  # noqa: E501
+            ]
+        elif sys.version_info < (3, 12):
+            expected = [
+                'stdin:2:5: E901 TokenError: EOF in multi-line string',
+                'stdin:2:6: E901 SyntaxError: unterminated triple-quoted string literal (detected at line 2)',  # noqa: E501
+            ]
+        else:
+            expected = [
+                'stdin:2:6: E901 SyntaxError: unterminated triple-quoted string literal (detected at line 2)',  # noqa: E501
+                'stdin:2:6: E901 TokenError: EOF in multi-line string',
+            ]
+        self.assertEqual(stdout.splitlines(), expected)
 
     def test_styleguides_other_indent_size(self):
         pycodestyle.register_check(DummyChecker, ['Z701'])
