@@ -6,25 +6,13 @@ It uses dedicated assertions which work with TestReport.
 import unittest
 
 import pycodestyle
-from testsuite.support import InMemoryReport
+from testsuite.support import errors_from_src
 
 
 class BlankLinesTestCase(unittest.TestCase):
     """
     Common code for running blank_lines tests.
     """
-
-    def check(self, content):
-        """
-        Run checks on `content` and return the the list of errors.
-        """
-        sut = pycodestyle.StyleGuide()
-        reporter = sut.init_report(InMemoryReport)
-        sut.input_file(
-            filename='in-memory-test-file.py',
-            lines=content.splitlines(True),
-        )
-        return reporter.in_memory_errors
 
     def assertNoErrors(self, actual):
         """
@@ -43,7 +31,7 @@ class TestBlankLinesDefault(BlankLinesTestCase):
         """
         It will accept no blank lines at the start of the file.
         """
-        result = self.check("""def some_function():
+        result = errors_from_src("""def some_function():
     pass
 """)
 
@@ -54,7 +42,7 @@ class TestBlankLinesDefault(BlankLinesTestCase):
         It will accept 1 blank lines before the first line of actual
         code, even if in other places it asks for 2
         """
-        result = self.check("""
+        result = errors_from_src("""
 def some_function():
     pass
 """)
@@ -66,7 +54,7 @@ def some_function():
         It will accept 2 blank lines before the first line of actual
         code, as normal.
         """
-        result = self.check("""
+        result = errors_from_src("""
 
 def some_function():
     pass
@@ -79,7 +67,7 @@ def some_function():
         It will trigger an error when less than 1 blank lin is found
         before method definitions.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 class X:
 
     def a():
@@ -96,7 +84,7 @@ class X:
         It will trigger an error when less than 1 blank lin is found
         before method definition, ignoring comments.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 class X:
 
     def a():
@@ -114,7 +102,7 @@ class X:
         It will trigger an error when less 2 blank lines are found
         before top level definitions.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 # Second line of comment.
 
 def some_function():
@@ -148,7 +136,7 @@ class AFarEnoughClass(object):
         It will trigger an error when more 2 blank lines are found
         before top level definitions.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 # Second line of comment.
 
 
@@ -179,7 +167,7 @@ class AFarEnoughClass(object):
         It will trigger an error when more than 1 blank line is found
         before method definition
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 
 
 class SomeCloseClass(object):
@@ -211,7 +199,7 @@ class SomeCloseClass(object):
         It will trigger an error for more than 2 blank lines before the
         first line of actual code.
         """
-        result = self.check("""
+        result = errors_from_src("""
 
 
 def some_function():
@@ -224,7 +212,7 @@ def some_function():
         It will trigger an error when the decorator is followed by a
         blank line.
         """
-        result = self.check("""# First line.
+        result = errors_from_src("""# First line.
 
 
 @some_decorator
@@ -247,7 +235,7 @@ class SomeClass(object):
         It will accept the decorators which are adjacent to the function
         and method definition.
         """
-        result = self.check("""# First line.
+        result = errors_from_src("""# First line.
 
 
 @another_decorator
@@ -269,7 +257,7 @@ class SomeClass(object):
         It will trigger an error when less than 2 blank lines are
         found between a top level definitions and other top level code.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     print('Something')
 
@@ -285,7 +273,7 @@ a()
         found between a top level definitions and other top level code,
         even if we have comments before
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     print('Something')
 
@@ -306,7 +294,7 @@ a()
         It not trigger an error when 2 blank lines are
         found between a top level definitions and other top level code.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     print('Something')
 
@@ -326,7 +314,7 @@ a()
         It will trigger an error when less than 1 blank line is
         found between a method and previous definitions.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     x = 1
     def b():
@@ -342,7 +330,7 @@ def a():
         found between a method and previous definitions, even when
         nested.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     x = 2
 
@@ -361,7 +349,7 @@ def a():
         between a method and previous definitions, even when used to
         define a class.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     x = 1
     class C:
@@ -377,7 +365,7 @@ def a():
         found between a method and previous definitions, even when
         nested.
         """
-        result = self.check("""
+        result = errors_from_src("""
 def a():
     x = 2
 
@@ -412,7 +400,7 @@ class TestBlankLinesTwisted(BlankLinesTestCase):
         It will accept less than 3 blank lines before the first line of
         actual code.
         """
-        result = self.check("""
+        result = errors_from_src("""
 
 
 def some_function():
@@ -426,7 +414,7 @@ def some_function():
         It will accept 3 blank lines before the first line of actual
         code, as normal.
         """
-        result = self.check("""
+        result = errors_from_src("""
 
 
 def some_function():
@@ -440,7 +428,7 @@ def some_function():
         It will trigger an error when less 3 blank lines are found
         before top level definitions.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 # Second line of comment.
 
 
@@ -479,7 +467,7 @@ class AFarEnoughClass(object):
         It will trigger an error when more 2 blank lines are found
         before top level definitions.
         """
-        result = self.check("""# First comment line.
+        result = errors_from_src("""# First comment line.
 # Second line of comment.
 
 
@@ -513,7 +501,7 @@ class AFarEnoughClass(object):
         """
         It will accept 3 blank for top level and 2 for nested.
         """
-        result = self.check("""
+        result = errors_from_src("""
 
 
 def some_function():

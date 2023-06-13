@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import os.path
 import re
 import sys
 
 from pycodestyle import Checker, BaseReport, StandardReport, readlines
+from pycodestyle import StyleGuide
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -222,3 +225,13 @@ def run_tests(style):
     if options.testsuite:
         init_tests(style)
     return style.check_files()
+
+
+def errors_from_src(src: str) -> list[str]:
+    guide = StyleGuide()
+    reporter = guide.init_report(InMemoryReport)
+    guide.input_file(
+        filename='in-memory-test-file.py',
+        lines=src.splitlines(True),
+    )
+    return reporter.in_memory_errors
