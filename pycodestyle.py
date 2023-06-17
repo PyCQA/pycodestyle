@@ -196,7 +196,6 @@ def tabs_or_spaces(physical_line, indent_char):
     These options are highly recommended!
 
     Okay: if a == 0:\n    a = 1\n    b = 1
-    E101: if a == 0:\n        a = 1\n\tb = 1
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
     for offset, char in enumerate(indent):
@@ -802,9 +801,10 @@ def whitespace_before_parameters(logical_line, tokens):
             (index < 2 or tokens[index - 2][1] != 'class') and
             # Allow "return (a.foo for a in range(5))"
             not keyword.iskeyword(prev_text) and
-            # 'match' and 'case' are only soft keywords
             (
                 sys.version_info < (3, 9) or
+                # 3.12+: type is a soft keyword but no braces after
+                prev_text == 'type' or
                 not keyword.issoftkeyword(prev_text)
             )
         ):

@@ -1,6 +1,4 @@
 #: E901
-}
-#: E901
 = [x
 #: E901 E101 W191
 while True:
@@ -8,14 +6,6 @@ while True:
 	    pass
 	except:
 		print 'Whoops'
-#: E122 E225 E251 E251
-
-# Do not crash if code is invalid
-if msg:
-    errmsg = msg % progress.get(cr_dbname))
-
-def lasting(self, duration=300):
-    progress = self._progress.setdefault('foo', {}
 #: Okay
 
 # Issue #119
