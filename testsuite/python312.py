@@ -27,3 +27,5 @@ f'{
 } {f'{other} {thing}'}'
 #: E201:1:4 E202:1:17
 f'{ an_error_now }'
+#: Okay
+f'{x:02x}'

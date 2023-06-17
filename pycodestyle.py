@@ -150,6 +150,13 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 DUNDER_REGEX = re.compile(r"^__([^\s]+)__(?::\s*[a-zA-Z.0-9_\[\]\"]+)? = ")
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
 
+if sys.version_info >= (3, 12):
+    FSTRING_START = tokenize.FSTRING_START
+    FSTRING_MIDDLE = tokenize.FSTRING_MIDDLE
+    FSTRING_END = tokenize.FSTRING_END
+else:
+    FSTRING_START = FSTRING_MIDDLE = FSTRING_END = -1
+
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 
@@ -494,7 +501,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
 
 
 @register_check
-def missing_whitespace(logical_line):
+def missing_whitespace(logical_line, tokens):
     r"""Each comma, semicolon or colon should be followed by whitespace.
 
     Okay: [a, b]
@@ -508,20 +515,31 @@ def missing_whitespace(logical_line):
     E231: foo(bar,baz)
     E231: [{'a':'b'}]
     """
-    line = logical_line
-    for index in range(len(line) - 1):
-        char = line[index]
-        next_char = line[index + 1]
-        if char in ',;:' and next_char not in WHITESPACE:
-            before = line[:index]
-            if char == ':' and before.count('[') > before.count(']') and \
-                    before.rfind('{') < before.rfind('['):
-                continue  # Slice syntax, no space required
-            if char == ',' and next_char in ')]':
-                continue  # Allow tuple with only one element: (3,)
-            if char == ':' and next_char == '=' and sys.version_info >= (3, 8):
-                continue  # Allow assignment expression
-            yield index, "E231 missing whitespace after '%s'" % char
+    brace_stack = []
+    for tok in tokens:
+        if tok.type == tokenize.OP and tok.string in {'[', '(', '{'}:
+            brace_stack.append(tok.string)
+        elif tok.type == FSTRING_START:
+            brace_stack.append('f')
+        elif brace_stack:
+            if tok.type == tokenize.OP and tok.string in {']', ')', '}'}:
+                brace_stack.pop()
+            elif tok.type == FSTRING_END:
+                brace_stack.pop()
+
+        if tok.type == tokenize.OP and tok.string in {',', ';', ':'}:
+            next_char = tok.line[tok.end[1]:tok.end[1] + 1]
+            if next_char not in WHITESPACE and next_char not in '\r\n':
+                # slice
+                if tok.string == ':' and brace_stack[-1:] == ['[']:
+                    continue
+                # 3.12+ fstring format specifier
+                elif tok.string == ':' and brace_stack[-2:] == ['f', '{']:
+                    continue
+                # tuple (and list for some reason?)
+                elif tok.string == ',' and next_char in ')]':
+                    continue
+                yield tok.end, f'E231 missing whitespace after {tok.string!r}'
 
 
 @register_check
@@ -2010,10 +2028,7 @@ class Checker:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
-            elif (
-                    sys.version_info >= (3, 12) and
-                    token_type == tokenize.FSTRING_MIDDLE
-            ):
+            elif token_type == FSTRING_MIDDLE:
                 text = 'x' * len(text)
             if prev_row:
                 (start_row, start_col) = start
