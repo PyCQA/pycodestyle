@@ -2209,7 +2209,7 @@ class BaseReport:
         self.elapsed = 0
         self.total_errors = 0
         self.counters = dict.fromkeys(self._benchmark_keys, 0)
-        self.messages = {}
+        self.messages = []
 
     def start(self):
         """Start the timer."""
@@ -2242,7 +2242,7 @@ class BaseReport:
             self.counters[code] += 1
         else:
             self.counters[code] = 1
-            self.messages[code] = text[5:]
+            self.messages.append((line_number, offset, code, text[5:]))
         # Don't care about expected errors or warnings
         if code in self.expected:
             return
@@ -2258,8 +2258,7 @@ class BaseReport:
 
     def get_count(self, prefix=''):
         """Return the total count of errors and warnings."""
-        return sum(self.counters[key]
-                   for key in self.messages if key.startswith(prefix))
+        return len(self.messages)
 
     def get_statistics(self, prefix=''):
         """Get statistics for message codes that start with the prefix.
@@ -2269,8 +2268,8 @@ class BaseReport:
         prefix='W' matches all warnings
         prefix='E4' matches all errors that have to do with imports
         """
-        return ['%-7s %s %s' % (self.counters[key], key, self.messages[key])
-                for key in sorted(self.messages) if key.startswith(prefix)]
+        return ['%-7s %s %s' % (self.counters[key[2]], key[2], key[3])
+                for key in sorted(self.messages) if key[2].startswith(prefix)]
 
     def print_statistics(self, prefix=''):
         """Print overall statistics (number of errors and warnings)."""

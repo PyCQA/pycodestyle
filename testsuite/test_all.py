@@ -40,5 +40,5 @@ class PycodestyleTestCase(unittest.TestCase):
                  os.path.join(ROOT_DIR, 'setup.py')]
         report = self._style.init_report(pycodestyle.StandardReport)
         report = self._style.check_files(files)
-        self.assertEqual(list(report.messages.keys()), ['W504'],
+        self.assertEqual(report.messages[0][2], 'W504',
                          msg='Failures: %s' % report.messages)
