@@ -27,6 +27,9 @@ setup(
     maintainer='Ian Lee',
     maintainer_email='IanLee1521@gmail.com',
     url='https://pycodestyle.pycqa.org/',
+    project_urls={
+        'Source': 'https://github.com/PyCQA/pycodestyle',
+    },
     license='Expat license',
     py_modules=['pycodestyle'],
     include_package_data=True,
