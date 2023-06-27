@@ -1309,6 +1309,9 @@ def _break_around_binary_operators(tokens):
     """
     line_break = False
     unary_context = True
+    param_name_context = False
+    # only counted when inside param list, `-1` when not counting
+    enclosure_count = -1
     # Previous non-newline token types and text
     previous_token_type = None
     previous_text = None
@@ -1319,11 +1322,30 @@ def _break_around_binary_operators(tokens):
             line_break = True
         else:
             yield (token_type, text, previous_token_type, previous_text,
-                   line_break, unary_context, start)
+                   line_break, unary_context, param_name_context, start)
             unary_context = text in '([{,;'
             line_break = False
             previous_token_type = token_type
             previous_text = text
+            if enclosure_count != -1:
+                if token_type != tokenize.OP:
+                    pass
+                elif text in '([{':
+                    enclosure_count += 1
+                elif text in ')]}':
+                    enclosure_count -= 1
+                    if enclosure_count == 0:
+                        # stop counting enclosures
+                        enclosure_count = -1
+            elif token_type == tokenize.NAME and text == 'def':
+                # start counting enclosures
+                enclosure_count = 0
+            # check for enclosure count and last token to make sure that
+            # only the actual positional-only marker matches here:
+            #  def f(
+            #      x=4/2, y=(1, 4/2), /
+            #  ):
+            param_name_context = text == ',' and enclosure_count == 1
 
 
 @register_check
@@ -1348,9 +1370,10 @@ def break_before_binary_operator(logical_line, tokens):
     """
     for context in _break_around_binary_operators(tokens):
         (token_type, text, previous_token_type, previous_text,
-         line_break, unary_context, start) = context
+         line_break, unary_context, param_name_context, start) = context
         if (_is_binary_operator(token_type, text) and line_break and
                 not unary_context and
+                not param_name_context and
                 not _is_binary_operator(previous_token_type,
                                         previous_text)):
             yield start, "W503 line break before binary operator"
@@ -1380,15 +1403,18 @@ def break_after_binary_operator(logical_line, tokens):
     Okay: var = (1 +\n       -1 +\n       -2)
     """
     prev_start = None
+    prev_param_name_context = False
     for context in _break_around_binary_operators(tokens):
         (token_type, text, previous_token_type, previous_text,
-         line_break, unary_context, start) = context
+         line_break, unary_context, param_name_context, start) = context
         if (_is_binary_operator(previous_token_type, previous_text) and
                 line_break and
                 not unary_context and
+                not prev_param_name_context and
                 not _is_binary_operator(token_type, text)):
             yield prev_start, "W504 line break after binary operator"
         prev_start = start
+        prev_param_name_context = param_name_context
 
 
 @register_check
