@@ -4,3 +4,5 @@ def bar(a, b)->int:
 #: Okay
 def baz(a, b) -> int:
     pass
+#: E203
+a : int
