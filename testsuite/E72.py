@@ -4,12 +4,12 @@ if type(res) == type(42):
 #: E721
 if type(res) != type(""):
     pass
-#: E721
+#: Okay
 import types
 
 if res == types.IntType:
     pass
-#: E721
+#: Okay
 import types
 
 if type(res) is not types.ListType:
@@ -26,9 +26,9 @@ assert type(res) == type((0,))
 assert type(res) == type((0))
 #: E721
 assert type(res) != type((1, ))
-#: E721
+#: Okay
 assert type(res) is type((1, ))
-#: E721
+#: Okay
 assert type(res) is not type((1, ))
 #: E211 E721
 assert type(res) == type ([2, ])
@@ -46,8 +46,6 @@ if isinstance(res, int):
 if isinstance(res, str):
     pass
 if isinstance(res, types.MethodType):
-    pass
-if type(a) != type(b) or type(a) == type(ccc):
     pass
 #: Okay
 def func_histype(a, b, c):
@@ -80,6 +78,11 @@ try:
     pass
 except Exception:
     pass
+#: Okay
+from . import custom_types as types
+
+red = types.ColorTypeRED
+red is types.ColorType.RED
 #: Okay
 from . import compute_type
 
