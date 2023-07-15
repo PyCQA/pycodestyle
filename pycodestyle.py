@@ -66,7 +66,7 @@ if (
         sys.version_info < (3, 10) and
         callable(getattr(tokenize, '_compile', None))
 ):  # pragma: no cover (<py310)
-    tokenize._compile = lru_cache()(tokenize._compile)  # type: ignore
+    tokenize._compile = lru_cache(tokenize._compile)  # type: ignore
 
 __version__ = '2.10.0'
 
@@ -106,12 +106,10 @@ KEYWORDS = frozenset(keyword.kwlist + ['print', 'async']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-', '@'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
-ASSIGNMENT_EXPRESSION_OP = [':='] if sys.version_info >= (3, 8) else []
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
-    'and', 'in', 'is', 'or', '->'] +
-    ASSIGNMENT_EXPRESSION_OP)
+    'and', 'in', 'is', 'or', '->', ':='])
 WHITESPACE = frozenset(' \t\xa0')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
@@ -1219,11 +1217,12 @@ def compound_statements(logical_line):
     counts = {char: 0 for char in '{}[]()'}
     while -1 < found < last_char:
         update_counts(line[prev_found:found], counts)
-        if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
-             counts['['] <= counts[']'] and   # [1:2] (slice)
-             counts['('] <= counts[')']) and  # (annotation)
-            not (sys.version_info >= (3, 8) and
-                 line[found + 1] == '=')):  # assignment expression
+        if (
+                counts['{'] <= counts['}'] and  # {'a': 1} (dict)
+                counts['['] <= counts[']'] and  # [1:2] (slice)
+                counts['('] <= counts[')'] and  # (annotation)
+                line[found + 1] != '='  # assignment expression
+        ):
             lambda_kw = LAMBDA_REGEX.search(line, 0, found)
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
