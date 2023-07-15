@@ -59,3 +59,5 @@ while l := 1:
 #: E741
 if (l := 1):
     pass
+#: Okay
+f'{x=}'
