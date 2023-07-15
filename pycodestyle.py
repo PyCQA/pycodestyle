@@ -1620,32 +1620,32 @@ def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
         'U',
     ]
 
-    for token_type, text, start, end, line in tokens:
-        if token_type == tokenize.STRING:
-            start_line, start_col = start
-            quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
+    prefixes = []
+    for token_type, text, start, _, _ in tokens:
+        if token_type in {tokenize.STRING, FSTRING_START}:
             # Extract string modifiers (e.g. u or r)
-            quote_pos = text.index(quote)
-            prefix = text[:quote_pos].lower()
-            start = quote_pos + len(quote)
-            string = text[start:-len(quote)]
+            prefixes.append(text[:text.index(text[-1])].lower())
 
-            if 'r' not in prefix:
-                pos = string.find('\\')
+        if token_type in {tokenize.STRING, FSTRING_MIDDLE}:
+            if 'r' not in prefixes[-1]:
+                start_line, start_col = start
+                pos = text.find('\\')
                 while pos >= 0:
                     pos += 1
-                    if string[pos] not in valid:
-                        line = start_line + string.count('\n', 0, pos)
+                    if text[pos] not in valid:
+                        line = start_line + text.count('\n', 0, pos)
                         if line == start_line:
-                            col = start_col + len(prefix) + len(quote) + pos
+                            col = start_col + pos
                         else:
-                            col = pos - string.rfind('\n', 0, pos) - 1
+                            col = pos - text.rfind('\n', 0, pos) - 1
                         yield (
                             (line, col - 1),
-                            "W605 invalid escape sequence '\\%s'" %
-                            string[pos],
+                            f"W605 invalid escape sequence '\\{text[pos]}'"
                         )
-                    pos = string.find('\\', pos + 1)
+                    pos = text.find('\\', pos + 1)
+
+        if token_type in {tokenize.STRING, FSTRING_END}:
+            prefixes.pop()
 
 
 ########################################################################
