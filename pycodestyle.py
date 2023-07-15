@@ -500,48 +500,6 @@ def missing_whitespace_after_keyword(logical_line, tokens):
 
 
 @register_check
-def missing_whitespace(logical_line, tokens):
-    r"""Each comma, semicolon or colon should be followed by whitespace.
-
-    Okay: [a, b]
-    Okay: (3,)
-    Okay: a[3,] = 1
-    Okay: a[1:4]
-    Okay: a[:4]
-    Okay: a[1:]
-    Okay: a[1:4:2]
-    E231: ['a','b']
-    E231: foo(bar,baz)
-    E231: [{'a':'b'}]
-    """
-    brace_stack = []
-    for tok in tokens:
-        if tok.type == tokenize.OP and tok.string in {'[', '(', '{'}:
-            brace_stack.append(tok.string)
-        elif tok.type == FSTRING_START:
-            brace_stack.append('f')
-        elif brace_stack:
-            if tok.type == tokenize.OP and tok.string in {']', ')', '}'}:
-                brace_stack.pop()
-            elif tok.type == FSTRING_END:
-                brace_stack.pop()
-
-        if tok.type == tokenize.OP and tok.string in {',', ';', ':'}:
-            next_char = tok.line[tok.end[1]:tok.end[1] + 1]
-            if next_char not in WHITESPACE and next_char not in '\r\n':
-                # slice
-                if tok.string == ':' and brace_stack[-1:] == ['[']:
-                    continue
-                # 3.12+ fstring format specifier
-                elif tok.string == ':' and brace_stack[-2:] == ['f', '{']:
-                    continue
-                # tuple (and list for some reason?)
-                elif tok.string == ',' and next_char in ')]':
-                    continue
-                yield tok.end, f'E231 missing whitespace after {tok.string!r}'
-
-
-@register_check
 def indentation(logical_line, previous_logical, indent_char,
                 indent_level, previous_indent_level,
                 indent_size):
@@ -856,13 +814,15 @@ def whitespace_around_operator(logical_line):
 
 
 @register_check
-def missing_whitespace_around_operator(logical_line, tokens):
-    r"""Surround operators with a single space on either side.
+def missing_whitespace(logical_line, tokens):
+    r"""Surround operators with the correct amount of whitespace.
 
     - Always surround these binary operators with a single space on
       either side: assignment (=), augmented assignment (+=, -= etc.),
       comparisons (==, <, >, !=, <=, >=, in, not in, is, is not),
       Booleans (and, or, not).
+
+    - Each comma, semicolon or colon should be followed by whitespace.
 
     - If operators with different priorities are used, consider adding
       whitespace around the operators with the lowest priorities.
@@ -874,6 +834,13 @@ def missing_whitespace_around_operator(logical_line, tokens):
     Okay: c = (a + b) * (a - b)
     Okay: foo(bar, key='word', *args, **kwargs)
     Okay: alpha[:-i]
+    Okay: [a, b]
+    Okay: (3,)
+    Okay: a[3,] = 1
+    Okay: a[1:4]
+    Okay: a[:4]
+    Okay: a[1:]
+    Okay: a[1:4:2]
 
     E225: i=i+1
     E225: submitted +=1
@@ -884,19 +851,52 @@ def missing_whitespace_around_operator(logical_line, tokens):
     E226: hypot2 = x*x + y*y
     E227: c = a|b
     E228: msg = fmt%(errno, errmsg)
+    E231: ['a','b']
+    E231: foo(bar,baz)
+    E231: [{'a':'b'}]
     """
-    parens = 0
     need_space = False
     prev_type = tokenize.OP
     prev_text = prev_end = None
     operator_types = (tokenize.OP, tokenize.NAME)
+    brace_stack = []
     for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.OP and text in {'[', '(', '{'}:
+            brace_stack.append(text)
+        elif token_type == FSTRING_START:
+            brace_stack.append('f')
+        elif token_type == tokenize.NAME and text == 'lambda':
+            brace_stack.append('l')
+        elif brace_stack:
+            if token_type == tokenize.OP and text in {']', ')', '}'}:
+                brace_stack.pop()
+            elif token_type == FSTRING_END:
+                brace_stack.pop()
+            elif (
+                    brace_stack[-1] == 'l' and
+                    token_type == tokenize.OP and
+                    text == ':'
+            ):
+                brace_stack.pop()
+
         if token_type in SKIP_COMMENTS:
             continue
-        if text in ('(', 'lambda'):
-            parens += 1
-        elif text == ')':
-            parens -= 1
+
+        if token_type == tokenize.OP and text in {',', ';', ':'}:
+            next_char = line[end[1]:end[1] + 1]
+            if next_char not in WHITESPACE and next_char not in '\r\n':
+                # slice
+                if text == ':' and brace_stack[-1:] == ['[']:
+                    pass
+                # 3.12+ fstring format specifier
+                elif text == ':' and brace_stack[-2:] == ['f', '{']:
+                    pass
+                # tuple (and list for some reason?)
+                elif text == ',' and next_char in ')]':
+                    pass
+                else:
+                    yield end, f'E231 missing whitespace after {text!r}'
+
         if need_space:
             if start != prev_end:
                 # Found a (probably) needed space
@@ -933,7 +933,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                            "around %s operator" % (code, optype))
                 need_space = False
         elif token_type in operator_types and prev_end is not None:
-            if text == '=' and parens:
+            if text == '=' and brace_stack and brace_stack[-1] in {'l', '('}:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
             elif text in WS_NEEDED_OPERATORS:

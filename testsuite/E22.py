@@ -98,6 +98,8 @@ i= i+1
 c = (a +b)*(a - b)
 #: E225 E226
 c = (a+ b)*(a - b)
+#: E225
+x[lambda: None]=1
 #:
 
 #: E226

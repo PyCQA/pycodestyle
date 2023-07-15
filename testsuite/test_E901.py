@@ -23,7 +23,7 @@ def lasting(self, duration=300):
 '''
         errors = errors_from_src(src)
         if sys.version_info < (3, 12):
-            expected = ['E122:4:1', 'E225:4:27', 'E251:5:13', 'E251:5:15']
+            expected = ['E122:4:1', 'E251:5:13', 'E251:5:15']
         else:
-            expected = ['E122:4:1', 'E225:4:27', 'E251:5:13', 'E251:5:15', 'E901:5:1']  # noqa: E501
+            expected = ['E122:4:1', 'E251:5:13', 'E251:5:15', 'E901:5:1']  # noqa: E501
         self.assertEqual(errors, expected)
