@@ -15,6 +15,8 @@ literal
 with \_ somewhere
 in the middle
 """
+#: W605:1:3
+f"\d"
 #: Okay
 regex = r'\.png$'
 regex = '\\.png$'
