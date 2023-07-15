@@ -17,9 +17,6 @@ jobs:
           py: pypy3.10
           toxenv: py
         - os: ubuntu-latest
-          py: 3.7
-          toxenv: py
-        - os: ubuntu-latest
           py: 3.8
           toxenv: py
         - os: ubuntu-latest
