@@ -69,6 +69,11 @@ with a long long long long long long long long long long long long long long lon
 #: E501 W505
 '''same thing, but this time without a terminal newline in the string
 long long long long long long long long long long long long long long long long line'''
+#: E501
+if True:
+    x = f"""
+        covdefaults>=1.2; python_version == '2.7' or python_version == '{py_ver}'
+    """
 #
 # issue 224 (unavoidable long lines in docstrings)
 #: Okay

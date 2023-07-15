@@ -2119,7 +2119,10 @@ class Checker:
                 self.check_physical(prev_physical)
             else:
                 self.check_physical(token[4])
-        elif token[0] == tokenize.STRING and '\n' in token[1]:
+        elif (
+                token[0] in {tokenize.STRING, FSTRING_MIDDLE} and
+                '\n' in token[1]
+        ):
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal
             # newlines backslash-escaped. Check every physical line in
