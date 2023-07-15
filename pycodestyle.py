@@ -933,8 +933,16 @@ def missing_whitespace(logical_line, tokens):
                            "around %s operator" % (code, optype))
                 need_space = False
         elif token_type in operator_types and prev_end is not None:
-            if text == '=' and brace_stack and brace_stack[-1] in {'l', '('}:
-                # Allow keyword args or defaults: foo(bar=None).
+            if (
+                    text == '=' and (
+                        # allow lambda default args: lambda x=None: None
+                        brace_stack[-1:] == ['l'] or
+                        # allow keyword args or defaults: foo(bar=None).
+                        brace_stack[-1:] == ['('] or
+                        # allow python 3.8 fstring repr specifier
+                        brace_stack[-2:] == ['f', '{']
+                    )
+            ):
                 pass
             elif text in WS_NEEDED_OPERATORS:
                 need_space = True
