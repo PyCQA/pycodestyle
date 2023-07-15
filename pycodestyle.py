@@ -107,7 +107,7 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-', '@'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
 WS_NEEDED_OPERATORS = frozenset([
-    '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
+    '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<', '>',
     '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
     'and', 'in', 'is', 'or', '->', ':='])
 WHITESPACE = frozenset(' \t\xa0')
@@ -905,10 +905,6 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     yield (need_space[0],
                            "E225 missing whitespace around operator")
                 need_space = False
-            elif text == '>' and prev_text in ('<', '-'):
-                # Tolerate the "<>" operator, even if running Python 3
-                # Deal with Python 3's annotated return value "->"
-                pass
             elif (
                     # def f(a, /, b):
                     #           ^
