@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os.path
-import sys
 import unittest
 
 import pycodestyle
-from testsuite.support import init_tests, selftest, ROOT_DIR
+from testsuite.support import init_tests
+from testsuite.support import ROOT_DIR
+from testsuite.support import selftest
 
 
 class PycodestyleTestCase(unittest.TestCase):

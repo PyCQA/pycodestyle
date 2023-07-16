@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import os.path
 import re
 import sys
 
-from pycodestyle import Checker, BaseReport, StandardReport, readlines
+from pycodestyle import BaseReport
+from pycodestyle import Checker
+from pycodestyle import readlines
+from pycodestyle import StandardReport
 from pycodestyle import StyleGuide
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
@@ -28,7 +30,7 @@ class TestReport(StandardReport):
 
     def __init__(self, options):
         options.benchmark_keys += ['test cases', 'failed tests']
-        super(TestReport, self).__init__(options)
+        super().__init__(options)
         self._verbose = options.verbose
 
     def error(self, line_number, offset, text, check):
@@ -38,7 +40,7 @@ class TestReport(StandardReport):
             self.counters[code] += 1
         else:
             self.counters[code] = 1
-        detailed_code = '%s:%s:%s' % (code, line_number, offset + 1)
+        detailed_code = f'{code}:{line_number}:{offset + 1}'
         # Don't care about expected errors or warnings
         if code not in self.expected and detailed_code not in self.expected:  # pragma: no cover  # noqa: E501
             err = (line_number, offset, detailed_code, text[5:], check.__doc__)
@@ -49,13 +51,13 @@ class TestReport(StandardReport):
 
     def get_file_results(self):
         # Check if the expected errors were found
-        label = '%s:%s:1' % (self.filename, self.line_offset)
+        label = f'{self.filename}:{self.line_offset}:1'
         for extended_code in self.expected:
             code = extended_code.split(':')[0]
             if not self.counters.get(code):  # pragma: no cover
                 self.file_errors += 1
                 self.total_errors += 1
-                print('%s: error %s not found' % (label, extended_code))
+                print(f'{label}: error {extended_code} not found')
             else:
                 self.counters[code] -= 1
         for code, extra in sorted(self.counters.items()):
@@ -73,7 +75,7 @@ class TestReport(StandardReport):
         self.counters['test cases'] += 1
         if self.file_errors:  # pragma: no cover
             self.counters['failed tests'] += 1
-        return super(TestReport, self).get_file_results()
+        return super().get_file_results()
 
     def print_results(self):
         results = ("%(physical lines)d lines tested: %(files)d files, "
@@ -91,7 +93,7 @@ class InMemoryReport(BaseReport):
     """
 
     def __init__(self, options):
-        super(InMemoryReport, self).__init__(options)
+        super().__init__(options)
         self.in_memory_errors = []
 
     def error(self, line_number, offset, text, check):
@@ -99,9 +101,9 @@ class InMemoryReport(BaseReport):
         Report an error, according to options.
         """
         code = text[:4]
-        self.in_memory_errors.append('%s:%s:%s' % (
+        self.in_memory_errors.append('{}:{}:{}'.format(
             code, line_number, offset + 1))
-        return super(InMemoryReport, self).error(
+        return super().error(
             line_number, offset, text, check)
 
 
@@ -138,7 +140,7 @@ def selftest(options):
             count_all += 1
             if not error:
                 if options.verbose:  # pragma: no cover
-                    print("%s: %s" % (code, source))
+                    print(f"{code}: {source}")
             else:  # pragma: no cover
                 count_failed += 1
                 print("pycodestyle.py: %s:" % error)
