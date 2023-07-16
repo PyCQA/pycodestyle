@@ -895,7 +895,7 @@ def missing_whitespace(logical_line, tokens):
                 elif text == ',' and next_char in ')]':
                     pass
                 else:
-                    yield end, f'E231 missing whitespace after {text!r}'
+                    yield start, f'E231 missing whitespace after {text!r}'
 
         if need_space:
             if start != prev_end:
