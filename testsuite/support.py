@@ -40,20 +40,19 @@ class TestReport(StandardReport):
             self.counters[code] = 1
         detailed_code = '%s:%s:%s' % (code, line_number, offset + 1)
         # Don't care about expected errors or warnings
-        if code in self.expected or detailed_code in self.expected:
-            return
-        self._deferred_print.append(
-            (line_number, offset, detailed_code, text[5:], check.__doc__))
-        self.file_errors += 1
-        self.total_errors += 1
-        return code
+        if code not in self.expected and detailed_code not in self.expected:  # pragma: no cover  # noqa: E501
+            err = (line_number, offset, detailed_code, text[5:], check.__doc__)
+            self._deferred_print.append(err)
+            self.file_errors += 1
+            self.total_errors += 1
+            return code
 
     def get_file_results(self):
         # Check if the expected errors were found
         label = '%s:%s:1' % (self.filename, self.line_offset)
         for extended_code in self.expected:
             code = extended_code.split(':')[0]
-            if not self.counters.get(code):
+            if not self.counters.get(code):  # pragma: no cover
                 self.file_errors += 1
                 self.total_errors += 1
                 print('%s: error %s not found' % (label, extended_code))
@@ -61,25 +60,25 @@ class TestReport(StandardReport):
                 self.counters[code] -= 1
         for code, extra in sorted(self.counters.items()):
             if code not in self._benchmark_keys:
-                if extra and code in self.expected:
+                if extra and code in self.expected:  # pragma: no cover
                     self.file_errors += 1
                     self.total_errors += 1
                     print('%s: error %s found too many times (+%d)' %
                           (label, code, extra))
                 # Reset counters
                 del self.counters[code]
-        if self._verbose and not self.file_errors:
+        if self._verbose and not self.file_errors:  # pragma: no cover
             print('%s: passed (%s)' %
                   (label, ' '.join(self.expected) or 'Okay'))
         self.counters['test cases'] += 1
-        if self.file_errors:
+        if self.file_errors:  # pragma: no cover
             self.counters['failed tests'] += 1
         return super(TestReport, self).get_file_results()
 
     def print_results(self):
         results = ("%(physical lines)d lines tested: %(files)d files, "
                    "%(test cases)d test cases%%s." % self.counters)
-        if self.total_errors:
+        if self.total_errors:  # pragma: no cover
             print(results % ", %s failures" % self.total_errors)
         else:
             print(results % "")
@@ -127,20 +126,20 @@ def selftest(options):
             checker.check_all()
             error = None
             if code == 'Okay':
-                if len(counters) > len(options.benchmark_keys):
+                if len(counters) > len(options.benchmark_keys):  # pragma: no cover  # noqa: E501
                     codes = [key for key in counters
                              if key not in options.benchmark_keys]
                     error = "incorrectly found %s" % ', '.join(codes)
-            elif not counters.get(code):
+            elif not counters.get(code):  # pragma: no cover
                 error = "failed to find %s" % code
             # Keep showing errors for multiple tests
             for key in set(counters) - set(options.benchmark_keys):
                 del counters[key]
             count_all += 1
             if not error:
-                if options.verbose:
+                if options.verbose:  # pragma: no cover
                     print("%s: %s" % (code, source))
-            else:
+            else:  # pragma: no cover
                 count_failed += 1
                 print("pycodestyle.py: %s:" % error)
                 for line in checker.lines:
@@ -176,7 +175,7 @@ def init_tests(pep8style):
         if ver_match:
             test_against_version = tuple(int(val or 0)
                                          for val in ver_match.groups())
-            if sys.version_info < test_against_version:
+            if sys.version_info < test_against_version:  # pragma: no cover
                 return
         lines = readlines(filename) + ['#:\n']
         line_offset = 0
@@ -220,7 +219,7 @@ def run_tests(style):
             count_passed = done_d + done_s - count_failed
             print("%d passed and %d failed." % (count_passed, count_failed))
             print("Test failed." if count_failed else "Test passed.")
-        if count_failed:
+        if count_failed:  # pragma: no cover
             sys.exit(1)
     if options.testsuite:
         init_tests(style)

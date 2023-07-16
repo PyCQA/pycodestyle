@@ -329,11 +329,11 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        if sys.version_info < (3, 11, 4):
+        if sys.version_info < (3, 11, 4):  # pragma: <3.11 cover
             expected = ["stdin:1:1: E901 ValueError: source code string cannot contain null bytes"]  # noqa: E501
-        elif sys.version_info < (3, 12):
+        elif sys.version_info < (3, 12):  # pragma: <3.12 cover  # pragma: >=3.11 cover  # noqa: E501
             expected = ["stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes"]  # noqa: E501
-        else:
+        else:  # pragma: >=3.12 cover
             expected = [
                 "stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes",   # noqa: E501
                 "stdin:1:1: E901 TokenError: source code cannot contain null bytes",   # noqa: E501
@@ -353,17 +353,17 @@ class APITestCase(unittest.TestCase):
         pep8style.input_file('stdin', lines=lines)
         stdout = sys.stdout.getvalue()
 
-        if sys.version_info < (3, 10):
+        if sys.version_info < (3, 10):  # pragma: <3.10 cover
             expected = [
                 'stdin:2:5: E901 TokenError: EOF in multi-line string',
                 'stdin:2:26: E901 SyntaxError: EOF while scanning triple-quoted string literal',  # noqa: E501
             ]
-        elif sys.version_info < (3, 12):
+        elif sys.version_info < (3, 12):  # pragma: >=3.10 cover  # pragma: <3.12 cover  # noqa: E501
             expected = [
                 'stdin:2:5: E901 TokenError: EOF in multi-line string',
                 'stdin:2:6: E901 SyntaxError: unterminated triple-quoted string literal (detected at line 2)',  # noqa: E501
             ]
-        else:
+        else:  # pragma: >=3.12 cover
             expected = [
                 'stdin:2:6: E901 SyntaxError: unterminated triple-quoted string literal (detected at line 2)',  # noqa: E501
                 'stdin:2:6: E901 TokenError: EOF in multi-line string',
