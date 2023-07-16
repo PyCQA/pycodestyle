@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 import configparser
 import os.path
 import sys
 import unittest
 
 import pycodestyle
-from testsuite.support import ROOT_DIR, PseudoFile
+from testsuite.support import PseudoFile
+from testsuite.support import ROOT_DIR
 
 
 class ShellTestCase(unittest.TestCase):
@@ -73,7 +73,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(self._config_filenames)
 
     def test_check_simple(self):
-        E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
+        E11 = os.path.join(ROOT_DIR, 'testing', 'data', 'E11.py')
         stdout, stderr, errcode = self.pycodestyle(E11)
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
@@ -125,8 +125,8 @@ class ShellTestCase(unittest.TestCase):
     def test_check_diff(self):
         pycodestyle.PROJECT_CONFIG = ()
         diff_lines = [
-            "--- testsuite/E11.py	2006-06-01 08:49:50 +0500",
-            "+++ testsuite/E11.py	2008-04-06 17:36:29 +0500",
+            "--- testing/data/E11.py	2006-06-01 08:49:50 +0500",
+            "+++ testing/data/E11.py	2008-04-06 17:36:29 +0500",
             "@@ -2,4 +2,7 @@",
             " if x > 2:",
             "   print x",
@@ -149,8 +149,10 @@ class ShellTestCase(unittest.TestCase):
             self.assertEqual(y, str(col))
             self.assertTrue(msg.startswith(' E11'))
 
-        diff_lines[:2] = ["--- a/testsuite/E11.py	2006-06-01 08:49 +0400",
-                          "+++ b/testsuite/E11.py	2008-04-06 17:36 +0400"]
+        diff_lines[:2] = [
+            "--- a/testing/data/E11.py	2006-06-01 08:49 +0400",
+            "+++ b/testing/data/E11.py	2008-04-06 17:36 +0400",
+        ]
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pycodestyle('--diff')
         stdout = stdout.splitlines()
@@ -163,19 +165,21 @@ class ShellTestCase(unittest.TestCase):
             self.assertTrue(msg.startswith(' E11'))
 
         # issue #127, #137: one-line chunks
-        diff_lines[:-1] = ["diff --git a/testsuite/E11.py b/testsuite/E11.py",
-                           "index 8735e25..2ecb529 100644",
-                           "--- a/testsuite/E11.py",
-                           "+++ b/testsuite/E11.py",
-                           "@@ -5,0 +6 @@ if True:",
-                           "+     print"]
+        diff_lines[:-1] = [
+            "diff --git a/testing/data/E11.py b/testing/data/E11.py",
+            "index 8735e25..2ecb529 100644",
+            "--- a/testing/data/E11.py",
+            "+++ b/testing/data/E11.py",
+            "@@ -5,0 +6 @@ if True:",
+            "+     print",
+        ]
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pycodestyle('--diff')
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertTrue('testsuite/E11.py:6:6: E111 ' in stdout[0])
-        self.assertTrue('testsuite/E11.py:6:6: E117 ' in stdout[1])
+        self.assertTrue('testing/data/E11.py:6:6: E111 ' in stdout[0])
+        self.assertTrue('testing/data/E11.py:6:6: E117 ' in stdout[1])
 
         # missing '--diff'
         self.stdin = '\n'.join(diff_lines)

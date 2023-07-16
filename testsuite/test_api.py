@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 import os.path
 import shlex
 import sys
 import unittest
 
 import pycodestyle
-from testsuite.support import ROOT_DIR, PseudoFile
+from testsuite.support import PseudoFile
+from testsuite.support import ROOT_DIR
 
-E11 = os.path.join(ROOT_DIR, 'testsuite', 'E11.py')
+E11 = os.path.join(ROOT_DIR, 'testing', 'data', 'E11.py')
 
 
-class DummyChecker(object):
+class DummyChecker:
     def __init__(self, tree, filename):
         pass
 
@@ -151,7 +151,7 @@ class APITestCase(unittest.TestCase):
                   'doctest', 'quiet', 'show_pep8', 'show_source',
                   'statistics', 'testsuite', 'verbose'):
             oval = getattr(pep8style.options, o)
-            self.assertTrue(oval in (None, False), msg='%s = %r' % (o, oval))
+            self.assertTrue(oval in (None, False), msg=f'{o} = {oval!r}')
 
         # Check default options
         self.assertTrue(pep8style.options.repeat)

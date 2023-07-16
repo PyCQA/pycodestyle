@@ -1,6 +1,6 @@
 """moved from testsuite files due to 3.12 making this a TokenError"""
-import unittest
 import sys
+import unittest
 
 from testsuite.support import errors_from_src
 
