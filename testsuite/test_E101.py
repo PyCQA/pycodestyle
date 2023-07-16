@@ -12,7 +12,7 @@ class E101Test(unittest.TestCase):
             '\tprint(1)  # tabs\n'
             '        print(2)  # spaces\n'
         )
-        if sys.version_info >= (3, 12):
+        if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
             self.assertEqual(errors, ['W191:2:1', 'E901:3:28'])
-        else:
+        else:  # pragma: <3.12 cover
             self.assertEqual(errors, ['W191:2:1', 'E101:3:1'])

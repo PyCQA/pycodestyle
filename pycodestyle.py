@@ -73,9 +73,9 @@ __version__ = '2.10.0'
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'
 try:
-    if sys.platform == 'win32':
+    if sys.platform == 'win32':  # pragma: win32 cover
         USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
-    else:
+    else:  # pragma: win32 no cover
         USER_CONFIG = os.path.join(
             os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'),
             'pycodestyle'
@@ -150,11 +150,11 @@ STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
 DUNDER_REGEX = re.compile(r"^__([^\s]+)__(?::\s*[a-zA-Z.0-9_\[\]\"]+)? = ")
 BLANK_EXCEPT_REGEX = re.compile(r"except\s*:")
 
-if sys.version_info >= (3, 12):
+if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
     FSTRING_START = tokenize.FSTRING_START
     FSTRING_MIDDLE = tokenize.FSTRING_MIDDLE
     FSTRING_END = tokenize.FSTRING_END
-else:
+else:  # pragma: <3.12 cover
     FSTRING_START = FSTRING_MIDDLE = FSTRING_END = -1
 
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
@@ -863,14 +863,14 @@ def missing_whitespace(logical_line, tokens):
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.OP and text in {'[', '(', '{'}:
             brace_stack.append(text)
-        elif token_type == FSTRING_START:
+        elif token_type == FSTRING_START:  # pragma: >=3.12 cover
             brace_stack.append('f')
         elif token_type == tokenize.NAME and text == 'lambda':
             brace_stack.append('l')
         elif brace_stack:
             if token_type == tokenize.OP and text in {']', ')', '}'}:
                 brace_stack.pop()
-            elif token_type == FSTRING_END:
+            elif token_type == FSTRING_END:  # pragma: >=3.12 cover
                 brace_stack.pop()
             elif (
                     brace_stack[-1] == 'l' and
@@ -889,7 +889,7 @@ def missing_whitespace(logical_line, tokens):
                 if text == ':' and brace_stack[-1:] == ['[']:
                     pass
                 # 3.12+ fstring format specifier
-                elif text == ':' and brace_stack[-2:] == ['f', '{']:
+                elif text == ':' and brace_stack[-2:] == ['f', '{']:  # pragma: >=3.12 cover  # noqa: E501
                     pass
                 # tuple (and list for some reason?)
                 elif text == ',' and next_char in ')]':
@@ -1960,7 +1960,7 @@ class Checker:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
-            elif token_type == FSTRING_MIDDLE:
+            elif token_type == FSTRING_MIDDLE:  # pragma: >=3.12 cover
                 text = 'x' * len(text)
             if prev_row:
                 (start_row, start_col) = start
