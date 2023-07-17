@@ -148,7 +148,7 @@ class APITestCase(unittest.TestCase):
 
         # Check unset options
         for o in ('benchmark', 'config', 'count', 'diff',
-                  'doctest', 'quiet', 'show_pep8', 'show_source',
+                  'quiet', 'show_pep8', 'show_source',
                   'statistics', 'testsuite', 'verbose'):
             oval = getattr(pep8style.options, o)
             self.assertTrue(oval in (None, False), msg=f'{o} = {oval!r}')
@@ -182,10 +182,6 @@ class APITestCase(unittest.TestCase):
             options.ignore,
             ('E121', 'E123', 'E126', 'E226', 'E24', 'E704', 'W503', 'W504')
         )
-
-        options = parse_argv('--doctest').options
-        self.assertEqual(options.select, ())
-        self.assertEqual(options.ignore, ())
 
         options = parse_argv('--ignore E,W').options
         self.assertEqual(options.select, ())

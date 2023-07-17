@@ -1136,10 +1136,6 @@ def module_imports_on_top_of_file(
     Okay: # this is a comment\nimport os
     Okay: '''this is a module docstring'''\nimport os
     Okay: r'''this is a module docstring'''\nimport os
-    Okay:
-    try:\n\timport x\nexcept ImportError:\n\tpass\nelse:\n\tpass\nimport y
-    Okay:
-    try:\n\timport x\nexcept ImportError:\n\tpass\nfinally:\n\tpass\nimport y
     E402: a=1\nimport os
     E402: 'One string'\n"Two string"\nimport os
     E402: a=1\nfrom sys import x
@@ -1730,15 +1726,6 @@ def expand_indent(line):
     r"""Return the amount of indentation.
 
     Tabs are expanded to the next multiple of 8.
-
-    >>> expand_indent('    ')
-    4
-    >>> expand_indent('\t')
-    8
-    >>> expand_indent('       \t')
-    8
-    >>> expand_indent('        \t')
-    16
     """
     line = line.rstrip('\n\r')
     if '\t' not in line:
@@ -1755,15 +1742,7 @@ def expand_indent(line):
 
 
 def mute_string(text):
-    """Replace contents with 'xxx' to prevent syntax matching.
-
-    >>> mute_string('"abc"')
-    '"xxx"'
-    >>> mute_string("'''abc'''")
-    "'''xxx'''"
-    >>> mute_string("r'abc'")
-    "r'xxx'"
-    """
+    """Replace contents with 'xxx' to prevent syntax matching."""
     # String modifiers (e.g. u or r)
     start = text.index(text[-1]) + 1
     end = len(text) - 1
@@ -2323,7 +2302,7 @@ class StyleGuide:
 
         options.select = tuple(options.select or ())
         if not (options.select or options.ignore or
-                options.testsuite or options.doctest) and DEFAULT_IGNORE:
+                options.testsuite) and DEFAULT_IGNORE:
             # The default choice: ignore controversial checks
             options.ignore = tuple(DEFAULT_IGNORE.split(','))
         else:
@@ -2496,8 +2475,6 @@ def get_parser(prog='pycodestyle', version=__version__):
     if os.path.exists(TESTSUITE_PATH):
         group.add_option('--testsuite', metavar='dir',
                          help="run regression tests from dir")
-        group.add_option('--doctest', action='store_true',
-                         help="run doctest on myself")
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     return parser
@@ -2574,7 +2551,7 @@ def read_config(options, args, arglist, parser):
 
         # Third, overwrite with the command-line options
         (options, __) = parser.parse_args(arglist, values=new_options)
-    options.doctest = options.testsuite = False
+    options.testsuite = False
     return options
 
 
@@ -2609,7 +2586,7 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
 
     if options.ensure_value('testsuite', False):
         args.append(options.testsuite)
-    elif not options.ensure_value('doctest', False):
+    else:
         if parse_argv and not args:
             if options.diff or any(os.path.exists(name)
                                    for name in PROJECT_CONFIG):
@@ -2662,7 +2639,7 @@ def _main():
     style_guide = StyleGuide(parse_argv=True)
     options = style_guide.options
 
-    if options.doctest or options.testsuite:
+    if options.testsuite:
         from testsuite.support import run_tests
         report = run_tests(style_guide)
     else:
