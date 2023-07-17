@@ -4,11 +4,8 @@ import os.path
 import re
 import sys
 
-from pycodestyle import BaseReport
-from pycodestyle import Checker
 from pycodestyle import readlines
 from pycodestyle import StandardReport
-from pycodestyle import StyleGuide
 
 SELFTEST_REGEX = re.compile(r'\b(Okay|[EW]\d{3}):\s(.*)')
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -87,68 +84,6 @@ class TestReport(StandardReport):
         print("Test failed." if self.total_errors else "Test passed.")
 
 
-class InMemoryReport(BaseReport):
-    """
-    Collect the results in memory, without printing anything.
-    """
-
-    def __init__(self, options):
-        super().__init__(options)
-        self.in_memory_errors = []
-
-    def error(self, line_number, offset, text, check):
-        """
-        Report an error, according to options.
-        """
-        code = text[:4]
-        self.in_memory_errors.append('{}:{}:{}'.format(
-            code, line_number, offset + 1))
-        return super().error(
-            line_number, offset, text, check)
-
-
-def selftest(options):
-    """
-    Test all check functions with test cases in docstrings.
-    """
-    count_failed = count_all = 0
-    report = BaseReport(options)
-    counters = report.counters
-    checks = options.physical_checks + options.logical_checks
-    for name, check, argument_names in checks:
-        for line in check.__doc__.splitlines():
-            line = line.lstrip()
-            match = SELFTEST_REGEX.match(line)
-            if match is None:
-                continue
-            code, source = match.groups()
-            lines = [part.replace(r'\t', '\t') + '\n'
-                     for part in source.split(r'\n')]
-            checker = Checker(lines=lines, options=options, report=report)
-            checker.check_all()
-            error = None
-            if code == 'Okay':
-                if len(counters) > len(options.benchmark_keys):  # pragma: no cover  # noqa: E501
-                    codes = [key for key in counters
-                             if key not in options.benchmark_keys]
-                    error = "incorrectly found %s" % ', '.join(codes)
-            elif not counters.get(code):  # pragma: no cover
-                error = "failed to find %s" % code
-            # Keep showing errors for multiple tests
-            for key in set(counters) - set(options.benchmark_keys):
-                del counters[key]
-            count_all += 1
-            if not error:
-                if options.verbose:  # pragma: no cover
-                    print(f"{code}: {source}")
-            else:  # pragma: no cover
-                count_failed += 1
-                print("pycodestyle.py: %s:" % error)
-                for line in checker.lines:
-                    print(line.rstrip())
-    return count_failed, count_all
-
-
 def init_tests(pep8style):
     """
     Initialize testing framework.
@@ -211,28 +146,6 @@ def init_tests(pep8style):
 
 
 def run_tests(style):
-    options = style.options
-    if options.doctest:
-        import doctest
-        fail_d, done_d = doctest.testmod(report=False, verbose=options.verbose)
-        fail_s, done_s = selftest(options)
-        count_failed = fail_s + fail_d
-        if not options.quiet:
-            count_passed = done_d + done_s - count_failed
-            print("%d passed and %d failed." % (count_passed, count_failed))
-            print("Test failed." if count_failed else "Test passed.")
-        if count_failed:  # pragma: no cover
-            sys.exit(1)
-    if options.testsuite:
+    if style.options.testsuite:
         init_tests(style)
     return style.check_files()
-
-
-def errors_from_src(src: str) -> list[str]:
-    guide = StyleGuide()
-    reporter = guide.init_report(InMemoryReport)
-    guide.input_file(
-        filename='in-memory-test-file.py',
-        lines=src.splitlines(True),
-    )
-    return reporter.in_memory_errors

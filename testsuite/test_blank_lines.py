@@ -6,7 +6,7 @@ It uses dedicated assertions which work with TestReport.
 import unittest
 
 import pycodestyle
-from testsuite.support import errors_from_src
+from testing.support import errors_from_src
 
 
 class BlankLinesTestCase(unittest.TestCase):

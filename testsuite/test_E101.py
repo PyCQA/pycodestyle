@@ -2,7 +2,7 @@
 import sys
 import unittest
 
-from testsuite.support import errors_from_src
+from testing.support import errors_from_src
 
 
 class E101Test(unittest.TestCase):
