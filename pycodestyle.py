@@ -2026,8 +2026,10 @@ class Checker:
         """If appropriate for token, check current physical line(s)."""
         # Called after every token, but act only on end of line.
 
+        if token.type == FSTRING_START:  # pragma: >=3.12 cover
+            self.fstring_start = token.start[0]
         # a newline token ends a single physical line.
-        if _is_eol_token(token):
+        elif _is_eol_token(token):
             # if the file does not end with a newline, the NEWLINE
             # token is inserted by the parser, but it does not contain
             # the previous physical line in `token[4]`
@@ -2035,8 +2037,6 @@ class Checker:
                 self.check_physical(prev_physical)
             else:
                 self.check_physical(token.line)
-        elif token.type == FSTRING_START:  # pragma: >=3.12 cover
-            self.fstring_start = token.start[0]
         elif (
                 token.type == tokenize.STRING and '\n' in token.string or
                 token.type == FSTRING_END

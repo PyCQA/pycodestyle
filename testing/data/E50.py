@@ -92,6 +92,10 @@ longnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnospaceslongnosp
 def foo():
     """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pulvinar vitae
     """
+#: E501
+loooooong = 'looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong'
+f"""\
+"""
 #: Okay
 """
 This
