@@ -1842,6 +1842,7 @@ class Checker:
         self.max_line_length = options.max_line_length
         self.max_doc_length = options.max_doc_length
         self.indent_size = options.indent_size
+        self.fstring_start = 0
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
         self.indent_size = options.indent_size
@@ -2030,13 +2031,15 @@ class Checker:
             # if the file does not end with a newline, the NEWLINE
             # token is inserted by the parser, but it does not contain
             # the previous physical line in `token[4]`
-            if token[4] == '':
+            if token.line == '':
                 self.check_physical(prev_physical)
             else:
-                self.check_physical(token[4])
+                self.check_physical(token.line)
+        elif token.type == FSTRING_START:  # pragma: >=3.12 cover
+            self.fstring_start = token.start[0]
         elif (
-                token[0] in {tokenize.STRING, FSTRING_MIDDLE} and
-                '\n' in token[1]
+                token.type == tokenize.STRING and '\n' in token.string or
+                token.type == FSTRING_END
         ):
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal
@@ -2053,14 +2056,18 @@ class Checker:
             # - have to wind self.line_number back because initially it
             #   points to the last line of the string, and we want
             #   check_physical() to give accurate feedback
-            if noqa(token[4]):
+            if noqa(token.line):
                 return
+            if token.type == FSTRING_END:  # pragma: >=3.12 cover
+                start = self.fstring_start
+            else:
+                start = token.start[0]
+            end = token.end[0]
+
             self.multiline = True
-            self.line_number = token[2][0]
-            _, src, (_, offset), _, _ = token
-            src = self.lines[self.line_number - 1][:offset] + src
-            for line in src.split('\n')[:-1]:
-                self.check_physical(line + '\n')
+            self.line_number = start
+            for line_number in range(start, end):
+                self.check_physical(self.lines[line_number - 1] + '\n')
                 self.line_number += 1
             self.multiline = False
 

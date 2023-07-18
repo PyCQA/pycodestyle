@@ -12,4 +12,10 @@ from functools import (partial, reduce, wraps,
 a = 1
 if a == None:   # noqa
     pass
+
+# should silence E501
+s = f'''
+loong {y} looooooooooooooong loooooooooooooong looooooooong loooooooong looooooooong
+{x}
+'''  # noqa
 #:
