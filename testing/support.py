@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os.path
+
 from pycodestyle import BaseReport
 from pycodestyle import StyleGuide
+
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class InMemoryReport(BaseReport):
@@ -23,7 +27,7 @@ class InMemoryReport(BaseReport):
 
 
 def errors_from_src(src: str) -> list[str]:
-    guide = StyleGuide(select=('E', 'W'))
+    guide = StyleGuide(select=('E', 'W'), max_doc_length=72)
     reporter = guide.init_report(InMemoryReport)
     guide.input_file(
         filename='in-memory-test-file.py',

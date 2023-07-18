@@ -1,13 +1,13 @@
+import io
 import os.path
 import shlex
 import sys
 import unittest
 
 import pycodestyle
-from testsuite.support import PseudoFile
-from testsuite.support import ROOT_DIR
+from testing.support import ROOT
 
-E11 = os.path.join(ROOT_DIR, 'testing', 'data', 'E11.py')
+E11 = os.path.join(ROOT, 'testing', 'data', 'E11.py')
 
 
 class DummyChecker:
@@ -26,8 +26,8 @@ class APITestCase(unittest.TestCase):
         self._saved_stdout = sys.stdout
         self._saved_stderr = sys.stderr
         self._saved_checks = pycodestyle._checks
-        sys.stdout = PseudoFile()
-        sys.stderr = PseudoFile()
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
         pycodestyle._checks = {
             k: {f: (vals[0][:], vals[1]) for (f, vals) in v.items()}
             for k, v in self._saved_checks.items()
@@ -39,7 +39,10 @@ class APITestCase(unittest.TestCase):
         pycodestyle._checks = self._saved_checks
 
     def reset(self):
-        del sys.stdout[:], sys.stderr[:]
+        sys.stdout.seek(0)
+        sys.stdout.truncate()
+        sys.stderr.seek(0)
+        sys.stderr.truncate()
 
     def test_register_physical_check(self):
         def check_dummy(physical_line, line_number):
@@ -107,8 +110,8 @@ class APITestCase(unittest.TestCase):
     def test_styleguide(self):
         report = pycodestyle.StyleGuide().check_files()
         self.assertEqual(report.total_errors, 0)
-        self.assertFalse(sys.stdout)
-        self.assertFalse(sys.stderr)
+        self.assertFalse(sys.stdout.getvalue())
+        self.assertFalse(sys.stderr.getvalue())
         self.reset()
 
         report = pycodestyle.StyleGuide().check_files(['missing-file'])
@@ -116,15 +119,15 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 1)
         # < 3.3 returns IOError; >= 3.3 returns FileNotFoundError
-        self.assertTrue(stdout[0].startswith("missing-file:1:1: E902 "))
-        self.assertFalse(sys.stderr)
+        assert stdout[0].startswith("missing-file:1:1: E902 ")
+        self.assertFalse(sys.stderr.getvalue())
         self.reset()
 
         report = pycodestyle.StyleGuide().check_files([E11])
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 24)
-        self.assertFalse(sys.stderr)
+        self.assertFalse(sys.stderr.getvalue())
         self.reset()
 
         # Passing the paths in the constructor gives same result
@@ -132,7 +135,7 @@ class APITestCase(unittest.TestCase):
         stdout = sys.stdout.getvalue().splitlines()
         self.assertEqual(len(stdout), report.total_errors)
         self.assertEqual(report.total_errors, 24)
-        self.assertFalse(sys.stderr)
+        self.assertFalse(sys.stderr.getvalue())
         self.reset()
 
     def test_styleguide_options(self):
@@ -149,7 +152,7 @@ class APITestCase(unittest.TestCase):
         # Check unset options
         for o in ('benchmark', 'config', 'count', 'diff',
                   'quiet', 'show_pep8', 'show_source',
-                  'statistics', 'testsuite', 'verbose'):
+                  'statistics', 'verbose'):
             oval = getattr(pep8style.options, o)
             self.assertTrue(oval in (None, False), msg=f'{o} = {oval!r}')
 
@@ -335,7 +338,7 @@ class APITestCase(unittest.TestCase):
                 "stdin:1:1: E901 TokenError: source code cannot contain null bytes",   # noqa: E501
             ]
         self.assertEqual(stdout.splitlines(), expected)
-        self.assertFalse(sys.stderr)
+        self.assertFalse(sys.stderr.getvalue())
         self.assertEqual(count_errors, len(expected))
 
     def test_styleguide_unmatched_triple_quotes(self):

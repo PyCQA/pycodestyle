@@ -70,32 +70,28 @@ GitHub has an excellent `guide`_.
 
 The current tests are written in 2 styles:
 
-* standard xUnit based only on stdlib unittest
-* functional test using a custom framework and executed by the
-  pycodestyle itself when installed in dev mode.
+* pytest tests
+* functional test using a custom framework
 
 
-Running unittest
-~~~~~~~~~~~~~~~~
+Running tests
+~~~~~~~~~~~~~
 
-The tests are written using stdlib ``unittest`` module, the existing tests
+The tests are written using ``pytest``, the existing tests
 include unit, integration and functional tests.
 
 To run the tests::
 
-    $ python setup.py test
+    $ pytest testsuite
 
 Running functional
 ~~~~~~~~~~~~~~~~~~
 
-When installed in dev mode, pycodestyle will have the ``--testsuite`` option
-which can be used to run the tests::
-
     $ pip install -e .
     $ # Run all tests.
-    $ pycodestyle --testsuite testsuite
+    $ pytest testsuite
     $ # Run a subset of the tests.
-    $ pycodestyle --testsuite testsuite/E30.py
+    $ pytest testsuite -k testing/data/E30.py
 
 
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/

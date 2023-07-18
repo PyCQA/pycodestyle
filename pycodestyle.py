@@ -84,7 +84,6 @@ except ImportError:
     USER_CONFIG = None
 
 PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
-TESTSUITE_PATH = os.path.join(os.path.dirname(__file__), 'testsuite')
 MAX_LINE_LENGTH = 79
 # Number of blank lines between various code parts.
 BLANK_LINES_CONFIG = {
@@ -2301,8 +2300,7 @@ class StyleGuide:
             options.reporter = BaseReport if options.quiet else StandardReport
 
         options.select = tuple(options.select or ())
-        if not (options.select or options.ignore or
-                options.testsuite) and DEFAULT_IGNORE:
+        if not (options.select or options.ignore) and DEFAULT_IGNORE:
             # The default choice: ignore controversial checks
             options.ignore = tuple(DEFAULT_IGNORE.split(','))
         else:
@@ -2472,9 +2470,6 @@ def get_parser(prog='pycodestyle', version=__version__):
                       help="report changes only within line number ranges in "
                            "the unified diff received on STDIN")
     group = parser.add_option_group("Testing Options")
-    if os.path.exists(TESTSUITE_PATH):
-        group.add_option('--testsuite', metavar='dir',
-                         help="run regression tests from dir")
     group.add_option('--benchmark', action='store_true',
                      help="measure processing speed")
     return parser
@@ -2551,7 +2546,6 @@ def read_config(options, args, arglist, parser):
 
         # Third, overwrite with the command-line options
         (options, __) = parser.parse_args(arglist, values=new_options)
-    options.testsuite = False
     return options
 
 
@@ -2584,17 +2578,14 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     if verbose is not None:
         options.verbose = verbose
 
-    if options.ensure_value('testsuite', False):
-        args.append(options.testsuite)
-    else:
-        if parse_argv and not args:
-            if options.diff or any(os.path.exists(name)
-                                   for name in PROJECT_CONFIG):
-                args = ['.']
-            else:
-                parser.error('input not specified')
-        options = read_config(options, args, arglist, parser)
-        options.reporter = parse_argv and options.quiet == 1 and FileReport
+    if parse_argv and not args:
+        if options.diff or any(os.path.exists(name)
+                               for name in PROJECT_CONFIG):
+            args = ['.']
+        else:
+            parser.error('input not specified')
+    options = read_config(options, args, arglist, parser)
+    options.reporter = parse_argv and options.quiet == 1 and FileReport
 
     options.filename = _parse_multi_options(options.filename)
     options.exclude = normalize_paths(options.exclude)
@@ -2639,20 +2630,13 @@ def _main():
     style_guide = StyleGuide(parse_argv=True)
     options = style_guide.options
 
-    if options.testsuite:
-        from testsuite.support import run_tests
-        report = run_tests(style_guide)
-    else:
-        report = style_guide.check_files()
+    report = style_guide.check_files()
 
     if options.statistics:
         report.print_statistics()
 
     if options.benchmark:
         report.print_benchmark()
-
-    if options.testsuite and not options.quiet:
-        report.print_results()
 
     if report.total_errors:
         if options.count:
