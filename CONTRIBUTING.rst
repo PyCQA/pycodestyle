@@ -82,16 +82,16 @@ include unit, integration and functional tests.
 
 To run the tests::
 
-    $ pytest testsuite
+    $ pytest tests
 
 Running functional
 ~~~~~~~~~~~~~~~~~~
 
     $ pip install -e .
     $ # Run all tests.
-    $ pytest testsuite
+    $ pytest tests/test_data.py
     $ # Run a subset of the tests.
-    $ pytest testsuite -k testing/data/E30.py
+    $ pytest tests/tests_data.py -k testing/data/E30.py
 
 
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/

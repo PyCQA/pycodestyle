@@ -97,7 +97,7 @@ the docstring, you can use ``\n`` for newline and ``\t`` for tab.
 
 Then be sure to pass the tests::
 
-  $ pytest testsuite
+  $ pytest tests
   $ python pycodestyle.py --verbose pycodestyle.py
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.

@@ -78,8 +78,8 @@ Example usage and output
 You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
-  testsuite/E40.py:2:10: E401 multiple imports on one line
+  $ pycodestyle --show-source --show-pep8 testing/data/E40.py
+  testing/data/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
       Imports should usually be on separate lines.
@@ -105,14 +105,14 @@ Or you can display how often each error was found::
 You can also make ``pycodestyle.py`` show the error text in different formats by
 using ``--format`` having options default/pylint/custom::
 
-  $ pycodestyle testsuite/E40.py --format=default
-  testsuite/E40.py:2:10: E401 multiple imports on one line
+  $ pycodestyle testing/data/E40.py --format=default
+  testing/data/E40.py:2:10: E401 multiple imports on one line
 
-  $ pycodestyle testsuite/E40.py --format=pylint
-  testsuite/E40.py:2: [E401] multiple imports on one line
+  $ pycodestyle testing/data/E40.py --format=pylint
+  testing/data/E40.py:2: [E401] multiple imports on one line
 
-  $ pycodestyle testsuite/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
-  testsuite/E40.py|2|10| E401 multiple imports on one line
+  $ pycodestyle testing/data/E40.py --format='%(path)s|%(row)d|%(col)d| %(code)s %(text)s'
+  testing/data/E40.py|2|10| E401 multiple imports on one line
 
 Variables in the ``custom`` format option
 
@@ -433,7 +433,7 @@ special comment.  This possibility should be reserved for special cases.
 
 Note: most errors can be listed with such one-liner::
 
-  $ python pycodestyle.py --first --select E,W testsuite/ --format '%(code)s: %(text)s'
+  $ python pycodestyle.py --first --select E,W testing/data --format '%(code)s: %(text)s'
 
 
 .. _related-tools:

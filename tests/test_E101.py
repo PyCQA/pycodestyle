@@ -1,4 +1,4 @@
-"""moved from testsuite files due to 3.12 making this a TokenError"""
+"""moved from data files due to 3.12 making this a TokenError"""
 import sys
 import unittest
 
