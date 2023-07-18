@@ -1,11 +1,11 @@
 import configparser
+import io
 import os.path
 import sys
 import unittest
 
 import pycodestyle
-from testsuite.support import PseudoFile
-from testsuite.support import ROOT_DIR
+from testing.support import ROOT
 
 
 class ShellTestCase(unittest.TestCase):
@@ -21,8 +21,8 @@ class ShellTestCase(unittest.TestCase):
         self._config_filenames = []
         self.stdin = ''
         sys.argv = ['pycodestyle']
-        sys.stdout = PseudoFile()
-        sys.stderr = PseudoFile()
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
 
         def fake_config_parser_read(cp, fp, filename):
             self._config_filenames.append(filename)
@@ -41,7 +41,10 @@ class ShellTestCase(unittest.TestCase):
         return self.stdin
 
     def pycodestyle(self, *args):
-        del sys.stdout[:], sys.stderr[:]
+        sys.stdout.seek(0)
+        sys.stdout.truncate()
+        sys.stderr.seek(0)
+        sys.stderr.truncate()
         sys.argv[1:] = args
         try:
             pycodestyle._main()
@@ -73,7 +76,7 @@ class ShellTestCase(unittest.TestCase):
         self.assertFalse(self._config_filenames)
 
     def test_check_simple(self):
-        E11 = os.path.join(ROOT_DIR, 'testing', 'data', 'E11.py')
+        E11 = os.path.join(ROOT, 'testing', 'data', 'E11.py')
         stdout, stderr, errcode = self.pycodestyle(E11)
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
