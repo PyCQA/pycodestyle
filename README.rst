@@ -72,8 +72,8 @@ Example usage and output
 You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
-  testsuite/E40.py:2:10: E401 multiple imports on one line
+  $ pycodestyle --show-source --show-pep8 testing/data/E40.py
+  testing/data/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
       Imports should usually be on separate lines.

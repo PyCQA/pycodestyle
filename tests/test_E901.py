@@ -1,4 +1,4 @@
-"""moved from testsuite files due to 3.12 changing syntax errors"""
+"""moved from data files due to 3.12 changing syntax errors"""
 import sys
 import unittest
 

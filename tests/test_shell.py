@@ -194,7 +194,7 @@ class ShellTestCase(unittest.TestCase):
         ))
 
         # no matching file in the diff
-        diff_lines[3] = "+++ b/testsuite/lost/E11.py"
+        diff_lines[3] = "+++ b/testing/lost/E11.py"
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pycodestyle('--diff')
         self.assertFalse(errcode)
