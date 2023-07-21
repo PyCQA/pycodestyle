@@ -29,7 +29,7 @@ There's also a shortcut for checking a single file::
 
   import pycodestyle
 
-  fchecker = pycodestyle.Checker('tests/data/E27.py', show_source=True)
+  fchecker = pycodestyle.Checker('testing/data/E27.py', show_source=True)
   file_errors = fchecker.check_all()
 
   print("Found %s errors (and warnings)" % file_errors)
