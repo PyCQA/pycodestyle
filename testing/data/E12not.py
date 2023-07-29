@@ -435,6 +435,9 @@ help = b"print total number of errors " \
 help = br"print total number of errors " \
        br"to standard error"
 
+help = f"print total number of errors " \
+       f"to standard error"
+
 d = dict('foo', help="exclude files or directories which match these "
                      "comma separated patterns (default: %s)" %
                      DEFAULT_EXCLUDE)
