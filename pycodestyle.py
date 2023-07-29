@@ -686,8 +686,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if verbose >= 4:
                 print(f"bracket depth {depth} indent to {start[1]}")
         # deal with implicit string concatenation
-        elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
-              text in ('u', 'ur', 'b', 'br')):
+        elif token_type in (tokenize.STRING, tokenize.COMMENT):
             indent_chances[start[1]] = str
         # visual indent after assert/raise/with
         elif not row and not depth and text in ["assert", "raise", "with"]:
