@@ -1,12 +1,28 @@
 Changelog
 =========
 
+2.11.0 (2023-07-29)
+-------------------
+
+Changes:
+
+* Drop EOL python 3.6 / 3.7.  PR #1129, #1160.
+* Add support for python 3.12.  PR #1147, #1148, #1152, #1153, #1154, #1163,
+  #1164, #1165, #1166, #1176, #1177, #1182.
+* E721: adjust handling of type comparison.  Allowed forms are now
+  ``isinstance(x, t)`` or ``type(x) is t``.  PR #1086, #1167.
+* Remove handling of python 2 ``<>`` operator.  PR #1161.
+* W606: removed.  ``async`` / ``await`` are always keywords.  PR #1162.
+* Internal: move tests to pytest.  PR #1168, #1169, #1171, #1173, #1174, #1175.
+* Remove handling of python 2 ``ur''`` strings.  PR #1181.
+
+
 2.10.0 (2022-11-23)
 -------------------
 
 Changes:
 
-* E231: allow trailing comma inside 1-tuples in `[]`.  PR #1108.
+* E231: allow trailing comma inside 1-tuples in ``[]``.  PR #1108.
 * W601, W602, W603, W604: removed (no longer relevant in python 3).  PR #1111.
 * E741: also apply to lambdas.  PR #1106.
 * E741: fix false positive for comparison operators.  PR #1118.
