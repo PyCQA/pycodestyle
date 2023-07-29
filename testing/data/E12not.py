@@ -429,9 +429,6 @@ help = "print total number of errors " \
 help = u"print total number of errors " \
        u"to standard error"
 
-help = ur"print total number of errors " \
-       ur"to standard error"
-
 help = b"print total number of errors " \
        b"to standard error"
 
