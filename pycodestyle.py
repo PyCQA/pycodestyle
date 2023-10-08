@@ -892,6 +892,9 @@ def missing_whitespace(logical_line, tokens):
                 # tuple (and list for some reason?)
                 elif text == ',' and next_char in ')]':
                     pass
+                # explicit line joining
+                elif text == ',' and next_char in '\\':
+                    pass
                 else:
                     yield start, f'E231 missing whitespace after {text!r}'
 
