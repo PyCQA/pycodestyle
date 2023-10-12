@@ -490,6 +490,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
         # appear e.g. as "if x is None:", and async/await, which were
         # valid identifier names in old Python versions.
         if (tok0.end == tok1.start and
+                tok0.type == tokenize.NAME and
                 keyword.iskeyword(tok0.string) and
                 tok0.string not in SINGLETONS and
                 not (tok0.string == 'except' and tok1.string == '*') and
