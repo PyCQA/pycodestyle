@@ -75,6 +75,20 @@ def a():
 #:
 
 
+#: E303:6:5
+class xyz:
+    def a(self):
+        pass
+
+
+    def b(self):
+        pass
+#: E303:5:5
+if True:
+    a = 1
+
+
+    a = 2
 #: E304:3:1
 @decorator
 
