@@ -1,6 +1,7 @@
 import configparser
 import io
 import os.path
+import pathlib
 import sys
 import unittest
 
@@ -127,9 +128,11 @@ class ShellTestCase(unittest.TestCase):
 
     def test_check_diff(self):
         pycodestyle.PROJECT_CONFIG = ()
+        topdir = pathlib.Path(__file__).parent.parent
+        test_file = os.path.relpath(topdir / "testing" / "data" / "E11.py")
         diff_lines = [
-            "--- testing/data/E11.py	2006-06-01 08:49:50 +0500",
-            "+++ testing/data/E11.py	2008-04-06 17:36:29 +0500",
+            f"--- {test_file}	2006-06-01 08:49:50 +0500",
+            f"+++ {test_file}	2008-04-06 17:36:29 +0500",
             "@@ -2,4 +2,7 @@",
             " if x > 2:",
             "   print x",
@@ -153,8 +156,8 @@ class ShellTestCase(unittest.TestCase):
             self.assertTrue(msg.startswith(' E11'))
 
         diff_lines[:2] = [
-            "--- a/testing/data/E11.py	2006-06-01 08:49 +0400",
-            "+++ b/testing/data/E11.py	2008-04-06 17:36 +0400",
+            f"--- a/{test_file}	2006-06-01 08:49 +0400",
+            f"+++ b/{test_file}	2008-04-06 17:36 +0400",
         ]
         self.stdin = '\n'.join(diff_lines)
         stdout, stderr, errcode = self.pycodestyle('--diff')
@@ -169,10 +172,10 @@ class ShellTestCase(unittest.TestCase):
 
         # issue #127, #137: one-line chunks
         diff_lines[:-1] = [
-            "diff --git a/testing/data/E11.py b/testing/data/E11.py",
+            f"diff --git a/{test_file} b/{test_file}",
             "index 8735e25..2ecb529 100644",
-            "--- a/testing/data/E11.py",
-            "+++ b/testing/data/E11.py",
+            f"--- a/{test_file}",
+            f"+++ b/{test_file}",
             "@@ -5,0 +6 @@ if True:",
             "+     print",
         ]
@@ -181,8 +184,8 @@ class ShellTestCase(unittest.TestCase):
         stdout = stdout.splitlines()
         self.assertEqual(errcode, 1)
         self.assertFalse(stderr)
-        self.assertTrue('testing/data/E11.py:6:6: E111 ' in stdout[0])
-        self.assertTrue('testing/data/E11.py:6:6: E117 ' in stdout[1])
+        self.assertTrue(f'{test_file}:6:6: E111 ' in stdout[0])
+        self.assertTrue(f'{test_file}:6:6: E117 ' in stdout[1])
 
         # missing '--diff'
         self.stdin = '\n'.join(diff_lines)
