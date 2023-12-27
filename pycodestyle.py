@@ -126,8 +126,8 @@ COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(?<!is\s)(not)\s+[^][)(}{ ]+\s+'
                                     r'(in|is)\s')
 COMPARE_TYPE_REGEX = re.compile(
-    r'[=!]=\s+type(?:\s*\(\s*([^)]*[^ )])\s*\))'
-    r'|\btype(?:\s*\(\s*([^)]*[^ )])\s*\))\s+[=!]='
+    r'[=!]=\s+type(?:\s*\(\s*([^)]*[^\s)])\s*\))'
+    r'|\btype(?:\s*\(\s*([^)]*[^\s)])\s*\))\s+[=!]='
 )
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+|:=)(\s*)')
