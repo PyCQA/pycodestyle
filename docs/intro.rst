@@ -200,7 +200,8 @@ Example::
   max-line-length = 160
   statistics = True
 
-At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
+At the project level, a ``setup.cfg`` file or a ``tox.ini``
+(or a ``pyproject.toml`` if running python 3.11+) file is read if
 present. If none of these files have a ``[pycodestyle]`` section, no project
 specific configuration is loaded.
 

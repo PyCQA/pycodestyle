@@ -60,6 +60,8 @@ import warnings
 from fnmatch import fnmatch
 from functools import lru_cache
 from optparse import OptionParser
+if sys.version_info >= (3, 11):
+    import tomllib
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (
@@ -83,7 +85,11 @@ try:
 except ImportError:
     USER_CONFIG = None
 
-PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
+if sys.version_info >= (3, 11):
+    PROJECT_CONFIG = ('setup.cfg', 'tox.ini', 'pyproject.toml')
+else:
+    PROJECT_CONFIG = ('setup.cfg', 'tox.ini')
+
 MAX_LINE_LENGTH = 79
 # Number of blank lines between various code parts.
 BLANK_LINES_CONFIG = {
