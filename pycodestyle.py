@@ -60,8 +60,6 @@ import warnings
 from fnmatch import fnmatch
 from functools import lru_cache
 from optparse import OptionParser
-if sys.version_info >= (3, 11):
-    import tomllib
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (
@@ -2500,7 +2498,6 @@ def read_config(options, args, arglist, parser):
     ConfigParser.
     """
     config = configparser.RawConfigParser()
-
     cli_conf = options.config
 
     local_dir = os.curdir
