@@ -5,6 +5,8 @@ if type(res) == type(42):
 if type(res) != type(""):
     pass
 #: Okay
+res.type("") == ""
+#: Okay
 import types
 
 if res == types.IntType:
