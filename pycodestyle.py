@@ -1269,6 +1269,8 @@ def explicit_line_join(logical_line, tokens):
             comment = True
         if start[0] != prev_start and parens and backslash and not comment:
             yield backslash, "E502 the backslash is redundant between brackets"
+        if start[0] != prev_start:
+            comment = False  # Reset comment flag on newline
         if end[0] != prev_end:
             if line.rstrip('\r\n').endswith('\\'):
                 backslash = (end[0], len(line.splitlines()[-1]) - 1)

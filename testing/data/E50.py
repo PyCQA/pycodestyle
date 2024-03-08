@@ -25,6 +25,13 @@ a = ('AAA  \
 if (foo is None and bar is "e000" and \
         blah == 'yeah'):
     blah = 'yeahnah'
+#: E502 W503 W503
+y = (
+    2 + 2  # \
+    + 3  # \
+    + 4 \
+    + 3
+)
 #
 #: Okay
 a = ('AAA'
