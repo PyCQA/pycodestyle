@@ -211,3 +211,7 @@ __all__ = ('xyz',)
 
 
 import foo
+#: E301:2:1 E301:3:1
+from __future__ import annotations
+__all__ = ('xyz',)
+import foo
