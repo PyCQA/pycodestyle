@@ -213,3 +213,8 @@ def f(
     a,
 ):
     pass
+#: Okay
+from __future__ import annotations
+
+__all__ = ('not_lost',)
+__author__ = 'you'
