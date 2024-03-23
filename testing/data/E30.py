@@ -203,3 +203,11 @@ def f():
 @hi
 def g():
     pass
+#: E303:4:1 E303:7:1
+from __future__ import annotations
+
+
+__all__ = ('xyz',)
+
+
+import foo
