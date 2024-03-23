@@ -215,3 +215,12 @@ import foo
 from __future__ import annotations
 __all__ = ('xyz',)
 import foo
+#: E303:8:1
+__all__ = ('together',)
+
+
+
+
+
+
+import foo

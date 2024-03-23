@@ -375,6 +375,10 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     if previous_logical.startswith('@'):
         if blank_lines:
             yield 0, "E304 blank lines found after function decorator"
+    elif (blank_lines > top_level_lines or
+            (indent_level and blank_lines == method_lines + 1)
+          ):
+        yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif DUNDER_REGEX.match(previous_logical):
         if DUNDER_REGEX.match(logical_line):
             return  # Allow groupings of dunder names
@@ -382,10 +386,6 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
             yield 0, "E301 expected 1 blank line, found 0"
         if blank_lines > 1:
             yield 0, "E303 too many blank lines (%d)" % blank_lines
-    elif (blank_lines > top_level_lines or
-            (indent_level and blank_lines == method_lines + 1)
-          ):
-        yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif DUNDER_REGEX.match(logical_line):
         if not blank_lines:
             yield 0, "E301 expected 1 blank line, found 0"
