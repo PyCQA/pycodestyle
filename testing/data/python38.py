@@ -28,7 +28,7 @@ if x:= 1:
 #: E225:1:18
 if False or (x :=1):
     pass
-#: Okay
+#: E403:3:1
 import typing as t
 
 __all__: t.List[str] = []

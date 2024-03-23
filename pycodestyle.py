@@ -46,6 +46,9 @@ W warnings
 700 statements
 900 syntax error
 """
+
+__version__ = '2.11.1'
+
 import bisect
 import configparser
 import inspect
@@ -67,8 +70,6 @@ if (
         callable(getattr(tokenize, '_compile', None))
 ):  # pragma: no cover (<py310)
     tokenize._compile = lru_cache(tokenize._compile)  # type: ignore
-
-__version__ = '2.11.1'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'
@@ -1161,7 +1162,12 @@ def module_imports_on_top_of_file(
     if line.startswith('import ') or line.startswith('from '):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
+        if line.split()[1] == '__future__':
+            return  # Allow before dunders - https://bugs.python.org/issue27187
+        checker_state['seen_imports'] = True
     elif re.match(DUNDER_REGEX, line):
+        if checker_state.get('seen_imports', False):
+            yield 0, "E403 module-level dunder name after non-future imports"
         return
     elif any(line.startswith(kw) for kw in allowed_keywords):
         # Allow certain keywords intermixed with imports in order to
