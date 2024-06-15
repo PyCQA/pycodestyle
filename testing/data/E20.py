@@ -75,4 +75,21 @@ if x == 4:
     x, y = y, x
 a[b1, :] == a[b1, ...]
 b = a[:, b1]
+#: E204:1:2
+@ decorator
+def f():
+    pass
+#: E204:1:2
+@	decorator
+def f():
+    pass
+#: E204:1:2
+@         decorator
+def f():
+    pass
+#: E204:2:6
+if True:
+    @ decorator
+    def f():
+        pass
 #:
