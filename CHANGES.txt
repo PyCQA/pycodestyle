@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2.12.0 (2024-06-15)
+-------------------
+
+Changes:
+
+* E721: Fix false positive of the form `x.type(...) ==`.  PR #1228.
+* E502: Fix false-negative with a backslash escape in a comment.  PR #1234.
+* E204: New lint forbidding whitespace after decorator `@`.  PR #1247.
+
 2.11.1 (2023-10-12)
 -------------------
 
