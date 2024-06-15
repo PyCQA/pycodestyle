@@ -120,6 +120,7 @@ INDENT_REGEX = re.compile(r'([ \t]*)')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
 EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({][ \t]|[ \t][\]}),;:](?!=)')
+WHITESPACE_AFTER_DECORATOR_REGEX = re.compile(r'@\s')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
@@ -438,6 +439,9 @@ def extraneous_whitespace(logical_line):
     E203: if x == 4: print x, y; x, y = y , x
     E203: if x == 4: print x, y ; x, y = y, x
     E203: if x == 4 : print x, y; x, y = y, x
+
+    Okay: @decorator
+    E204: @ decorator
     """
     line = logical_line
     for match in EXTRANEOUS_WHITESPACE_REGEX.finditer(line):
@@ -450,6 +454,9 @@ def extraneous_whitespace(logical_line):
         elif line[found - 1] != ',':
             code = ('E202' if char in '}])' else 'E203')  # if char in ',;:'
             yield found, f"{code} whitespace before '{char}'"
+
+    if WHITESPACE_AFTER_DECORATOR_REGEX.match(logical_line):
+        yield 1, "E204 whitespace after decorator '@'"
 
 
 @register_check
