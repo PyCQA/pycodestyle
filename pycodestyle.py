@@ -1949,7 +1949,10 @@ class Checker:
             if token_type == tokenize.STRING:
                 text = mute_string(text)
             elif token_type == FSTRING_MIDDLE:  # pragma: >=3.12 cover
-                text = 'x' * len(text)
+                # fstring tokens are "unescaped" braces -- re-escape!
+                brace_count = text.count('{') + text.count('}')
+                text = 'x' * (len(text) + brace_count)
+                end = (end[0], end[1] + brace_count)
             if prev_row:
                 (start_row, start_col) = start
                 if prev_row != start_row:    # different row
