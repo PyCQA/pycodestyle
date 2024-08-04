@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2.12.1 (2024-08-04)
+-------------------
+
+Changes:
+
+* Properly preserve escaped `{` and `}` in fstrings in logical lines in 3.12+.
+  PR #1252.
+
 2.12.0 (2024-06-15)
 -------------------
 
