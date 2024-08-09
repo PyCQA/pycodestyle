@@ -1910,9 +1910,7 @@ class Checker:
 
     def run_check(self, check, argument_names):
         """Run a check plugin."""
-        arguments = []
-        for name in argument_names:
-            arguments.append(getattr(self, name))
+        arguments = [getattr(self, name) for name in argument_names]
         return check(*arguments)
 
     def init_checker_state(self, name, argument_names):
