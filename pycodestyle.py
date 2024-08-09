@@ -233,9 +233,11 @@ def trailing_whitespace(physical_line):
     W291: spam(1) \n#
     W293: class Foo(object):\n    \n    bang = 12
     """
-    physical_line = physical_line.rstrip('\n')    # chr(10), newline
-    physical_line = physical_line.rstrip('\r')    # chr(13), carriage return
-    physical_line = physical_line.rstrip('\x0c')  # chr(12), form feed, ^L
+    # Strip these trailing characters:
+    # - chr(10), newline
+    # - chr(13), carriage return
+    # - chr(12), form feed, ^L
+    physical_line = physical_line.rstrip('\n\r\x0c')
     stripped = physical_line.rstrip(' \t\v')
     if physical_line != stripped:
         if stripped:
