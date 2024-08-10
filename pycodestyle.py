@@ -1829,7 +1829,18 @@ def update_counts(s, counts):
 
 
 def _is_eol_token(token):
-    return token[0] in NEWLINE or token[4][token[3][1]:].lstrip() == '\\\n'
+    if token[0] in NEWLINE:
+        return True
+
+    if token[0] == tokenize.ENDMARKER:
+        return False
+
+    # Check if the line's penultimate character is a continuation
+    # character
+    if token[4][-2] != '\\':
+        return False
+
+    return token[4][token[3][1]:].lstrip() == '\\\n'
 
 
 ########################################################################
