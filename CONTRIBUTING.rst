@@ -97,4 +97,4 @@ Running functional
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 .. _guide: https://guides.github.com/activities/forking/
 .. _tox: https://tox.readthedocs.io/en/latest/
-.. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html
+.. _Code of Conduct: https://meta.pycqa.org/code-of-conduct.html
