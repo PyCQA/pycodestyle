@@ -112,7 +112,7 @@ All the tests should pass for all available interpreters, with the summary of::
     congratulations :)
 
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
-.. _Code of Conduct: http://meta.pycqa.org/en/latest/code-of-conduct.html
+.. _Code of Conduct: https://meta.pycqa.org/code-of-conduct.html
 
 
 Changes
