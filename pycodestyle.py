@@ -785,7 +785,6 @@ def whitespace_before_parameters(logical_line, tokens):
             # Allow "return (a.foo for a in range(5))"
             not keyword.iskeyword(prev_text) and
             (
-                sys.version_info < (3, 9) or
                 # 3.12+: type is a soft keyword but no braces after
                 prev_text == 'type' or
                 not keyword.issoftkeyword(prev_text)
@@ -960,10 +959,8 @@ def missing_whitespace(logical_line, tokens):
                 # Allow argument unpacking: foo(*args, **kwargs).
                 if prev_type == tokenize.OP and prev_text in '}])' or (
                     prev_type != tokenize.OP and
-                    prev_text not in KEYWORDS and (
-                        sys.version_info < (3, 9) or
-                        not keyword.issoftkeyword(prev_text)
-                    )
+                    prev_text not in KEYWORDS and
+                    not keyword.issoftkeyword(prev_text)
                 ):
                     need_space = None
             elif text in WS_OPTIONAL_OPERATORS:

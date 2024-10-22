@@ -17,9 +17,6 @@ jobs:
           py: pypy3.10
           toxenv: py
         - os: ubuntu-latest
-          py: 3.8
-          toxenv: py
-        - os: ubuntu-latest
           py: 3.9
           toxenv: py
         - os: ubuntu-latest
@@ -29,7 +26,13 @@ jobs:
           py: '3.11'
           toxenv: py
         - os: ubuntu-latest
-          py: '3.12-dev'
+          py: '3.12'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.13'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.14-dev'
           toxenv: py
         - os: ubuntu-latest
           py: 3.9
@@ -40,10 +43,10 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.py }}
-      if: matrix.py != '3.12-dev'
+      if: matrix.py != '3.14-dev'
     - uses: deadsnakes/action@v3.0.1
       with:
         python-version: ${{ matrix.py }}
-      if: matrix.py == '3.12-dev'
+      if: matrix.py == '3.14-dev'
     - run: pip install tox
     - run: tox -e ${{ matrix.toxenv }}

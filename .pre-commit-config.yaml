@@ -11,12 +11,12 @@ repos:
     rev: v3.13.0
     hooks:
     -   id: reorder-python-imports
-        args: [--py38-plus]
+        args: [--py39-plus]
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.17.0
     hooks:
     -   id: pyupgrade
-        args: [--py38-plus]
+        args: [--py39-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.5.0
     hooks:
