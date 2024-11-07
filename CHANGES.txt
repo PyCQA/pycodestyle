@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.7.2 (2024-11-07)
+------------------
+
+Changes:
+
+* README changed to redirect users to ``pycodestyle``. (Issue #1269)
+* PyPI status changed to "Inactive". (Issue #1269)
+
 1.7.1 (2017-10-22)
 ------------------
 
