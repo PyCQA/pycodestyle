@@ -135,6 +135,7 @@ OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+|:=)(\s*)')
 LAMBDA_REGEX = re.compile(r'\blambda\b')
 HUNK_REGEX = re.compile(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@.*$')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)\b')
+STARTSWITH_GENERIC_REGEX = re.compile(r'^(async\s+def|def|class|type)\s+\w+\[')
 STARTSWITH_TOP_LEVEL_REGEX = re.compile(r'^(async\s+def\s+|def\s+|class\s+|@)')
 STARTSWITH_INDENT_STATEMENT_REGEX = re.compile(
     r'^\s*({})\b'.format('|'.join(s.replace(' ', r'\s+') for s in (
@@ -1019,12 +1020,13 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     E251: return magic(r = real, i = imag)
     E252: def complex(real, image: float=0.0):
     """
-    parens = 0
+    paren_stack = []
     no_space = False
     require_space = False
     prev_end = None
     annotated_func_arg = False
     in_def = bool(STARTSWITH_DEF_REGEX.match(logical_line))
+    in_generic = bool(STARTSWITH_GENERIC_REGEX.match(logical_line))
 
     message = "E251 unexpected spaces around keyword / parameter equals"
     missing_message = "E252 missing whitespace around parameter equals"
@@ -1042,15 +1044,23 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 yield (prev_end, missing_message)
         if token_type == tokenize.OP:
             if text in '([':
-                parens += 1
-            elif text in ')]':
-                parens -= 1
-            elif in_def and text == ':' and parens == 1:
+                paren_stack.append(text)
+            elif text in ')]' and paren_stack:
+                paren_stack.pop()
+            elif (
+                    text == ':' and (
+                        # def f(arg: tp = default): ...
+                        (in_def and paren_stack == ['(']) or
+                        # def f[T: tp = default](): ...
+                        # class C[T: tp = default](): ...
+                        (in_generic and paren_stack == ['['])
+                    )
+            ):
                 annotated_func_arg = True
-            elif parens == 1 and text == ',':
+            elif len(paren_stack) == 1 and text == ',':
                 annotated_func_arg = False
-            elif parens and text == '=':
-                if annotated_func_arg and parens == 1:
+            elif paren_stack and text == '=':
+                if annotated_func_arg and len(paren_stack) == 1:
                     require_space = True
                     if start == prev_end:
                         yield (prev_end, missing_message)
@@ -1058,7 +1068,7 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                     no_space = True
                     if start != prev_end:
                         yield (prev_end, message)
-            if not parens:
+            if not paren_stack:
                 annotated_func_arg = False
 
         prev_end = end
