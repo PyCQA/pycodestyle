@@ -1045,17 +1045,16 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
         if token_type == tokenize.OP:
             if text in '([':
                 paren_stack.append(text)
+                # PEP 696 defaults always use spaced-style `=`
+                # type A[T = default] = ...
+                # def f[T = default](): ...
+                # class C[T = default](): ...
+                if in_generic and paren_stack == ['[']:
+                    annotated_func_arg = True
             elif text in ')]' and paren_stack:
                 paren_stack.pop()
-            elif (
-                    text == ':' and (
-                        # def f(arg: tp = default): ...
-                        (in_def and paren_stack == ['(']) or
-                        # def f[T: tp = default](): ...
-                        # class C[T: tp = default](): ...
-                        (in_generic and paren_stack == ['['])
-                    )
-            ):
+            # def f(arg: tp = default): ...
+            elif text == ':' and in_def and paren_stack == ['(']:
                 annotated_func_arg = True
             elif len(paren_stack) == 1 and text == ',':
                 annotated_func_arg = False
