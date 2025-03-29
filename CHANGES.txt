@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2.13.0 (2025-03-29)
+-------------------
+
+Changes:
+
+* Improve performance.  PR #1254.  PR #1255.
+* Drop EOL python 3.8.  PR #1267.
+* E251: fix false positive for PEP 696 defaults.  PR #1278.  PR #1279.
+
 2.12.1 (2024-08-04)
 -------------------
 
