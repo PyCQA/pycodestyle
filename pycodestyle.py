@@ -158,6 +158,13 @@ if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
 else:  # pragma: <3.12 cover
     FSTRING_START = FSTRING_MIDDLE = FSTRING_END = -1
 
+if sys.version_info >= (3, 14):  # pragma: >=3.14 cover
+    TSTRING_START = tokenize.TSTRING_START
+    TSTRING_MIDDLE = tokenize.TSTRING_MIDDLE
+    TSTRING_END = tokenize.TSTRING_END
+else:  # pragma: <3.14 cover
+    TSTRING_START = TSTRING_MIDDLE = TSTRING_END = -1
+
 _checks = {'physical_line': {}, 'logical_line': {}, 'tree': {}}
 
 
@@ -697,7 +704,12 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
             if verbose >= 4:
                 print(f"bracket depth {depth} indent to {start[1]}")
         # deal with implicit string concatenation
-        elif token_type in (tokenize.STRING, tokenize.COMMENT, FSTRING_START):
+        elif token_type in {
+                tokenize.STRING,
+                tokenize.COMMENT,
+                FSTRING_START,
+                TSTRING_START
+        }:
             indent_chances[start[1]] = str
         # visual indent after assert/raise/with
         elif not row and not depth and text in ["assert", "raise", "with"]:
@@ -873,12 +885,16 @@ def missing_whitespace(logical_line, tokens):
             brace_stack.append(text)
         elif token_type == FSTRING_START:  # pragma: >=3.12 cover
             brace_stack.append('f')
+        elif token_type == TSTRING_START:  # pragma: >=3.14 cover
+            brace_stack.append('t')
         elif token_type == tokenize.NAME and text == 'lambda':
             brace_stack.append('l')
         elif brace_stack:
             if token_type == tokenize.OP and text in {']', ')', '}'}:
                 brace_stack.pop()
             elif token_type == FSTRING_END:  # pragma: >=3.12 cover
+                brace_stack.pop()
+            elif token_type == TSTRING_END:  # pragma: >=3.14 cover
                 brace_stack.pop()
             elif (
                     brace_stack[-1] == 'l' and
@@ -898,6 +914,9 @@ def missing_whitespace(logical_line, tokens):
                     pass
                 # 3.12+ fstring format specifier
                 elif text == ':' and brace_stack[-2:] == ['f', '{']:  # pragma: >=3.12 cover  # noqa: E501
+                    pass
+                # 3.14+ tstring format specifier
+                elif text == ':' and brace_stack[-2:] == ['t', '{']:  # pragma: >=3.14 cover  # noqa: E501
                     pass
                 # tuple (and list for some reason?)
                 elif text == ',' and next_char in ')]':
@@ -948,7 +967,9 @@ def missing_whitespace(logical_line, tokens):
                         # allow keyword args or defaults: foo(bar=None).
                         brace_stack[-1:] == ['('] or
                         # allow python 3.8 fstring repr specifier
-                        brace_stack[-2:] == ['f', '{']
+                        brace_stack[-2:] == ['f', '{'] or
+                        # allow python 3.8 fstring repr specifier
+                        brace_stack[-2:] == ['t', '{']
                     )
             ):
                 pass
@@ -1639,11 +1660,11 @@ def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
 
     prefixes = []
     for token_type, text, start, _, _ in tokens:
-        if token_type in {tokenize.STRING, FSTRING_START}:
+        if token_type in {tokenize.STRING, FSTRING_START, TSTRING_START}:
             # Extract string modifiers (e.g. u or r)
             prefixes.append(text[:text.index(text[-1])].lower())
 
-        if token_type in {tokenize.STRING, FSTRING_MIDDLE}:
+        if token_type in {tokenize.STRING, FSTRING_MIDDLE, TSTRING_MIDDLE}:
             if 'r' not in prefixes[-1]:
                 start_line, start_col = start
                 pos = text.find('\\')
@@ -1661,7 +1682,7 @@ def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
                         )
                     pos = text.find('\\', pos + 1)
 
-        if token_type in {tokenize.STRING, FSTRING_END}:
+        if token_type in {tokenize.STRING, FSTRING_END, TSTRING_END}:
             prefixes.pop()
 
 
@@ -1859,7 +1880,7 @@ class Checker:
         self.max_line_length = options.max_line_length
         self.max_doc_length = options.max_doc_length
         self.indent_size = options.indent_size
-        self.fstring_start = 0
+        self.fstring_start = self.tstring_start = 0
         self.multiline = False  # in a multiline string?
         self.hang_closing = options.hang_closing
         self.indent_size = options.indent_size
@@ -1954,7 +1975,7 @@ class Checker:
                 continue
             if token_type == tokenize.STRING:
                 text = mute_string(text)
-            elif token_type == FSTRING_MIDDLE:  # pragma: >=3.12 cover
+            elif token_type in {FSTRING_MIDDLE, TSTRING_MIDDLE}:  # pragma: >=3.12 cover  # noqa: E501
                 # fstring tokens are "unescaped" braces -- re-escape!
                 brace_count = text.count('{') + text.count('}')
                 text = 'x' * (len(text) + brace_count)
@@ -2046,6 +2067,8 @@ class Checker:
 
         if token.type == FSTRING_START:  # pragma: >=3.12 cover
             self.fstring_start = token.start[0]
+        elif token.type == TSTRING_START:  # pragma: >=3.14 cover
+            self.tstring_start = token.start[0]
         # a newline token ends a single physical line.
         elif _is_eol_token(token):
             # if the file does not end with a newline, the NEWLINE
@@ -2057,7 +2080,8 @@ class Checker:
                 self.check_physical(token.line)
         elif (
                 token.type == tokenize.STRING and '\n' in token.string or
-                token.type == FSTRING_END
+                token.type == FSTRING_END or
+                token.type == TSTRING_END
         ):
             # Less obviously, a string that contains newlines is a
             # multiline string, either triple-quoted or with internal
@@ -2078,6 +2102,8 @@ class Checker:
                 return
             if token.type == FSTRING_END:  # pragma: >=3.12 cover
                 start = self.fstring_start
+            elif token.type == TSTRING_END:  # pragma: >=3.12 cover
+                start = self.tstring_start
             else:
                 start = token.start[0]
             end = token.end[0]
