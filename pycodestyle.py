@@ -46,6 +46,7 @@ W warnings
 700 statements
 900 syntax error
 """
+import ast
 import bisect
 import configparser
 import inspect
@@ -1193,6 +1194,23 @@ def module_imports_on_top_of_file(
         checker_state['seen_non_imports'] = True
 
 
+def _use_ast_to_check_for_lambda_assignment(logical_line):
+    """Check if the line contains a lambda assignment."""
+    try:
+        tree = ast.parse(logical_line)
+    except SyntaxError:
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if (
+                    isinstance(target, ast.Name) and  # assigning to a variable
+                    isinstance(node.value, ast.Lambda)  # lambda expression
+                ):
+                    return True
+    return False
+
+
 @register_check
 def compound_statements(logical_line):
     r"""Compound statements (on the same line) are generally
@@ -1228,6 +1246,9 @@ def compound_statements(logical_line):
     found = line.find(':')
     prev_found = 0
     counts = {char: 0 for char in '{}[]()'}
+    if _use_ast_to_check_for_lambda_assignment(line):
+        yield 0, "E731 do not assign a lambda expression, use a def"
+        return
     while -1 < found < last_char:
         update_counts(line[prev_found:found], counts)
         if (
@@ -1236,13 +1257,6 @@ def compound_statements(logical_line):
                 counts['('] <= counts[')'] and  # (annotation)
                 line[found + 1] != '='  # assignment expression
         ):
-            lambda_kw = LAMBDA_REGEX.search(line, 0, found)
-            if lambda_kw:
-                before = line[:lambda_kw.start()].rstrip()
-                if before[-1:] == '=' and before[:-1].strip().isidentifier():
-                    yield 0, ("E731 do not assign a lambda expression, use a "
-                              "def")
-                break
             if STARTSWITH_DEF_REGEX.match(line):
                 yield 0, "E704 multiple statements on one line (def)"
             elif STARTSWITH_INDENT_STATEMENT_REGEX.match(line):
