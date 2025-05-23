@@ -1196,9 +1196,11 @@ def module_imports_on_top_of_file(
 
 def _use_ast_to_check_for_lambda_assignment(logical_line):
     """Check if the line contains a lambda assignment."""
+    if not logical_line:
+        return False
     try:
         tree = ast.parse(logical_line)
-    except SyntaxError:
+    except (SyntaxError, ValueError):
         return False
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
