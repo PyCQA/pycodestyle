@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2.14.0 (2025-06-20)
+-------------------
+
+Changes:
+
+* Add support for python 3.14.  PR #1283.
+* Fix false positive for TypeVar defaults with more than one argument.
+  PR #1286.
+
 2.13.0 (2025-03-29)
 -------------------
 
