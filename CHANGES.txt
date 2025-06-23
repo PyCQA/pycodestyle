@@ -1,6 +1,230 @@
 Changelog
 =========
 
+2.14.0 (2025-06-20)
+-------------------
+
+Changes:
+
+* Add support for python 3.14.  PR #1283.
+* Fix false positive for TypeVar defaults with more than one argument.
+  PR #1286.
+
+2.13.0 (2025-03-29)
+-------------------
+
+Changes:
+
+* Improve performance.  PR #1254.  PR #1255.
+* Drop EOL python 3.8.  PR #1267.
+* E251: fix false positive for PEP 696 defaults.  PR #1278.  PR #1279.
+
+2.12.1 (2024-08-04)
+-------------------
+
+Changes:
+
+* Properly preserve escaped `{` and `}` in fstrings in logical lines in 3.12+.
+  PR #1252.
+
+2.12.0 (2024-06-15)
+-------------------
+
+Changes:
+
+* E721: Fix false positive of the form `x.type(...) ==`.  PR #1228.
+* E502: Fix false-negative with a backslash escape in a comment.  PR #1234.
+* E204: New lint forbidding whitespace after decorator `@`.  PR #1247.
+
+2.11.1 (2023-10-12)
+-------------------
+
+Changes:
+
+* E275: fix false positive with fstrings containing keyword parts in python 3.12
+
+2.11.0 (2023-07-29)
+-------------------
+
+Changes:
+
+* Drop EOL python 3.6 / 3.7.  PR #1129, #1160.
+* Add support for python 3.12.  PR #1147, #1148, #1152, #1153, #1154, #1163,
+  #1164, #1165, #1166, #1176, #1177, #1182.
+* E721: adjust handling of type comparison.  Allowed forms are now
+  ``isinstance(x, t)`` or ``type(x) is t``.  PR #1086, #1167.
+* Remove handling of python 2 ``<>`` operator.  PR #1161.
+* W606: removed.  ``async`` / ``await`` are always keywords.  PR #1162.
+* Internal: move tests to pytest.  PR #1168, #1169, #1171, #1173, #1174, #1175.
+* Remove handling of python 2 ``ur''`` strings.  PR #1181.
+
+
+2.10.0 (2022-11-23)
+-------------------
+
+Changes:
+
+* E231: allow trailing comma inside 1-tuples in ``[]``.  PR #1108.
+* W601, W602, W603, W604: removed (no longer relevant in python 3).  PR #1111.
+* E741: also apply to lambdas.  PR #1106.
+* E741: fix false positive for comparison operators.  PR #1118.
+
+2.9.1 (2022-08-03)
+------------------
+
+Changes:
+
+* E275: fix false positive for yield expressions.  PR #1091.
+
+2.9.0 (2022-07-30)
+------------------
+
+Changes:
+
+* E221, E222, E223, E224: add support for ``:=`` operator.  PR #1032.
+* Drop python 2.7 / 3.5.
+* E262: consider non-breaking spaces (``\xa0``) as whitespace.  PR #1035.
+* Improve performance of ``_is_binary_operator``.  PR #1052.
+* E275: requires whitespace around keywords.  PR #1063.
+* Add support for python 3.11. PR #1070.
+
+2.8.0 (2021-10-10)
+------------------
+
+Changes:
+
+* Drop python 3.4.  PR #982.
+* E712: fix false negative with multiple comparisons.  PR #987.
+* E211: fix false positives with ``match``.  PR #989.
+* E772: improve performance of bare except check.  PR #992.
+* Backport tokenize performance improvement from python 3.10.  PR #993.
+* E225: fix for lambdas containing positional-only args.  PR #1012.
+* Remove ``indent_size_str`` "setting".  PR #995.
+* E402: allow ``__all__`` to be typed.  PR #1019.
+* E225: fix false positives for ``*`` in ``case``.  PR #1003.
+* E201: detect tabs as whitespace.  PR #1015.
+
+
+2.7.0 (2021-03-14)
+------------------
+
+Changes:
+
+* Fix physical checks (such as W191) at end of file.  PR #961.
+* Add ``--indent-size`` option (defaulting to ``4``).  PR #970.
+* W605: fix escaped crlf false positive on windows.  PR #976.
+
+
+2.6.0 (2020-05-11)
+------------------
+
+Announcements:
+
+* Anthony Sottile (@asottile) joined the team as a core developer. :tada:
+
+Changes:
+
+* E306: fix detection inside ``async def``.  PR #929.
+* E301: fix regression disallowing decorated one-liners.  PR #927.
+* E714: fix false positive with chained ``is not``.  PR #931.
+
+
+2.6.0a1 (2020-04-23)
+--------------------
+
+New checks:
+
+* E225: require whitespace around ``and`` ``in`` ``is`` and ``or``.  PR #847.
+
+Changes:
+
+* E117: fix indentation using tabs by treating as 8-space indents.  PR #837.
+* E721: fix false positive with names containg ``istype``.  PR #850.
+* E741: allow ``l`` as a named argument in a function call.  PR #853.
+* E302: fix false-negative with decorated functions.  PR #859.
+* W504: ellipsis (``...``) is no longer treated as a binary operator.  PR #875.
+* E402: allow ``with``, ``if``, ``elif``, ``else`` to guard imports.  PR #834.
+* Add support for assignment expressions ``:=`` (PEP 572).  PR #879.
+* Add support for positional-only arguments ``/`` (PEP 570).  PR #872, #918.
+* Add support for python 3.8.
+* Add support for matrix multiplication operator ``@`` (PEP 465).  PR #897.
+* Support visual indent for continuation lines for ``with`` / ``assert`` /
+  ``raise``.  PR #912.
+* E302: allow two blank lines after a block of one-liners.  PR #913.
+* E302: allow two-and-fewer newlines at the top of the file.  PR #919.
+
+
+2.5.0 (2019-01-29)
+------------------
+
+New checks:
+
+* E117: Over-indented code blocks
+* W505: Maximum doc-string length only when configured with --max-doc-length
+
+Changes:
+
+* Remove support for EOL Python 2.6 and 3.3. PR #720.
+* Add E117 error for over-indented code blocks.
+* Allow W605 to be silenced by `# noqa` and fix the position reported by W605
+* Allow users to omit blank lines around one-liner definitions of classes and
+  functions
+* Include the function return annotation (``->``) as requiring surrounding
+  whitespace only on Python 3
+* Verify that only names can follow ``await``. Previously we allowed numbers
+  and strings.
+* Add support for Python 3.7
+* Fix detection of annotated argument defaults for E252
+* Correct the position reported by W504
+
+
+2.4.0 (2018-04-10)
+------------------
+
+New checks:
+
+* Add W504 warning for checking that a break doesn't happen after a binary
+  operator. This check is ignored by default. PR #502.
+* Add W605 warning for invalid escape sequences in string literals. PR #676.
+* Add W606 warning for 'async' and 'await' reserved keywords being introduced
+  in Python 3.7. PR #684.
+* Add E252 error for missing whitespace around equal sign in type annotated
+  function arguments with defaults values. PR #717.
+
+Changes:
+
+* An internal bisect search has replaced a linear search in order to improve
+  efficiency. PR #648.
+* pycodestyle now uses PyPI trove classifiers in order to document supported
+  python versions on PyPI. PR #654.
+* 'setup.cfg' '[wheel]' section has been renamed to '[bdist_wheel]', as
+  the former is legacy. PR #653.
+* pycodestyle now handles very long lines much more efficiently for python
+  3.2+. Fixes #643. PR #644.
+* You can now write 'pycodestyle.StyleGuide(verbose=True)' instead of
+  'pycodestyle.StyleGuide(verbose=True, paths=['-v'])' in order to achieve
+  verbosity. PR #663.
+* The distribution of pycodestyle now includes the license text in order to
+  comply with open source licenses which require this. PR #694.
+* 'maximum_line_length' now ignores shebang ('#!') lines. PR #736.
+* Add configuration option for the allowed number of blank lines. It is
+  implemented as a top level dictionary which can be easily overwritten. Fixes
+  #732. PR #733.
+
+Bugs:
+
+* Prevent a 'DeprecationWarning', and a 'SyntaxError' in future python, caused
+  by an invalid escape sequence. PR #625.
+* Correctly report E501 when the first line of a docstring is too long.
+  Resolves #622. PR #630.
+* Support variable annotation when variable start by a keyword, such as class
+  variable type annotations in python 3.6. PR #640.
+* pycodestyle internals have been changed in order to allow 'python3 -m
+  cProfile' to report correct metrics. PR #647.
+* Fix a spelling mistake in the description of E722. PR #697.
+* 'pycodestyle --diff' now does not break if your 'gitconfig' enables
+  'mnemonicprefix'. PR #706.
+
 2.3.1 (2017-01-31)
 ------------------
 

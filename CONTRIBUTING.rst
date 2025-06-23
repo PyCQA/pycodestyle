@@ -34,8 +34,10 @@ Next, ``cd`` to the pycodestyle repository that you cloned earlier and
 create, then activate a virtualenv::
 
     $ cd pycodestyle
-    $ virtualenv pycodestyle-venv
-    $ source pycodestyle-venv/bin/activate
+    $ virtualenv venv-pycodestyle
+    $ source venv-pycodestyle/bin/activate
+
+Note that ``venv*/`` is ignored via ``.gitignore``.
 
 Now you can install the pycodestyle requirements::
 
@@ -53,7 +55,7 @@ Step 3: Run tests
 
 Before creating a pull request you should run the tests to make sure that the
 changes that have been made haven't caused any regressions in functionality.
-To run the tests, the core developer team and Travis-CI use `tox`_::
+To run the tests, the core developer team and GitHub Actions use `tox`_::
 
     $ pip install -r dev-requirements.txt
     $ tox
@@ -62,9 +64,35 @@ All the tests should pass for all available interpreters, with the summary of::
 
     congratulations :)
 
-At this point you can create a pull request back to the official pycodestyles
+At this point you can create a pull request back to the official pycodestyle
 repository for review! For more information on how to make a pull request,
 GitHub has an excellent `guide`_.
+
+The current tests are written in 2 styles:
+
+* pytest tests
+* functional test using a custom framework
+
+
+Running tests
+~~~~~~~~~~~~~
+
+The tests are written using ``pytest``, the existing tests
+include unit, integration and functional tests.
+
+To run the tests::
+
+    $ pytest tests
+
+Running functional
+~~~~~~~~~~~~~~~~~~
+
+    $ pip install -e .
+    $ # Run all tests.
+    $ pytest tests/test_data.py
+    $ # Run a subset of the tests.
+    $ pytest tests/tests_data.py -k testing/data/E30.py
+
 
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 .. _guide: https://guides.github.com/activities/forking/

@@ -21,7 +21,7 @@ Contents:
    API <api>
    developer
 
-* Online documentation: https://pycodestyle.readthedocs.io/
+* Online documentation: https://pycodestyle.pycqa.org/
 * Source code and issue tracker: https://github.com/pycqa/pycodestyle
 
 

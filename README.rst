@@ -1,16 +1,16 @@
 pycodestyle (formerly called pep8) - Python style guide checker
 ===============================================================
 
-.. image:: https://img.shields.io/travis/PyCQA/pycodestyle.svg
-   :target: https://travis-ci.org/PyCQA/pycodestyle
+.. image:: https://github.com/PyCQA/pycodestyle/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/PyCQA/pycodestyle/actions/workflows/main.yml
    :alt: Build status
 
 .. image:: https://readthedocs.org/projects/pycodestyle/badge/?version=latest
-    :target: https://pycodestyle.readthedocs.io
+    :target: https://pycodestyle.pycqa.org
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/pypi/wheel/pycodestyle.svg
-   :target: https://pypi.python.org/pypi/pycodestyle
+   :target: https://pypi.org/project/pycodestyle/
    :alt: Wheel Status
 
 .. image:: https://badges.gitter.im/PyCQA/pycodestyle.svg
@@ -65,17 +65,15 @@ Example usage and output
   optparse.py:69:11: E401 multiple imports on one line
   optparse.py:77:1: E302 expected 2 blank lines, found 1
   optparse.py:88:5: E301 expected 1 blank line, found 0
-  optparse.py:222:34: W602 deprecated form of raising exception
   optparse.py:347:31: E211 whitespace before '('
   optparse.py:357:17: E201 whitespace after '{'
   optparse.py:472:29: E221 multiple spaces before operator
-  optparse.py:544:21: W601 .has_key() is deprecated, use 'in'
 
 You can also make ``pycodestyle.py`` show the source code for each error, and
 even the relevant text from PEP 8::
 
-  $ pycodestyle --show-source --show-pep8 testsuite/E40.py
-  testsuite/E40.py:2:10: E401 multiple imports on one line
+  $ pycodestyle --show-source --show-pep8 testing/data/E40.py
+  testing/data/E40.py:2:10: E401 multiple imports on one line
   import os, sys
            ^
       Imports should usually be on separate lines.
@@ -97,12 +95,10 @@ Or you can display how often each error was found::
   165     E303 too many blank lines (4)
   325     E401 multiple imports on one line
   3615    E501 line too long (82 characters)
-  612     W601 .has_key() is deprecated, use 'in'
-  1188    W602 deprecated form of raising exception
 
 Links
 -----
 
-* `Read the documentation <https://pycodestyle.readthedocs.io/>`_
+* `Read the documentation <https://pycodestyle.pycqa.org/>`_
 
 * `Fork me on GitHub <http://github.com/PyCQA/pycodestyle>`_

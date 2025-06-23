@@ -1,0 +1,52 @@
+name: main
+on:
+  pull_request:
+  push:
+    branches: [master, main, 'test-me-*']
+    tags: ['*']
+
+jobs:
+  main:
+    strategy:
+      matrix:
+        include:
+        - os: windows-latest
+          py: 3.9
+          toxenv: py
+        - os: ubuntu-latest
+          py: pypy3.10
+          toxenv: py
+        - os: ubuntu-latest
+          py: 3.9
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.10'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.11'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.12'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.13'
+          toxenv: py
+        - os: ubuntu-latest
+          py: '3.14-dev'
+          toxenv: py
+        - os: ubuntu-latest
+          py: 3.9
+          toxenv: flake8
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.py }}
+      if: matrix.py != '3.14-dev'
+    - uses: deadsnakes/action@v3.0.1
+      with:
+        python-version: ${{ matrix.py }}
+      if: matrix.py == '3.14-dev'
+    - run: pip install tox
+    - run: tox -e ${{ matrix.toxenv }}

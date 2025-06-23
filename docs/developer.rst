@@ -13,9 +13,9 @@ conditions of the :ref:`Expat license <license>`.  Fork away!
 
 * `Source code <https://github.com/pycqa/pycodestyle>`_ and
   `issue tracker <https://github.com/pycqa/pycodestyle/issues>`_ on GitHub.
-* `Continuous tests <http://travis-ci.org/pycqa/pycodestyle>`_ against Python
-  2.6 through 3.5 as well as the nightly Python build and PyPy, on `Travis-CI
-  platform <https://docs.travis-ci.com//>`_.
+* `Continuous tests <https://github.com/PyCQA/pycodestyle/actions>`_ against
+  Python 2.7 and 3.5+ as well as the nightly Python build and PyPy, on GitHub
+  Actions.
 
 .. _available on GitHub: https://github.com/pycqa/pycodestyle
 
@@ -32,7 +32,6 @@ Some high-level aims and directions to bear in mind for contributions:
 * If you want to provide extensibility / plugins,
   please see `flake8 <https://gitlab.com/pycqa/flake8>`_ -
   ``pycodestyle`` doesn't want or need a plugin architecture.
-* Python 2.6 support is still deemed important.
 * ``pycodestyle`` aims to have no external dependencies.
 
 
@@ -90,21 +89,20 @@ Several docstrings contain examples directly from the `PEP 8`_ document.
   Okay: spam(ham[1], {eggs: 2})
   E201: spam( ham[1], {eggs: 2})
 
-These examples are verified automatically when ``pycodestyle.py`` is run with
-the ``--doctest`` option.  You can add examples for your own check functions.
+These examples are verified automatically by ``test_self_doctest.py``.
+You can add examples for your own check functions.
 The format is simple: ``"Okay"`` or error/warning code followed by colon and
 space, the rest of the line is example source code.  If you put ``'r'`` before
 the docstring, you can use ``\n`` for newline and ``\t`` for tab.
 
 Then be sure to pass the tests::
 
-  $ python pycodestyle.py --testsuite testsuite
-  $ python pycodestyle.py --doctest
+  $ pytest tests
   $ python pycodestyle.py --verbose pycodestyle.py
 
 When contributing to pycodestyle, please observe our `Code of Conduct`_.
 
-To run the tests, the core developer team and Travis-CI use tox::
+To run the tests, the core developer team and GitHub Actions use tox::
 
     $ pip install -r dev-requirements.txt
     $ tox

@@ -25,14 +25,11 @@ in your project::
           self.assertEqual(result.total_errors, 0,
                            "Found code style errors (and warnings).")
 
-If you are using ``nosetests`` for running tests, remove ``quiet=True``
-since Nose suppresses stdout.
-
 There's also a shortcut for checking a single file::
 
   import pycodestyle
 
-  fchecker = pycodestyle.Checker('testsuite/E27.py', show_source=True)
+  fchecker = pycodestyle.Checker('testing/data/E27.py', show_source=True)
   file_errors = fchecker.check_all()
 
   print("Found %s errors (and warnings)" % file_errors)
