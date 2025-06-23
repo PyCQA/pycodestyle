@@ -158,7 +158,7 @@ if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
 else:  # pragma: <3.12 cover
     FSTRING_START = FSTRING_MIDDLE = FSTRING_END = -1
 
-if sys.version_info >= (3, 14):  # pragma: >=3.14 cover
+if sys.version_info >= (3, 14, 0, 'beta'):  # pragma: >=3.14 cover
     TSTRING_START = tokenize.TSTRING_START
     TSTRING_MIDDLE = tokenize.TSTRING_MIDDLE
     TSTRING_END = tokenize.TSTRING_END
