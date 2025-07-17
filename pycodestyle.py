@@ -493,6 +493,17 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E271 multiple spaces after keyword"
 
 
+if sys.version_info < (3, 10):
+    from itertools import tee
+
+    def pairwise(iterable):
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
+else:
+    from itertools import pairwise
+
+
 @register_check
 def missing_whitespace_after_keyword(logical_line, tokens):
     r"""Keywords should be followed by whitespace.
@@ -502,7 +513,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
     E275: from importable.module import(bar, baz)
     E275: if(foo): bar
     """
-    for tok0, tok1 in zip(tokens, tokens[1:]):
+    for tok0, tok1 in pairwise(tokens):
         # This must exclude the True/False/None singletons, which can
         # appear e.g. as "if x is None:", and async/await, which were
         # valid identifier names in old Python versions.
@@ -512,7 +523,7 @@ def missing_whitespace_after_keyword(logical_line, tokens):
                 tok0.string not in SINGLETONS and
                 not (tok0.string == 'except' and tok1.string == '*') and
                 not (tok0.string == 'yield' and tok1.string == ')') and
-                tok1.string not in ':\n'):
+                (tok1.string and tok1.string != ':' and tok1.string != '\n')):
             yield tok0.end, "E275 missing whitespace after keyword"
 
 
