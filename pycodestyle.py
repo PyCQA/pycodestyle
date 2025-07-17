@@ -1160,6 +1160,22 @@ def imports_on_separate_lines(logical_line):
             yield found, "E401 multiple imports on one line"
 
 
+_STRING_PREFIXES = frozenset(('u', 'U', 'b', 'B', 'r', 'R'))
+
+
+def _is_string_literal(line):
+    if line:
+        first_char = line[0]
+        if first_char in _STRING_PREFIXES:
+            first_char = line[1]
+        return first_char == '"' or first_char == "'"
+    return False
+
+
+_ALLOWED_KEYWORDS_IN_IMPORTS = frozenset([
+    'try', 'except', 'else', 'finally', 'with', 'if', 'elif'])
+
+
 @register_check
 def module_imports_on_top_of_file(
         logical_line, indent_level, checker_state, noqa):
@@ -1178,15 +1194,6 @@ def module_imports_on_top_of_file(
 
     Okay: if x:\n    import os
     """  # noqa
-    def is_string_literal(line):
-        if line[0] in 'uUbB':
-            line = line[1:]
-        if line and line[0] in 'rR':
-            line = line[1:]
-        return line and (line[0] == '"' or line[0] == "'")
-
-    allowed_keywords = (
-        'try', 'except', 'else', 'finally', 'with', 'if', 'elif')
 
     if indent_level:  # Allow imports in conditional statement/function
         return
@@ -1194,17 +1201,17 @@ def module_imports_on_top_of_file(
         return
     if noqa:
         return
-    line = logical_line
-    if line.startswith('import ') or line.startswith('from '):
+    if logical_line.startswith('import ') or logical_line.startswith('from '):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
-    elif re.match(DUNDER_REGEX, line):
+    elif re.match(DUNDER_REGEX, logical_line):
         return
-    elif any(line.startswith(kw) for kw in allowed_keywords):
+    elif any(logical_line.startswith(kw)
+             for kw in _ALLOWED_KEYWORDS_IN_IMPORTS):
         # Allow certain keywords intermixed with imports in order to
         # support conditional or filtered importing
         return
-    elif is_string_literal(line):
+    elif _is_string_literal(logical_line):
         # The first literal is a docstring, allow it. Otherwise, report
         # error.
         if checker_state.get('seen_docstring', False):
