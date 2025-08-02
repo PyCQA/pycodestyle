@@ -1172,8 +1172,8 @@ def _is_string_literal(line):
     return False
 
 
-_ALLOWED_KEYWORDS_IN_IMPORTS = frozenset([
-    'try', 'except', 'else', 'finally', 'with', 'if', 'elif'])
+_ALLOWED_KEYWORDS_IN_IMPORTS = (
+    'try', 'except', 'else', 'finally', 'with', 'if', 'elif')
 
 
 @register_check
@@ -1201,25 +1201,25 @@ def module_imports_on_top_of_file(
         return
     if noqa:
         return
-    if logical_line.startswith('import ') or logical_line.startswith('from '):
+    if logical_line.startswith(('import ', 'from ')):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
-    elif re.match(DUNDER_REGEX, logical_line):
-        return
-    elif any(logical_line.startswith(kw)
-             for kw in _ALLOWED_KEYWORDS_IN_IMPORTS):
-        # Allow certain keywords intermixed with imports in order to
-        # support conditional or filtered importing
-        return
-    elif _is_string_literal(logical_line):
-        # The first literal is a docstring, allow it. Otherwise, report
-        # error.
-        if checker_state.get('seen_docstring', False):
-            checker_state['seen_non_imports'] = True
+    elif not checker_state.get('seen_non_imports', False):
+        if DUNDER_REGEX.match(logical_line):
+            return
+        elif logical_line.startswith(_ALLOWED_KEYWORDS_IN_IMPORTS):
+            # Allow certain keywords intermixed with imports in order to
+            # support conditional or filtered importing
+            return
+        elif _is_string_literal(logical_line):
+            # The first literal is a docstring, allow it. Otherwise,
+            # report error.
+            if checker_state.get('seen_docstring', False):
+                checker_state['seen_non_imports'] = True
+            else:
+                checker_state['seen_docstring'] = True
         else:
-            checker_state['seen_docstring'] = True
-    else:
-        checker_state['seen_non_imports'] = True
+            checker_state['seen_non_imports'] = True
 
 
 @register_check
