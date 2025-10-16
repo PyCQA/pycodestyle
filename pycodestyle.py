@@ -59,14 +59,8 @@ import tokenize
 import warnings
 from fnmatch import fnmatch
 from functools import lru_cache
+from itertools import pairwise
 from optparse import OptionParser
-
-# this is a performance hack.  see https://bugs.python.org/issue43014
-if (
-        sys.version_info < (3, 10) and
-        callable(getattr(tokenize, '_compile', None))
-):  # pragma: no cover (<py310)
-    tokenize._compile = lru_cache(tokenize._compile)  # type: ignore
 
 __version__ = '2.14.0'
 
@@ -491,17 +485,6 @@ def whitespace_around_keywords(logical_line):
             yield match.start(2), "E273 tab after keyword"
         elif len(after) > 1:
             yield match.start(2), "E271 multiple spaces after keyword"
-
-
-if sys.version_info < (3, 10):
-    from itertools import tee
-
-    def pairwise(iterable):
-        a, b = tee(iterable)
-        next(b, None)
-        return zip(a, b)
-else:
-    from itertools import pairwise
 
 
 @register_check

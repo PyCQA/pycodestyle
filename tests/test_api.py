@@ -352,12 +352,7 @@ class APITestCase(unittest.TestCase):
         pep8style.input_file('stdin', lines=lines)
         stdout = sys.stdout.getvalue()
 
-        if sys.version_info < (3, 10):  # pragma: <3.10 cover
-            expected = [
-                'stdin:2:5: E901 TokenError: EOF in multi-line string',
-                'stdin:2:26: E901 SyntaxError: EOF while scanning triple-quoted string literal',  # noqa: E501
-            ]
-        elif sys.version_info < (3, 12):  # pragma: >=3.10 cover  # pragma: <3.12 cover  # noqa: E501
+        if sys.version_info < (3, 12):  # pragma: <3.12 cover  # noqa: E501
             expected = [
                 'stdin:2:5: E901 TokenError: EOF in multi-line string',
                 'stdin:2:6: E901 SyntaxError: unterminated triple-quoted string literal (detected at line 2)',  # noqa: E501
