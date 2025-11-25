@@ -234,6 +234,32 @@ class APITestCase(unittest.TestCase):
         self.assertFalse(pep8style.ignore_code('F401'))
         self.assertTrue(pep8style.ignore_code('F402'))
 
+    def test_max_line_length_reports_e501_for_long_line(self):
+        lines = [
+            'x' * (pycodestyle.MAX_LINE_LENGTH + 1) + '\n',
+        ]
+
+        pep8style = pycodestyle.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=lines)
+
+        stdout = sys.stdout.getvalue().splitlines()
+        self.assertEqual(count_errors, 1)
+        self.assertEqual(len(stdout), 1)
+        self.assertIn('E501 line too long', stdout[0])
+
+    def test_max_line_length_ignores_long_shebang(self):
+        # A very long shebang on the first line should be ignored by E501.
+        lines = [
+            '#!' + ' /usr/bin/env python ' + ('x' * 200) + '\n',
+        ]
+
+        pep8style = pycodestyle.StyleGuide()
+        count_errors = pep8style.input_file('stdin', lines=lines)
+
+        stdout = sys.stdout.getvalue().splitlines()
+        self.assertEqual(count_errors, 0)
+        self.assertEqual(stdout, [])
+
     def test_styleguide_excluded(self):
         pep8style = pycodestyle.StyleGuide(paths=[E11])
 
