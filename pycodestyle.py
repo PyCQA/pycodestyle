@@ -874,9 +874,17 @@ def missing_whitespace(logical_line, tokens):
     prev_text = prev_end = None
     operator_types = (tokenize.OP, tokenize.NAME)
     brace_stack = []
+    _after_fstring_middle = False
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.OP and text in {'[', '(', '{'}:
-            brace_stack.append(text)
+            # After FSTRING_MIDDLE/TSTRING_MIDDLE, `{` opens a nested
+            # replacement field inside a format spec.  Mark it with 'F'
+            # so the `:` in e.g. f"{x:0.{digits:d}f}" is recognised as
+            # a format-specifier colon, not a dict colon.
+            if _after_fstring_middle and text == '{':  # pragma: >=3.12 cover
+                brace_stack.append('F')
+            else:
+                brace_stack.append(text)
         elif token_type == FSTRING_START:  # pragma: >=3.12 cover
             brace_stack.append('f')
         elif token_type == TSTRING_START:  # pragma: >=3.14 cover
@@ -897,6 +905,16 @@ def missing_whitespace(logical_line, tokens):
             ):
                 brace_stack.pop()
 
+        # Track whether the previous meaningful token was FSTRING_MIDDLE
+        # or TSTRING_MIDDLE (i.e. we just entered a format spec region).
+        if (  # pragma: >=3.12 cover
+                token_type == FSTRING_MIDDLE or
+                token_type == TSTRING_MIDDLE
+        ):
+            _after_fstring_middle = True
+        elif token_type not in SKIP_COMMENTS:
+            _after_fstring_middle = False
+
         if token_type in SKIP_COMMENTS:
             continue
 
@@ -911,6 +929,9 @@ def missing_whitespace(logical_line, tokens):
                     pass
                 # 3.14+ tstring format specifier
                 elif text == ':' and brace_stack[-2:] == ['t', '{']:  # pragma: >=3.14 cover  # noqa: E501
+                    pass
+                # nested replacement field in f/t-string format spec
+                elif text == ':' and brace_stack[-1:] == ['F']:  # pragma: >=3.12 cover  # noqa: E501
                     pass
                 # tuple (and list for some reason?)
                 elif text == ',' and next_char in ')]':

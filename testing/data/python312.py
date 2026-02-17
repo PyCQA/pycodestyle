@@ -29,3 +29,8 @@ f'{
 f'{ an_error_now }'
 #: Okay
 f'{x:02x}'
+#: Okay
+# nested replacement field in format spec (issue #1241)
+f"{x:0.{digits:d}f}"
+#: Okay
+f'{value:{fill}{align}{width}.{precision}f}'
