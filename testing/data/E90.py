@@ -4,7 +4,7 @@
 while True:
     try:
 	    pass
-	except:
+	except Exception:
 		print 'Whoops'
 #: Okay
 

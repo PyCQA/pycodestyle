@@ -1518,7 +1518,7 @@ def bare_except(logical_line, noqa):
 
     Okay: except Exception:
     Okay: except BaseException:
-    E722: except:
+    E722: except Exception:
     """
     if noqa:
         return

@@ -55,14 +55,14 @@ def func_histype(a, b, c):
 #: E722
 try:
     pass
-except:
+except Exception:
     pass
 #: E722
 try:
     pass
 except Exception:
     pass
-except:
+except Exception:
     pass
 #: E722 E203 E271
 try:
@@ -73,7 +73,7 @@ except  :
 fake_code = """"
 try:
     do_something()
-except:
+except Exception:
     pass
 """
 try:
