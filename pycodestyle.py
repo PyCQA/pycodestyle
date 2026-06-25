@@ -338,6 +338,33 @@ def _is_one_liner(logical_line, indent_level, lines, line_number):
     return expand_indent(lines[next_idx]) <= indent_level
 
 
+def _is_one_line_def_stub(tokens):
+    meaningful_tokens = [
+        (token_type, text)
+        for token_type, text, *_ in tokens
+        if token_type not in (
+            tokenize.COMMENT,
+            tokenize.DEDENT,
+            tokenize.INDENT,
+            tokenize.NL,
+            tokenize.NEWLINE,
+        )
+    ]
+    if len(meaningful_tokens) < 3:
+        return False
+
+    if meaningful_tokens[:2] == [
+            (tokenize.NAME, 'async'), (tokenize.NAME, 'def')]:
+        starts_with_def = True
+    else:
+        starts_with_def = meaningful_tokens[0] == (tokenize.NAME, 'def')
+
+    return (
+        starts_with_def and
+        meaningful_tokens[-2:] == [(tokenize.OP, ':'), (tokenize.OP, '...')]
+    )
+
+
 @register_check
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 blank_before, previous_logical,
@@ -590,7 +617,7 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
     # that it is indented by 4 spaces, then we should not allow 4-space
     # indents on the final continuation line; in turn, some other
     # indents are allowed to have an extra 4 spaces.
-    indent_next = logical_line.endswith(':')
+    indent_next = logical_line.endswith(':') or _is_one_line_def_stub(tokens)
 
     row = depth = 0
     valid_hangs = (indent_size,) if indent_char != '\t' \

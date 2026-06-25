@@ -659,3 +659,13 @@ def f1():
          open('/path/to/some/file/being/written', 'w') as file_2, \
          open('just-making-sure-more-continuations-also-work'):
         file_2.write(file_1.read())
+#: E704:5:5
+from typing import Protocol
+
+
+class _LongPollProtocol(Protocol):
+    def __call__(
+            self,
+            foo: str,
+            bar: int,
+    ) -> int: ...
