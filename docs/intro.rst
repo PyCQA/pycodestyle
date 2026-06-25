@@ -292,6 +292,8 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | E242 (*)   | tab after ','                                                        |
 +------------+----------------------------------------------------------------------+
+| E243 (*)   | whitespace around attribute access                                   |
++------------+----------------------------------------------------------------------+
 +------------+----------------------------------------------------------------------+
 | E251       | unexpected spaces around keyword / parameter equals                  |
 +------------+----------------------------------------------------------------------+
@@ -418,7 +420,7 @@ This is the current list of error and warning codes:
 
 
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**, **E133**,
-**E226**, **E241**, **E242**, **E704**, **W503**, **W504** and **W505** are ignored
+**E226**, **E241**, **E242**, **E243**, **E704**, **W503**, **W504** and **W505** are ignored
 because they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.
 Please note that if the option ``--ignore=errors`` is used,
 the default configuration will be overridden and ignore only the check(s) you skip.

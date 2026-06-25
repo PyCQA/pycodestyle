@@ -803,6 +803,52 @@ def whitespace_before_parameters(logical_line, tokens):
         prev_end = end
 
 
+def _is_attribute_access_operand(token_type, text):
+    return (
+        (
+            token_type in {tokenize.NAME, tokenize.NUMBER, tokenize.STRING} and
+            not keyword.iskeyword(text) and
+            not keyword.issoftkeyword(text)
+        ) or
+        text in '}])'
+    )
+
+
+@register_check
+def whitespace_around_attribute_access(logical_line, tokens):
+    r"""Avoid extraneous whitespace around attribute access.
+
+    Note: these checks are disabled by default
+
+    Okay: spam.eggs
+    E243: spam .eggs
+    E243: spam. eggs
+    """
+    prev_type, prev_text, __, prev_end, __ = tokens[0]
+    for index in range(1, len(tokens) - 1):
+        token_type, text, start, end, __ = tokens[index]
+        next_type, __, next_start, __, __ = tokens[index + 1]
+        is_attribute_dot = (
+            token_type == tokenize.OP and
+            text == '.' and
+            start[0] == prev_end[0] and
+            _is_attribute_access_operand(prev_type, prev_text)
+        )
+        if is_attribute_dot:
+            if start != prev_end:
+                yield prev_end, "E243 whitespace before '.'"
+            if (
+                    next_type == tokenize.NAME and
+                    next_start[0] == end[0] and
+                    next_start != end
+            ):
+                yield end, "E243 whitespace after '.'"
+
+        prev_type = token_type
+        prev_text = text
+        prev_end = end
+
+
 @register_check
 def whitespace_around_operator(logical_line):
     r"""Avoid extraneous whitespace around an operator.
