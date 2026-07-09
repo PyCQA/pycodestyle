@@ -4,6 +4,12 @@ if type(res) == type(42):
 #: E721
 if type(res) != type(""):
     pass
+#: E721
+if int == type(res):
+    pass
+#: E721
+if str != type(res):
+    pass
 #: Okay
 res.type("") == ""
 #: Okay
