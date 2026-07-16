@@ -1498,12 +1498,12 @@ def comparison_type(logical_line, noqa):
     Okay: if isinstance(obj, int):
     Okay: if type(obj) is int:
     E721: if type(obj) == type(1):
+    E721: if type(obj) == int:
+    E721: if int == type(obj):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
-        inst = match.group(1)
-        if inst and inst.isidentifier() and inst not in SINGLETONS:
-            return  # Allow comparison for types which are not obvious
+        # Flag both type(x) == T and T == type(x) (and !=).
         yield (
             match.start(),
             "E721 do not compare types, for exact checks use `is` / `is not`, "

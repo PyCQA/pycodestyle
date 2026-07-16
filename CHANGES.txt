@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+Changes:
+
+* E721: also report reversed comparisons like ``int == type(obj)``.
+  Issue #1187.
+
 2.14.0 (2025-06-20)
 -------------------
 

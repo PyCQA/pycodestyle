@@ -90,3 +90,12 @@ from . import compute_type
 
 if compute_type(foo) == 5:
     pass
+#: E721
+if type(obj) == int:
+    pass
+#: E721
+if int == type(obj):
+    pass
+#: E721
+if int != type(obj):
+    pass
