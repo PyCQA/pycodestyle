@@ -1501,9 +1501,6 @@ def comparison_type(logical_line, noqa):
     """
     match = COMPARE_TYPE_REGEX.search(logical_line)
     if match and not noqa:
-        inst = match.group(1)
-        if inst and inst.isidentifier() and inst not in SINGLETONS:
-            return  # Allow comparison for types which are not obvious
         yield (
             match.start(),
             "E721 do not compare types, for exact checks use `is` / `is not`, "
