@@ -2566,7 +2566,7 @@ def read_config(options, args, arglist, parser):
             print('user configuration: %s' % USER_CONFIG)
         config.read(USER_CONFIG)
 
-    parent = tail = args and os.path.abspath(os.path.commonprefix(args))
+    parent = tail = args and os.path.abspath(os.path.commonpath(args))
     while tail:
         if config.read(os.path.join(parent, fn) for fn in PROJECT_CONFIG):
             local_dir = parent
