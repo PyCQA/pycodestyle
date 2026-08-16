@@ -1195,7 +1195,10 @@ def module_imports_on_top_of_file(
         return
     if noqa:
         return
-    if logical_line.startswith(('import ', 'from ')):
+    if logical_line.startswith((
+            'import ', 'from ',
+            'lazy import ', 'lazy from ',
+    )):
         if checker_state.get('seen_non_imports', False):
             yield 0, "E402 module level import not at top of file"
     elif not checker_state.get('seen_non_imports', False):
