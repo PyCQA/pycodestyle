@@ -6,7 +6,9 @@ import pytest
 
 from pycodestyle import Checker
 from pycodestyle import expand_indent
+from pycodestyle import get_parser
 from pycodestyle import mute_string
+from pycodestyle import read_config
 
 
 @pytest.mark.parametrize(
@@ -46,3 +48,32 @@ f'hello {{ {thing} }} world'
         assert checker.logical_line == "f'xxxxxxxxx{thing}xxxxxxxxx'"
     else:
         assert checker.logical_line == "f'xxxxxxxxxxxxxxxxxxxxxxxxx'"
+
+
+def test_read_config_prefix(tmp_path):
+    tmp_path.joinpath('setup.cfg').write_text('[pycodestyle]\nexclude = root')
+
+    adir = tmp_path.joinpath('aaa')
+    adir.mkdir()
+    adir.joinpath('setup.cfg').write_text('[pycodestyle]\nexclude = aaa')
+
+    bdir = tmp_path.joinpath('aaabbb')
+    bdir.mkdir()
+    b_t = bdir.joinpath('t.py')
+    b_t.touch()
+    bdir.joinpath('setup.cfg').write_text('[pycodestyle]\nexclude = bbb')
+
+    cdir = tmp_path.joinpath('aaaccc')
+    cdir.mkdir()
+    c_t = cdir.joinpath('t.py')
+    c_t.touch()
+    cdir.joinpath('setup.cfg').write_text('[pycodestyle]\nexclude = ccc')
+
+    arglist = [str(b_t), str(c_t)]
+    parser = get_parser()
+    parser.add_option('--config')
+    opts, args = parser.parse_args(arglist)
+
+    # `aaa/setup.cfg` should not be read -- it is not passed on cmdline
+    opts = read_config(opts, args, arglist, parser)
+    assert opts.exclude == ['root']
