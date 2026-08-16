@@ -44,9 +44,9 @@ f'hello {{ {thing} }} world'
     checker.tokens = list(tokenize.generate_tokens(io.StringIO(src).readline))
     checker.build_tokens_line()
 
-    if sys.version_info >= (3, 12):  # pragma: >3.12 cover
+    if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
         assert checker.logical_line == "f'xxxxxxxxx{thing}xxxxxxxxx'"
-    else:
+    else:  # pragma: <3.12 cover
         assert checker.logical_line == "f'xxxxxxxxxxxxxxxxxxxxxxxxx'"
 
 
