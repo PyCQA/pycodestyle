@@ -62,7 +62,7 @@ from functools import lru_cache
 from itertools import pairwise
 from optparse import OptionParser
 
-__version__ = '2.14.0'
+__version__ = '2.15.0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'

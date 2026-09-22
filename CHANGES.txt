@@ -1,6 +1,18 @@
 Changelog
 =========
 
+2.15.0 (2026-09-22)
+-------------------
+
+Changes:
+
+* Improve performance of `module_imports_on_top_of_file`.  PR #1292.
+* Improve performance of `python_3000_invalid_escape_sequence`.  PR #1292.
+* Improve performacne of `missing_whitespace_after_keyword`.  PR #1291.
+* Drop EOL python 3.9.  PR #1300.
+* Add support for python 3.15.  PR #1322.
+* Fix loading unrelated configuration due to `commonprefix`.  PR #1323.
+
 2.14.0 (2025-06-20)
 -------------------
 
