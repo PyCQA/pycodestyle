@@ -328,9 +328,7 @@ class APITestCase(unittest.TestCase):
         count_errors = pep8style.input_file('stdin', lines=['\x00\n'])
 
         stdout = sys.stdout.getvalue()
-        if sys.version_info < (3, 11, 4):  # pragma: <3.11 cover
-            expected = ["stdin:1:1: E901 ValueError: source code string cannot contain null bytes"]  # noqa: E501
-        elif sys.version_info < (3, 12):  # pragma: <3.12 cover  # pragma: >=3.11 cover  # noqa: E501
+        if sys.version_info < (3, 12):  # pragma: <3.12 cover
             expected = ["stdin:1:1: E901 SyntaxError: source code string cannot contain null bytes"]  # noqa: E501
         else:  # pragma: >=3.12 cover
             expected = [

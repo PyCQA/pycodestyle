@@ -11,12 +11,12 @@ repos:
     rev: v3.17.0
     hooks:
     -   id: reorder-python-imports
-        args: [--py310-plus]
+        args: [--py311-plus]
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:
     -   id: pyupgrade
-        args: [--py310-plus]
+        args: [--py311-plus]
 -   repo: https://github.com/asottile/setup-cfg-fmt
     rev: v3.2.0
     hooks:
